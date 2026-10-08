@@ -64,6 +64,8 @@ jobs:
     env:
       ZCODE_TARGET_OS: ${{ matrix.os }}
       ZCODE_TARGET_ARCH: ${{ matrix.arch }}
+      # Production identity: real product name, no Preview/TEST artifact suffix
+      ZCODE_ENV: production
       # Keep electron / electron-builder downloads on the default GitHub endpoint.
       ELECTRON_MIRROR: ""
       npm_config_electron_builder_binaries_mirror: ""
@@ -71,6 +73,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
+      # electron-builder's pacman (pkg.tar.zst) target shells out to bsdtar,
+      # which is not preinstalled on Ubuntu runners.
+      - name: Install bsdtar (pacman target dependency)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libarchive-tools
 
       - uses: pnpm/action-setup@v4
 
