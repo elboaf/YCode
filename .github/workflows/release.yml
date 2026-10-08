@@ -165,11 +165,20 @@ jobs:
             node scripts/build-zcode.mjs
           fi
 
+      # Stage installer payload flat so the release job can upload plain files
+      - name: Stage CLI release files
+        run: |
+          mkdir -p release-files
+          cp dist/zcode/releases/*/zcode-*.tar.gz release-files/
+          cp dist/zcode/releases/*/sha256.txt release-files/
+          cp dist/zcode/latest.json dist/zcode/install.sh release-files/
+          ls -la release-files/
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: cli-distribution
-          path: dist/zcode/releases/**/*
+          path: release-files/*
           if-no-files-found: error
           retention-days: 14
 
@@ -267,11 +276,27 @@ jobs:
         run: |
           VERSION="${{ steps.ver.outputs.version }}"
           TAG="v$VERSION"
+          # Flatten: the download step recreates the CLI's releases/<version>/
+          # subdirectory; desktop artifacts land at the top level.
+          find artifacts -mindepth 2 -type f -exec mv {} artifacts/ \;
+          find artifacts -mindepth 1 -type d -empty -delete
+          echo "Files to upload:"
+          ls -la artifacts/
+
           echo "Creating draft release for tag $TAG"
           git tag "$TAG" 2>/dev/null || echo "Tag $TAG already exists, reusing"
           git push origin "$TAG" 2>/dev/null || true
-          gh release create "$TAG" artifacts/* \
-            --draft \
-            --title "YCode v$VERSION" \
-            --generate-notes
+
+          # Reuse an existing draft for this tag if a previous run created one
+          RELEASE_ID=$(gh api "repos/${{ github.repository }}/releases" \
+            --jq ".[] | select(.tag_name==\"$TAG\" and .draft==true) | .id" | head -1)
+          if [ -n "$RELEASE_ID" ]; then
+            echo "Reusing existing draft release $RELEASE_ID"
+            gh release upload "$TAG" artifacts/* --clobber
+          else
+            gh release create "$TAG" artifacts/* \
+              --draft \
+              --title "YCode v$VERSION" \
+              --generate-notes
+          fi
         shell: bash
