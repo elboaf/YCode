@@ -101,11 +101,12 @@ jobs:
         run: |
           mkdir -p artifacts
           found=false
-          for ext in dmg zip exe AppImage deb rpm; do
-            find packages/desktop/dist -type f -name "*.$ext" -exec cp {} artifacts/ \; 2>/dev/null && found=true
+          # electron-builder writes installers at the top level of dist/;
+          # -unpacked/ subdirectories contain loose runtime binaries to ignore.
+          for ext in dmg zip exe AppImage deb rpm tar.zst; do
+            find packages/desktop/dist -maxdepth 1 -type f -name "*.$ext" \
+              -exec cp {} artifacts/ \; 2>/dev/null && found=true
           done
-          # .pkg.tar.zst needs explicit handling (two-dot extension)
-          find packages/desktop/dist -type f -name "*.tar.zst" -exec cp {} artifacts/ \; 2>/dev/null
           ls -la artifacts/
           if [ "$found" = false ] && [ -z "$(ls -A artifacts 2>/dev/null)" ]; then
             echo "::error::No installer artifacts found in packages/desktop/dist"
