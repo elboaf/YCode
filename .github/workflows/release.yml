@@ -19,6 +19,11 @@ on:
           - all
           - desktop
           - cli
+      fix_formatting:
+        description: "Only fix pre-existing fmt:check failures and push the result (no build)"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: release-${{ github.ref }}
@@ -32,7 +37,7 @@ jobs:
   # Desktop app installers (Electron / electron-builder, via bundle.mjs)
   # ---------------------------------------------------------------------
   desktop:
-    if: ${{ inputs.targets != 'cli' }}
+    if: ${{ inputs.targets != 'cli' && inputs.fix_formatting != true }}
     name: Desktop ${{ matrix.os }}-${{ matrix.arch }}
     runs-on: ${{ matrix.runs-on }}
     timeout-minutes: 90
@@ -111,10 +116,13 @@ jobs:
   # CLI / TUI runtime distribution (tar.gz + sha256 + install.sh)
   # ---------------------------------------------------------------------
   cli:
-    if: ${{ inputs.targets != 'desktop' }}
+    if: ${{ inputs.targets != 'desktop' && inputs.fix_formatting != true }}
     name: CLI distribution
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      # Embedded in the generated install.sh; override via repo variable
+      ZCODE_DIST_BASE_URL: ${{ vars.ZCODE_DIST_BASE_URL || 'https://downloads.example.com/ycode/' }}
     steps:
       - uses: actions/checkout@v5
 
@@ -146,12 +154,54 @@ jobs:
           retention-days: 14
 
   # ---------------------------------------------------------------------
+  # One-off: fix pre-existing `pnpm fmt:check` failures with the repo's
+  # own formatter and push the result. Linux runner => clean LF output,
+  # so only genuinely misformatted files change.
+  # ---------------------------------------------------------------------
+  fmt-fix:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.fix_formatting == true }}
+    name: Fix formatting (fmt:check)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24.14.0"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply formatter and commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          pnpm fmt
+          if git diff --quiet; then
+            echo "No formatting changes needed."
+            exit 0
+          fi
+          git add -A
+          git commit -m "style: apply oxfmt to fix pre-existing fmt:check failures"
+          git push origin HEAD:main
+          git diff-tree --no-commit-id --name-only -r HEAD | head -50
+
+  # ---------------------------------------------------------------------
   # Draft GitHub release with all artifacts attached
   # ---------------------------------------------------------------------
   github-release:
     needs: [desktop, cli]
-    # Run when at least one producer succeeded and none failed
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && (needs.desktop.result == 'success' || needs.cli.result == 'success') }}
+    # Run when at least one producer succeeded, none failed, and this
+    # dispatch isn't just a formatting fix
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && (needs.desktop.result == 'success' || needs.cli.result == 'success') && inputs.fix_formatting != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

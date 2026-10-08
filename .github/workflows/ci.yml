@@ -55,6 +55,10 @@ jobs:
     name: Build workspace + CLI distribution
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      # build-zcode refuses to run without a download base URL; the installer
+      # embeds it. Override per-repo via the ZCODE_DIST_BASE_URL variable.
+      ZCODE_DIST_BASE_URL: ${{ vars.ZCODE_DIST_BASE_URL || 'https://downloads.example.com/ycode/' }}
     steps:
       - uses: actions/checkout@v5
 
