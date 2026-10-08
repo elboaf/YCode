@@ -4,6 +4,12 @@ name: Release
 # from your own workflow after tagging a release.
 
 on:
+  # Pushing a tag like v3.14.3 runs the full release pipeline and creates a
+  # draft GitHub release with all artifacts attached.
+  push:
+    tags:
+      - "v*"
+
   workflow_dispatch:
     inputs:
       version:
@@ -227,11 +233,24 @@ jobs:
         id: ver
         run: |
           VERSION="${{ inputs.version }}"
+          # Tag pushes: the tag is authoritative (v3.14.3 -> 3.14.3)
+          if [ -z "$VERSION" ] && [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
           if [ -z "$VERSION" ]; then
             VERSION=$(node -p "require('./package.json').version || ''")
           fi
           if [ -z "$VERSION" ]; then
-            echo "::error::No version resolved (input empty and root package.json has no version)"
+            echo "::error::No version resolved (no input, not a tag push, and root package.json has no version)"
+            exit 1
+          fi
+          # Artifact filenames embed the package.json version; fail early on
+          # mismatch instead of publishing a release whose assets say another
+          # version. Bump via `pnpm release` (release-it) or fix package.json
+          # and re-tag.
+          PKG_VERSION=$(node -p "require('./package.json').version || ''")
+          if [ -n "$PKG_VERSION" ] && [ "$PKG_VERSION" != "$VERSION" ]; then
+            echo "::error::Tag version ($VERSION) != package.json version ($PKG_VERSION). Bump the version with 'pnpm release' or update package.json and re-tag."
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
