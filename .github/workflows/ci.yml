@@ -81,6 +81,11 @@ jobs:
       - name: Build agent CLI
         run: pnpm --filter @zcode/cli... build
 
+      # tsc -b emits dist for composite packages with no build script
+      # (@zcode/shared, services, client) — required by SEA/TUI asset staging.
+      - name: Emit dist for script-less packages
+        run: pnpm typecheck
+
       # Assemble the CLI/TUI distribution tarball from existing build outputs
       - name: Package CLI distribution
         run: node scripts/build-zcode.mjs --skip-build

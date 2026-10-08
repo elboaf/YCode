@@ -136,6 +136,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # tsc -b emits dist for composite packages with no build script
+      # (@zcode/shared, services, client) — required by SEA/TUI asset staging.
+      - name: Emit dist for script-less packages
+        run: pnpm typecheck
+
       - name: Build and package CLI distribution
         run: |
           VERSION="${{ inputs.version }}"
