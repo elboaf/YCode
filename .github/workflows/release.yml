@@ -1,0 +1,194 @@
+name: Release
+
+# Builds distributable release artifacts. Run from the Actions tab, or call it
+# from your own workflow after tagging a release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 3.14.3). Defaults to root package.json version."
+        required: false
+        default: ""
+      targets:
+        description: "Which artifacts to build"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - desktop
+          - cli
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------
+  # Desktop app installers (Electron / electron-builder, via bundle.mjs)
+  # ---------------------------------------------------------------------
+  desktop:
+    if: ${{ inputs.targets != 'cli' }}
+    name: Desktop ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: mac
+            arch: arm64
+            runs-on: macos-15
+          - os: mac
+            arch: x64
+            runs-on: macos-15-intel
+          - os: win
+            arch: x64
+            runs-on: windows-2025
+          - os: linux
+            arch: x64
+            runs-on: ubuntu-latest
+          - os: linux
+            arch: arm64
+            runs-on: ubuntu-24.04-arm
+
+    env:
+      ZCODE_TARGET_OS: ${{ matrix.os }}
+      ZCODE_TARGET_ARCH: ${{ matrix.arch }}
+      # Keep electron / electron-builder downloads on the default GitHub endpoint.
+      ELECTRON_MIRROR: ""
+      npm_config_electron_builder_binaries_mirror: ""
+      npm_config_electron_builder_binaries_download_override_url: ""
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24.14.0"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # bundle.mjs runs the full prepare + build + package pipeline itself:
+      # runtime assets, agent bundle, native search, browser import helper,
+      # production build, then electron-builder for the target OS/arch.
+      - name: Bundle desktop app
+        run: pnpm bundle:desktop -- --os ${{ matrix.os }} --arch ${{ matrix.arch }}
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          found=false
+          for ext in dmg zip exe AppImage deb rpm; do
+            find packages/desktop/dist -type f -name "*.$ext" -exec cp {} artifacts/ \; 2>/dev/null && found=true
+          done
+          # .pkg.tar.zst needs explicit handling (two-dot extension)
+          find packages/desktop/dist -type f -name "*.tar.zst" -exec cp {} artifacts/ \; 2>/dev/null
+          ls -la artifacts/
+          if [ "$found" = false ] && [ -z "$(ls -A artifacts 2>/dev/null)" ]; then
+            echo "::error::No installer artifacts found in packages/desktop/dist"
+            exit 1
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}-${{ matrix.arch }}
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 14
+
+  # ---------------------------------------------------------------------
+  # CLI / TUI runtime distribution (tar.gz + sha256 + install.sh)
+  # ---------------------------------------------------------------------
+  cli:
+    if: ${{ inputs.targets != 'desktop' }}
+    name: CLI distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24.14.0"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and package CLI distribution
+        run: |
+          VERSION="${{ inputs.version }}"
+          if [ -n "$VERSION" ]; then
+            node scripts/build-zcode.mjs --version "$VERSION"
+          else
+            node scripts/build-zcode.mjs
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-distribution
+          path: dist/zcode/releases/**/*
+          if-no-files-found: error
+          retention-days: 14
+
+  # ---------------------------------------------------------------------
+  # Draft GitHub release with all artifacts attached
+  # ---------------------------------------------------------------------
+  github-release:
+    needs: [desktop, cli]
+    # Run when at least one producer succeeded and none failed
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && (needs.desktop.result == 'success' || needs.cli.result == 'success') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Resolve version
+        id: ver
+        run: |
+          VERSION="${{ inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION=$(node -p "require('./package.json').version || ''")
+          fi
+          if [ -z "$VERSION" ]; then
+            echo "::error::No version resolved (input empty and root package.json has no version)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create draft GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          TAG="v$VERSION"
+          echo "Creating draft release for tag $TAG"
+          git tag "$TAG" 2>/dev/null || echo "Tag $TAG already exists, reusing"
+          git push origin "$TAG" 2>/dev/null || true
+          gh release create "$TAG" artifacts/* \
+            --draft \
+            --title "YCode v$VERSION" \
+            --generate-notes
+        shell: bash

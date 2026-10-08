@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24.14.0"
+  # Mirrors mise.toml: pnpm must not switch versions via the packageManager field.
+  COREPACK_ENABLE_PROJECT_SPEC: "0"
+
+jobs:
+  verify:
+    name: Verify (lint, typecheck, architecture)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # architecture:check --changed needs full history to diff against the base
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        # Reads the pinned pnpm from the packageManager field (10.33.2)
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm fmt:check
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Architecture check (changed files)
+        run: pnpm architecture:check -- --changed
+
+  build:
+    name: Build workspace + CLI distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Workspace build: all packages, desktop production build without runtime assets
+      - name: Build workspace
+        run: pnpm build:bootstrap
+
+      # Agent CLI build (build:zcode reuses these outputs with --skip-build)
+      - name: Build agent CLI
+        run: pnpm --filter @zcode/cli... build
+
+      # Assemble the CLI/TUI distribution tarball from existing build outputs
+      - name: Package CLI distribution
+        run: node scripts/build-zcode.mjs --skip-build
+
+      - name: List distribution output
+        run: find dist -maxdepth 4 -type f | head -40
