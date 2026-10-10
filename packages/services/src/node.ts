@@ -8,18 +8,18 @@ import {
   createNodeProviderRuntimePathEnv,
   NodeModelSelectionConfigRepository,
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
-} from "@zcode/provider-node";
+} from "@ycode/provider-node";
 import { getAppConfigDir as resolveAppConfigDir } from "./paths.js";
 import {
   buildLocalMediaPreviewUrl,
   isProviderProvisioningAccountCredentialKey,
   type ProviderProvisioningTrigger,
-} from "@zcode/shared";
+} from "@ycode/shared";
 
 export {
   materializeZCodeBuiltinProviderConfig,
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
-} from "@zcode/provider-node";
+  YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
+} from "@ycode/provider-node";
 
 export { createFileService } from "./file/fileService.js";
 export {
@@ -45,8 +45,8 @@ export {
   parseFsFaultRulesFromEnvValue,
   resetProcessFsFaultInjectorForTests,
   setFsFaultInjectorForTests,
-  ZCODE_E2E_FS_FAULTS_ALLOW_ENV,
-  ZCODE_E2E_FS_FAULTS_ENV,
+  YCODE_E2E_FS_FAULTS_ALLOW_ENV,
+  YCODE_E2E_FS_FAULTS_ENV,
 } from "./fs/fsFaultInjection.js";
 export type {
   FsFaultCheckInput,
@@ -70,7 +70,7 @@ export {
   getGitCheckpointIndexRootDir,
   copyDataDirectory,
   validateDataBaseDirTarget,
-  ZCODE_WINDOWS_APP_INSTALL_DIR_ENV,
+  YCODE_WINDOWS_APP_INSTALL_DIR_ENV,
 } from "./paths.js";
 export { createGitService } from "./git/gitService.js";
 export { GitCommitMessageGenerator } from "./git/gitCommitMessageGenerator.js";
@@ -84,28 +84,28 @@ export {
 } from "./setting/settingService.js";
 export { createCredentialService } from "./credential/credentialService.js";
 export { createBroadcastService } from "./broadcast/broadcastService.js";
-export { createZCodeAgentService } from "./zcode-agent/zcodeAgentService.js";
-export { createZCodeTaskServiceAdapter } from "./zcode-agent/zcodeTaskServiceAdapter.js";
-export { createZCodeSessionService } from "./zcode-session/zcodeSessionService.js";
+export { createZCodeAgentService } from "./ycode-agent/zcodeAgentService.js";
+export { createZCodeTaskServiceAdapter } from "./ycode-agent/zcodeTaskServiceAdapter.js";
+export { createZCodeSessionService } from "./ycode-session/zcodeSessionService.js";
 export {
   resolveDefaultZCodeAgentCommand,
   ZCodeAgentProcessManager,
-} from "./zcode-agent/zcodeAgentProcessManager.js";
+} from "./ycode-agent/zcodeAgentProcessManager.js";
 export type {
   ZCodeAgentCommand,
   ZCodeAgentCommandResolver,
   ZCodeAgentCommandResolverContext,
   ZCodeAgentProcessManagerOptions,
-} from "./zcode-agent/zcodeAgentProcessManager.js";
-export { ZCodeProtocolClient } from "./zcode-agent/zcodeProtocolClient.js";
-export type { ZCodeProtocolTransport } from "./zcode-agent/zcodeProtocolTransport.js";
-export { ZCodeStdioTransport } from "./zcode-agent/zcodeStdioTransport.js";
+} from "./ycode-agent/zcodeAgentProcessManager.js";
+export { ZCodeProtocolClient } from "./ycode-agent/zcodeProtocolClient.js";
+export type { ZCodeProtocolTransport } from "./ycode-agent/zcodeProtocolTransport.js";
+export { ZCodeStdioTransport } from "./ycode-agent/zcodeStdioTransport.js";
 export {
   getZCodeStdioTapDevLogDir,
   readZCodeStdioTapDevState,
   setZCodeStdioTapDevEnabled,
-} from "./zcode-agent/zcodeStdioTapDevConfig.js";
-export type { ZCodeStdioTapDevState } from "@zcode/shared";
+} from "./ycode-agent/zcodeStdioTapDevConfig.js";
+export type { ZCodeStdioTapDevState } from "@ycode/shared";
 export {
   createCuaHelperInstaller,
   requestHelperAccessibilityPermissionViaLaunchServices,
@@ -295,9 +295,9 @@ import { IOnboardingRecordService } from "./onboarding/onboardingRecord.js";
 import { ICredentialService } from "./credential/credential.js";
 import { IBroadcastService } from "./broadcast/broadcast.js";
 import { IZCodeTaskService } from "./session/zcodeTaskService.js";
-import { IZCodeAgentService } from "./zcode-agent/zcodeAgent.js";
-import type { CuaOperationStateReporter } from "./zcode-agent/cuaOperationTurnTracker.js";
-import { IZCodeSessionService } from "./zcode-session/zcodeSession.js";
+import { IZCodeAgentService } from "./ycode-agent/zcodeAgent.js";
+import type { CuaOperationStateReporter } from "./ycode-agent/cuaOperationTurnTracker.js";
+import { IZCodeSessionService } from "./ycode-session/zcodeSession.js";
 import {
   createUnsupportedConversationShareService,
   IConversationShareService,
@@ -342,13 +342,13 @@ import { createLegacyTeamOrganizationResolver } from "./model-provider/legacyTea
 import { createObservableSettingService } from "./setting/observableSettingService.js";
 import { createCredentialService } from "./credential/credentialService.js";
 import { createBroadcastService } from "./broadcast/broadcastService.js";
-import { createZCodeAgentService } from "./zcode-agent/zcodeAgentService.js";
-import type { ZCodeAgentCommandResolver } from "./zcode-agent/zcodeAgentProcessManager.js";
-import { buildAgentTelemetrySpawnEnv } from "./zcode-agent/agentTelemetryEnv.js";
-import { resolveZCodeAgentPresentationSurface } from "./zcode-agent/zcodeAgentPresentationSurface.js";
-import { createZCodeTaskServiceAdapter } from "./zcode-agent/zcodeTaskServiceAdapter.js";
-import { createZCodeSessionService } from "./zcode-session/zcodeSessionService.js";
-import { createZCodeTaskIndexSyncer } from "./zcode-agent/zcodeTaskIndexSyncer.js";
+import { createZCodeAgentService } from "./ycode-agent/zcodeAgentService.js";
+import type { ZCodeAgentCommandResolver } from "./ycode-agent/zcodeAgentProcessManager.js";
+import { buildAgentTelemetrySpawnEnv } from "./ycode-agent/agentTelemetryEnv.js";
+import { resolveZCodeAgentPresentationSurface } from "./ycode-agent/zcodeAgentPresentationSurface.js";
+import { createZCodeTaskServiceAdapter } from "./ycode-agent/zcodeTaskServiceAdapter.js";
+import { createZCodeSessionService } from "./ycode-session/zcodeSessionService.js";
+import { createZCodeTaskIndexSyncer } from "./ycode-agent/zcodeTaskIndexSyncer.js";
 import { TaskIndexRepo } from "./session/taskIndexRepo.js";
 import { createBotsService } from "./bots/botsService.js";
 import { createBotRemoteWorkspaceService } from "./bots/botRemoteWorkspaceBridge.js";
@@ -433,7 +433,7 @@ import {
   buildAgentRuntimeEnv,
 } from "./runtime-tools/agentProxyEnv.js";
 import { ensureAppCaCert } from "./runtime-tools/appCaCert.js";
-import { buildHelperOpenArgs, isCuaLocalDevelopmentRuntime } from "@zcode/zcode-cua/broker/server";
+import { buildHelperOpenArgs, isCuaLocalDevelopmentRuntime } from "@ycode/ycode-cua/broker/server";
 import { createServiceLogger, type ServiceLogger } from "#src/logger/serviceLogger.js";
 import { IOffPeakTaskService } from "./session/offPeakTask.js";
 import { OffPeakTaskService } from "./session/offPeakTaskService.js";
@@ -453,7 +453,7 @@ import {
 import {
   createOfficialMcpTrustedOriginRegistry,
   OFFICIAL_MCP_DEV_TRUSTED_ORIGINS_ENV,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   BROKER_SOCKET_ENV,
   BROKER_UNAVAILABLE_ENV,
@@ -494,12 +494,12 @@ import {
 } from "#src/cua-permission-broker/windowsCuaDevRuntime.js";
 import { createCanonicalCuaHelperInstaller } from "./cua-permission-broker/cuaHelperInstaller.js";
 import { WindowsCuaHelperHost } from "#src/cua-permission-broker/windowsCuaDevHelperHost.js";
-import { DEV_HELPER_APP_NAME, HELPER_APP_NAME } from "@zcode/zcode-cua/broker/helperConstants";
-import { resolveBrokerSocketPath } from "@zcode/zcode-cua/broker/socketPath";
+import { DEV_HELPER_APP_NAME, HELPER_APP_NAME } from "@ycode/ycode-cua/broker/helperConstants";
+import { resolveBrokerSocketPath } from "@ycode/ycode-cua/broker/socketPath";
 import {
   DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
   resolveSafeEndpointHostname,
-  ZCODE_JWT_INVALID_BROADCAST_CHANNEL,
+  YCODE_JWT_INVALID_BROADCAST_CHANNEL,
   formatLogPrefix,
   isCredentialDecryptError,
   isStartPlanModelProviderId,
@@ -514,20 +514,20 @@ import {
   isZCodeCuaMcpCommand,
   isZCodeCuaMcpPackageArg,
   isZCodeCuaInternalFeatureEnabled,
-  ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY,
+  YCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY,
   type ZCodeAutomation,
   type ZCodeAutomationRun,
   getCapturedZCodeAgentTelemetryEnv,
-  ZCODE_DESKTOP_CONTEXT_PROMPT_ENABLED_ENV,
+  YCODE_DESKTOP_CONTEXT_PROMPT_ENABLED_ENV,
   ZAI_PROVIDER_ID,
   zcodeAccountAccessSchema,
   zcodeProviderAccountAccessSchema,
-  ZCODE_VERSION,
-  ZCODE_ENV,
+  YCODE_VERSION,
+  YCODE_ENV,
   buildRuntimeZCodeApiUrl,
-} from "@zcode/shared";
+} from "@ycode/shared";
 
-// 这些 conversation-share 实现依赖 Node 文件系统；仅通过 @zcode/services/node 暴露，
+// 这些 conversation-share 实现依赖 Node 文件系统；仅通过 @ycode/services/node 暴露，
 // 防止 browser-safe 根入口把 node:* 依赖带进 renderer。
 export {
   ConversationShareService,
@@ -815,7 +815,7 @@ export function createDynamicCuaProductMcpServerResolver(options: {
       // 委托到底层真实 resolver（由 ICuaPermissionService.restartHelper 经此调用）。
       const resolver = await options.getResolver();
       if (!resolver) {
-        throw new Error("ZCode Computer Use is not enabled (plugin off or not product mode).");
+        throw new Error("YCode Computer Use is not enabled (plugin off or not product mode).");
       }
       await resolver.restart();
     },
@@ -823,7 +823,7 @@ export function createDynamicCuaProductMcpServerResolver(options: {
       // 授权完成后的 restart 必须保留 session id，才能复用底层的幂等与时序保障。
       const resolver = await options.getResolver();
       if (!resolver) {
-        throw new Error("ZCode Computer Use is not enabled (plugin off or not product mode).");
+        throw new Error("YCode Computer Use is not enabled (plugin off or not product mode).");
       }
       await resolver.restartAfterPermissionGrant(onboardingSessionId);
     },
@@ -1054,12 +1054,12 @@ export function createDefaultCuaProductHelper(
   };
 }
 
-export const ZCODE_CUA_BUNDLED_HELPER_APP_PATH_ENV = "ZCODE_CUA_BUNDLED_HELPER_APP_PATH";
+export const YCODE_CUA_BUNDLED_HELPER_APP_PATH_ENV = "YCODE_CUA_BUNDLED_HELPER_APP_PATH";
 
 export function resolveBundledCuaHelperAppPath(
   env: NodeJS.ProcessEnv = process.env,
 ): string | undefined {
-  const injectedPath = env[ZCODE_CUA_BUNDLED_HELPER_APP_PATH_ENV]?.trim();
+  const injectedPath = env[YCODE_CUA_BUNDLED_HELPER_APP_PATH_ENV]?.trim();
   if (injectedPath) {
     return injectedPath;
   }
@@ -1073,7 +1073,7 @@ export { isOfficialCuaPluginEnabledForWorkspace };
 
 export function hasGlobalCliZCodeCuaServer(env: NodeJS.ProcessEnv = process.env): boolean {
   const home = env.HOME?.trim() || homedir();
-  const configPath = join(home, ".zcode", "cli", "config.json");
+  const configPath = join(home, ".ycode", "cli", "config.json");
   let parsed: unknown;
   try {
     parsed = JSON.parse(readFileSync(configPath, "utf8"));
@@ -1093,8 +1093,8 @@ function isGlobalCliZCodeCuaServer(name: string, config: unknown): boolean {
   if (config.enabled === false) return false;
   if (typeof config.type === "string" && config.type !== "stdio") return false;
   if (name === "computer-use") return true;
-  // 与 desktop/services resolver 和 CLI bootstrap 共用 @zcode/shared 的单一事实源，避免第三处
-  // 判定漂移：git/.git/本地路径形态的 zcode-cua 若这里漏判，全局 CLI env 注入不会带 broker
+  // 与 desktop/services resolver 和 CLI bootstrap 共用 @ycode/shared 的单一事实源，避免第三处
+  // 判定漂移：git/.git/本地路径形态的 ycode-cua 若这里漏判，全局 CLI env 注入不会带 broker
   // socket/token，agent 会回退成 Python/uvx 自己持有 macOS TCC（违反 product broker 边界）。
   if (typeof config.command === "string" && isZCodeCuaMcpCommand(config.command)) {
     return true;
@@ -1149,7 +1149,7 @@ export async function buildCuaProductHelperAgentEnv(
   // 只收敛后续 spawn admission，再开放 broker tuple；
   // 绝不从后台 completion 异步打断首个 session，也绝不让 spawn 等 10s。
   //
-  // fail-closed 理由：CLI 全局配置里存在 zcode-cua 时，返回空 env 会让 agent 按原始
+  // fail-closed 理由：CLI 全局配置里存在 ycode-cua 时，返回空 env 会让 agent 按原始
   // 无 broker 凭据启动 MCP 子进程会绕过已获授权的 Helper broker，让 Python
   // MCP 成为实际 TCC 执行主体。broker 未就绪时必须返回 BROKER_UNAVAILABLE，绝不返回空 env。
   try {
@@ -1192,7 +1192,7 @@ export async function buildCuaProductHelperAgentEnv(
       cuaProductHelperAgentEnvRetryAt.delete(host);
       return {
         [BROKER_SOCKET_ENV]: transport.socketPath,
-        [ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: transport.pluginAuthority,
+        [YCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: transport.pluginAuthority,
       };
     }
     // 原来只在 1s 超时后读取预留 tuple，Host 已安全占住 socket 时也会白等。
@@ -1205,7 +1205,7 @@ export async function buildCuaProductHelperAgentEnv(
       // token 鉴权已整体删除（连接门是代码签名身份）。凭据只剩 socket + authority。
       return {
         [BROKER_SOCKET_ENV]: reserved.socketPath,
-        [ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: reserved.pluginAuthority,
+        [YCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: reserved.pluginAuthority,
       };
     }
     // 有界 deadline race：cold launch 没在 1s 内 ready 且无预留才 fail-closed。waitForCuaHelperStartup
@@ -1225,7 +1225,7 @@ export async function buildCuaProductHelperAgentEnv(
     cuaProductHelperAgentEnvRetryAt.delete(host);
     return {
       [BROKER_SOCKET_ENV]: handle.socketPath,
-      [ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: handle.pluginAuthority,
+      [YCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: handle.pluginAuthority,
     };
   } catch (error) {
     // caller_timeout 仅表示共享的 30s startup 仍在后台运行；trackCuaProductHelperStartup 会在其
@@ -1246,7 +1246,7 @@ export async function buildCuaProductHelperAgentEnv(
         cuaProductHelperAgentEnvRetryAt.delete(host);
         return {
           [BROKER_SOCKET_ENV]: reserved.socketPath,
-          [ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: reserved.pluginAuthority,
+          [YCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: reserved.pluginAuthority,
         };
       }
     }
@@ -1256,7 +1256,7 @@ export async function buildCuaProductHelperAgentEnv(
     }
     logger.warn(
       undefined,
-      `Computer Use Helper broker_unavailable; disabling workspace zcode-cua MCP server for this agent spawn (${cuaHelperStartErrorDetail(error)})`,
+      `Computer Use Helper broker_unavailable; disabling workspace ycode-cua MCP server for this agent spawn (${cuaHelperStartErrorDetail(error)})`,
     );
     return {
       [BROKER_UNAVAILABLE_ENV]: isCallerTimeout
@@ -1323,7 +1323,7 @@ export function createLocalServices(options: {
     httpProxy?: string;
     noProxy?: string;
   };
-  /** 所属 Environment 的 ZCode Built-in Provider Config 物理路径。 */
+  /** 所属 Environment 的 YCode Built-in Provider Config 物理路径。 */
   zcodeBuiltinProviderConfigFilePath: string;
   /** HTTP Server 只有在调用方明确配置认证时才暴露跨 Environment Provisioning target。 */
   providerProvisioningTargetEnabled?: boolean;
@@ -1371,13 +1371,13 @@ export function createLocalServices(options: {
   const isDesktopAttachedRemote = options?.serviceAuthorityMode === "desktop-attached-remote";
   // host / remote server 以前直接沿用当前进程环境启动后续服务。
   // GUI 启动的 desktop、SSH/WSL/Docker 拉起的 remote server 往往拿不到用户 login shell 里的 PATH，
-  // 导致 bun 这类只在 shell profile 里追加的命令在 ZCode Agent/终端里不可见。
+  // 导致 bun 这类只在 shell profile 里追加的命令在 YCode Agent/终端里不可见。
   // 这里在所有本地服务启动前统一修正运行时环境，并顺带把内置 rg 注入 PATH，
-  // 让 ZCode Agent、终端、认证 runtime 共用同一套命令解析结果。
+  // 让 YCode Agent、终端、认证 runtime 共用同一套命令解析结果。
   initializeRuntimeProcessEnv(options?.runtimeProcessEnvPatch);
 
   const desktopContextPromptEnabledRaw =
-    process.env[ZCODE_DESKTOP_CONTEXT_PROMPT_ENABLED_ENV]?.trim();
+    process.env[YCODE_DESKTOP_CONTEXT_PROMPT_ENABLED_ENV]?.trim();
   const desktopContextPromptEnabled =
     desktopContextPromptEnabledRaw === "1"
       ? true
@@ -1521,24 +1521,24 @@ export function createLocalServices(options: {
     zcodeBuiltinEnvironment: {
       environmentConfigRoot: resolveAppConfigDir(),
       platform: clientConfigPlatform,
-      appVersion: ZCODE_VERSION,
+      appVersion: YCODE_VERSION,
       resolveEndpointOrigin: resolveCurrentZCodeEndpointOrigin,
       onRefreshResult: (event) => {
         if (event.result === "updated")
-          providerConfigLog.info(undefined, "ZCode Built-in CDN 配置已更新", event);
-        else providerConfigLog.debug(undefined, "ZCode Built-in 刷新检查", event);
+          providerConfigLog.info(undefined, "YCode Built-in CDN 配置已更新", event);
+        else providerConfigLog.debug(undefined, "YCode Built-in 刷新检查", event);
       },
       fetchRelease: (endpointOrigin, signal) =>
         fetchZCodeBuiltinRemoteRelease({
           apiClient,
           endpointOrigin,
           signal,
-          appVersion: ZCODE_VERSION,
+          appVersion: YCODE_VERSION,
           platform: clientConfigPlatform,
         }),
     },
     onZCodeBuiltinRefreshError: (error) => {
-      providerConfigLog.warn(undefined, "ZCode Built-in Config 远端刷新失败", { error });
+      providerConfigLog.warn(undefined, "YCode Built-in Config 远端刷新失败", { error });
     },
     onPersonalConfigRecovery: (event) => {
       providerConfigLog.warn(
@@ -1555,7 +1555,7 @@ export function createLocalServices(options: {
         error,
       });
     },
-    // 已发布 config.json 保存的是 ZCode 用户配置；清理第三方 ACP 不能移除这条升级路径。
+    // 已发布 config.json 保存的是 YCode 用户配置；清理第三方 ACP 不能移除这条升级路径。
     // Repository 仅在新 Personal 配置不存在时导入，并保留旧文件以便回滚。
     readLegacyProviders: () => readLegacyZCodeConfigProviders(),
   });
@@ -1690,8 +1690,8 @@ export function createLocalServices(options: {
   // service 创建完成后再赋值。Helper recovery 始终不能回收 Agent。
   let hasActiveTurnRef: (() => boolean) | undefined;
   const isCuaEnabledForContext = (context?: CuaProductMcpServerResolverContext): boolean =>
-    // 保留 main 原有 gate 行为（避免回归）：dev/internal 特性开启时（ZCODE_CUA_DEV_MODE=1 或
-    // ZCODE_CUA_PRODUCT_HELPER=1）即视为启用，不依赖 config.json 显式 enable——main 的 bootstrap
+    // 保留 main 原有 gate 行为（避免回归）：dev/internal 特性开启时（YCODE_CUA_DEV_MODE=1 或
+    // YCODE_CUA_PRODUCT_HELPER=1）即视为启用，不依赖 config.json 显式 enable——main 的 bootstrap
     // 用 isZCodeCuaInternalFeatureEnabled 门控 bundled plugin，与 feat 的 workspace enablement 不同。
     // 生产路径（dev mode off）回落到官方插件 workspace enablement 判定（与 feat 一致）。
     isZCodeCuaInternalFeatureEnabled(process.env) ||
@@ -1784,14 +1784,14 @@ export function createLocalServices(options: {
   // 签名门查询；产品 Helper 不嵌 dev policy，这对 argv 无效（产品签名天然过 Team 门）。
   // 拉起后轮询 ping（5s/100ms），就绪返回 socket 路径，否则 null。
   //
-  // dev 判定直接用上游的 isCuaLocalDevelopmentRuntime（@zcode/zcode-cua/broker/server，
+  // dev 判定直接用上游的 isCuaLocalDevelopmentRuntime（@ycode/ycode-cua/broker/server，
   // 即本文件已经用来 import buildHelperOpenArgs 的那个 subpath，可正常导入）。
   //
   // 行为等价性（别误读成安全加固）：上游是 `COMPILED_LOCAL_DEVELOPMENT_RUNTIME &&
-  // ZCODE_RUNTIME_ENV!=="production"`，而那个编译期常量只有 scripts/build-cua-helper-app.mjs
+  // YCODE_RUNTIME_ENV!=="production"`，而那个编译期常量只有 scripts/build-cua-helper-app.mjs
   // 会用 define 折叠（Helper bundle）；desktop host bundle 没有该 define，于是回退成
   // `process.env.NODE_ENV !== "production"` —— 正是复制品写的那一项。所以在**当前**打包形态下
-  // 两者逐字等价，关门靠的是 ZCODE_RUNTIME_ENV=production（打包态显式注入且不传 NODE_ENV）。
+  // 两者逐字等价，关门靠的是 YCODE_RUNTIME_ENV=production（打包态显式注入且不传 NODE_ENV）。
   //
   // 换成上游的收益是消除漂移面：折叠点、因子个数与 fail-closed 方向都由上游一处决定，
   // 哪天 host bundle 也补上 __ZCODE_LOCAL_DEVELOPMENT_RUNTIME__ define（Helper 侧已经有），
@@ -1805,7 +1805,7 @@ export function createLocalServices(options: {
     const socketPath = resolveBrokerSocketPath();
     // standaloneHelperCandidatePaths 未在上游 exports 白名单——此处按同一规则枚举安装候选
     //（dev-desktop → dev/ 前缀；app 名一律取 helperConstants，不写字面量）。
-    const home = process.env.ZCODE_HOME?.trim() || join(homedir(), ".zcode");
+    const home = process.env.YCODE_HOME?.trim() || join(homedir(), ".ycode");
     const baseRoot = join(home, "computer-use");
     // 安装布局见上游 helperLauncher.resolveCuaHelperInstallRoot：dev 是独立子根 `dev/` 且 app
     // 名换成 DEV_HELPER_APP_NAME；preview 是独立子根 `preview/` 但**沿用**稳定 app 名
@@ -1852,7 +1852,7 @@ export function createLocalServices(options: {
     enabled: cuaPipSessionEnabled,
     resolveCredentials: async () => {
       const host = defaultCuaProductHelperLifecycle.peek()?.helper.macPermissionHost;
-      // PiP 客户端以 role=presentation 声明，资格由 Helper 按对端（ZCode 主进程）签名 identifier 裁决。
+      // PiP 客户端以 role=presentation 声明，资格由 Helper 按对端（YCode 主进程）签名 identifier 裁决。
       if (host?.running && host.socketPath) {
         return {
           socketPath: host.socketPath,
@@ -1898,7 +1898,7 @@ export function createLocalServices(options: {
       ) {
         return {
           available: false,
-          reason: "ZCode Computer Use is not enabled (plugin off or not product mode).",
+          reason: "YCode Computer Use is not enabled (plugin off or not product mode).",
         };
       }
       // 懒启动：状态查询绝不拉起 Helper。托管 host 在（如刚完成授权流）→ 全量查询；
@@ -1917,13 +1917,13 @@ export function createLocalServices(options: {
           return {
             available: false,
             reason:
-              "ZCode Computer Use is not running; it will start automatically on first Computer Use use.",
+              "YCode Computer Use is not running; it will start automatically on first Computer Use use.",
             idle: true,
           } satisfies { available: false; reason: string; idle: true };
         }
         // standalone Helper 上直接查权限真值（身份模式，无 token）。
         try {
-          const { callBrokerMethod } = await import("@zcode/zcode-cua/broker/helperHealth");
+          const { callBrokerMethod } = await import("@ycode/ycode-cua/broker/helperHealth");
           const report = await callBrokerMethod<{
             grant_owner: string;
             owner?: { display_name?: string };
@@ -1946,7 +1946,7 @@ export function createLocalServices(options: {
         } catch {
           return {
             available: false,
-            reason: "ZCode Computer Use is starting up; retry in a moment.",
+            reason: "YCode Computer Use is starting up; retry in a moment.",
             idle: true,
           } satisfies { available: false; reason: string; idle: true };
         }
@@ -1956,7 +1956,7 @@ export function createLocalServices(options: {
         if (!helper || !isDefaultCuaProductHelperCurrent(helper)) {
           return {
             available: false,
-            reason: "ZCode Computer Use lifecycle is disposed.",
+            reason: "YCode Computer Use lifecycle is disposed.",
           };
         }
         // Screen Recording 的真值必须来自一个新进程：撤销对已运行的常驻 Helper 不生效，
@@ -1965,7 +1965,7 @@ export function createLocalServices(options: {
         if (!isDefaultCuaProductHelperCurrent(helper)) {
           return {
             available: false,
-            reason: "ZCode Computer Use lifecycle is disposed.",
+            reason: "YCode Computer Use lifecycle is disposed.",
           };
         }
         // 真实 screen-capture 探针：TCC screen_recording === "granted" 只说明系统记录了授权，并不保证
@@ -1980,7 +1980,7 @@ export function createLocalServices(options: {
         if (!isDefaultCuaProductHelperCurrent(helper)) {
           return {
             available: false,
-            reason: "ZCode Computer Use lifecycle is disposed.",
+            reason: "YCode Computer Use lifecycle is disposed.",
           };
         }
         const reportedOwnerDisplayName =
@@ -2024,7 +2024,7 @@ export function createLocalServices(options: {
       ) {
         return {
           ok: false,
-          reason: "ZCode Computer Use is not enabled (plugin off or not product mode).",
+          reason: "YCode Computer Use is not enabled (plugin off or not product mode).",
         };
       }
       // 走 resolver.restart()，让 host 尽可能复用 transport；不得通过 disposeWorkspace
@@ -2037,7 +2037,7 @@ export function createLocalServices(options: {
       if (!resolver) {
         return {
           ok: false,
-          reason: "ZCode Computer Use is not enabled (plugin off or not product mode).",
+          reason: "YCode Computer Use is not enabled (plugin off or not product mode).",
         };
       }
       try {
@@ -2049,14 +2049,14 @@ export function createLocalServices(options: {
         if (!helper || !isDefaultCuaProductHelperCurrent(helper)) {
           return {
             ok: false,
-            reason: "ZCode Computer Use lifecycle is disposed.",
+            reason: "YCode Computer Use lifecycle is disposed.",
           };
         }
         return { ok: true };
       } catch (error) {
         return {
           ok: false,
-          reason: `Failed to restart ZCode Computer Use: ${
+          reason: `Failed to restart YCode Computer Use: ${
             error instanceof Error ? error.message : String(error)
           }`,
         };
@@ -2117,7 +2117,7 @@ export function createLocalServices(options: {
       modelSelectionService: providerRuntime.modelSelection,
     }),
     // host 是身份权威边界：provenance/origin 必须在这里再校验一次，不能只依赖 agent
-    // adapter 的 fetch wrapper。判定实现与 CLI 侧共用 @zcode/shared 的同一份，避免分叉。
+    // adapter 的 fetch wrapper。判定实现与 CLI 侧共用 @ycode/shared 的同一份，避免分叉。
     // origin 解析复用 resolveCurrentZCodeEndpointOrigin——与闲时任务同口径（含 settings
     // 覆盖），否则会出现"闲时任务能连、官方 MCP 连不上"。
     // dev 开关必须同样传入，否则本地自测会被 host 单方面拒绝。
@@ -2131,7 +2131,7 @@ export function createLocalServices(options: {
     })
       ? options?.cuaOperationStateReporter
       : undefined,
-    // ZCode 只发布 turn/session 事实；面板 terminal policy 由 producer coordinator 决定。
+    // YCode 只发布 turn/session 事实；面板 terminal policy 由 producer coordinator 决定。
     ...(options?.serviceAuthorityMode === "desktop-local"
       ? {
           onCuaPipSessionLifecycle: (_workspace, event) => {
@@ -2182,7 +2182,7 @@ export function createLocalServices(options: {
         // 它不需要 host——托管态由 host 铸造，懒启动态在此按 spawn 铸造，语义与校验完全一致。
         cuaProductHelperEnv = {
           [BROKER_SOCKET_ENV]: resolveBrokerSocketPath(),
-          [ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: randomBytes(16).toString("hex"),
+          [YCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: randomBytes(16).toString("hex"),
         };
         cuaProductHelperWorkspaceRegistry.setEnabled(context, false);
       } else if (cuaProductHelperHost && helper) {
@@ -2227,7 +2227,7 @@ export function createLocalServices(options: {
         // 把 host 解析出的权威 origin（含 settings 覆盖）下发给 agent，否则 agent 侧只按
         // env 推导，test env + 自定义端点时两侧信任判定的输入分叉、官方 MCP 整体 fail closed。
         ...buildAgentEndpointOriginEnv(await resolveCurrentZCodeEndpointOrigin()),
-        // broker 凭据（socket/token）注入 agent spawn env，让内置 zcode-cua plugin 的
+        // broker 凭据（socket/token）注入 agent spawn env，让内置 ycode-cua plugin 的
         // computer-use MCP server 经 __zcode-plugin-host 恢复 token 后连上 broker。
         // 上面 cuaProductHelperEnv 已完成代际校验与 unavailable 兜底，取代 staging 侧
         // 直接调用 buildCuaProductHelperAgentEnv 的旧路径。
@@ -2273,7 +2273,7 @@ export function createLocalServices(options: {
   // Helper health probe 短暂超时不应在 Computer Use turn 中途回收 Agent。resolver 会把 restart
   // 推迟到下一个 request/turn 边界；若 broker 确实已失效，当前 turn 会自然失败并由下一次请求恢复。
   hasActiveTurnRef = () => zcodeAgentService.hasActiveCuaOperationTurn();
-  // desktop-continuous UI 直接订阅 zcodeSessionService，绕开 ZCode task adapter 的
+  // desktop-continuous UI 直接订阅 zcodeSessionService，绕开 YCode task adapter 的
   // mapServiceEvent 路径，导致 task_complete 永远不会写回 sqlite，侧边栏 spinner 不停。
   // 在 services 层装配一个共享的 taskIndexRepo + syncer，session 任意入口都会唤醒
   // shadow 订阅，把 runtime 终态收敛进 sqlite。
@@ -2327,7 +2327,7 @@ export function createLocalServices(options: {
   const gitService = createGitService({
     commitMessageGenerator: gitCommitMessageGenerator,
   });
-  // task wrapper 由 ZCode task service adapter 提供；核心 session 状态由 ZCode agent server 维护。
+  // task wrapper 由 YCode task service adapter 提供；核心 session 状态由 YCode agent server 维护。
   const zcodeTaskService = createZCodeTaskServiceAdapter({
     zcodeAgentService,
     taskIndexRepo,
@@ -2344,7 +2344,7 @@ export function createLocalServices(options: {
     apiClient,
     onProviderLogout: handleOAuthProviderLogout,
   });
-  const zcodeJwtLogoutLogger = createServiceLogger("zcode-jwt-logout");
+  const zcodeJwtLogoutLogger = createServiceLogger("ycode-jwt-logout");
   zcodeJwtLogoutHandlerRef.current = (input, headers) => {
     // 条件退出本身已串行去重；不能丢弃等待旧候选期间到来的新凭据 401。
     void oauthService
@@ -2353,13 +2353,13 @@ export function createLocalServices(options: {
         // 401 分类后可能已完成新登录；只有队列内真正清理的旧会话才广播过期。
         if (invalidated) {
           void broadcastService.send({
-            channel: ZCODE_JWT_INVALID_BROADCAST_CHANNEL,
+            channel: YCODE_JWT_INVALID_BROADCAST_CHANNEL,
             payload: {},
           });
         }
       })
       .catch((error) => {
-        zcodeJwtLogoutLogger.warn("ZCode JWT logout failed", { error });
+        zcodeJwtLogoutLogger.warn("YCode JWT logout failed", { error });
       });
   };
   // Desktop Host 曾从 Settings View 再扫描一次 Account Provider，既绕开
@@ -2481,7 +2481,7 @@ export function createLocalServices(options: {
         apiClient,
         resolveRequestContext: async () => ({
           endpointOrigin: await resolveCurrentZCodeEndpointOrigin(),
-          appVersion: ZCODE_VERSION,
+          appVersion: YCODE_VERSION,
           platform: `${process.platform}-${process.arch}`,
         }),
       }),
@@ -2682,7 +2682,7 @@ export function createTelemetryUserIdLoader(
   };
 }
 
-/** 仅给同一事件账号返回当前 ZCode JWT；不缓存、不修改登录凭据。 */
+/** 仅给同一事件账号返回当前 YCode JWT；不缓存、不修改登录凭据。 */
 export function createTelemetryAuthorizationLoader(
   credentialService: Pick<ICredentialService, "load">,
 ): (userId: string) => Promise<string | null> {
@@ -2710,7 +2710,7 @@ export function createTelemetryAuthorizationLoader(
 
 export function createTelemetryMarketingParamsLoader(
   credentialService: ICredentialService,
-): () => Promise<import("@zcode/shared").OAuthLoginAttribution | null> {
+): () => Promise<import("@ycode/shared").OAuthLoginAttribution | null> {
   // 恢复原因：固定返回 null 会丢掉已保存的渠道归因，数仓应读取 OAuth 的同一份事实。
   const repo = new OAuthCredentialRepo(credentialService);
   return () => repo.loadLoginAttribution();
@@ -2771,7 +2771,7 @@ export function disposeServiceResources(services: ServiceCollection): void {
 
 export async function disposeServiceResourcesAndWait(services: ServiceCollection): Promise<void> {
   // app 关闭时 host 需要等 agent 进程树完成 graceful + force 清理。
-  // 旧的同步 dispose 会在 host 退出时丢掉强杀 timer，导致 zcode-cli/app-server 变成孤儿进程。
+  // 旧的同步 dispose 会在 host 退出时丢掉强杀 timer，导致 ycode-cli/app-server 变成孤儿进程。
   const disposableServices = [
     services.getOptional(ITerminalService),
     services.getOptional(IZCodeTaskService),

@@ -1,6 +1,6 @@
 import { resolveSelectionSideInheritedModel } from "@/lib/selectionSideInheritedModel.js";
 import { useStartPlanRecommendation } from "@/hooks/useStartPlanRecommendation.js";
-import type { SessionCreateSource } from "@zcode/shared";
+import type { SessionCreateSource } from "@ycode/shared";
 import { reportSessionCreate } from "@/lib/sessionCreateTelemetry.js";
 import { getLocalTtftObserver } from "@/v4/telemetry/localTtftObserver.js";
 /* oxlint-disable eslint(max-lines) -- SessionPane 是单 pane 竖切的命令编排收口（订阅/发送/停止/fork/edit/retry/queue/slash 全集），与旧 ChatView 同粒度；HEAD 已超限（693 行计数），拆散命令组会打散 dispatchCommand/snapshotRef 的闭包纪律。 */
@@ -22,15 +22,15 @@ import {
   TID_CHAT_EMPTY,
   TID_V4_SESSION_PANE,
   testId,
-  ZCODE_AGENT_PROVIDER,
-} from "@zcode/shared";
+  YCODE_AGENT_PROVIDER,
+} from "@ycode/shared";
 import type {
   ConversationShareAccessMode,
   GitChangeSourceId,
   GitRepositorySummary,
   ZCodeProvider,
   ZCodeTaskChangeSummary,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type {
   AttachmentRef,
   CommandAck,
@@ -41,7 +41,7 @@ import type {
   SessionErrorInfo,
   SessionModelTransition,
   V4ConversationFileChangesResult,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@ycode/shared/ycode-protocol-v4";
 import { logger } from "@/logger.js";
 import {
   getConversationShareErrorDetails,
@@ -49,12 +49,12 @@ import {
   resolveConversationSharePublishErrorMessageId,
   sanitizeConversationShareWarnings,
 } from "@/lib/conversationShareError.js";
-import { localizeConversationShareUrl } from "@zcode/shared";
+import { localizeConversationShareUrl } from "@ycode/shared";
 import type {
   ConversationShareAllowedArtifact,
   ConversationShareTurnPreflightResult,
   ImportedConversationShare,
-} from "@zcode/services";
+} from "@ycode/services";
 import { toast } from "@/components/ui/toast.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { DEFAULT_CODE_PREVIEW_SETTINGS } from "@/lib/codePreviewSettings.js";
@@ -2989,7 +2989,7 @@ export function SessionPane({
         // 这里把 admission 前失败收口为 pane-local 错误横幅，不改变 desktop continuous 或
         // Web remote replayable 的发送/恢复语义，草稿仍由 Composer 原路径保留。
         setSendSubmissionError({
-          code: runtimeModelUnavailable ? "ZCODE_RUNTIME_MODEL_UNAVAILABLE" : "SEND_FAILED",
+          code: runtimeModelUnavailable ? "YCODE_RUNTIME_MODEL_UNAVAILABLE" : "SEND_FAILED",
           message: runtimeModelUnavailable
             ? detail
             : intl.formatMessage({ id: "chat.error.sendFailed" }),
@@ -3438,7 +3438,7 @@ export function SessionPane({
       if (!decoded?.providerId) {
         return;
       }
-      const displayProvider = provider ?? ZCODE_AGENT_PROVIDER;
+      const displayProvider = provider ?? YCODE_AGENT_PROVIDER;
       let modelValue = value;
       if (!decoded.modelName) {
         const fallbackModel =
@@ -4763,7 +4763,7 @@ export function SessionPane({
               })}
               headerSlot={
                 // unsupportedRowCount 也要开这个门：整份副本的行都被本 build 跳过时
-                // rows 为空，但只读块必须留下来显示「需要更新 ZCode」，不能整块消失。
+                // rows 为空，但只读块必须留下来显示「需要更新 YCode」，不能整块消失。
                 importedShare &&
                 (importedShare.rows.length > 0 || importedShare.unsupportedRowCount > 0) ? (
                   <ConversationShareImportNotice

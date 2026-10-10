@@ -1,4 +1,4 @@
-import type { IPlatformService, UpdateStatePayload } from "@zcode/shared";
+import type { IPlatformService, UpdateStatePayload } from "@ycode/shared";
 import { cn } from "@/components/lib/utils.js";
 import {
   ArrowLeftIcon,
@@ -141,7 +141,7 @@ export function DesktopTopOverlay({
             >
               <img
                 src={appLogoUrl}
-                alt="ZCode"
+                alt="YCode"
                 className="size-5 transition-opacity duration-150 group-hover:opacity-0"
                 draggable={false}
               />

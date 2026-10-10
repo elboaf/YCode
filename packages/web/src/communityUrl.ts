@@ -1,11 +1,11 @@
 import {
   DEFAULT_ZCODE_ENDPOINT_ORIGIN,
-  ZCODE_VERSION,
+  YCODE_VERSION,
   buildHelpAppConfigUrl,
   createHelpAppConfigReader,
   resolveHelpAppConfig,
   type Locale,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import localDefaultAppConfig from "../../../config/default.json" with { type: "json" };
 
 interface ResolveWebCommunityUrlOptions {
@@ -26,7 +26,7 @@ export async function resolveWebHelpConfig(options: ResolveWebCommunityUrlOption
       env?.VITE_ZCODE_ENDPOINT_ORIGIN?.trim() ||
       DEFAULT_ZCODE_ENDPOINT_ORIGIN);
   // 服务端拒绝 platform=web；浏览器省略可选平台参数，避免伪装桌面系统。
-  const url = buildHelpAppConfigUrl(endpoint, ZCODE_VERSION);
+  const url = buildHelpAppConfigUrl(endpoint, YCODE_VERSION);
   let remote: unknown;
   try {
     remote = await (

@@ -5,7 +5,7 @@ import {
   rewriteZCodeEndpointUrl,
   type ApiClient,
   type ApiRequestInit,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 import { buildZCodeSourceHeaders } from "../sourceHeaders.js";
 import { withRequestIdHeader } from "./requestIdHeaders.js";
@@ -68,7 +68,7 @@ function resolveRequestHeaders(
     return headers;
   }
 
-  // ZCode 后端请求以前只有部分业务路径手动补来源头。
+  // YCode 后端请求以前只有部分业务路径手动补来源头。
   // 统一在 ApiClient 出口按 endpoint origin 注入，避免 OAuth/config/billing/snapshot 等链路遗漏。
   return withZCodeEndpointHeaders(headers, endpointOrigin);
 }
@@ -120,7 +120,7 @@ export class NodeApiClient implements ApiClient {
       );
       if (isRequestForEndpoint(requestInput, activeEndpointOrigin)) {
         // 调试说明：这里只记录 header key，避免 Authorization / token 等敏感值落盘。
-        log.debug(undefined, "zcode endpoint request headers prepared", {
+        log.debug(undefined, "ycode endpoint request headers prepared", {
           headerKeys: readHeaderKeys(requestHeaders),
           method,
           url,
@@ -137,7 +137,7 @@ export class NodeApiClient implements ApiClient {
             this.onZcodeJwtInvalid?.(requestInput, new Headers(requestHeaders));
           }
         } catch (error) {
-          log.warn("zcode jwt invalid response observation failed", { error });
+          log.warn("ycode jwt invalid response observation failed", { error });
         }
       }
       return response;

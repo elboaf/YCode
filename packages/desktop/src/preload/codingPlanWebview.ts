@@ -3,7 +3,7 @@ import {
   CodingPlanWebviewChannels,
   isTrustedCodingPlanWebviewOrigin,
   PlatformChannels,
-} from "@zcode/shared";
+} from "@ycode/shared";
 
 // Coding Plan 官网页 preload：
 // - 在官网页主世界挂 window.zcodeBridge，暴露三个能力：
@@ -14,7 +14,7 @@ import {
 //      默认会被 setWindowOpenHandler 路由到内部 Browser tab，但官网侧希望
 //      条款/管理等外链直接拉起系统浏览器，由官网脚本拦截后调此方法转发。
 // - getLang 读 main world 的 window.__zcodeLang__（由 App executeJavaScript 注入）；
-//   onLangChange 在 main world 监听 zcode-coding-plan-lang-change CustomEvent
+//   onLangChange 在 main world 监听 ycode-coding-plan-lang-change CustomEvent
 //   （同样由 App executeJavaScript 在 locale 变化时派发）。
 //   因为整个 bridge 通过 contextBridge.executeInMainWorld 挂在 main world，
 //   与页面脚本共享同一 window，事件能通。
@@ -28,7 +28,7 @@ import {
 const PUBLIC_BRIDGE_KEY = "zcodeBridge";
 const NATIVE_BRIDGE_KEY = "__zcodeCodingPlanWebviewNativeBridge__";
 const LANG_VAR = "__zcodeLang__";
-const LANG_CHANGE_EVENT = "zcode-coding-plan-lang-change";
+const LANG_CHANGE_EVENT = "ycode-coding-plan-lang-change";
 const REPORT_CONTEXT_VAR = "__zcodeReportContext__";
 
 function isTrustedCodingPlanBridgeLocation(): boolean {
@@ -81,7 +81,7 @@ if (isTrustedCodingPlanBridgeLocation()) {
         ipcRenderer.sendToHost(CodingPlanWebviewChannels.PurchaseComplete, {
           provider: payload.provider,
           timestamp: Date.now(),
-        } satisfies import("@zcode/shared").CodingPlanPurchaseCompletePayload);
+        } satisfies import("@ycode/shared").CodingPlanPurchaseCompletePayload);
       } catch {
         // host renderer 尚未 attach 或 webview 被销毁时 sendToHost 会抛；
         // 官网页自身不依赖此调用成功，静默即可。
@@ -134,7 +134,7 @@ if (isTrustedCodingPlanBridgeLocation()) {
           return value as CodingPlanReportContext;
         },
         // 订阅 App locale 运行时变化，返回取消订阅函数。
-        // App locale 变化时用 executeJavaScript 派发 zcode-coding-plan-lang-change 事件。
+        // App locale 变化时用 executeJavaScript 派发 ycode-coding-plan-lang-change 事件。
         onLangChange(callback: (locale: "zh-CN" | "en-US") => void) {
           const handler = (event: Event) => {
             const detail = (event as CustomEvent<{ locale?: unknown }>).detail;

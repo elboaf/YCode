@@ -1,4 +1,4 @@
-import { createLocalServices, getAppConfigDir } from "@zcode/services/node";
+import { createLocalServices, getAppConfigDir } from "@ycode/services/node";
 import {
   materializeBundledZCodeBuiltinProviderConfig,
   readBundledZCodeBuiltinProviderConfig,
@@ -11,9 +11,9 @@ async function main(): Promise<void> {
     content: readBundledZCodeBuiltinProviderConfig(),
   });
   const port = Number(process.env["PORT"]) || 3030;
-  const host = process.env["ZCODE_SERVER_HOST"]?.trim() || process.env["HOST"]?.trim() || undefined;
-  const staticRoot = process.env["ZCODE_WEB_STATIC_ROOT"]?.trim() || undefined;
-  const authToken = process.env["ZCODE_SERVER_AUTH_TOKEN"]?.trim() || undefined;
+  const host = process.env["YCODE_SERVER_HOST"]?.trim() || process.env["HOST"]?.trim() || undefined;
+  const staticRoot = process.env["YCODE_WEB_STATIC_ROOT"]?.trim() || undefined;
+  const authToken = process.env["YCODE_SERVER_AUTH_TOKEN"]?.trim() || undefined;
   const services = createLocalServices({
     zcodeBuiltinProviderConfigFilePath,
     providerProvisioningTargetEnabled: Boolean(authToken),
@@ -27,6 +27,6 @@ async function main(): Promise<void> {
 }
 
 void main().catch((error: unknown) => {
-  console.error("[zcode-server:http] startup failed", error);
+  console.error("[ycode-server:http] startup failed", error);
   process.exitCode = 1;
 });

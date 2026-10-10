@@ -8,7 +8,7 @@ import {
   type UsageQuotaLimit,
   type ZCodeAccountAccess,
   type ZCodeProviderAccountAccess,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { InfoIcon, Loader2Icon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button.js";
@@ -1003,7 +1003,7 @@ function PlanUsageMetricCard({
                 type="button"
                 aria-label={infoDescription}
                 className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-foreground-subtle transition-colors hover:text-foreground"
-                data-zcode-mcp-info="model-settings"
+                data-ycode-mcp-info="model-settings"
               >
                 <InfoIcon className="size-3.5" aria-hidden="true" />
               </button>

@@ -9,7 +9,7 @@ import {
   type HostAgentProcessExitedResponse,
   type HostAgentProcessReadyResponse,
   type HostAgentProcessSpawnedResponse,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type { CrashCapturePaths } from "./desktopCrashCapture.js";
 import { registerCrashEventMonitor as registerBaseCrashEventMonitor } from "./desktopCrashCapture.js";
 import { getResourceManagerWindowId } from "./resourceManagerWindow.js";
@@ -187,14 +187,14 @@ function redactRemainingAbsolutePaths(value: string): string {
   const protectedPaths: string[] = [];
   const protectedValue = value.replace(AGENT_CRASH_KNOWN_PATH_PLACEHOLDER_PATTERN, (match) => {
     const index = protectedPaths.push(match) - 1;
-    return `ZCODE_REDACTED_PATH_${index}_TOKEN`;
+    return `YCODE_REDACTED_PATH_${index}_TOKEN`;
   });
   const redacted = protectedValue
     .replace(AGENT_CRASH_WINDOWS_ABSOLUTE_PATH_PATTERN, "<path>")
     .replace(AGENT_CRASH_POSIX_ABSOLUTE_PATH_PATTERN, "<path>");
   return protectedPaths.reduce(
     (result, protectedPath, index) =>
-      result.replace(`ZCODE_REDACTED_PATH_${index}_TOKEN`, protectedPath),
+      result.replace(`YCODE_REDACTED_PATH_${index}_TOKEN`, protectedPath),
     redacted,
   );
 }
@@ -701,10 +701,10 @@ function mapChildProcessGoneToProcessRoleWithName(
   type: string,
   processName?: string,
 ): StabilityProcessRole {
-  if (processName?.startsWith("zcode-host")) {
+  if (processName?.startsWith("ycode-host")) {
     return "host";
   }
-  if (processName?.startsWith("zcode-agent")) {
+  if (processName?.startsWith("ycode-agent")) {
     return "agent";
   }
   switch (type) {
@@ -728,7 +728,7 @@ function shouldReportChildProcessGoneAsCrash(input: ChildProcessGoneInput): bool
   }
 
   // Bugfix: RUM 里 Video Capture / Network Service / Audio Service 等 Chromium Utility
-  // 子进程会被系统自动重建，不会让 ZCode 主窗口或会话不可用；它们只能作为可恢复退出记录，
+  // 子进程会被系统自动重建，不会让 YCode 主窗口或会话不可用；它们只能作为可恢复退出记录，
   // 不能进入 perf_crash，否则会把 crash-free 指标按“非真实崩溃”拉低。
   if (role === "utility") {
     return false;

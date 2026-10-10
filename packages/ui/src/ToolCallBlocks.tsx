@@ -1,5 +1,5 @@
 import { memo, type ReactNode, useEffect, useMemo, useState } from "react";
-import { TID_CHAT_TOOL_CALL_BLOCK, testId } from "@zcode/shared";
+import { TID_CHAT_TOOL_CALL_BLOCK, testId } from "@ycode/shared";
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { mapToolStatus } from "@/lib/mapToolStatus.js";
@@ -373,7 +373,7 @@ function ToolCallBlockComponent({
       data-tool-call-id={toolCall.toolId}
       data-tool-name={toolCall.toolName ?? toolCall.kind ?? ""}
       data-status={toolCall.status}
-      data-zcode-tool-stream-animate={shouldPlayEntranceAnimation ? "true" : undefined}
+      data-ycode-tool-stream-animate={shouldPlayEntranceAnimation ? "true" : undefined}
     >
       {toolCall.kind === "cuaGroup" ? (
         <CuaGroupToolCallBlock

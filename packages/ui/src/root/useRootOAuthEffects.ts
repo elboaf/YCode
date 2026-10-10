@@ -5,13 +5,13 @@ import type {
   OAuthProviderId,
   OAuthSessionCallbackResult,
   UserInfo,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   DesktopCommandIds,
   resolveProviderFamilyDomainFromOAuthProvider,
-  ZCODE_JWT_INVALID_BROADCAST_CHANNEL,
-} from "@zcode/shared";
-import type { IServiceAccessor } from "@zcode/services";
+  YCODE_JWT_INVALID_BROADCAST_CHANNEL,
+} from "@ycode/shared";
+import type { IServiceAccessor } from "@ycode/services";
 import { useAlertDialog } from "@/hooks/useAlertDialog.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { reportAppTelemetryEvent, resolveProviderTelemetryLabel } from "@/lib/appTelemetry.js";
@@ -203,7 +203,7 @@ export function useRootOAuthEffects({
   useEffect(() => {
     let disposed = false;
     const disposable = services.broadcastService.onMessage((message) => {
-      if (message.channel !== ZCODE_JWT_INVALID_BROADCAST_CHANNEL || disposed) {
+      if (message.channel !== YCODE_JWT_INVALID_BROADCAST_CHANNEL || disposed) {
         return;
       }
       void (async () => {
@@ -220,7 +220,7 @@ export function useRootOAuthEffects({
           return;
         }
         markZcodeJwtInvalidRestart();
-        if (typeof window !== "undefined" && !("zcode" in window)) {
+        if (typeof window !== "undefined" && !("ycode" in window)) {
           // Web 没有 Electron RelaunchApp；marker 写入后立即刷新，避免停留在僵尸登录态。
           window.location.reload();
           return;

@@ -10,8 +10,8 @@ import {
   Pin,
   Smartphone,
 } from "lucide-react";
-import { isCronTask, isOffPeakTask, type ZCodeTaskMeta } from "@zcode/shared";
-import { TID_TASK_ARCHIVE, TID_TASK_ITEM, testId } from "@zcode/shared";
+import { isCronTask, isOffPeakTask, type ZCodeTaskMeta } from "@ycode/shared";
+import { TID_TASK_ARCHIVE, TID_TASK_ITEM, testId } from "@ycode/shared";
 import { Badge } from "@/components/ui/badge.js";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/components/lib/utils.js";
@@ -263,7 +263,7 @@ export const MemoTaskItem = memo(function TaskListItem({
       }
       event.dataTransfer.effectAllowed = "copy";
       const payload = {
-        kind: "zcode/session" as const,
+        kind: "ycode/session" as const,
         workspacePath,
         ...(task.workspaceIdentity?.trim() ? { workspaceIdentity: task.workspaceIdentity } : {}),
         ...(remoteSessionId ? { remoteSessionId } : {}),

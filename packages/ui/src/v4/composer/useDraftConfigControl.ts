@@ -6,22 +6,22 @@ import { applyComposerPermissionGrant } from "@/v4/composer/composerPermissionGr
 // Workspace presentation 水合只提供 mode 与 slash commands；模型候选、能力和首选值
 // 统一来自目标 Host ModelSelectionView。
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ZCODE_AGENT_PROVIDER, resolveExecutionState } from "@zcode/shared";
+import { YCODE_AGENT_PROVIDER, resolveExecutionState } from "@ycode/shared";
 import { applyComposerPlanTransition } from "@/v4/composer/composerPlanTransition.js";
 import type {
   ZCodeConfigOption,
   ModelSelection,
   ZCodeProvider,
   ZCodeSlashCommand,
-} from "@zcode/shared";
-import type { SessionConfigState } from "@zcode/shared/zcode-protocol-v4";
-import type { IModelSelectionService } from "@zcode/services";
-import { completeNewModelSelection } from "@zcode/provider";
+} from "@ycode/shared";
+import type { SessionConfigState } from "@ycode/shared/ycode-protocol-v4";
+import type { IModelSelectionService } from "@ycode/services";
+import { completeNewModelSelection } from "@ycode/provider";
 import {
   useModelSelectionServiceView,
   type ModelSelectionRead,
 } from "@/hooks/useModelSelectionView.js";
-import { submissionModeSchema } from "@zcode/shared/zcode-protocol-v4";
+import { submissionModeSchema } from "@ycode/shared/ycode-protocol-v4";
 import { prepareWorkspaceWithZCodeSessionService } from "@/hooks/useWorkspacePrepare.js";
 import { useZCodeSessionService } from "@/hooks/useZCodeSessionService.js";
 import { useSettings } from "@/hooks/useSettingService.js";
@@ -121,7 +121,7 @@ export function useDraftConfigControl(params: {
     modelSelectionService,
   } = params;
   const workspaceKey = workspaceIdentity?.trim() || workspacePath;
-  const displayProvider = provider ?? ZCODE_AGENT_PROVIDER;
+  const displayProvider = provider ?? YCODE_AGENT_PROVIDER;
   const zcodeSessionService = useZCodeSessionService(workspacePath, null, workspaceIdentity);
   const { settings: sharedSettings } = useSettings();
   const appFollowupMode = resolveAppFollowupMode(sharedSettings);

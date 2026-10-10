@@ -3,8 +3,8 @@ import type {
   ZCodeTaskChangeSummary,
   ZCodeTaskChangedFileSummary,
   ZCodeTaskMeta,
-} from "@zcode/shared";
-import { computeLineChangeStat } from "@zcode/shared";
+} from "@ycode/shared";
+import { computeLineChangeStat } from "@ycode/shared";
 import { getPathLeaf } from "@/lib/path.js";
 
 interface TaskChangeSummaryIntl {

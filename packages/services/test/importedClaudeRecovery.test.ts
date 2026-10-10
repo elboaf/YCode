@@ -4,19 +4,19 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
-  ZCODE_PROTOCOL_NAME,
-  ZCODE_PROTOCOL_VERSION,
+  YCODE_PROTOCOL_NAME,
+  YCODE_PROTOCOL_VERSION,
   zcodeSessionStateSnapshotSchema,
   type ZCodeSessionStateSnapshot,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { getLegacyTaskSessionSnapshotPath, setDataBaseDir } from "../src/paths.js";
 import { parseLegacyTaskSessionFile } from "../src/session/legacyTaskSessionFile.js";
 import { TaskIndexRepo } from "../src/session/taskIndexRepo.js";
-import { createZCodeTaskServiceAdapter } from "../src/zcode-agent/zcodeTaskServiceAdapter.js";
+import { createZCodeTaskServiceAdapter } from "../src/ycode-agent/zcodeTaskServiceAdapter.js";
 
 for (const clientMode of ["desktop-continuous", "web-remote-replayable"] as const) {
   test(`previously imported Claude history becomes a real session for ${clientMode}`, async () => {
-    const dir = await mkdtemp(join(tmpdir(), "zcode-import-recovery-"));
+    const dir = await mkdtemp(join(tmpdir(), "ycode-import-recovery-"));
     setDataBaseDir(dir);
     const meta = {
       taskId: "claude-import-example",
@@ -63,7 +63,7 @@ for (const clientMode of ["desktop-continuous", "web-remote-replayable"] as cons
         async createSession(input: CreateInput) {
           created.push(input);
           session = zcodeSessionStateSnapshotSchema.parse({
-            protocol: { name: ZCODE_PROTOCOL_NAME, version: ZCODE_PROTOCOL_VERSION },
+            protocol: { name: YCODE_PROTOCOL_NAME, version: YCODE_PROTOCOL_VERSION },
             session: {
               sessionId: input.sessionId,
               workspace: {

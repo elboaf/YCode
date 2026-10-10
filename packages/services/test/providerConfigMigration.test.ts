@@ -29,7 +29,7 @@ const legacyConfig = {
 };
 
 async function setup() {
-  const dir = await mkdtemp(join(tmpdir(), "zcode-provider-migration-"));
+  const dir = await mkdtemp(join(tmpdir(), "ycode-provider-migration-"));
   setDataBaseDir(dir);
   const configDir = getAppConfigDir();
   await mkdir(configDir, { recursive: true });
@@ -41,7 +41,7 @@ async function setup() {
   const recoveries: unknown[] = [];
   const runtime = createProviderConfigRuntime({
     zcodeBuiltinFilePath: fileURLToPath(
-      new URL("../../../config/provider/zcode-builtin.json", import.meta.url),
+      new URL("../../../config/provider/ycode-builtin.json", import.meta.url),
     ),
     personalFilePath: personalPath,
     personalPollingIntervalMs: false,
@@ -67,7 +67,7 @@ async function setup() {
   };
 }
 
-test("startup migrates published ZCode config into personal config without changing the source", async () => {
+test("startup migrates published YCode config into personal config without changing the source", async () => {
   const fixture = await setup();
   try {
     await fixture.runtime.start();

@@ -9,8 +9,8 @@
 // 附件不入草稿（objectUrl/File 不可序列化，localPath 附件重启后归属难校验——
 // 与「v4 composer 不做附件草稿持久化」的裁决一致）。
 import { logger } from "@/logger.js";
-import { modelSelectionSchema, type ModelSelection } from "@zcode/shared";
-import { submissionModeSchema, type SubmissionMode } from "@zcode/shared/zcode-protocol-v4";
+import { modelSelectionSchema, type ModelSelection } from "@ycode/shared";
+import { submissionModeSchema, type SubmissionMode } from "@ycode/shared/ycode-protocol-v4";
 import type { ComposerMentionPrefill } from "@/store/zcodeSessionStoreTypes.js";
 
 export interface V4ComposerDraft {
@@ -34,7 +34,7 @@ interface V4DraftFile {
   scopes: Record<string, V4ComposerDraft>;
 }
 
-const STORAGE_KEY_PREFIX = "zcode-v4-composer-drafts:v1:";
+const STORAGE_KEY_PREFIX = "ycode-v4-composer-drafts:v1:";
 export const V4_DRAFT_SCOPE_ROOT = "__draft__";
 const warnedStorageKeys = new Set<string>();
 

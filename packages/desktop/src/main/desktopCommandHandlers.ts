@@ -11,16 +11,16 @@ import {
   type DesktopCommandId,
   type Locale,
   resolveRuntimeZCodeEndpointOrigin,
-  ZCODE_ENV,
-  ZCODE_PRODUCT_FLAVOR,
+  YCODE_ENV,
+  YCODE_PRODUCT_FLAVOR,
   buildZCodeEndpointUrls,
   getCommunityUrlFromConfigs,
   getFeedbackUrlFromConfig,
   resolveHelpAppConfig,
   normalizeZCodeEndpointOrigin,
   resolveZCodeEndpointOrigin,
-} from "@zcode/shared";
-import { readZCodeStdioTapDevState, setZCodeStdioTapDevEnabled } from "@zcode/services/node";
+} from "@ycode/shared";
+import { readZCodeStdioTapDevState, setZCodeStdioTapDevEnabled } from "@ycode/services/node";
 import { showAboutDialog } from "./about.js";
 import { checkForUpdateMenuClick } from "./autoUpdater.js";
 import { exportLogs } from "./exportLogs.js";
@@ -38,10 +38,10 @@ import {
 } from "./desktopZoom.js";
 
 export const HELP_TOGGLE_DEV_TOOLS_MENU_ID = "help.toggle-dev-tools";
-export const HELP_TOGGLE_ZCODE_STDIO_TAP_MENU_ID = "help.toggle-zcode-stdio-tap";
-const ZCODE_ENDPOINT_PROMPT_WIDTH = 460;
-const ZCODE_ENDPOINT_PROMPT_HEIGHT = 210;
-const CODING_PLAN_WEBVIEW_PARTITION = "persist:zcode-coding-plan";
+export const HELP_TOGGLE_ZCODE_STDIO_TAP_MENU_ID = "help.toggle-ycode-stdio-tap";
+const YCODE_ENDPOINT_PROMPT_WIDTH = 460;
+const YCODE_ENDPOINT_PROMPT_HEIGHT = 210;
+const CODING_PLAN_WEBVIEW_PARTITION = "persist:ycode-coding-plan";
 
 function resolveTargetWindow(senderWindow?: BrowserWindow | null) {
   if (senderWindow && !senderWindow.isDestroyed()) {
@@ -93,7 +93,7 @@ async function clearAllDataAndRelaunch(options: {
     title: "Clear All Data",
     message: "确定要清除所有数据吗？",
     detail:
-      "将删除 ~/.zcode/v2（配置、凭据、日志）和浏览器缓存（localStorage）。操作不可恢复，清除后应用将自动重启。",
+      "将删除 ~/.ycode/v2（配置、凭据、日志）和浏览器缓存（localStorage）。操作不可恢复，清除后应用将自动重启。",
   });
   if (response !== 1) {
     return;
@@ -102,9 +102,9 @@ async function clearAllDataAndRelaunch(options: {
   const { rm } = await import("node:fs/promises");
   try {
     await rm(options.credentialsDir, { recursive: true, force: true });
-    options.logger.info("[clear-all-data] deleted ~/.zcode/v2");
+    options.logger.info("[clear-all-data] deleted ~/.ycode/v2");
   } catch (error) {
-    options.logger.error("[clear-all-data] failed to delete ~/.zcode/v2:", error);
+    options.logger.error("[clear-all-data] failed to delete ~/.ycode/v2:", error);
   }
 
   for (const win of BrowserWindow.getAllWindows()) {
@@ -308,7 +308,7 @@ function buildZCodeEndpointPromptHtml(currentValue: string): string {
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>ZCode Endpoint</title>
+    <title>YCode Endpoint</title>
     <style>
       :root { color-scheme: light dark; }
       body { margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -321,7 +321,7 @@ function buildZCodeEndpointPromptHtml(currentValue: string): string {
   </head>
   <body>
     <form id="form">
-      <label for="endpoint">ZCode endpoint origin</label>
+      <label for="endpoint">YCode endpoint origin</label>
       <input id="endpoint" value="${value}" placeholder="https://endpoint.example.com" spellcheck="false" />
       <div class="hint">Use an http or https origin, for example https://endpoint.example.com.</div>
       <div class="actions">
@@ -331,13 +331,13 @@ function buildZCodeEndpointPromptHtml(currentValue: string): string {
     </form>
     <script>
       const input = document.getElementById("endpoint");
-      const submit = (value) => { document.title = "zcode-endpoint-submit:" + encodeURIComponent(value); };
+      const submit = (value) => { document.title = "ycode-endpoint-submit:" + encodeURIComponent(value); };
       document.getElementById("form").addEventListener("submit", (event) => {
         event.preventDefault();
         submit(input.value);
       });
       document.getElementById("cancel").addEventListener("click", () => {
-        document.title = "zcode-endpoint-cancel";
+        document.title = "ycode-endpoint-cancel";
       });
       input.focus();
       input.select();
@@ -353,14 +353,14 @@ function showZCodeEndpointPromptWindow(options: {
   return new Promise((resolve) => {
     let settled = false;
     const promptWindow = new BrowserWindow({
-      width: ZCODE_ENDPOINT_PROMPT_WIDTH,
-      height: ZCODE_ENDPOINT_PROMPT_HEIGHT,
+      width: YCODE_ENDPOINT_PROMPT_WIDTH,
+      height: YCODE_ENDPOINT_PROMPT_HEIGHT,
       parent: options.parentWindow,
       modal: Boolean(options.parentWindow),
       resizable: false,
       minimizable: false,
       maximizable: false,
-      title: "ZCode Endpoint",
+      title: "YCode Endpoint",
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
@@ -381,16 +381,16 @@ function showZCodeEndpointPromptWindow(options: {
 
     promptWindow.on("closed", () => finish(undefined));
     promptWindow.on("page-title-updated", (event, title) => {
-      if (title === "zcode-endpoint-cancel") {
+      if (title === "ycode-endpoint-cancel") {
         event.preventDefault();
         finish(undefined);
         return;
       }
-      if (!title.startsWith("zcode-endpoint-submit:")) {
+      if (!title.startsWith("ycode-endpoint-submit:")) {
         return;
       }
       event.preventDefault();
-      finish(decodeURIComponent(title.slice("zcode-endpoint-submit:".length)));
+      finish(decodeURIComponent(title.slice("ycode-endpoint-submit:".length)));
     });
 
     // Electron 菜单命令在主进程触发，调用 renderer 的 window.prompt 可能被禁用或没有焦点，表现为点击无反应。
@@ -409,7 +409,7 @@ async function setZCodeEndpointOverride(options: {
   onZCodeEndpointChanged: () => Promise<void> | void;
   logger: { warn: (...args: unknown[]) => void };
 }) {
-  if (ZCODE_ENV === "production") {
+  if (YCODE_ENV === "production") {
     return;
   }
   const normalized = options.value ? normalizeZCodeEndpointOrigin(options.value) : undefined;
@@ -468,7 +468,7 @@ async function resolveCurrentZCodeEndpointOrigin(settingService: {
 }): Promise<string> {
   const settings = await settingService.get();
   return resolveZCodeEndpointOrigin({
-    env: ZCODE_ENV,
+    env: YCODE_ENV,
     envBaseOrigin: settingService.envBaseOrigin,
     overrideOrigin: settings.zcodeEndpointOrigin,
   });
@@ -590,7 +590,7 @@ export async function executeDesktopCommand(options: {
       return;
     case DesktopCommandIds.CheckForUpdates:
       // 按产品身份而不是后端环境放行：生产后端的 Preview 同样没有更新器。
-      if (ZCODE_PRODUCT_FLAVOR === "production") {
+      if (YCODE_PRODUCT_FLAVOR === "production") {
         checkForUpdateMenuClick(targetWindow);
       } else {
         options.logger.info("[auto-update] Preview 已禁用手动更新检查");
@@ -657,7 +657,7 @@ export async function executeDesktopCommand(options: {
       } catch (error) {
         await showMessageBoxWithOptionalParent(targetWindow, {
           type: "error",
-          title: "ZCode Endpoint",
+          title: "YCode Endpoint",
           message: "Endpoint 无效",
           detail: error instanceof Error ? error.message : String(error),
         });

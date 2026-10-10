@@ -68,10 +68,10 @@ jobs:
             runs-on: ubuntu-24.04-arm
 
     env:
-      ZCODE_TARGET_OS: ${{ matrix.os }}
-      ZCODE_TARGET_ARCH: ${{ matrix.arch }}
+      YCODE_TARGET_OS: ${{ matrix.os }}
+      YCODE_TARGET_ARCH: ${{ matrix.arch }}
       # Production identity: real product name, no Preview/TEST artifact suffix
-      ZCODE_ENV: production
+      YCODE_ENV: production
       # Keep electron / electron-builder downloads on the default GitHub endpoint.
       ELECTRON_MIRROR: ""
       npm_config_electron_builder_binaries_mirror: ""
@@ -137,7 +137,7 @@ jobs:
     timeout-minutes: 60
     env:
       # Embedded in the generated install.sh; override via repo variable
-      ZCODE_DIST_BASE_URL: ${{ vars.ZCODE_DIST_BASE_URL || 'https://downloads.example.com/ycode/' }}
+      YCODE_DIST_BASE_URL: ${{ vars.YCODE_DIST_BASE_URL || 'https://downloads.example.com/ycode/' }}
     steps:
       - uses: actions/checkout@v5
 
@@ -152,7 +152,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # tsc -b emits dist for composite packages with no build script
-      # (@zcode/shared, services, client) — required by SEA/TUI asset staging.
+      # (@ycode/shared, services, client) — required by SEA/TUI asset staging.
       - name: Emit dist for script-less packages
         run: pnpm typecheck
 
@@ -160,18 +160,18 @@ jobs:
         run: |
           VERSION="${{ inputs.version }}"
           if [ -n "$VERSION" ]; then
-            node scripts/build-zcode.mjs --version "$VERSION"
+            node scripts/build-ycode.mjs --version "$VERSION"
           else
-            node scripts/build-zcode.mjs
+            node scripts/build-ycode.mjs
           fi
 
       # Stage installer payload flat so the release job can upload plain files
       - name: Stage CLI release files
         run: |
           mkdir -p release-files
-          cp dist/zcode/releases/*/zcode-*.tar.gz release-files/
-          cp dist/zcode/releases/*/sha256.txt release-files/
-          cp dist/zcode/latest.json dist/zcode/install.sh release-files/
+          cp dist/ycode/releases/*/ycode-*.tar.gz release-files/
+          cp dist/ycode/releases/*/sha256.txt release-files/
+          cp dist/ycode/latest.json dist/ycode/install.sh release-files/
           ls -la release-files/
 
       - name: Upload artifacts

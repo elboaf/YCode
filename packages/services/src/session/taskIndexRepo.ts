@@ -9,14 +9,14 @@ import { createRequire } from "node:module";
 import { dirname } from "node:path";
 import {
   isRemoteWorkspaceIdentity,
-  ZCODE_AGENT_PROVIDER,
+  YCODE_AGENT_PROVIDER,
   zcodeTaskMetaSchema,
   resolveWorkspaceKey,
   CRON_DEFAULT_GROUP_ID,
   OFF_PEAK_DEFAULT_GROUP_ID,
   type ZCodeProvider,
   type ZCodeTaskMeta,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type {
   ZCodeTaskListQuery,
   ZCodeTaskListResult,
@@ -236,7 +236,7 @@ function rowToMeta(row: TaskIndexRow): ZCodeTaskMeta {
 
   return {
     taskId: row.task_id,
-    traceId: `zcode-${row.task_id}`,
+    traceId: `ycode-${row.task_id}`,
     title: row.title,
     titleOverridden: row.title_overridden === 1,
     workspacePath: row.workspace_path,
@@ -245,7 +245,7 @@ function rowToMeta(row: TaskIndexRow): ZCodeTaskMeta {
     updatedAt: row.updated_at,
     mode: row.mode as ZCodeTaskMeta["mode"],
     model: row.model ?? undefined,
-    provider: row.provider === ZCODE_AGENT_PROVIDER ? ZCODE_AGENT_PROVIDER : undefined,
+    provider: row.provider === YCODE_AGENT_PROVIDER ? YCODE_AGENT_PROVIDER : undefined,
     migrationSource: (row.migration_source as ZCodeTaskMeta["migrationSource"]) ?? undefined,
     forkedFromTaskId: row.forked_from_task_id ?? undefined,
     cronAutomationId: row.cron_automation_id ?? undefined,
@@ -278,7 +278,7 @@ function normalizeWorkspaceBootstrapScopes(
   scopes: Array<{
     workspacePath: string;
     workspaceIdentity?: string;
-    workspacePurpose?: import("@zcode/shared").WorkspacePurpose;
+    workspacePurpose?: import("@ycode/shared").WorkspacePurpose;
   }>,
 ): WorkspaceBootstrapScope[] {
   const seen = new Set<string>();
@@ -1339,9 +1339,9 @@ export class TaskIndexRepo {
           target: Object.prototype.hasOwnProperty.call(params.meta, "target")
             ? params.meta.target
             : existingMeta?.target,
-          // Claude Code 导入升级成真实 ZCode session 后，protocol snapshot
+          // Claude Code 导入升级成真实 YCode session 后，protocol snapshot
           // 本身不知道迁移来源。同步运行态快照时保留已有 migrationSource，避免
-          // 列表过滤和后续切模型把导入任务重新当成普通 ZCode 任务。
+          // 列表过滤和后续切模型把导入任务重新当成普通 YCode 任务。
           migrationSource: params.meta.migrationSource ?? existingMeta?.migrationSource,
           // 同步运行态快照时保留已有 cron automation 身份：运行态 protocol snapshot 的 meta 不带 cron 标记，
           // 不用已存值兜底会在后续 sync 时把 cron 身份冲掉，导致 icon / 分组 / 关联查询失效。
@@ -2089,7 +2089,7 @@ export class TaskIndexRepo {
     ];
     const activeTaskArgs: Array<string | number> = includeAllWorkspaces ? [] : [...workspaceKeys];
     if (params.provider) {
-      // grouped 和 workspace 都是 ZCode Agent 任务列表入口，必须共享旧 provider
+      // grouped 和 workspace 都是 YCode Agent 任务列表入口，必须共享旧 provider
       // 残留过滤口径；否则历史 claude/codex/gemini 索引行会只在 grouped 里冒出来。
       appendZCodeAgentIndexedProviderFilter(activeTaskWhere, activeTaskArgs, params.provider);
     }
@@ -2388,7 +2388,7 @@ export class TaskIndexRepo {
       }
       if (params.provider && row.provider !== params.provider) {
         // grouped 保存回包之前没有 provider 边界，旧 gemini/codex/claude 排序残留会在保存后重新展示。
-        // 带 provider 的 ZCode Agent 视图只接受当前 glm task；旧 provider 引用作为不可见遗留数据跳过。
+        // 带 provider 的 YCode Agent 视图只接受当前 glm task；旧 provider 引用作为不可见遗留数据跳过。
         return null;
       }
       return key;

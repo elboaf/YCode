@@ -1,7 +1,7 @@
 import { Component } from "react";
 import type { ErrorInfo, ReactNode } from "react";
-import type { Locale } from "@zcode/shared";
-import { DEFAULT_LOCALE } from "@zcode/shared";
+import type { Locale } from "@ycode/shared";
+import { DEFAULT_LOCALE } from "@ycode/shared";
 import { DesktopWindowFrame } from "@/DesktopWindowFrame.js";
 import zhCN from "@/i18n/locales/zh-CN.js";
 import enUS from "@/i18n/locales/en-US.js";
@@ -40,7 +40,7 @@ interface ScopedErrorBoundaryProps {
   onCaughtReactError?: (error: Error, errorInfo: ErrorInfo, scope: string) => void;
 }
 
-const LOCALE_PREFERENCE_KEY = "zcode-locale-preference";
+const LOCALE_PREFERENCE_KEY = "ycode-locale-preference";
 
 function normalizeError(error: unknown): Error {
   if (error instanceof Error) {

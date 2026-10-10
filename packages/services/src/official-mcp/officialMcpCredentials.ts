@@ -1,5 +1,5 @@
 /*
- * ZCode 官方 Server MCP 的凭证解析与身份头构造。
+ * YCode 官方 Server MCP 的凭证解析与身份头构造。
  *
  * 本文件与 Off-Peak 的 offPeakRuntimeModel.ts **逻辑等价但完全独立**：
  * 不复用其函数、不修改其行为。理由是两者的套餐门槛、Team 支持范围与凭证通道预期会独立演进，
@@ -22,13 +22,13 @@ import {
   type OfficialMcpAuthFailureReason,
   type ZCodeAccountAccess,
   type ZCodeProviderAccountAccess,
-} from "@zcode/shared";
-import type { ModelSelectionView } from "@zcode/provider";
+} from "@ycode/shared";
+import type { ModelSelectionView } from "@ycode/provider";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 
 const log = createServiceLogger("official-mcp");
 
-const ZCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
 const ACTIVE_OAUTH_PROVIDER_KEY = "oauth:active_provider";
 
 /**
@@ -228,7 +228,7 @@ async function readIdentitySnapshot(
   const [registry, activeProviderValue, jwtValue] = await Promise.all([
     deps.modelSelectionService.getView(),
     deps.credentialService.load(ACTIVE_OAUTH_PROVIDER_KEY),
-    deps.credentialService.load(ZCODE_JWT_TOKEN_KEY),
+    deps.credentialService.load(YCODE_JWT_TOKEN_KEY),
   ]);
   const activeProvider = activeProviderValue?.trim();
   const jwt = jwtValue?.trim() ?? "";
@@ -276,9 +276,9 @@ function identityOnlyOutcome(identity: OfficialMcpIdentitySnapshot): OfficialMcp
 /**
  * 解析当前选中连接的官方 MCP 凭证。
  *
- * 防竞态：Registry、动态 Account Access、active provider、zcode JWT 与 MaaS JWT
+ * 防竞态：Registry、动态 Account Access、active provider、ycode JWT 与 MaaS JWT
  * 都可能在解析期间变化。这里在前后各取一次并比对，任一不一致就整轮
- * 重来，绝不拼接两代凭证——既包括"zcode JWT 来自 ZAI 而 MaaS JWT 来自 BigModel"（跨 family 混搭），
+ * 重来，绝不拼接两代凭证——既包括"ycode JWT 来自 ZAI 而 MaaS JWT 来自 BigModel"（跨 family 混搭），
  * 也包括"旧 JWT + 新 JWT"（同 family 的 token 轮换）。两轮仍不稳定则按不可用返回。
  */
 export async function resolveOfficialMcpCredentials(
@@ -307,7 +307,7 @@ export async function resolveOfficialMcpCredentials(
     const selected = resolveSelectedPlan(selectedProvider.provider, accountAccess);
     if (!selected.ok) return selected;
 
-    // zcode JWT 是全局登录身份镜像；只校验 selectedKey 会把 ZAI JWT 与 BigModel key 拼到同一请求。
+    // ycode JWT 是全局登录身份镜像；只校验 selectedKey 会把 ZAI JWT 与 BigModel key 拼到同一请求。
     if (identity.snapshot.activeProvider !== selected.plan.providerFamily) {
       return fail("official_auth_unavailable");
     }

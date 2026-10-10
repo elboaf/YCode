@@ -8,11 +8,11 @@ import {
   type ZCodeAutomationRun,
   type ZCodeAutomationScheduleRule,
   type ModelSelection,
-} from "@zcode/shared";
-import type { IZCodeAgentService } from "@zcode/services";
+} from "@ycode/shared";
+import type { IZCodeAgentService } from "@ycode/services";
 import { logger } from "@/logger.js";
 
-// 定时任务(automation)管理 store：走 zcode-agent RPC（列表 / 创建 / 编辑 / 启停 / 重跑 / 删除 + 运行历史）。
+// 定时任务(automation)管理 store：走 ycode-agent RPC（列表 / 创建 / 编辑 / 启停 / 重跑 / 删除 + 运行历史）。
 // 与 pluginManagementStore 同一范式：按 workspace 缓存，切换时后台刷新避免闪烁。
 
 /** 单条 automation 的运行历史缓存（按 automationId 记 loading/data/error）。 */

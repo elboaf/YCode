@@ -318,10 +318,10 @@ export function ConversationDraftSuggestedPrompts({
                   title={label}
                   disabled={!onSelect || disabled}
                   onClick={onSelect ? () => onSelect(item) : undefined}
-                  className="zcode-draft-prompt-waterfall h-8 min-w-0 justify-start gap-1.5 overflow-hidden rounded-lg px-3 text-left text-ui-caption font-normal leading-4.5 text-foreground"
+                  className="ycode-draft-prompt-waterfall h-8 min-w-0 justify-start gap-1.5 overflow-hidden rounded-lg px-3 text-left text-ui-caption font-normal leading-4.5 text-foreground"
                   style={
                     {
-                      "--zcode-draft-prompt-waterfall-delay": `${index * 65}ms`,
+                      "--ycode-draft-prompt-waterfall-delay": `${index * 65}ms`,
                     } as CSSProperties
                   }
                 >

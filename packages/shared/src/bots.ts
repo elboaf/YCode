@@ -1,7 +1,7 @@
 /* oxlint-disable eslint(max-lines) -- Bot 共享合约集中维护 provider、状态和 schema，保持类型与校验就近。 */
 import { z } from "zod";
 import { modelSelectionSchema, type ModelSelection } from "./model-selection.js";
-import { ZCODE_AGENT_PROVIDER, ZCODE_AGENT_PROVIDER_LABEL } from "./zcode-agent-policy.js";
+import { YCODE_AGENT_PROVIDER, YCODE_AGENT_PROVIDER_LABEL } from "./ycode-agent-policy.js";
 import type {
   ZCodeConfigOption,
   ZCodeElicitationRequest,
@@ -12,13 +12,13 @@ import type {
   ZCodeStreamEvent,
   ZCodeTaskMeta,
   ZCodeTaskRuntimeStatus,
-} from "./zcode-task-types-core.js";
+} from "./ycode-task-types-core.js";
 import {
   zcodeInteractionRequestOriginSchema,
   zcodePermissionResponseSchema,
   type ZCodeInteractionRequestOrigin,
   type ZCodePermissionResponse,
-} from "./zcode-protocol-legacy-types.js";
+} from "./ycode-protocol-legacy-types.js";
 import type { Locale } from "./protocol.js";
 
 export const botProviders = [
@@ -401,14 +401,14 @@ export const botCurrentOptionsSchema = z
     mode: z.string().min(1).optional(),
     sandboxMode: z.string().min(1).optional(),
     approvalPolicy: z.string().min(1).optional(),
-    // 兼容旧 bot-config.json；CLI provider 现在统一由 ZCode Protocol 侧配置决定。
-    cli: z.literal(ZCODE_AGENT_PROVIDER).optional(),
+    // 兼容旧 bot-config.json；CLI provider 现在统一由 YCode Protocol 侧配置决定。
+    cli: z.literal(YCODE_AGENT_PROVIDER).optional(),
   })
   .strict();
 
 export const botDraftOptionsSchema = z
   .object({
-    provider: z.literal(ZCODE_AGENT_PROVIDER),
+    provider: z.literal(YCODE_AGENT_PROVIDER),
     modelSelection: modelSelectionSchema.optional(),
     mode: z.string().min(1).optional(),
   })
@@ -555,4 +555,4 @@ export function normalizeBotReplyGranularity(
 export const BOT_ZCODE_PROVIDER_OPTIONS: Array<{
   id: ZCodeProvider;
   label: string;
-}> = [{ id: ZCODE_AGENT_PROVIDER, label: ZCODE_AGENT_PROVIDER_LABEL }];
+}> = [{ id: YCODE_AGENT_PROVIDER, label: YCODE_AGENT_PROVIDER_LABEL }];

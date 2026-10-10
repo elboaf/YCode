@@ -57,9 +57,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      # build-zcode refuses to run without a download base URL; the installer
-      # embeds it. Override per-repo via the ZCODE_DIST_BASE_URL variable.
-      ZCODE_DIST_BASE_URL: ${{ vars.ZCODE_DIST_BASE_URL || 'https://downloads.example.com/ycode/' }}
+      # build-ycode refuses to run without a download base URL; the installer
+      # embeds it. Override per-repo via the YCODE_DIST_BASE_URL variable.
+      YCODE_DIST_BASE_URL: ${{ vars.YCODE_DIST_BASE_URL || 'https://downloads.example.com/ycode/' }}
     steps:
       - uses: actions/checkout@v5
 
@@ -77,18 +77,18 @@ jobs:
       - name: Build workspace
         run: pnpm build:bootstrap
 
-      # Agent CLI build (build:zcode reuses these outputs with --skip-build)
+      # Agent CLI build (build:ycode reuses these outputs with --skip-build)
       - name: Build agent CLI
-        run: pnpm --filter @zcode/cli... build
+        run: pnpm --filter @ycode/cli... build
 
       # tsc -b emits dist for composite packages with no build script
-      # (@zcode/shared, services, client) — required by SEA/TUI asset staging.
+      # (@ycode/shared, services, client) — required by SEA/TUI asset staging.
       - name: Emit dist for script-less packages
         run: pnpm typecheck
 
       # Assemble the CLI/TUI distribution tarball from existing build outputs
       - name: Package CLI distribution
-        run: node scripts/build-zcode.mjs --skip-build
+        run: node scripts/build-ycode.mjs --skip-build
 
       - name: List distribution output
         run: find dist -maxdepth 4 -type f | head -40

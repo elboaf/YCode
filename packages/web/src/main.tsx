@@ -8,9 +8,9 @@ import {
   playTaskNotificationSound,
   setStreamClientId,
   type Theme,
-} from "@zcode/ui";
-import "@zcode/ui/styles.css";
-import { connectViaWebSocket } from "@zcode/client";
+} from "@ycode/ui";
+import "@ycode/ui/styles.css";
+import { connectViaWebSocket } from "@ycode/client";
 import { WebCallbackPage } from "./auth/WebCallbackPage.js";
 import { createWebAuthService } from "./auth/webAuthService.js";
 import { WEB_ZAI_OAUTH_CONFIG, resolveWebAuthDevReturnTo } from "./auth/webZaiOAuthConfig.js";
@@ -28,11 +28,11 @@ import {
   isConversationSharePath,
   resolveConversationShareCodeFromPath,
 } from "./share/conversationShareRoute.js";
-import type { IPlatformService, RemoteTarget, ServerRemoteInfo } from "@zcode/shared";
+import type { IPlatformService, RemoteTarget, ServerRemoteInfo } from "@ycode/shared";
 import { WEB_DEFAULT_THEME, resolveWebInitialTheme } from "./webThemeSeed.js";
 
 function resolveWebThemePreference(defaultTheme: Theme = WEB_DEFAULT_THEME): Theme {
-  const saved = localStorage.getItem("zcode-theme");
+  const saved = localStorage.getItem("ycode-theme");
   return resolveWebInitialTheme({ storedTheme: saved, defaultTheme });
 }
 
@@ -96,7 +96,7 @@ function isWebOAuthCallback(params: URLSearchParams): boolean {
 }
 
 function renderWebAuthCallbackPage(): void {
-  document.title = "ZCode - Sign In";
+  document.title = "YCode - Sign In";
   const callbackState = parseOAuthState(
     new URLSearchParams(window.location.search).get("state") ?? "",
   );
@@ -121,7 +121,7 @@ async function renderConversationSharePage(): Promise<void> {
   document.documentElement.lang = routeLocale;
   // 分享页必须设置 title：否则浏览器标签只显示 index.html 的通用标题。
   // 会话标题要等 preview 加载完，先给一个语言正确的兜底。
-  document.title = routeLocale === "zh-CN" ? "ZCode 会话分享" : "ZCode Conversation Share";
+  document.title = routeLocale === "zh-CN" ? "YCode 会话分享" : "YCode Conversation Share";
   const shareCode = resolveConversationShareCodeFromPath(window.location.pathname);
   if (!shareCode) {
     root.render(
@@ -151,12 +151,12 @@ async function renderConversationSharePage(): Promise<void> {
       ).MockConversationSharePreviewClient()
     : new ConversationSharePreviewClient({ baseUrl: `${endpointOrigin}/api/v1` });
   const getMockToken = () =>
-    mockMode && window.sessionStorage.getItem("zcode:share:mock-auth") === "owner"
+    mockMode && window.sessionStorage.getItem("ycode:share:mock-auth") === "owner"
       ? "mock-owner-token"
       : null;
   const onLogout = () => {
     if (mockMode) {
-      window.sessionStorage.removeItem("zcode:share:mock-auth");
+      window.sessionStorage.removeItem("ycode:share:mock-auth");
       window.location.reload();
       return;
     }
@@ -169,7 +169,7 @@ async function renderConversationSharePage(): Promise<void> {
       getAccessToken={() => getMockToken() ?? webAuthService.getZCodeJwtToken()}
       onLogin={(provider) => {
         if (mockMode) {
-          window.sessionStorage.setItem("zcode:share:mock-auth", "owner");
+          window.sessionStorage.setItem("ycode:share:mock-auth", "owner");
           window.location.reload();
           return;
         }
@@ -416,7 +416,7 @@ function WebBootstrapErrorScreen({ message }: { message: string }) {
 }
 
 function renderWebBootstrapError(error: unknown): void {
-  document.title = "ZCode - Web";
+  document.title = "YCode - Web";
   root.render(
     <WebBootstrapErrorScreen message={error instanceof Error ? error.message : String(error)} />,
   );
@@ -447,7 +447,7 @@ async function bootstrapWebApp() {
       onClose: () => {},
     });
     const platform = createWebPlatform();
-    document.title = "ZCode - Web + Server";
+    document.title = "YCode - Web + Server";
 
     root.render(
       <AppErrorBoundary>

@@ -7,8 +7,8 @@ import {
   type RemoteTarget,
   type UserInfo,
   type ZCodeTaskClientMode,
-} from "@zcode/shared";
-import type { IServiceAccessor } from "@zcode/services";
+} from "@ycode/shared";
+import type { IServiceAccessor } from "@ycode/services";
 import type { CreateTaskRequest } from "@/app-shell/types.js";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog.js";
 import { reportAppTelemetryEvent } from "@/lib/appTelemetry.js";

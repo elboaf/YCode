@@ -1,4 +1,4 @@
-import type { ZCodeAutomationScheduleRule } from "@zcode/shared";
+import type { ZCodeAutomationScheduleRule } from "@ycode/shared";
 import {
   describeCron,
   describeCronBuilder,

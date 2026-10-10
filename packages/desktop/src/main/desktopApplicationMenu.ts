@@ -4,12 +4,12 @@ import {
   desktopMenuMessageIds,
   getDesktopMenuMessage,
   isValidShortcutBinding,
-  ZCODE_ENV,
-  ZCODE_PRODUCT_FLAVOR,
+  YCODE_ENV,
+  YCODE_PRODUCT_FLAVOR,
   type DesktopCommandId,
   type Locale,
-} from "@zcode/shared";
-import { readZCodeStdioTapDevState } from "@zcode/services/node";
+} from "@ycode/shared";
+import { readZCodeStdioTapDevState } from "@ycode/services/node";
 import { CHECK_FOR_UPDATE_MENU_ID, setAutoUpdaterMenuLocale } from "./autoUpdater.js";
 import {
   DESKTOP_ZOOM_MAX_LEVEL,
@@ -21,7 +21,7 @@ import {
   HELP_TOGGLE_DEV_TOOLS_MENU_ID,
 } from "./desktopCommandHandlers.js";
 
-const HELP_ZCODE_ENDPOINT_PRODUCTION_MENU_ID = "help.zcode-endpoint.production";
+const HELP_ZCODE_ENDPOINT_PRODUCTION_MENU_ID = "help.ycode-endpoint.production";
 
 export function getDesktopMenuLabel(
   locale: Locale,
@@ -118,7 +118,7 @@ function buildApplicationMenuTemplate(options: {
                 click: () => void options.executeDesktopCommand(DesktopCommandIds.ShowAbout),
               },
               // 更新入口跟随产品身份：Preview 禁用更新器，生产后端的 Preview 也不例外。
-              ...(ZCODE_PRODUCT_FLAVOR === "production"
+              ...(YCODE_PRODUCT_FLAVOR === "production"
                 ? [
                     {
                       id: CHECK_FOR_UPDATE_MENU_ID,
@@ -259,7 +259,7 @@ function buildApplicationMenuTemplate(options: {
                 label: getLabel(desktopMenuMessageIds.helpAbout),
                 click: () => void options.executeDesktopCommand(DesktopCommandIds.ShowAbout),
               },
-              ...(ZCODE_PRODUCT_FLAVOR === "production"
+              ...(YCODE_PRODUCT_FLAVOR === "production"
                 ? [
                     {
                       id: CHECK_FOR_UPDATE_MENU_ID,
@@ -290,7 +290,7 @@ function buildApplicationMenuTemplate(options: {
               { type: "separator" as const },
             ]
           : []),
-        ...(ZCODE_ENV === "test"
+        ...(YCODE_ENV === "test"
           ? [
               {
                 label: getLabel(desktopMenuMessageIds.helpZCodeEndpoint),

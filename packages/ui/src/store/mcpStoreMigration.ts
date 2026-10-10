@@ -1,4 +1,4 @@
-import type { McpServerConfig, NativeMcpServerRecord } from "@zcode/shared";
+import type { McpServerConfig, NativeMcpServerRecord } from "@ycode/shared";
 import { logger } from "@/logger.js";
 import {
   fetchNativeMcpServers,
@@ -20,7 +20,7 @@ function isZCodeAgentUserServer(server: NativeMcpServerRecord): boolean {
   return (
     server.source === "zcodeagentmcp" &&
     server.scope === "user" &&
-    (!server.location || server.location.source === "zcode")
+    (!server.location || server.location.source === "ycode")
   );
 }
 
@@ -113,10 +113,10 @@ export async function migrateStoredCommonMcpToZCodeAgent(
     platform,
     legacyServers,
     nativeServers,
-    "localStorage:zcode-mcp-config",
+    "localStorage:ycode-mcp-config",
   );
   if (migration.completed) {
-    // 只有确认写入 zcode agent 目录后才清理旧数据，避免 Web 端没有 desktop bridge 时丢配置。
+    // 只有确认写入 ycode agent 目录后才清理旧数据，避免 Web 端没有 desktop bridge 时丢配置。
     clearLegacyCommonMcpServers();
   }
   if (!migration.changed) {
@@ -124,7 +124,7 @@ export async function migrateStoredCommonMcpToZCodeAgent(
   }
 
   logger.info(
-    `[mcpStore] migrated ${migration.importedCount} legacy common MCP servers to zcode agent config`,
+    `[mcpStore] migrated ${migration.importedCount} legacy common MCP servers to ycode agent config`,
   );
   return fetchNativeMcpServers(platform, { workspacePath });
 }

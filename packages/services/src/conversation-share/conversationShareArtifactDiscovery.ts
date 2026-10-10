@@ -8,20 +8,20 @@ import {
   type ConversationPreviewArtifactCandidate,
   type ConversationPreviewFileChange,
   type ConversationShareCapabilities,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type {
   ArtifactRow,
   ConversationArtifactType,
   ConversationRow,
   TurnHeaderRow,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@ycode/shared/ycode-protocol-v4";
 import {
   PROTOCOL_V4_LIMITS,
-  ZCODE_ATTACHMENT_FAULT_CODES,
+  YCODE_ATTACHMENT_FAULT_CODES,
   readZCodeAttachmentFaultCode,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@ycode/shared/ycode-protocol-v4";
 
-import type { IZCodeAgentService } from "../zcode-agent/zcodeAgent.js";
+import type { IZCodeAgentService } from "../ycode-agent/zcodeAgent.js";
 import type {
   ConversationShareFailureIssue,
   PublishTextConversationInput,
@@ -535,7 +535,7 @@ async function discoverInputAttachments(options: {
         });
         const sourceRef = `input:${row.rowId}:${attachmentIndex}`;
         const artifactId = `share-input-artifact-${++artifactIndex}`;
-        const ref = `zcode-artifact://share/${artifactId}`;
+        const ref = `ycode-artifact://share/${artifactId}`;
         const sha256 = createHash("sha256").update(materialized.bytes).digest("hex");
         artifacts.push({
           sourceRef,
@@ -564,8 +564,8 @@ async function discoverInputAttachments(options: {
       } catch (error) {
         const faultCode = readZCodeAttachmentFaultCode(error);
         if (
-          faultCode === ZCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized ||
-          faultCode === ZCODE_ATTACHMENT_FAULT_CODES.shareReadConnectionUntrusted
+          faultCode === YCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized ||
+          faultCode === YCODE_ATTACHMENT_FAULT_CODES.shareReadConnectionUntrusted
         ) {
           throw new ConversationShareServiceError(
             "artifact_protocol_not_ready",
@@ -574,8 +574,8 @@ async function discoverInputAttachments(options: {
           );
         }
         if (
-          faultCode === ZCODE_ATTACHMENT_FAULT_CODES.previewTooLarge ||
-          faultCode === ZCODE_ATTACHMENT_FAULT_CODES.shareStatTooLarge
+          faultCode === YCODE_ATTACHMENT_FAULT_CODES.previewTooLarge ||
+          faultCode === YCODE_ATTACHMENT_FAULT_CODES.shareStatTooLarge
         ) {
           // 容量超限是确定阻断，不能降级成「附件不可用」warning 后静默发布——
           // 那样接收者拿不到附件，分享者也看不出错误类别（见预检同名分类）。
@@ -612,8 +612,8 @@ async function discoverInputAttachments(options: {
           extension,
           mimeType,
           availability:
-            faultCode === ZCODE_ATTACHMENT_FAULT_CODES.shareStatNotFound ||
-            faultCode === ZCODE_ATTACHMENT_FAULT_CODES.statNotFile ||
+            faultCode === YCODE_ATTACHMENT_FAULT_CODES.shareStatNotFound ||
+            faultCode === YCODE_ATTACHMENT_FAULT_CODES.statNotFile ||
             (error instanceof ConversationShareServiceError &&
               error.diagnostics?.errno === "ENOENT")
               ? "not_found"

@@ -13,7 +13,7 @@ import {
   type ResourceUsageProcess,
   type ResourceUsageSnapshot,
   type ZCodeProvider,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { logger } from "./logger.js";
 import { normalizeElectronCpuToMachinePercent } from "./electronCpuNormalization.js";
 import type { ChromiumProcessRolePids } from "./processResourceRoleClassifier.js";

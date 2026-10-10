@@ -2,13 +2,13 @@ import { wrapStartupReporterRequest } from "./startupTelemetryDelivery.js";
 import { randomUUID } from "node:crypto";
 import { basename } from "node:path";
 import armsRum from "@arms/rum-electron";
-import { ZCODE_AGENT_LIFECYCLE_LOG_MARKER } from "@zcode/shared/process-diagnostic";
+import { YCODE_AGENT_LIFECYCLE_LOG_MARKER } from "@ycode/shared/process-diagnostic";
 import {
-  ZCODE_ARMS_RUM_ENDPOINT,
-  ZCODE_VERSION,
-  ZCODE_TELEMETRY_ENABLED,
+  YCODE_ARMS_RUM_ENDPOINT,
+  YCODE_VERSION,
+  YCODE_TELEMETRY_ENABLED,
   mapZCodeEnvToArmsRumEnv,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { ARMS_BROWSER_COLLECTORS, parseArmsViewName } from "../shared/armsRumShared.js";
 import { redactArmsEventBatch } from "./armsEventRedaction.js";
 import { ensureDesktopDeviceMidSync } from "./desktopDeviceMid.js";
@@ -57,7 +57,7 @@ function hasProductExecutable(
   runtimeExecutableName?: string,
 ): boolean {
   // 修复原因：app name 不等于所有运行形态的真实二进制名；开发态使用 Electron，
-  // Linux Preview 使用 zcode-preview。两者都必须精确匹配，不能放宽成前缀以免混入 helper dump。
+  // Linux Preview 使用 ycode-preview。两者都必须精确匹配，不能放宽成前缀以免混入 helper dump。
   const expectedNames = new Set(
     [applicationName, runtimeExecutableName].map(normalizeExecutableName).filter(Boolean),
   );
@@ -169,15 +169,15 @@ function startArmsRum(): Promise<void> {
   return armsRum
     .init({
       enable: true,
-      version: ZCODE_VERSION,
-      endpoint: ZCODE_ARMS_RUM_ENDPOINT,
+      version: YCODE_VERSION,
+      endpoint: YCODE_ARMS_RUM_ENDPOINT,
       env: armsRumEnv,
       // Browser SDK 由 SDK 在 dom-ready 经 executeJavaScript 注入；勿再在 preload/renderer 手动 init，避免重复采集
       autoInject: true,
       browserCollectors: { ...ARMS_BROWSER_COLLECTORS },
       app: {
         name: runtimeApplicationName,
-        version: ZCODE_VERSION,
+        version: YCODE_VERSION,
         env: armsRumEnv,
         type: "electron",
         framework: "react",
@@ -220,7 +220,7 @@ function startArmsRum(): Promise<void> {
                 event.type === "error" &&
                 event.source === "console.error" &&
                 typeof event.message === "string" &&
-                event.message.includes(ZCODE_AGENT_LIFECYCLE_LOG_MARKER)
+                event.message.includes(YCODE_AGENT_LIFECYCLE_LOG_MARKER)
               ),
           ),
           runtimeApplicationName,
@@ -255,7 +255,7 @@ function startArmsRum(): Promise<void> {
       },
     })
     .then(() => {
-      logger.info(`[arms] electron initialized env=${armsRumEnv} version=${ZCODE_VERSION}`);
+      logger.info(`[arms] electron initialized env=${armsRumEnv} version=${YCODE_VERSION}`);
     })
     .catch((error) => {
       logger.error("[arms] electron init failed:", error);
@@ -265,4 +265,4 @@ function startArmsRum(): Promise<void> {
 
 // 总开关关闭或端点未配置时不初始化 SDK。
 export const armsInitPromise: Promise<void> =
-  ZCODE_TELEMETRY_ENABLED && ZCODE_ARMS_RUM_ENDPOINT ? startArmsRum() : Promise.resolve();
+  YCODE_TELEMETRY_ENABLED && YCODE_ARMS_RUM_ENDPOINT ? startArmsRum() : Promise.resolve();

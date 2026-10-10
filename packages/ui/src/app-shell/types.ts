@@ -11,8 +11,8 @@ import type {
   RemoteWorkspaceSessionEntry,
   UpdateStatePayload,
   UserInfo,
-} from "@zcode/shared";
-import type { IFeedbackService, IServiceAccessor } from "@zcode/services";
+} from "@ycode/shared";
+import type { IFeedbackService, IServiceAccessor } from "@ycode/services";
 import type { BrowserNavigationRequest, RecentClosedSidePaneTab } from "@/hooks/useAppPanels.js";
 import type { CodeViewerSource } from "@/lib/codeViewer.js";
 import type { AssistantPreviewCardsAutoOpenRequest } from "@/lib/assistantPreviewCards.js";
@@ -164,9 +164,9 @@ export interface WorkspaceShellLayoutProps extends Omit<AppProps, "baseFeedbackS
     workspacePath: string;
     label: string;
     remoteSessionId?: string;
-    remoteTarget?: import("@zcode/shared").RemoteTarget;
+    remoteTarget?: import("@ycode/shared").RemoteTarget;
     workspaceIdentity?: string;
-    workspacePurpose?: import("@zcode/shared").WorkspacePurpose;
+    workspacePurpose?: import("@ycode/shared").WorkspacePurpose;
     localWorkspacePath?: string;
     availability?: import("@/store/tabStore.js").WorkspaceAvailability;
   }>;
@@ -223,7 +223,7 @@ export interface WorkspaceShellLayoutProps extends Omit<AppProps, "baseFeedbackS
   handleStartDraftInWorkspace: (
     targetWorkspacePath: string,
     targetWorkspaceIdentity?: string,
-    targetWorkspacePurpose?: import("@zcode/shared").WorkspacePurpose,
+    targetWorkspacePurpose?: import("@ycode/shared").WorkspacePurpose,
     createSource?: SessionCreateSource,
   ) => void;
   handleOpenCommandCenter: () => void;

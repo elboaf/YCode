@@ -22,8 +22,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.js";
 import { Switch } from "@/components/ui/switch.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
-import { TID_PLUGIN_STORE_BROWSE } from "@zcode/shared";
-import type { ZCodePluginInfo, ZCodePluginScope, ZCodePluginUserConfigOption } from "@zcode/shared";
+import { TID_PLUGIN_STORE_BROWSE } from "@ycode/shared";
+import type { ZCodePluginInfo, ZCodePluginScope, ZCodePluginUserConfigOption } from "@ycode/shared";
 import type { CreateTaskRequest } from "@/app-shell/types.js";
 import {
   useBaseWorkspaceServices,

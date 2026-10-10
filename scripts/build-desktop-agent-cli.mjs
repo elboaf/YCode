@@ -13,13 +13,13 @@ import {
 } from "./builtin-provider-config.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const useTurboBuild = process.env.ZCODE_DESKTOP_AGENT_BUILD_MODE === "turbo";
-const useBootstrapWithRemoteBuild = process.env.ZCODE_BOOTSTRAP_WITH_REMOTE === "1";
+const useTurboBuild = process.env.YCODE_DESKTOP_AGENT_BUILD_MODE === "turbo";
+const useBootstrapWithRemoteBuild = process.env.YCODE_BOOTSTRAP_WITH_REMOTE === "1";
 const pnpmRunEnv = {
   ...process.env,
-  ZCODE_ENV: await resolveBuiltinProviderBuildEnvironment({ root: repoRoot }),
-  // pnpm 11 的 verify-deps-before-run 会在 apps/zcode-cli 子 workspace
-  // 执行每个 run 前触发 pnpm install；子 workspace 运行时依赖根仓库 @zcode/shared，
+  YCODE_ENV: await resolveBuiltinProviderBuildEnvironment({ root: repoRoot }),
+  // pnpm 11 的 verify-deps-before-run 会在 apps/ycode-cli 子 workspace
+  // 执行每个 run 前触发 pnpm install；子 workspace 运行时依赖根仓库 @ycode/shared，
   // 自动 install 无法解析根 workspace 包，导致 dev:desktop:test 和 E2E onPrepare 失败。
   PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: "false",
 };
@@ -28,23 +28,23 @@ const pnpmRunEnv = {
 // 干净 CI 中该依赖的 dist 尚不存在，bootstrap 会因无法解析类型入口而失败。
 // 两条路径统一从这一份有序清单派生，避免后续新增 workspace 依赖时再次漂移。
 const cliWorkspaceBuilds = [
-  { packageName: "@zcode/shared-types", packageDir: "shared-types" },
-  { packageName: "@zcode/contracts", packageDir: "contracts" },
+  { packageName: "@ycode/shared-types", packageDir: "shared-types" },
+  { packageName: "@ycode/contracts", packageDir: "contracts" },
   // dynamic-workflow 的 tsc 构建依赖 gitignored 的 libs.generated.ts，
   // 而 bare-tsc 路径（runBootstrapWithRemoteBuild）不会执行 package build script，
-  // 所以需要先跑生成脚本；必须排在 @zcode/core 之前，core 依赖 dynamic-workflow。
+  // 所以需要先跑生成脚本；必须排在 @ycode/core 之前，core 依赖 dynamic-workflow。
   {
-    packageName: "@zcode/dynamic-workflow",
+    packageName: "@ycode/dynamic-workflow",
     packageDir: "dynamic-workflow",
     prepareScript: "scripts/generate-libs.mjs",
   },
   // dynamic-workflow-runtime 的类型入口是 dist/index.d.ts，必须先于 bootstrap 构建。
-  { packageName: "@zcode/dynamic-workflow-runtime", packageDir: "dynamic-workflow-runtime" },
-  { packageName: "@zcode/core", packageDir: "core" },
-  { packageName: "@zcode/adapters", packageDir: "adapters" },
-  { packageName: "@zcode/i18n", packageDir: "i18n" },
-  { packageName: "@zcode/telemetry", packageDir: "telemetry" },
-  { packageName: "@zcode/bootstrap", packageDir: "bootstrap" },
+  { packageName: "@ycode/dynamic-workflow-runtime", packageDir: "dynamic-workflow-runtime" },
+  { packageName: "@ycode/core", packageDir: "core" },
+  { packageName: "@ycode/adapters", packageDir: "adapters" },
+  { packageName: "@ycode/i18n", packageDir: "i18n" },
+  { packageName: "@ycode/telemetry", packageDir: "telemetry" },
+  { packageName: "@ycode/bootstrap", packageDir: "bootstrap" },
 ];
 // 官方插件 manifest 可以在 server.js 缺失时被 filesystem seed，直到 session
 // 连接 MCP 才报错，造成“Helper ready 但 CUA 工具不存在”的半启动状态。所有普通 Dev 必需的
@@ -52,12 +52,12 @@ const cliWorkspaceBuilds = [
 const requiredDevPluginRuntimeBuilds = [
   {
     // node_repl 宿主：Browser Use 与 Computer Use 共用，产物归属独立包。
-    packageName: "@zcode/node-repl-host",
+    packageName: "@ycode/node-repl-host",
     artifactPath: "node-repl-host/dist/mcp/server.js",
   },
   {
     // browser-use 自己的 runtime 只剩 browser-client；宿主不再由它携带。
-    packageName: "@zcode/browser-use-plugin",
+    packageName: "@ycode/browser-use-plugin",
     artifactPath: "browser-use-plugin/scripts/browser-client.mjs",
   },
 ];
@@ -68,7 +68,7 @@ const defaultBuildFilters = [
 
 async function verifyRequiredDevPluginRuntimeArtifacts() {
   for (const runtime of requiredDevPluginRuntimeBuilds) {
-    const artifactPath = resolve(repoRoot, "apps/zcode-cli/packages", runtime.artifactPath);
+    const artifactPath = resolve(repoRoot, "apps/ycode-cli/packages", runtime.artifactPath);
     try {
       await access(artifactPath);
     } catch (error) {
@@ -99,13 +99,13 @@ function stageDevAgentBundle() {
 }
 
 async function runBootstrapWithRemoteBuild() {
-  if (existsSync(resolve(repoRoot, "apps/zcode-cli/packages/cli/dist/zcode.cjs"))) {
+  if (existsSync(resolve(repoRoot, "apps/ycode-cli/packages/cli/dist/ycode.cjs"))) {
     await stageBuiltinProviderConfig({
       root: repoRoot,
       env: pnpmRunEnv,
-      directory: resolve(repoRoot, "apps/zcode-cli/packages/cli/dist/provider"),
+      directory: resolve(repoRoot, "apps/ycode-cli/packages/cli/dist/provider"),
     });
-    console.log("[build-desktop-agent-cli] reuse existing zcode-cli desktop agent bundle");
+    console.log("[build-desktop-agent-cli] reuse existing ycode-cli desktop agent bundle");
     return;
   }
 
@@ -117,20 +117,20 @@ async function runBootstrapWithRemoteBuild() {
     // 必须先手动跑生成脚本补齐 gitignored 的 libs.generated.ts，否则 tsc 因缺文件报错。
     if (prepareScript) {
       runCommand(process.execPath, [prepareScript], {
-        cwd: `apps/zcode-cli/packages/${packageDir}`,
+        cwd: `apps/ycode-cli/packages/${packageDir}`,
         env: pnpmRunEnv,
         stdio: "inherit",
       });
     }
     runCommand(process.execPath, ["../../node_modules/typescript/bin/tsc"], {
-      cwd: `apps/zcode-cli/packages/${packageDir}`,
+      cwd: `apps/ycode-cli/packages/${packageDir}`,
       env: pnpmRunEnv,
       stdio: "inherit",
     });
   }
 
   runCommand(process.execPath, ["scripts/build.mjs", "--desktop-agent"], {
-    cwd: "apps/zcode-cli/packages/cli",
+    cwd: "apps/ycode-cli/packages/cli",
     env: pnpmRunEnv,
     stdio: "inherit",
   });
@@ -143,9 +143,9 @@ if (useBootstrapWithRemoteBuild) {
 }
 
 if (!useTurboBuild) {
-  // Linux 容器 demo 里没有仓库级 turbo 根，`turbo --cwd apps/zcode-cli`
-  // 会把 apps/zcode-cli 当根目录，并拒绝 turbo.json 中指向 ../../packages/shared 的 inputs。
-  // 同时 agent 子 workspace 不包含根 packages/shared，但 agent 包依赖 @zcode/shared。
+  // Linux 容器 demo 里没有仓库级 turbo 根，`turbo --cwd apps/ycode-cli`
+  // 会把 apps/ycode-cli 当根目录，并拒绝 turbo.json 中指向 ../../packages/shared 的 inputs。
+  // 同时 agent 子 workspace 不包含根 packages/shared，但 agent 包依赖 @ycode/shared。
   // 因此默认改用仓库根 workspace 的明确 pnpm 包顺序构建，避免 WDIO 前置构建卡在子 workspace 解析。
   for (const filter of defaultBuildFilters) {
     runCommand("pnpm", ["--filter", filter, "build"], {
@@ -155,7 +155,7 @@ if (!useTurboBuild) {
   }
 
   await verifyRequiredDevPluginRuntimeArtifacts();
-  runCommand("pnpm", ["--filter", "@zcode/cli", "build:desktop-agent"], {
+  runCommand("pnpm", ["--filter", "@ycode/cli", "build:desktop-agent"], {
     env: pnpmRunEnv,
     stdio: "inherit",
   });
@@ -170,10 +170,10 @@ runCommand(
     "turbo",
     "--skip-infer",
     "--cwd",
-    "apps/zcode-cli",
+    "apps/ycode-cli",
     "run",
     "build:desktop-agent",
-    "--filter=@zcode/cli",
+    "--filter=@ycode/cli",
   ],
   {
     env: pnpmRunEnv,

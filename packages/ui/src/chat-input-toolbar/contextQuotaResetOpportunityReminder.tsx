@@ -160,7 +160,7 @@ export function ContextQuotaResetOpportunityReminderContent({
     >
       <span className="inline-flex items-center gap-1.5" data-context-reset-reminder-copy>
         <span
-          className="inline-flex shrink-0 origin-bottom animate-zcode-alarm-ring text-warning motion-reduce:animate-none"
+          className="inline-flex shrink-0 origin-bottom animate-ycode-alarm-ring text-warning motion-reduce:animate-none"
           aria-hidden="true"
         >
           <AlarmClock className="size-3.5" />

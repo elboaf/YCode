@@ -1,8 +1,8 @@
-import type { ApiClient } from "@zcode/shared";
+import type { ApiClient } from "@ycode/shared";
 import type { ICredentialService } from "../credential/credential.js";
 import type { ICodingPlanSubscriptionService } from "./codingPlanSubscription.js";
 import { BigModelCodingPlanSubscriptionProvider } from "./bigmodelCodingPlanSubscriptionProvider.js";
-import type { ModelSelectionView } from "@zcode/provider";
+import type { ModelSelectionView } from "@ycode/provider";
 import { ZaiCodingPlanSubscriptionProvider } from "./zaiCodingPlanSubscriptionProvider.js";
 
 interface CodingPlanSubscriptionServiceDependencies {

@@ -3,8 +3,8 @@ import {
   buildHelpAppConfigUrl,
   buildZCodeSourceHeadersFromContext,
   createHelpAppConfigReader,
-  ZCODE_ENV,
-} from "@zcode/shared";
+  YCODE_ENV,
+} from "@ycode/shared";
 
 export function createDesktopHelpConfigReader(options: {
   resolveEndpointOrigin: () => Promise<string>;
@@ -26,7 +26,7 @@ export function createDesktopHelpConfigReader(options: {
         deviceMid: options.deviceMid,
         platform: process.platform,
         arch: process.arch,
-        releaseChannel: ZCODE_ENV,
+        releaseChannel: YCODE_ENV,
         sourceTitle: "electron",
       }),
     );

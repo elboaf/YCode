@@ -4,8 +4,8 @@ import type {
   ZCodeStreamEvent,
   ZCodeTaskChangeSummary,
   Locale,
-} from "@zcode/shared";
-import { getCompactToolCallSummary, getPermissionRequestPreview } from "@zcode/shared";
+} from "@ycode/shared";
+import { getCompactToolCallSummary, getPermissionRequestPreview } from "@ycode/shared";
 import { normalizeBotMessageLocale } from "./messages.js";
 
 export interface BotReplyToolCallState {
@@ -241,7 +241,7 @@ function formatEditPermissionKindLabel(
   if (/\b(update|updating|updated)\b/u.test(normalizedText)) {
     return t(locale, "editUpdating");
   }
-  // Bugfix: edit 权限标题直接透传 ZCode Agent 的 "Edit <path>" 时，第三方消息无法像 UI kindLabel 一样区分写入/更新/删除。
+  // Bugfix: edit 权限标题直接透传 YCode Agent 的 "Edit <path>" 时，第三方消息无法像 UI kindLabel 一样区分写入/更新/删除。
   // 这里至少把泛化的 Edit 换成 edit kind label，具体操作能从 raw/fileChange 推断时再细分。
   return t(locale, "editEditing");
 }

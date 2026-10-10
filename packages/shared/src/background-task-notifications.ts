@@ -1,6 +1,6 @@
-import type { ZCodeMessageWithParts } from "./zcode-protocol-legacy-types.js";
-import { textFromZCodeMessageParts } from "./zcode-protocol-legacy-types.js";
-import type { ZCodeStreamEvent } from "./zcode-task-types-core.js";
+import type { ZCodeMessageWithParts } from "./ycode-protocol-legacy-types.js";
+import { textFromZCodeMessageParts } from "./ycode-protocol-legacy-types.js";
+import type { ZCodeStreamEvent } from "./ycode-task-types-core.js";
 
 export interface ZCodeBackgroundTaskNotificationInfo {
   error?: string;
@@ -79,13 +79,13 @@ export function attachZCodeBackgroundTaskNotificationToRaw(
   }
   const record = asPlainRecord(raw);
   const meta = asPlainRecord(record._meta);
-  const zcode = asPlainRecord(meta.zcode);
+  const ycode = asPlainRecord(meta.ycode);
   return {
     ...record,
     _meta: {
       ...meta,
-      zcode: {
-        ...zcode,
+      ycode: {
+        ...ycode,
         taskNotification: notification,
       },
     },

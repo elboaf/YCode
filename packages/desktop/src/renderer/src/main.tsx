@@ -14,9 +14,9 @@ import {
   playTaskNotificationSound,
   setStreamClientId,
   setReactErrorArmsReporter,
-} from "@zcode/ui";
-import "@zcode/ui/styles.css";
-import { connectViaMessagePort, createMessagePortServiceConnection } from "@zcode/client";
+} from "@ycode/ui";
+import "@ycode/ui/styles.css";
+import { connectViaMessagePort, createMessagePortServiceConnection } from "@ycode/client";
 import {
   InternalChannels,
   databaseStartupStateSchema,
@@ -26,9 +26,9 @@ import {
   LAUNCH_MARKS_QUERY_KEY,
   type LaunchMarks,
   DEFAULT_LOCALE,
-} from "@zcode/shared";
-import type { Locale } from "@zcode/shared";
-import type { IServiceAccessor } from "@zcode/services";
+} from "@ycode/shared";
+import type { Locale } from "@ycode/shared";
+import type { IServiceAccessor } from "@ycode/services";
 import { syncAppTelemetryContext } from "../appTelemetryBridge.js";
 import { createDesktopPlatform } from "./desktopPlatform.js";
 import { startPerformanceTimelineCleanup } from "./performanceTimelineCleanup.js";
@@ -68,14 +68,14 @@ function registerE2EStoreBridgesIfEnabled() {
     return;
   }
 
-  void import("@zcode/ui/e2e-store-bridge").then(({ registerE2EStoreBridges }) => {
+  void import("@ycode/ui/e2e-store-bridge").then(({ registerE2EStoreBridges }) => {
     registerE2EStoreBridges();
   });
 }
 
 // 初始化主题：默认 Zai dark，后续由 useTheme hook 接管
 {
-  const saved = localStorage.getItem("zcode-theme") || "zai-dark";
+  const saved = localStorage.getItem("ycode-theme") || "zai-dark";
   const resolved =
     saved === "system"
       ? window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -252,7 +252,7 @@ function StartupReadyNotifier() {
       Date.now();
     // HTML 启动壳的弹出动画结束时，React 首屏可能还没 commit，直接移除壳会露出空白。
     // 这里在 React commit 后通知 index.html，再由启动壳统一判断动画和 React ready 两个条件后退场。
-    window.dispatchEvent(new Event("zcode-react-startup-ready"));
+    window.dispatchEvent(new Event("ycode-react-startup-ready"));
   }, []);
 
   return null;
@@ -310,7 +310,7 @@ function initializeBusinessRoot(port: MessagePort): void {
 
   syncAppTelemetryContext({
     bridge: {
-      syncTelemetryContext: (context) => window.zcode.syncTelemetryContext(context),
+      syncTelemetryContext: (context) => window.ycode.syncTelemetryContext(context),
     },
     createRendererContext: collectTelemetryRendererContext,
   });

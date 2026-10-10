@@ -1,6 +1,6 @@
 import { Terminal } from "lucide-react";
-import type { UserCommand, ZCodeCommand } from "@zcode/shared";
-import { isPluginCommand, isUserCommand } from "@zcode/shared";
+import type { UserCommand, ZCodeCommand } from "@ycode/shared";
+import { isPluginCommand, isUserCommand } from "@ycode/shared";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { Switch } from "@/components/ui/switch.js";
 import { settingsResourceRowInteraction } from "@/settings/settingsResourceRowInteraction.js";
@@ -8,7 +8,7 @@ import { PluginStoreAvatar } from "@/settings/PluginStoreAvatar.js";
 import type { StorePluginItem } from "@/settings/pluginStoreListing.js";
 
 export function isEditableUserCommand(command: ZCodeCommand): command is UserCommand {
-  return isUserCommand(command) && command.location.source === "zcode";
+  return isUserCommand(command) && command.location.source === "ycode";
 }
 
 interface CommandCardProps {

@@ -6,7 +6,7 @@ import {
   createPluginAgentStateId,
   parsePluginSubagentModelSelectionOverrides,
   DEFAULT_ENABLED_OFFICIAL_PLUGIN_IDS,
-  ZCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID,
+  YCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID,
   modelSelectionSchema,
   type AgentCreateParams,
   type AgentDeleteParams,
@@ -23,7 +23,7 @@ import {
   type SubAgentConfig,
   type SubagentsListMode,
   type ZCodeProvider,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { normalizeSubagentModelSelection } from "./subagentModelSelection.js";
 import { serializeSubagentMarkdown, parseSubagentMarkdown } from "./subagentMarkdown.js";
 import {
@@ -40,7 +40,7 @@ import {
   migrateUserSubagentMarkdown,
   migrateSubagentStateFile,
   scanOfficialPluginCacheRoots,
-} from "@zcode/shared/node";
+} from "@ycode/shared/node";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 
 const subagentLogger = createServiceLogger("subagents");
@@ -82,7 +82,7 @@ interface PluginAgentDiscovery {
 
 const BUILT_IN_AGENT_NAMES = new Set(["general-purpose", "Explore"]);
 const PLUGIN_MANIFEST_PATHS = [
-  join(".zcode-plugin", "plugin.json"),
+  join(".ycode-plugin", "plugin.json"),
   join(".claude-plugin", "plugin.json"),
   join(".codex-plugin", "plugin.json"),
 ] as const;
@@ -273,7 +273,7 @@ async function collectAgentMarkdownPaths(rootPath: string): Promise<string[]> {
 }
 
 function resolveCapabilities(options?: SubagentsServiceOptions): AgentsCapability {
-  const isDesktopRuntime = options?.isDesktopRuntime ?? Boolean(process.env.ZCODE_PROCESS_LABEL);
+  const isDesktopRuntime = options?.isDesktopRuntime ?? Boolean(process.env.YCODE_PROCESS_LABEL);
   if (isDesktopRuntime) {
     return { userScopeAvailable: true };
   }
@@ -396,7 +396,7 @@ async function discoverPluginAgents(params: {
 
 async function readPluginConfig(options?: SubagentStorageOptions): Promise<PluginConfigSummary> {
   try {
-    const configPath = join(resolveUserHomeDir(options), ".zcode", "cli", "config.json");
+    const configPath = join(resolveUserHomeDir(options), ".ycode", "cli", "config.json");
     const raw = await readFile(configPath, "utf-8");
     const parsed = JSON.parse(raw) as unknown;
     if (!isRecord(parsed)) return { enabledPlugins: {}, suppressedBuiltins: [] };
@@ -428,13 +428,13 @@ async function readEnabledPluginRecords(
       config.enabledPlugins[record.id] === true &&
       // 卸载抑制优先于遗留的安装/启用记录，不能只在缓存兜底时检查而复活官方插件。
       !(
-        record.id.endsWith(`@${ZCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID}`) &&
+        record.id.endsWith(`@${YCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID}`) &&
         config.suppressedBuiltins.includes(record.id)
       ),
   );
   const seenIds = new Set(installed.map((record) => record.id));
   for (const cacheRoot of await scanOfficialPluginCacheRoots(pluginStorageRoot)) {
-    const id = `${cacheRoot.name}@${ZCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID}`;
+    const id = `${cacheRoot.name}@${YCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID}`;
     if (seenIds.has(id) || config.suppressedBuiltins.includes(id)) continue;
     const enabled = config.enabledPlugins[id] ?? DEFAULT_ENABLED_OFFICIAL_PLUGIN_IDS.has(id);
     if (!enabled) continue;

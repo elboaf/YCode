@@ -1,4 +1,4 @@
-import type { ZCodeAutomationRunOutcome, ZCodeAutomationTrigger } from "@zcode/shared";
+import type { ZCodeAutomationRunOutcome, ZCodeAutomationTrigger } from "@ycode/shared";
 
 interface CronRunLifecycleRepo {
   ensureRunClaimed(params: {

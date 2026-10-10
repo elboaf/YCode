@@ -6,7 +6,7 @@ index d26925cd014c42b6c6d470f9d2d4d75196203339..ce203cba549db3b21cddf71bb7a2c741
  /** 初始化窗口期时长(ms)，用于合并框架路由重定向 */
  F(_, "INITIAL_LOAD_WINDOW_MS", 200);
  let kA = _;
-+// ZCode 修复：main logger 把公共前缀、业务消息和上下文作为多个 console.error 参数传入。
++// YCode 修复：main logger 把公共前缀、业务消息和上下文作为多个 console.error 参数传入。
 +// SDK 原先只采第一个参数，导致 ARMS 里只剩 [timestamp] [pid] [source]，完全丢失错误正文。
 +// 采集边界统一去前缀、安全序列化、脱敏和截断，避免为了监控改坏 console 的原生多参数语义。
 +const zcodeConsoleErrorMaxLength = 2e3;
@@ -71,7 +71,7 @@ index d26925cd014c42b6c6d470f9d2d4d75196203339..ce203cba549db3b21cddf71bb7a2c741
    const A = await LQ(I, null);
    return JSON.parse(A);
  }
-+// ZCode 修复：旧版 WASM 没有透传 Crashpad 进程角色。minidump 还包含任意内存片段，
++// YCode 修复：旧版 WASM 没有透传 Crashpad 进程角色。minidump 还包含任意内存片段，
 +// 因此不能全文件搜索 process_type 字节；必须从 Crashpad info stream 沿 RVA 读取结构化
 +// annotation，避免 renderer 内存里的同名字节被误判成 browser 并污染 Native Crash 指标。
 +const zcodeCrashpadInfoStreamType = 1129316353;

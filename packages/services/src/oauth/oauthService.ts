@@ -15,7 +15,7 @@ import {
   type OAuthUserProfile,
   type UserInfo,
   resolveJwtExpiration,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type { ICredentialService } from "../credential/credential.js";
 import { createServiceLogger } from "../logger/serviceLogger.js";
 import { readApiJson } from "../providers/api/apiJson.js";
@@ -37,7 +37,7 @@ import {
 /** OAuth 超时时间（5 分钟） */
 const OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 const COMPLETED_POLLING_STATE_GRACE_MS = 30 * 1000;
-const ZCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
 const log = (...args: unknown[]) =>
   console.log(formatLogPrefix("oauthService", process.pid), ...args);
 const serviceLog = createServiceLogger("oauthService");
@@ -206,11 +206,11 @@ export class OAuthService implements IOAuthService {
       return { status: "signed-out" };
     }
 
-    // 启动缓存恢复只需要检查共享 zcode JWT；若通过 loadActiveTokenSet 连带读取
+    // 启动缓存恢复只需要检查共享 ycode JWT；若通过 loadActiveTokenSet 连带读取
     // provider access token，会把原本后台执行的 BigModel profile 迁移重新阻塞到首屏恢复链路。
-    const zcodeJwtToken = (await this.credentialService.load(ZCODE_JWT_TOKEN_KEY))?.trim() ?? "";
+    const zcodeJwtToken = (await this.credentialService.load(YCODE_JWT_TOKEN_KEY))?.trim() ?? "";
     if (zcodeJwtToken && resolveJwtExpiration(zcodeJwtToken, this.now()).kind === "expired") {
-      serviceLog.info("cached session invalidated because zcode JWT expired", {
+      serviceLog.info("cached session invalidated because ycode JWT expired", {
         provider: activeProvider,
       });
       const invalidated = await this.invalidateExpiredCachedSession(
@@ -277,7 +277,7 @@ export class OAuthService implements IOAuthService {
     const invalidated = await this.runSessionMutation(async () => {
       const currentProvider = await this.repo.getActiveProvider();
       const currentProfile = await this.repo.loadUserProfile(expectedProvider);
-      const currentJwt = (await this.credentialService.load(ZCODE_JWT_TOKEN_KEY))?.trim() ?? "";
+      const currentJwt = (await this.credentialService.load(YCODE_JWT_TOKEN_KEY))?.trim() ?? "";
       if (
         this.oauthSessionGeneration !== expectedGeneration ||
         currentProvider !== expectedProvider ||
@@ -643,11 +643,11 @@ export class OAuthService implements IOAuthService {
     }
     if (provider === BIGMODEL_PROVIDER_ID) {
       // BigModel CLI callback 的失败页会截断原有 Desktop deep link 回调体验。
-      // flow 仍由 Host 轮询，但浏览器回调恢复到官网中转页，再透传到 zcode://oauth/callback。
+      // flow 仍由 Host 轮询，但浏览器回调恢复到官网中转页，再透传到 ycode://oauth/callback。
       authorizeUrl.searchParams.set("redirect", buildDesktopOAuthRedirectUriFromEnv(this.env));
     } else if (provider === ZAI_PROVIDER_ID) {
       // Z.AI 后端 init 仍可能返回 provider-specific callback，导致回跳行为与 BigModel 不一致。
-      // Desktop 统一改写为官网中转页，再由官网透传到 zcode://oauth/callback。
+      // Desktop 统一改写为官网中转页，再由官网透传到 ycode://oauth/callback。
       authorizeUrl.searchParams.set("redirect_uri", buildDesktopOAuthRedirectUriFromEnv(this.env));
     }
     const state = authorizeUrl.searchParams.get("state")?.trim();

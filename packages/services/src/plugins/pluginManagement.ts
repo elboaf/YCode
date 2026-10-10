@@ -3,11 +3,11 @@
 // 背景：pluginManagementStore / usePluginUninstall 过去直接注入 IZCodeAgentService，
 // UI 层因此散布 13 个 plugins/* 旧协议词的消费点。收敛为独立薄 service 后，UI 只依赖
 // 本接口；plugins/* 词表的 host 侧消费点收拢到 pluginManagementService 一处（插件的
-// 事实源在 zcode-cli 进程，服务实现仍经 agent 协议往返——plugins 词表的收口归属
+// 事实源在 ycode-cli 进程，服务实现仍经 agent 协议往返——plugins 词表的收口归属
 // 插件能力面自身的协议演进，不在会话 v4 词表范围内）。
 // 注意与既有 IPluginsService（已 retired 的 marketplace pluginStore 通道）区分：
 // 那套接口按 pluginName+marketplace 寻址且方法语义过时，不复用避免签名冲突。
-import type { Event } from "@zcode/rpc";
+import type { Event } from "@ycode/rpc";
 import type {
   ZCodePluginOperationProgressNotification,
   ZCodePluginsConfigureResult,
@@ -22,8 +22,8 @@ import type {
   ZCodePluginsSetEnabledResult,
   ZCodePluginsUninstallResult,
   ZCodePluginsValidateResult,
-} from "@zcode/shared";
-import { ServiceChannels } from "@zcode/shared";
+} from "@ycode/shared";
+import { ServiceChannels } from "@ycode/shared";
 import { createServiceDescriptor } from "../descriptors.js";
 import type {
   ZCodeAgentAddPluginMarketplaceParams,
@@ -42,7 +42,7 @@ import type {
   ZCodeAgentUpdatePluginMarketplaceParams,
   ZCodeAgentUpdatePluginParams,
   ZCodeAgentValidatePluginParams,
-} from "../zcode-agent/zcodeAgentPluginParams.js";
+} from "../ycode-agent/zcodeAgentPluginParams.js";
 
 export interface IPluginManagementService {
   listPlugins(params: ZCodeAgentPluginViewParams): Promise<ZCodePluginsListResult>;
@@ -56,7 +56,7 @@ export interface IPluginManagementService {
   ): Promise<ZCodePluginsReferenceCatalogResult>;
   resolveSuggestedPluginReference(
     params: ZCodeAgentResolveSuggestedPluginReferenceParams,
-  ): Promise<import("@zcode/shared").ZCodePluginsResolveSuggestedReferenceResult>;
+  ): Promise<import("@ycode/shared").ZCodePluginsResolveSuggestedReferenceResult>;
   onDynamicPluginOperationProgress(
     operationId: string,
   ): Event<ZCodePluginOperationProgressNotification>;

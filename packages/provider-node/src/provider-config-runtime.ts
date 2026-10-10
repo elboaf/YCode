@@ -2,17 +2,17 @@ import {
   ProviderConfigService,
   type ProviderConfigLayerSnapshot,
   type ProviderConfigLayerUpdate,
-} from "@zcode/provider";
-import { NodeZCodeBuiltinProviderConfigSource } from "./zcode-builtin-provider-config-source.js";
+} from "@ycode/provider";
+import { NodeZCodeBuiltinProviderConfigSource } from "./ycode-builtin-provider-config-source.js";
 import {
   EndpointScopedZCodeBuiltinSource,
   type EndpointScopedZCodeBuiltinSourceOptions,
-} from "./endpoint-scoped-zcode-builtin-source.js";
+} from "./endpoint-scoped-ycode-builtin-source.js";
 import {
   ZCodeBuiltinRemoteSynchronizer,
   type ZCodeBuiltinRemoteSynchronizerOptions,
   type ZCodeBuiltinRefreshResult,
-} from "./zcode-builtin-remote-synchronizer.js";
+} from "./ycode-builtin-remote-synchronizer.js";
 import {
   NodePersonalProviderConfigRepository,
   type PersonalProviderConfigRecoveryEvent,
@@ -37,7 +37,7 @@ export interface NodeProviderConfigRuntimeOptions {
   readonly watch?: boolean;
 }
 
-/** 组装一个 Node.js 进程内共享的 ZCode Built-in/Personal Config 运行边界。 */
+/** 组装一个 Node.js 进程内共享的 YCode Built-in/Personal Config 运行边界。 */
 export class NodeProviderConfigRuntime {
   readonly configService: ProviderConfigService;
   readonly #zcodeBuiltinSource:
@@ -95,7 +95,7 @@ export class NodeProviderConfigRuntime {
       : this.#zcodeBuiltinSource.resolveActiveFilePath();
   }
 
-  get personalRepository(): import("@zcode/provider").PersonalProviderConfigRepository {
+  get personalRepository(): import("@ycode/provider").PersonalProviderConfigRepository {
     return this.#personalRepository;
   }
 

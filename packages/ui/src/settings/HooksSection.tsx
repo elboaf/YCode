@@ -1,7 +1,7 @@
 /* eslint-disable max-lines -- Hooks 页面聚合 Scope、插件投影、搜索与配置写入流程。 */
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Plus } from "lucide-react";
-import type { Hook, HookConfig, ZCodeInstalledPluginSummary, ZCodePluginInfo } from "@zcode/shared";
+import type { Hook, HookConfig, ZCodeInstalledPluginSummary, ZCodePluginInfo } from "@ycode/shared";
 import { Button } from "@/components/ui/button.js";
 import { toast } from "@/components/ui/toast.js";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog.js";
@@ -44,15 +44,15 @@ interface HooksSectionProps {
 function isEditableHook(hook: Hook): boolean {
   // workspace-hook-trust：运行时 discovery 会下发 editable 标志（工作区 Hook 在
   // runtime 侧不可直接改配置），优先尊重；本地 Settings 发现路径无该标志时回退旧规则。
-  return hook.editable ?? (!hook.location || hook.location.source === "zcode");
+  return hook.editable ?? (!hook.location || hook.location.source === "ycode");
 }
 
-// workspace-hook-trust：editable=false 且 source=zcode 的行是「上游/祖先 zcode.json
+// workspace-hook-trust：editable=false 且 source=ycode 的行是「上游/祖先 ycode.json
 // 里的只读工作区 Hook」。它们不是外部格式兼容导入源，塞进 Legacy 会让 Import 按钮
-// 必然失败（importHook 拒绝 source=zcode），也违反「只读但可逐条 Trust」的约定。
+// 必然失败（importHook 拒绝 source=ycode），也违反「只读但可逐条 Trust」的约定。
 // 这类行应留在 Installed 分组，由信任状态门控 Switch，走行内 Trust 流程。
 function isReadOnlyZCodeHook(hook: Hook): boolean {
-  return hook.editable === false && (hook.location?.source ?? "zcode") === "zcode";
+  return hook.editable === false && (hook.location?.source ?? "ycode") === "ycode";
 }
 
 function isInCompatibilitySection(hook: Hook): boolean {

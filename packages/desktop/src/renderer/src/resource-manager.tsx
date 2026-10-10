@@ -1,13 +1,13 @@
 import { createRoot } from "react-dom/client";
-import type { ResourceUsageSnapshot, StorageManagementBridge } from "@zcode/shared";
-import "@zcode/ui/styles.css";
+import type { ResourceUsageSnapshot, StorageManagementBridge } from "@ycode/shared";
+import "@ycode/ui/styles.css";
 import {
   ResourceManagerApp,
   ZCodeIntlProvider,
   applyUiFontSizePx,
   loadUiFontSizePx,
   subscribeToUiFontSizeStorageChanges,
-} from "@zcode/ui";
+} from "@ycode/ui";
 
 declare global {
   interface Window {
@@ -29,7 +29,7 @@ function resolveTheme(theme: Theme): "light" | "dark" {
 }
 
 function applyResourceManagerTheme(): void {
-  const savedTheme = (localStorage.getItem("zcode-theme") as Theme | null) ?? "zai-dark";
+  const savedTheme = (localStorage.getItem("ycode-theme") as Theme | null) ?? "zai-dark";
   const resolvedTheme = resolveTheme(savedTheme);
   const appliedTheme =
     savedTheme === "system"

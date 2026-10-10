@@ -4,10 +4,10 @@ import type {
   McpSource,
   NativeMcpServerRecord,
   ZCodeMcpServer,
-} from "@zcode/shared";
+} from "@ycode/shared";
 
-const MCP_CONFIG_KEY = "zcode-mcp-config";
-export const MCP_DELETED_PRELOAD_KEY = "zcode-mcp-deleted-preload";
+const MCP_CONFIG_KEY = "ycode-mcp-config";
+export const MCP_DELETED_PRELOAD_KEY = "ycode-mcp-deleted-preload";
 
 export const DEFAULT_MCP_CONFIG: McpConfig = {
   mcp: { mcpServers: {} },
@@ -90,7 +90,7 @@ export function makeServerId(
   directorySource?: NonNullable<NativeMcpServerRecord["location"]>["source"],
 ): string {
   const sourceKey =
-    source === "zcodeagentmcp" && directorySource && directorySource !== "zcode"
+    source === "zcodeagentmcp" && directorySource && directorySource !== "ycode"
       ? `${source}-${directorySource}`
       : source;
   return `${sourceKey}-${toIdKey(toScopeKey(projectPath))}-${toIdKey(name)}`;

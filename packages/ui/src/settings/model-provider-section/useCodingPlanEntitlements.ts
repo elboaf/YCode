@@ -1,6 +1,6 @@
 import { buildStartPlanEntitlementOptions } from "@/lib/startPlanEntitlementOptions.js";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import type { ProviderSettingsView } from "@zcode/services";
+import type { ProviderSettingsView } from "@ycode/services";
 import {
   getModelProviderFamilySpec,
   type ModelProviderFamilySpec,
@@ -8,7 +8,7 @@ import {
   type ProviderFamilyConnectionSelectionSettings,
   type ZCodeAccountAccess,
   type ZCodeProviderAccountAccess,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   useUsageEntitlement,
   type UsageEntitlementRefreshOptions,

@@ -18,7 +18,7 @@ import type {
   UsageStatsRequest,
   UsageStatsSnapshot,
   ZCodeAccountAccess,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   ApiError,
   BUILTIN_MODEL_PROVIDER_IDS,
@@ -28,8 +28,8 @@ import {
   buildBigModelApiUrl,
   buildRuntimeZaiBusinessUrl,
   buildRuntimeZCodeApiUrl,
-} from "@zcode/shared";
-import type { ProviderFamilyDomain } from "@zcode/shared";
+} from "@ycode/shared";
+import type { ProviderFamilyDomain } from "@ycode/shared";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 import type { ICredentialService } from "../../credential/credential.js";
 import type { IAccountRequestAuthService } from "../../model-provider/accountRequestAuthService.js";
@@ -71,7 +71,7 @@ import { normalizeLimits, pickPrimaryLimit } from "./bigmodelUsageQuotaMapper.js
 
 const BIGMODEL_QUOTA_PATH = "/api/monitor/usage/quota/limit";
 const CODING_PLAN_RESET_BASE_PATH = "/api/v1/coding-plan/reset";
-const ZCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
 const ZAI_OAUTH_ACCESS_TOKEN_KEY = "oauth:zai:access_token";
 const BIGMODEL_OAUTH_ACCESS_TOKEN_KEY = "oauth:bigmodel:access_token";
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -656,7 +656,7 @@ export class BigModelUsageQuotaProvider {
       providerId: request.preferredProviderId,
       accountAccess,
     });
-    const zcodeJwt = (await this.credentialService?.load(ZCODE_JWT_TOKEN_KEY))?.trim() ?? "";
+    const zcodeJwt = (await this.credentialService?.load(YCODE_JWT_TOKEN_KEY))?.trim() ?? "";
     if (!zcodeJwt) {
       throw new Error("coding_plan_reset_zcode_jwt_required");
     }
@@ -753,7 +753,7 @@ export class BigModelUsageQuotaProvider {
   ): Promise<ResolvedQuotaAuthorization | null> {
     if (request.allowEnvApiKey !== false && request.requirePreferredProvider !== true) {
       const envApiKey =
-        readEnv(this.env, "ZCODE_BIGMODEL_USAGE_API_KEY") ??
+        readEnv(this.env, "YCODE_BIGMODEL_USAGE_API_KEY") ??
         readEnv(this.env, "BIGMODEL_USAGE_API_KEY");
       if (envApiKey) {
         return {
@@ -1563,7 +1563,7 @@ function addDaysToDateKey(dateKey: string, days: number): string {
 }
 
 function resolveQuotaUrlFromEnv(env: NodeJS.ProcessEnv): string | undefined {
-  return readEnv(env, "ZCODE_BIGMODEL_USAGE_QUOTA_URL") ?? readEnv(env, "BIGMODEL_USAGE_QUOTA_URL");
+  return readEnv(env, "YCODE_BIGMODEL_USAGE_QUOTA_URL") ?? readEnv(env, "BIGMODEL_USAGE_QUOTA_URL");
 }
 
 function resolveCodingPlanApiKeyError(providerId: string | undefined): string {

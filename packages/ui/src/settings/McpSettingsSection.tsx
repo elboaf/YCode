@@ -3,7 +3,7 @@
  * MCP Settings Section
  *
  * Manages MCP server configuration in the settings page.
- * Supports the unified ZCode Agent MCP source backed by settings directories.
+ * Supports the unified YCode Agent MCP source backed by settings directories.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -11,7 +11,7 @@ import {
   TID_MCP_OPEN_AUTHORIZATION_BUTTON,
   TID_PLUGIN_MCP_SERVER_ROW,
   testId,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type {
   RemoteTarget,
   ZCodeAvailablePluginSummary,
@@ -20,8 +20,8 @@ import type {
   ZCodeMcpServer,
   ZCodeMcpServerStatusSnapshot,
   ZCodePluginInfo,
-} from "@zcode/shared";
-import { isZCodeAgentMcpStatusModeUnsupportedError, type IMcpSyncService } from "@zcode/services";
+} from "@ycode/shared";
+import { isZCodeAgentMcpStatusModeUnsupportedError, type IMcpSyncService } from "@ycode/services";
 import { Button } from "@/components/ui/button.js";
 import { toast } from "@/components/ui/toast.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
@@ -752,7 +752,7 @@ export function McpSettingsSection({
       // skipReason 已经覆盖了这个分支，这里只为类型收窄。
       if (!requestedWorkspacePath) return;
       const requestedMcpServers =
-        options?.mcpServers ?? useMcpStore.getState().getEnabledMcpServersForZCode("zcode");
+        options?.mcpServers ?? useMcpStore.getState().getEnabledMcpServersForZCode("ycode");
       await statusListRefreshQueueRef.current?.request(async () => {
         if (!isRequestCurrent()) {
           return;

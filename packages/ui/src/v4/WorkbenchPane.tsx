@@ -11,13 +11,13 @@ import {
   type DragEvent,
   type ReactNode,
 } from "react";
-import { TID_V4_PANE_SHELL, testId } from "@zcode/shared";
+import { TID_V4_PANE_SHELL, testId } from "@ycode/shared";
 import type {
   GitChangeSourceId,
   GitRepositorySummary,
   ZCodeProvider,
   ZCodeTaskChangeSummary,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { useServices } from "@/hooks/useServices.js";
 import type { CodeViewerSource } from "@/lib/codeViewer.js";

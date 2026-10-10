@@ -2,7 +2,7 @@ import {
   databaseStartupControlSchema,
   databaseStartupStateSchema,
   databaseStartupPortPayloadSchema,
-} from "@zcode/shared";
+} from "@ycode/shared";
 /* eslint-disable max-lines -- preload bridge 集中暴露桌面平台 IPC，拆散会让 contextBridge 权限边界更难审计。 */
 import { contextBridge, ipcRenderer, webFrame, webUtils } from "electron";
 import {
@@ -77,13 +77,13 @@ import type {
   OpenCuaPermissionOnboardingOptions,
   ConfigureFinalArmsCustomEventE2ERequest,
   FinalArmsCustomEventE2EEntry,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   InternalChannels,
   PlatformChannels,
   formatZCodeRendererProcessName,
   shouldEnableE2ETestBridge,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { createOAuthCallbackHandler } from "./oauthCallbackBridge.js";
 
 if (shouldEnableE2ETestBridge(process.env)) {
@@ -232,7 +232,7 @@ function notifyUpdateStateCallbacks(payload: UpdateStatePayload): void {
 }
 
 // 进程检索体验优化：renderer 在系统里通常只会显示成通用 helper 名称，
-// 这里在 preload 阶段补上 zcode-* title，便于按窗口角色筛选。
+// 这里在 preload 阶段补上 ycode-* title，便于按窗口角色筛选。
 updateRendererProcessTitle();
 window.addEventListener("DOMContentLoaded", updateRendererProcessTitle, {
   once: true,
@@ -244,14 +244,14 @@ window.addEventListener("DOMContentLoaded", updateRendererProcessTitle, {
  * 凭据管理已迁移到 host process 的 ICredentialService，
  * 通过 MessagePort RPC 访问，不再经过此 bridge。
  */
-contextBridge.exposeInMainWorld("zcode", {
+contextBridge.exposeInMainWorld("ycode", {
   connectRemote: (
     options: RemoteTarget,
     requestId?: string,
     context?: {
       workspacePath: string;
       workspaceIdentity?: string;
-      connectTrigger?: import("@zcode/shared").RemoteWorkspaceConnectTrigger;
+      connectTrigger?: import("@ycode/shared").RemoteWorkspaceConnectTrigger;
     },
   ) =>
     ipcRenderer.invoke(PlatformChannels.ConnectRemote, {
@@ -587,7 +587,7 @@ contextBridge.exposeInMainWorld("zcode", {
   openInFileManager: (path: string) => ipcRenderer.invoke(PlatformChannels.OpenInFileManager, path),
   /** 使用系统默认应用打开本地文件 */
   openExternalFile: (path: string) => ipcRenderer.invoke(PlatformChannels.OpenExternalFile, path),
-  /** 打开 ZCode Computer Use 完整权限引导 */
+  /** 打开 YCode Computer Use 完整权限引导 */
   openCuaPermissionOnboarding: (options?: OpenCuaPermissionOnboardingOptions) =>
     ipcRenderer.invoke(PlatformChannels.OpenCuaPermissionOnboarding, options),
   /** 只取消当前 renderer 以 operationId 发起的 onboarding participant。 */
@@ -663,7 +663,7 @@ contextBridge.exposeInMainWorld("zcode", {
       ipcRenderer.removeListener(PlatformChannels.RendererActionTraceConfigChanged, handler);
   },
   /** 发送已结束 Span；使用 send 避免遥测往返阻塞业务。 */
-  reportLocalTtftBatch: (batch: import("@zcode/shared").LocalTtftBatch): void =>
+  reportLocalTtftBatch: (batch: import("@ycode/shared").LocalTtftBatch): void =>
     ipcRenderer.send(PlatformChannels.ReportLocalTtftBatch, batch),
   reportRendererActionTraceBatch: (batch: RendererActionTraceBatchV1): void =>
     ipcRenderer.send(PlatformChannels.ReportRendererActionTraceBatch, batch),
@@ -676,7 +676,7 @@ contextBridge.exposeInMainWorld("zcode", {
   /** 通过 main process 触发原生任务通知 */
   showTaskNotification: (payload: TaskNotificationPayload) =>
     ipcRenderer.send(PlatformChannels.ShowTaskNotification, payload),
-  /** 导出日志：打包 ~/.zcode/v2 及外部 agent 日志为 zip 并在 Finder 中显示 */
+  /** 导出日志：打包 ~/.ycode/v2 及外部 agent 日志为 zip 并在 Finder 中显示 */
   exportLogs: (): Promise<{
     success: boolean;
     path?: string;
@@ -714,7 +714,7 @@ contextBridge.exposeInMainWorld("zcode", {
   browserViewUpdateViewport: (payload: { tabId: string; viewport: BrowserViewportSize | null }) =>
     ipcRenderer.invoke(PlatformChannels.BrowserViewUpdateViewport, payload),
   /** 从自动发现的 Chrome Profile 一次性导入内置浏览器数据。 */
-  importChromeBrowserData: (options?: import("@zcode/shared").ChromeBrowserDataImportOptions) =>
+  importChromeBrowserData: (options?: import("@ycode/shared").ChromeBrowserDataImportOptions) =>
     ipcRenderer.invoke(PlatformChannels.ImportChromeBrowserData, options),
   /** 清理内置浏览器缓存或全部站点数据。 */
   clearEmbeddedBrowserData: (mode: "cache" | "all") =>

@@ -62,8 +62,8 @@ import {
   TID_WORKSPACE_FILE_TREE_BUTTON,
   TID_WORKSPACE_ITEM,
   testId,
-} from "@zcode/shared";
-import type { ZCodeTaskMeta } from "@zcode/shared";
+} from "@ycode/shared";
+import type { ZCodeTaskMeta } from "@ycode/shared";
 import { useBaseWorkspaceServices, useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import {
   applyTaskQueryCacheMutation,

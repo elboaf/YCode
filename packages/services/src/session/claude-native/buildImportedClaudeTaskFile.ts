@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import type { ZCodeTaskMeta } from "@zcode/shared";
-import { generateTraceId } from "@zcode/shared";
+import type { ZCodeTaskMeta } from "@ycode/shared";
+import { generateTraceId } from "@ycode/shared";
 import { deriveSessionTitle } from "#src/session/sessionTitle.js";
 import type { ClaudeNativeImportedSessionSource } from "#src/session/claude-native/claudeNativeImportedSessionTypes.js";
 import type { LegacyTaskSessionFile } from "#src/session/legacyTaskSessionFile.js";
@@ -66,7 +66,7 @@ export function buildImportedClaudeTaskFile(
   };
 
   // Claude 原生 session 的 mode/model/provider 是来源端运行态，
-  // 直接落入 ZCode snapshot 会在恢复时污染当前 workspace 的运行时选择。
+  // 直接落入 YCode snapshot 会在恢复时污染当前 workspace 的运行时选择。
   // 这里按显式 path 列表清洗，保留正文和 migrationSource 供列表识别迁移来源。
   return filterImportedClaudeTaskFilePaths(taskFile, filterPaths);
 }

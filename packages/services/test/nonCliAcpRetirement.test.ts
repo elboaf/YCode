@@ -6,12 +6,12 @@ import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
-  ZCODE_PROTOCOL_NAME,
-  ZCODE_PROTOCOL_VERSION,
+  YCODE_PROTOCOL_NAME,
+  YCODE_PROTOCOL_VERSION,
   zcodeSessionStateSnapshotSchema,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { TaskIndexRepo } from "../src/session/taskIndexRepo.js";
-import { createZCodeTaskServiceAdapter } from "../src/zcode-agent/zcodeTaskServiceAdapter.js";
+import { createZCodeTaskServiceAdapter } from "../src/ycode-agent/zcodeTaskServiceAdapter.js";
 import {
   getLegacyTaskSessionSnapshotPath,
   getZCodeDataRootDir,
@@ -33,7 +33,7 @@ const meta = {
 };
 
 test("current Project Memory catalog and files remain readable", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "zcode-current-memory-"));
+  const dir = await mkdtemp(join(tmpdir(), "ycode-current-memory-"));
   setDataBaseDir(dir);
   try {
     const workspaceId = "example-0123456789abcdef";
@@ -65,7 +65,7 @@ test("current Project Memory catalog and files remain readable", async () => {
 });
 
 test("opening the task index leaves retired ACP IDs and user rows untouched", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "zcode-acp-index-"));
+  const dir = await mkdtemp(join(tmpdir(), "ycode-acp-index-"));
   const path = join(dir, "tasks.sqlite");
   const repo = new TaskIndexRepo(path);
   try {
@@ -97,7 +97,7 @@ test("opening the task index leaves retired ACP IDs and user rows untouched", as
 });
 
 test("missing sessions report the owner error even when a valid ACP snapshot exists", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "zcode-acp-snapshot-"));
+  const dir = await mkdtemp(join(tmpdir(), "ycode-acp-snapshot-"));
   setDataBaseDir(dir);
   const path = getLegacyTaskSessionSnapshotPath(meta.workspacePath, meta.taskId);
   const snapshot = parseLegacyTaskSessionFile({ meta, messages: [], toolCalls: [] });
@@ -143,7 +143,7 @@ test("missing sessions report the owner error even when a valid ACP snapshot exi
 
 test("current session recovery preserves Desktop and replayable projections", async () => {
   const snapshot = zcodeSessionStateSnapshotSchema.parse({
-    protocol: { name: ZCODE_PROTOCOL_NAME, version: ZCODE_PROTOCOL_VERSION },
+    protocol: { name: YCODE_PROTOCOL_NAME, version: YCODE_PROTOCOL_VERSION },
     session: {
       sessionId: meta.taskId,
       workspace: { workspacePath: meta.workspacePath, workspaceKey: meta.workspacePath },
@@ -224,10 +224,10 @@ test("current session recovery preserves Desktop and replayable projections", as
 });
 
 test("current Provider configuration starts without an old config migration callback", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "zcode-provider-current-"));
+  const dir = await mkdtemp(join(tmpdir(), "ycode-provider-current-"));
   const runtime = createProviderConfigRuntime({
     zcodeBuiltinFilePath: fileURLToPath(
-      new URL("../../../config/provider/zcode-builtin.json", import.meta.url),
+      new URL("../../../config/provider/ycode-builtin.json", import.meta.url),
     ),
     personalFilePath: join(dir, "personal.json"),
     personalPollingIntervalMs: false,

@@ -1,7 +1,7 @@
 /*
  * Derived from vercel/ai-elements (packages/elements/src/message.tsx).
  * Copyright 2023 Vercel, Inc. Licensed under Apache-2.0.
- * Modified by ZCode: local integration, formatting and adaptations.
+ * Modified by YCode: local integration, formatting and adaptations.
  * See THIRD-PARTY-NOTICES.md in the repository root for license and provenance.
  */
 "use client";
@@ -13,7 +13,7 @@ import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { createMathPlugin } from "@streamdown/math";
 import { mermaid } from "@streamdown/mermaid";
-import type { EditorInfo, FileStat, OpenInEditorOptions } from "@zcode/shared";
+import type { EditorInfo, FileStat, OpenInEditorOptions } from "@ycode/shared";
 import type { UIMessage } from "ai";
 import { ChevronLeftIcon, ChevronRightIcon, CopyIcon, ExternalLinkIcon } from "lucide-react";
 import remarkCjkFriendlyGfmStrikethrough from "remark-cjk-friendly-gfm-strikethrough";
@@ -101,7 +101,7 @@ import type { Theme } from "@/useTheme.js";
 import { createZCodeFileCitationRemarkPlugin } from "@/lib/zcodeFileCitationRemarkPlugin.js";
 import { windowsFileLinkEscapeRemarkPlugin } from "@/lib/windowsFileLinkEscapeRemarkPlugin.js";
 import { projectZCodeFileCitations } from "@/lib/zcodeFileCitation.js";
-import { rewriteMarkdownArtifactImageSources } from "@zcode/shared";
+import { rewriteMarkdownArtifactImageSources } from "@ycode/shared";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
   from: UIMessage["role"];
@@ -382,7 +382,7 @@ export type MessageResponseProps = {
   onOpenCodeViewer?: (source: CodeViewerSource) => void;
   onOpenFileLink?: (target: MessageFileLinkTarget) => void;
   onOpenExternalUrl?: (url: string) => void;
-  /** 仅 Assistant 正文开启：把完整 zcode-file-citation 投影为现有文件链接。 */
+  /** 仅 Assistant 正文开启：把完整 ycode-file-citation 投影为现有文件链接。 */
   renderZCodeFileCitations?: boolean;
 };
 

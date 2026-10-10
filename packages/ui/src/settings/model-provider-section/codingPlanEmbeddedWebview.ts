@@ -6,8 +6,8 @@ import {
   isZaiCodingPlanProviderId,
   normalizeZCodeEndpointOrigin,
   ZAI_PROVIDER_ID,
-} from "@zcode/shared";
-import type { CodingPlanWebviewLocale } from "@zcode/shared";
+} from "@ycode/shared";
+import type { CodingPlanWebviewLocale } from "@ycode/shared";
 import type { CodingPlanFunnelContext } from "@/lib/codingPlanFunnelTelemetry.js";
 import type { CodingPlanProviderId } from "@/settings/model-provider-section/constants.js";
 
@@ -61,7 +61,7 @@ const CODING_PLAN_WEBVIEW_CREDENTIAL_LOCAL_STORAGE_KEYS = [
   "zcodejwttoken",
   "oauth:bigmodel:access_token",
 ] as const;
-const CODING_PLAN_REPORT_CONTEXT_STORAGE_KEY = "zcode:coding-plan:report-context";
+const CODING_PLAN_REPORT_CONTEXT_STORAGE_KEY = "ycode:coding-plan:report-context";
 
 export function resolveCodingPlanWebsiteProvider(
   providerId: CodingPlanProviderId,
@@ -184,7 +184,7 @@ export function createCodingPlanAuthInjectionScript({
         }
       : {
           "oauth:zai:access_token": null,
-          // zcodejwttoken 是 zcode-plan 域通用凭证（BigModel OAuth callback 同样落盘），
+          // zcodejwttoken 是 ycode-plan 域通用凭证（BigModel OAuth callback 同样落盘），
           // 官网用它查 billing/balance 判定 Start Plan 是否使用中；BigModel 分支缺失注入
           // 会导致官网 Start Plan 卡因查不到权益而误显示「已过期」。业务接口仍走
           // oauth:bigmodel:access_token，互不污染。
@@ -207,15 +207,15 @@ export function createCodingPlanAuthInjectionScript({
   document.documentElement.classList.toggle("dark", zcodeTheme === "zai-dark");
   document.documentElement.classList.toggle("theme-zai-light", zcodeTheme === "zai-light");
   document.documentElement.classList.toggle("theme-zai-dark", zcodeTheme === "zai-dark");
-  localStorage.setItem("zcode-theme", zcodeTheme);
-  localStorage.setItem("zcode:coding-plan:embedded", "app");
+  localStorage.setItem("ycode-theme", zcodeTheme);
+  localStorage.setItem("ycode:coding-plan:embedded", "app");
   // 写入当前 App locale，供官网 zcodeBridge.getLang() 读取。
   // 注意：这是注入 webview 执行的原始 JS，不能用 TS 语法（如 as any）。
   window.__zcodeLang__ = ${JSON.stringify(resolvedLocale)};
   const zcodeReportContext = ${JSON.stringify(normalizedReportContext)};
   window.__zcodeReportContext__ = zcodeReportContext;
   localStorage.setItem(${JSON.stringify(CODING_PLAN_REPORT_CONTEXT_STORAGE_KEY)}, JSON.stringify(zcodeReportContext));
-  window.dispatchEvent(new CustomEvent("zcode-coding-plan-auth-ready", {
+  window.dispatchEvent(new CustomEvent("ycode-coding-plan-auth-ready", {
     detail: { ...${JSON.stringify({ provider, locale: resolvedLocale })}, reportContext: zcodeReportContext },
   }));
 })()`;
@@ -277,7 +277,7 @@ export function createCodingPlanCredentialClearScript(): string {
 
 export function createCodingPlanScrollbarHideScript(): string {
   return `(() => {
-  const styleId = "zcode-coding-plan-hide-scrollbar";
+  const styleId = "ycode-coding-plan-hide-scrollbar";
   if (document.getElementById(styleId)) return;
   const style = document.createElement("style");
   style.id = styleId;
@@ -303,7 +303,7 @@ body::-webkit-scrollbar,
 /**
  * 生成「更新 webview 当前 locale」的注入脚本。
  * App locale 运行时变化时对 webview executeJavaScript 此脚本：
- * 重写 window.__zcodeLang__ 并派发 zcode-coding-plan-lang-change 事件，
+ * 重写 window.__zcodeLang__ 并派发 ycode-coding-plan-lang-change 事件，
  * 官网侧（zcodeBridge.onLangChange 或 window 监听）据此无感切换语言。
  */
 export function createCodingPlanLangInjectionScript(locale: CodingPlanWebviewLocale): string {
@@ -311,14 +311,14 @@ export function createCodingPlanLangInjectionScript(locale: CodingPlanWebviewLoc
   return `(() => {
   // 注意：注入 webview 执行的原始 JS，不能用 TS 语法（如 as any）。
   window.__zcodeLang__ = ${JSON.stringify(resolvedLocale)};
-  window.dispatchEvent(new CustomEvent("zcode-coding-plan-lang-change", {
+  window.dispatchEvent(new CustomEvent("ycode-coding-plan-lang-change", {
     detail: ${JSON.stringify({ locale: resolvedLocale })},
   }));
 })()`;
 }
 
 export function getCodingPlanCredentialKeys(provider: CodingPlanWebsiteProvider): string[] {
-  // zcodejwttoken 对两个 provider 都加载：它是 zcode-plan 域通用凭证，
+  // zcodejwttoken 对两个 provider 都加载：它是 ycode-plan 域通用凭证，
   // BigModel OAuth callback 同样落盘（见 resolveBigModelStartPlanZcodeJwt）。
   return provider === "zai"
     ? [`oauth:${ZAI_PROVIDER_ID}:access_token`, "zcodejwttoken"]

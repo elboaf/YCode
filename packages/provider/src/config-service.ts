@@ -17,7 +17,7 @@ import {
   resolveProviderTemplateName,
 } from "./config/index.js";
 import { resolveOwnedOrder } from "./owned-order.js";
-import type { ModelSelection } from "@zcode/shared/model-selection";
+import type { ModelSelection } from "@ycode/shared/model-selection";
 import type { ProviderConfigSnapshot, ProviderSource } from "./sources.js";
 
 export interface ProviderConfigLayerSnapshot {
@@ -162,7 +162,7 @@ export class ProviderConfigService implements ProviderSource<ProviderConfigSnaps
         // 通用保存入口只解析 ProviderConfig，曾绕过 Personal Source Schema，
         // 允许固定 Account Provider 的 access 被写盘，直到下次读取才整份拒绝。
         throw new Error(
-          `固定 Account Provider 的 Access 只能由 ZCode Built-in Config 声明: ${providerId}`,
+          `固定 Account Provider 的 Access 只能由 YCode Built-in Config 声明: ${providerId}`,
         );
       }
       // 普通保存曾同时承担创建语义，删除后的迟到保存可以凭空复活 Overlay。

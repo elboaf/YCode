@@ -4,7 +4,7 @@ import {
   testId,
   type McpServerStatus,
   type ZCodeMcpServer,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { Button } from "@/components/ui/button.js";
 import { Switch } from "@/components/ui/switch.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
@@ -78,7 +78,7 @@ function McpServerItem({
   const typeLabel = server.config.command
     ? "stdio"
     : (server.config.type ?? (server.config.url ? "http" : "?"));
-  const canEdit = !server.location || server.location.source === "zcode";
+  const canEdit = !server.location || server.location.source === "ycode";
   const canOpenAuthorization = Boolean(server.authorization?.authorizationUrl);
   const openAuthorizationLabel = intl.formatMessage({
     id: "settings.mcp.oauth.openAuthorization",

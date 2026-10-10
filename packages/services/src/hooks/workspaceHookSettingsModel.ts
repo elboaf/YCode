@@ -5,7 +5,7 @@ import type {
   HookEvent,
   SettingsDirectoryLocation,
   WorkspaceHookDiscoveryState,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   resolveWorkspaceHookEntries,
   type CanonicalWorkspaceHookEntryData,
@@ -14,7 +14,7 @@ import {
   type WorkspaceHookRuntimeRoot,
   type WorkspaceHookSourceInput,
   type WorkspaceHooksConfig,
-} from "@zcode/shared/workspace-hook-discovery";
+} from "@ycode/shared/workspace-hook-discovery";
 
 interface LegacyHookDefinition {
   type?: "command" | "process" | string;
@@ -175,7 +175,7 @@ export function fromProjectSnapshot(input: {
       source,
       id: entry.reviewItemId,
       location: {
-        source: "zcode",
+        source: "ycode",
         scope: "project",
         directoryPath: dirname(source.canonicalPath),
         projectPath: input.workspacePath,
@@ -207,7 +207,7 @@ export function fromUserZCodeSource(input: {
     toHook({
       entry,
       source: input.source!,
-      id: `hook-zcode-user-${index}`,
+      id: `hook-ycode-user-${index}`,
       location: input.location,
     }),
   );

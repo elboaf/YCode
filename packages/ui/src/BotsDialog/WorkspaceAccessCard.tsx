@@ -1,6 +1,6 @@
 import { Check, LoaderCircle } from "lucide-react";
-import type { BotConfig, BotWorkspaceRef } from "@zcode/shared";
-import { ALL_BOT_WORKSPACES } from "@zcode/shared";
+import type { BotConfig, BotWorkspaceRef } from "@ycode/shared";
+import { ALL_BOT_WORKSPACES } from "@ycode/shared";
 import {
   Select,
   SelectContent,

@@ -1,4 +1,4 @@
-import { ServiceChannels } from "@zcode/shared";
+import { ServiceChannels } from "@ycode/shared";
 import { createServiceDescriptor } from "../descriptors.js";
 import type {
   ZCodeConfigOption,
@@ -13,8 +13,8 @@ import type {
   BotWorkspaceRef,
   BotsConfigFile,
   ZCodeAutomationBotDeliveryTarget,
-} from "@zcode/shared";
-import type { ZCodeAgentAppRuntimePreferences } from "../zcode-agent/zcodeAgent.js";
+} from "@ycode/shared";
+import type { ZCodeAgentAppRuntimePreferences } from "../ycode-agent/zcodeAgent.js";
 
 export interface BotCreateBindCodeParams {
   botId?: string;

@@ -27,7 +27,7 @@ import type {
   SettingsSyncSourceSkillSummary,
   SettingsSyncSourceRootSummary,
   SettingsSyncSourceScope,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { cn } from "@/components/lib/utils.js";
 import { Badge } from "@/components/ui/badge.js";
@@ -47,7 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select.js";
-import type { ISettingsSyncService } from "@zcode/services";
+import type { ISettingsSyncService } from "@ycode/services";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { logger } from "@/logger.js";
 
@@ -220,8 +220,8 @@ function formatAgentName(agent: string, intl: ReturnType<typeof useZCodeIntl>["i
       return intl.formatMessage({ id: "settingsSync.agent.codeBuddy" });
     case "agents":
       return intl.formatMessage({ id: "settingsSync.agent.agents" });
-    case "zcode":
-      return intl.formatMessage({ id: "settingsSync.agent.zcode" });
+    case "ycode":
+      return intl.formatMessage({ id: "settingsSync.agent.ycode" });
     default:
       return agent;
   }

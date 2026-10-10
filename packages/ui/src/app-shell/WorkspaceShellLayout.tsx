@@ -7,7 +7,7 @@ import type {
 } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 
-import { TID_APP_HEADER } from "@zcode/shared";
+import { TID_APP_HEADER } from "@ycode/shared";
 // 保活：workspace tab 真正关闭时，按 workspaceKey 回收 side pane terminal 的常驻 PTY/xterm。
 // 对称下侧 Terminal.tsx 的 openWorkspaceKeys 回收。
 import { sidePaneTerminalSessionRegistry } from "@/terminal/sidePaneTerminalSessionRegistry.js";
@@ -99,7 +99,7 @@ import type { ComposerMentionPrefill } from "@/store/zcodeSessionStoreTypes.js";
 const WORKSPACE_SIDEBAR_DEFAULT_WIDTH_PX = 264;
 const WORKSPACE_SIDEBAR_MIN_WIDTH_PX = 264;
 const WORKSPACE_SIDEBAR_MAX_WIDTH_RATIO = 0.5;
-const WORKSPACE_SIDEBAR_WIDTH_STORAGE_KEY = "zcode:workspace-shell:sidebar-width-px";
+const WORKSPACE_SIDEBAR_WIDTH_STORAGE_KEY = "ycode:workspace-shell:sidebar-width-px";
 const LEGACY_WORKSPACE_SHELL_LAYOUT_STORAGE_KEY =
   "react-resizable-panels:workspace-shell-layout:sidebar:content";
 const WORKSPACE_SIDEBAR_RESIZE_KEYBOARD_STEP_PX = 16;
@@ -1088,8 +1088,8 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     (
       targetWorkspacePath: string,
       targetWorkspaceIdentity?: string,
-      targetWorkspacePurpose?: import("@zcode/shared").WorkspacePurpose,
-      createSource?: import("@zcode/shared").SessionCreateSource,
+      targetWorkspacePurpose?: import("@ycode/shared").WorkspacePurpose,
+      createSource?: import("@ycode/shared").SessionCreateSource,
     ) => {
       showChatMainView();
       handleStartDraftInWorkspace(
@@ -1509,7 +1509,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
 
   return (
     <DesktopWindowFrame
-      title={`ZCode / ${getPathLeaf(workspaceAbsPath)}`}
+      title={`YCode / ${getPathLeaf(workspaceAbsPath)}`}
       showHeader
       isDesktop={isDesktop}
       isMacDesktop={isMacDesktop}

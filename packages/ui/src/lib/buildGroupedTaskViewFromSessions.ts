@@ -9,8 +9,8 @@ import type {
   ZCodeGroupedTaskViewStructure,
   ZCodeGroupedTaskViewStructureMember,
   ZCodeTaskListItem,
-} from "@zcode/services";
-import type { ZCodeTaskMeta } from "@zcode/shared";
+} from "@ycode/services";
+import type { ZCodeTaskMeta } from "@ycode/shared";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
 import { mergeTaskIndexRowsWithSessions } from "@/v4/buildTaskListResultFromSessions.js";
 

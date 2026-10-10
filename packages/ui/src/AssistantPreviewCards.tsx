@@ -286,10 +286,10 @@ function AssistantPreviewCardRow({
   return (
     <div
       className="flex w-full items-center gap-3 rounded-xl border border-card-border bg-card p-3 pr-4 text-foreground"
-      data-zcode-stream-animate="true"
+      data-ycode-stream-animate="true"
       style={
         {
-          "--zcode-stream-animation-delay": `${animationDelayMs}ms`,
+          "--ycode-stream-animation-delay": `${animationDelayMs}ms`,
         } as CSSProperties
       }
     >

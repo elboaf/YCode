@@ -36,7 +36,7 @@ import {
   ISettingsSyncService,
   IPromptAttachmentTransferService,
   type IServiceAccessor,
-} from "@zcode/services";
+} from "@ycode/services";
 import {
   ConversationShareHttpClient,
   ConversationShareService,
@@ -65,7 +65,7 @@ import {
   createMemoryService,
   createRemoteConversationShareArtifactSource,
   OAuthCredentialRepo,
-} from "@zcode/services/node";
+} from "@ycode/services/node";
 import {
   BIGMODEL_PROVIDER_ID,
   buildRuntimeZCodeApiUrl,
@@ -73,7 +73,7 @@ import {
   type ProviderFamilyDomain,
   type ZCodeSessionRuntimePreferencesResult,
   ZAI_PROVIDER_ID,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { assertLegacyRemoteWorkspaceRpcContract } from "./legacyRemoteWorkspaceRpcContract.js";
 import {
   createRemoteProviderProvisioningExecutorFromWorkspace,
@@ -81,7 +81,7 @@ import {
 } from "./remoteProviderProvisioningService.js";
 
 const runtimePreferencesLogger = createServiceLogger("remote-runtime-preferences");
-const ZCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
 
 export function createRemoteWorkspaceServiceCollection(params: {
   clientConfigService: IClientConfigService;
@@ -184,7 +184,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
     apiClient: localApiClient,
     baseUrl: buildRuntimeZCodeApiUrl(process.env, "/api/v1"),
     tokenProvider: async () =>
-      (await localCredentialService.load(ZCODE_JWT_TOKEN_KEY))?.trim() || null,
+      (await localCredentialService.load(YCODE_JWT_TOKEN_KEY))?.trim() || null,
   });
   const conversationShareService = new ConversationShareService({
     zcodeAgentService: params.connectionServices.zcodeAgentService,
@@ -214,7 +214,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
     (request) => {
       const startedAt = Date.now();
       const requestContext = {
-        event: "zcode_protocol.runtime_preferences.host_request_received",
+        event: "ycode_protocol.runtime_preferences.host_request_received",
         module: "desktop.host.remote_workspace",
         requestId: request.requestId,
         scope: request.scope,
@@ -309,7 +309,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
 
   // Web 手机远控进入 SSH task 时只连到 remote workspace host，
   // 没有桌面 renderer 那层 `baseServices + remoteServices` 合并。
-  // 因此这里为 remote workspace host 补齐本地全局 channel；文件、终端、ZCode Agent 仍来自远端，
+  // 因此这里为 remote workspace host 补齐本地全局 channel；文件、终端、YCode Agent 仍来自远端，
   // 设置、凭据、OAuth、模型供应商和 settings-sync 继续读写本机配置。
   const services = new ServiceCollection()
     .register(IFileService, params.connectionServices.fileService)

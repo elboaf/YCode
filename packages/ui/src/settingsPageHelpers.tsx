@@ -4,18 +4,18 @@ import type {
   IntegratedTerminalShellSelection,
   LocalePreference,
   ZCodeInteractionBehavior,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   TID_SETTINGS_ASK_USER_QUESTION_AUTO_RESOLUTION_SWITCH,
   TID_SETTINGS_NATIVE_SEARCH_SWITCH,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { useState, useCallback, useEffect } from "react";
-import type { IPlatformService } from "@zcode/shared";
+import type { IPlatformService } from "@ycode/shared";
 import {
   TID_SETTINGS_LOCALE_SELECT_ITEM,
   TID_SETTINGS_LOCALE_SELECT_TRIGGER,
   testId,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   Select,
   SelectContent,
@@ -38,12 +38,12 @@ import {
   type SettingsSectionId,
 } from "@/settings/settingsPageConfig.js";
 
-export type { Locale, LocalePreference } from "@zcode/shared";
+export type { Locale, LocalePreference } from "@ycode/shared";
 export { type SettingsSectionId };
 export { createSettingsPageConfig, resolveSettingsSectionForPlatform };
 
 const TASK_AUTO_ARCHIVE_DAY_OPTIONS = [3, 7, 14, 30] as const;
-const ZCODE_INTERACTION_BEHAVIOR_OPTIONS: readonly ZCodeInteractionBehavior[] = ["queue", "guide"];
+const YCODE_INTERACTION_BEHAVIOR_OPTIONS: readonly ZCodeInteractionBehavior[] = ["queue", "guide"];
 
 export function GeneralSectionContent({
   localePreference,
@@ -686,7 +686,7 @@ export function GeneralSectionContent({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {ZCODE_INTERACTION_BEHAVIOR_OPTIONS.map((behavior) => (
+                {YCODE_INTERACTION_BEHAVIOR_OPTIONS.map((behavior) => (
                   <SelectItem key={behavior} value={behavior}>
                     {intl.formatMessage({
                       id: `settings.zcodeInteractionBehavior.option.${behavior}`,

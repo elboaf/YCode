@@ -2,9 +2,9 @@ import {
   resolveMarkdownFileLink,
   type MarkdownFileLinkResolveOptions,
 } from "@/lib/markdownFileLink.js";
-import { extractConversationPreviewFileReferences } from "@zcode/shared";
+import { extractConversationPreviewFileReferences } from "@ycode/shared";
 import { decodeFilePathUriEscapes, joinFilePath } from "@/lib/path.js";
-import { MEDIA_PREVIEW_FORMATS } from "@zcode/shared";
+import { MEDIA_PREVIEW_FORMATS } from "@ycode/shared";
 import {
   extractZCodeFileCitationDirectives,
   resolveZCodeFileCitationPreviewKind,
@@ -246,7 +246,7 @@ export function extractAssistantFileReferences(
     if (overlapsRanges(start, end, protectedRanges)) continue;
 
     // 普通正文里的 `~/...` 是给用户看的 shell 路径，不是稳定的预览卡片引用。
-    // 明确的 zcode-file-citation 仍在上面的专用分支处理。
+    // 明确的 ycode-file-citation 仍在上面的专用分支处理。
     if (/^~[\\/]/.test(raw)) {
       protectedRanges.push([start, end]);
       continue;

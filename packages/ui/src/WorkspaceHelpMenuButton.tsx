@@ -2,7 +2,7 @@ import {
   DesktopCommandIds,
   TID_WORKSPACE_HELP_MENU_RESOURCE_MANAGER,
   TID_WORKSPACE_HELP_MENU_TRIGGER,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   ActivityIcon,
   BookOpenIcon,

@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import type { Hook, HookConfig } from "@zcode/shared";
-import type { IHooksService } from "@zcode/services";
+import type { Hook, HookConfig } from "@ycode/shared";
+import type { IHooksService } from "@ycode/services";
 import { getWorkspaceKey } from "@/lib/workspaceKey.js";
 
 interface HooksStoreState {
@@ -56,20 +56,20 @@ function buildZCodeHookLocation(
 ): Hook["location"] {
   return storageLevel === "project"
     ? {
-        source: "zcode",
+        source: "ycode",
         scope: "project",
         directoryPath: "",
         projectPath: workspacePath,
       }
     : {
-        source: "zcode",
+        source: "ycode",
         scope: "user",
         directoryPath: "",
       };
 }
 
 function isEditableHook(hook: Hook): boolean {
-  return hook.editable ?? (!hook.location || hook.location.source === "zcode");
+  return hook.editable ?? (!hook.location || hook.location.source === "ycode");
 }
 
 function hookFromConfig(config: HookConfig, workspacePath: string): Hook {
@@ -291,7 +291,7 @@ export const useHooksStore = create<HooksStoreState>((set, get) => ({
     const { hooks, workspacePath } = get();
     if (!workspacePath) throw new Error("No workspace path set");
     const source = hooks.find((hook) => hook.id === id);
-    if (!source || source.location?.source === "zcode") throw new Error("Hook is not importable");
+    if (!source || source.location?.source === "ycode") throw new Error("Hook is not importable");
     const imported: Hook = {
       ...source,
       id: `hook-${crypto.randomUUID()}`,

@@ -5,8 +5,8 @@ import type {
   ZCodeOffPeakTask,
   ZCodeOffPeakTaskCreateParams,
   ModelSelection,
-} from "@zcode/shared";
-import { ServiceChannels } from "@zcode/shared";
+} from "@ycode/shared";
+import { ServiceChannels } from "@ycode/shared";
 import { createServiceDescriptor } from "../descriptors.js";
 
 // 闲时任务管理服务通道（与 automation 服务面互不复用）。

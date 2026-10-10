@@ -6,10 +6,10 @@ import type {
   ConversationSharePreview,
   ConversationShareRecord,
   Locale,
-} from "@zcode/shared";
-import { ServiceChannels } from "@zcode/shared";
-import type { ConversationRow } from "@zcode/shared/zcode-protocol-v4";
-import { Event as RpcEvent, type Event } from "@zcode/rpc";
+} from "@ycode/shared";
+import { ServiceChannels } from "@ycode/shared";
+import type { ConversationRow } from "@ycode/shared/ycode-protocol-v4";
+import { Event as RpcEvent, type Event } from "@ycode/rpc";
 
 import { createServiceDescriptor } from "../descriptors.js";
 import type { ConversationShareClientErrorKind } from "./conversationShareHttpClient.js";

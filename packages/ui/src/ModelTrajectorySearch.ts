@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { ZCodeModelTrajectoryMessage, ZCodeModelTrajectoryRecord } from "@zcode/services";
+import type { ZCodeModelTrajectoryMessage, ZCodeModelTrajectoryRecord } from "@ycode/services";
 import {
   trajectoryToolCallInputs,
   trajectoryToolMetadata,

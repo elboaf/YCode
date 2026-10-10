@@ -8,9 +8,9 @@ import {
   useRef,
 } from "react";
 import type { ReactNode } from "react";
-import type { Locale, LocalePreference } from "@zcode/shared";
-import { DEFAULT_LOCALE } from "@zcode/shared";
-import type { BroadcastMessage, IBroadcastService, ISettingService } from "@zcode/services";
+import type { Locale, LocalePreference } from "@ycode/shared";
+import { DEFAULT_LOCALE } from "@ycode/shared";
+import type { BroadcastMessage, IBroadcastService, ISettingService } from "@ycode/services";
 import {
   readNavigatorLanguage,
   readSafeLocalStorage,
@@ -30,7 +30,7 @@ export interface IntlInstance {
   formatMessage(descriptor: { id: string }, values?: Record<string, string | number>): string;
 }
 
-const LOCALE_PREFERENCE_KEY = "zcode-locale-preference";
+const LOCALE_PREFERENCE_KEY = "ycode-locale-preference";
 const STATE_LOCALE_CHANNEL = "state:locale";
 
 interface LocaleBroadcastPayload {

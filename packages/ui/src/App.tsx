@@ -1,7 +1,7 @@
 /* eslint-disable max-lines -- App 当前集中编排 workspace 级状态、导航、Git 派生数据和 shell wiring；已将新增 side pane memory 桥接抽出，剩余拆分需要按 shell 边界单独重构。 */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import type { GitChangeSourceId, WorkspacePurpose } from "@zcode/shared";
+import type { GitChangeSourceId, WorkspacePurpose } from "@ycode/shared";
 import { useZCodeStore } from "@/store/StoreProvider.js";
 import { getVisibleTaskMetas, useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
 import { useTaskQueryCacheStore } from "@/store/taskQueryCacheStore.js";
@@ -46,7 +46,7 @@ import {
   type SettingsSectionId,
 } from "@/lib/settingsNavigation.js";
 import { runWorkspaceVisibleCommand } from "@/lib/workspaceVisibleCommand.js";
-import { ZCODE_PRODUCT_DOCS_URL } from "@/lib/productDocs.js";
+import { YCODE_PRODUCT_DOCS_URL } from "@/lib/productDocs.js";
 import appLogoUrl from "@/assets/provider-icons/logo-zai.svg";
 import { resolveTheme } from "@/useTheme.js";
 import { WorkspaceShellLayout } from "@/app-shell/WorkspaceShellLayout.js";
@@ -681,7 +681,7 @@ export function App({
   }, [openFeedbackSubmit, openFeedbackTickets, platform]);
   const handleOpenCommunity = useCallback(() => platform.openCommunity(), [platform]);
   const handleOpenProductDocs = useCallback(() => {
-    platform.openExternal(ZCODE_PRODUCT_DOCS_URL);
+    platform.openExternal(YCODE_PRODUCT_DOCS_URL);
   }, [platform]);
   const themeTarget = resolveTheme(theme) === "dark" ? "light" : "dark";
   const handleSwitchTheme = useCallback(() => {
@@ -705,7 +705,7 @@ export function App({
       targetWorkspacePath: string,
       targetWorkspaceIdentity?: string,
       targetWorkspacePurpose?: WorkspacePurpose,
-      createSource?: import("@zcode/shared").SessionCreateSource,
+      createSource?: import("@ycode/shared").SessionCreateSource,
     ) => {
       const store = useZCodeSessionStore.getState();
       const resolvedTargetWorkspaceIdentity =

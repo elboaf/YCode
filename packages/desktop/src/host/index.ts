@@ -22,7 +22,7 @@ import {
   type IChannelServer,
   LoggingChannelServer,
   NetworkTelemetryChannelServer,
-} from "@zcode/rpc";
+} from "@ycode/rpc";
 import { registerHostNetworkTelemetry, stopHostNetworkTelemetry } from "./hostNetworkTelemetry.js";
 import { registerHostServiceResourceTelemetry } from "./hostServiceResourceTelemetry.js";
 import { resolveResourceTelemetryEnvironmentKey } from "./hostResourceTelemetryEnvironment.js";
@@ -47,7 +47,7 @@ import {
   createZCodeAgentConnectionScope,
   type ZCodeAgentV4ClientMode,
   collectServiceMemoryDiagnostics,
-} from "@zcode/services";
+} from "@ycode/services";
 import {
   createLocalServices,
   getOffPeakRequestAuthBuilder,
@@ -64,7 +64,7 @@ import {
   OffPeakPermanentDispatchError,
   type HostApiNetworkTransport,
   type OffPeakRequestAuthBuilder,
-} from "@zcode/services/node";
+} from "@ycode/services/node";
 import { createHostResourceUsageResponder } from "./hostResourceUsage.js";
 import {
   assertBoundSessionDispatchable,
@@ -73,7 +73,7 @@ import {
 import {
   HostMessageTypes,
   HostResponseTypes,
-  ZCODE_VERSION,
+  YCODE_VERSION,
   formatLogPrefix,
   formatZCodeHostProcessName,
   formatZodError,
@@ -94,7 +94,7 @@ import {
   type ZCodeAutomationRun,
   type ZCodeAutomationRunOutcome,
   type ModelSelection,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   parseHostIncomingMessageEvent,
   rejectUnavailableAttachedServicePort,
@@ -109,8 +109,8 @@ import type {
   RemoteRuntimeNetworkOptions,
   RemoteAssetNetworkPort,
   RemoteConnection,
-} from "@zcode/server/remote";
-import type { RemoteTarget } from "@zcode/shared";
+} from "@ycode/server/remote";
+import type { RemoteTarget } from "@ycode/shared";
 import { wrapElectronPort } from "./electronPort.js";
 import { createTaskRealtimeBridgeForHostInit } from "./taskRealtimeBridge.js";
 import { resolveRpcLogLevel } from "./rpcLogLevel.js";
@@ -149,7 +149,7 @@ import {
 } from "./windowRemoteConnectionRegistry.js";
 import { createWindowHostControllerRuntime } from "./windowHostControllerService.js";
 import { resolveAutomationSubmissionModelSelection } from "./automationModelSelection.js";
-import { createRemoteConnectionProgressContext } from "@zcode/server/remote/remoteConnectionProgressContext.js";
+import { createRemoteConnectionProgressContext } from "@ycode/server/remote/remoteConnectionProgressContext.js";
 import { startHostSelfResourceTelemetry } from "./hostSelfResourceTelemetry.js";
 type RemoteBackendHostConnection = RemoteConnection & {
   backend: IRemoteBackend;
@@ -175,7 +175,7 @@ const hostRemoteMediaRequestLimiter = {
   getState: () => ({ active: activeRemoteMediaRequests, limit: 4 }),
 };
 const remoteMediaRangePreviewEnabled =
-  process.env["ZCODE_REMOTE_MEDIA_RANGE_PREVIEW_ENABLED"] !== "0";
+  process.env["YCODE_REMOTE_MEDIA_RANGE_PREVIEW_ENABLED"] !== "0";
 
 type RemoteAssetDirs = Pick<
   ConnectOptions,
@@ -185,8 +185,8 @@ type RemoteAssetDirs = Pick<
 const { parentPort } = process;
 
 // 进程检索体验优化：host 由 utilityProcess 拉起时外壳仍是 Electron Helper，
-// 这里根据 main 传入的窗口 label 补一层稳定的 zcode-* title，方便系统进程列表过滤。
-process.title = formatZCodeHostProcessName(process.env["ZCODE_PROCESS_LABEL"]);
+// 这里根据 main 传入的窗口 label 补一层稳定的 ycode-* title，方便系统进程列表过滤。
+process.title = formatZCodeHostProcessName(process.env["YCODE_PROCESS_LABEL"]);
 
 type HostLogLevel = "info" | "warn" | "error";
 
@@ -302,7 +302,7 @@ const remoteConnectionProgressContext = createRemoteConnectionProgressContext({
 });
 
 function writeHostLog(level: HostLogLevel, ...args: unknown[]): void {
-  const prefix = formatLogPrefix("zcode-host", process.pid);
+  const prefix = formatLogPrefix("ycode-host", process.pid);
   const consoleFn =
     level === "error" ? rawConsole.error : level === "warn" ? rawConsole.warn : rawConsole.log;
   consoleFn(prefix, ...args);
@@ -325,7 +325,7 @@ function createFullFeedbackLogArchiveViaMain(
       onProgress: options?.onProgress,
     });
     // 问题反馈以前在 host service 内走 compactLogArchive 的 full fallback，
-    // 收集范围和“导出日志”不一致，缺少 zcode-cli 日志、rollout/debug 以及导出链路脱敏。
+    // 收集范围和“导出日志”不一致，缺少 ycode-cli 日志、rollout/debug 以及导出链路脱敏。
     // 这里把完整日志打包委托给 main process 的导出日志同源逻辑，host 只拿 zip 路径继续上传。
     try {
       parentPort.postMessage({
@@ -541,7 +541,7 @@ async function dispatchOffPeakRun(request: OffPeakRunDispatchRequest): Promise<{
 }> {
   const zcodeTaskService = activeServices?.getOptional(IZCodeTaskService);
   if (!zcodeTaskService) {
-    throw new Error("ZCode task service is not initialized.");
+    throw new Error("YCode task service is not initialized.");
   }
   const runtime = await ensureOffPeakRuntime();
   if (!runtime) {
@@ -855,7 +855,7 @@ async function dispatchCronRun(request: CronRunDispatchRequest): Promise<{
   const targetServices = resolveAutomationTargetServices(request);
   const zcodeTaskService = targetServices.getOptional(IZCodeTaskService);
   if (!zcodeTaskService) {
-    throw new Error("ZCode task service is not initialized.");
+    throw new Error("YCode task service is not initialized.");
   }
   const modelSelectionService = targetServices.getOptional(IModelSelectionService);
   if (!modelSelectionService) {
@@ -1333,7 +1333,7 @@ function createReportingRemoteZCodeTaskService<T extends object>(
     try {
       return await sendPrompt.call(target, params);
     } finally {
-      // 远端 zcode-server 没有 desktop realtime port；由窗口 Host 内的
+      // 远端 ycode-server 没有 desktop realtime port；由窗口 Host 内的
       // remote facade 接管 lease 和 stream mirror，确保 UI 能持续收到远端会话流。
       streamDisposable?.dispose();
       taskRealtimePort.releaseTaskRunLease(mirrorTarget);
@@ -1353,12 +1353,12 @@ function createReportingRemoteZCodeTaskService<T extends object>(
     const onDynamicTaskReady = Reflect.get(target, "onDynamicTaskReady");
     if (typeof onDynamicTaskReady !== "function") {
       workspaceTaskTracker.finish(taskId, meta);
-      throw new Error("remote ZCode task service does not expose onDynamicTaskReady");
+      throw new Error("remote YCode task service does not expose onDynamicTaskReady");
     }
     const subscribe = onDynamicTaskReady.call(target, taskId);
     if (typeof subscribe !== "function") {
       workspaceTaskTracker.finish(taskId, meta);
-      throw new Error("remote ZCode task ready event is not subscribable");
+      throw new Error("remote YCode task ready event is not subscribable");
     }
     workspaceProxyState.trackTaskReady(
       taskId,
@@ -1369,7 +1369,7 @@ function createReportingRemoteZCodeTaskService<T extends object>(
     return true;
   }
 
-  // remote workspace 的 ZCode Agent manager 跑在远端 server，desktop main 不能直接看到
+  // remote workspace 的 YCode Agent manager 跑在远端 server，desktop main 不能直接看到
   // `handles` 状态。sendPrompt Promise 只是远端 ACK，必须等待 task ready 才能允许回收 workspace。
   return new Proxy(service, {
     get(target, property, receiver) {
@@ -1512,12 +1512,12 @@ function warmUpZCodeAgent(
       if (!result.available) {
         if (result.reasonCode === "provider_not_ready") {
           logger.info(
-            `ZCode agent warmup waiting for provider/model (${reason}) workspace=${workspacePath}`,
+            `YCode agent warmup waiting for provider/model (${reason}) workspace=${workspacePath}`,
           );
           return;
         }
         logger.warn(
-          `ZCode agent warmup unavailable (${reason}) workspace=${workspacePath} reason=${result.reason ?? "unknown"}`,
+          `YCode agent warmup unavailable (${reason}) workspace=${workspacePath} reason=${result.reason ?? "unknown"}`,
         );
         return;
       }
@@ -1525,11 +1525,11 @@ function warmUpZCodeAgent(
       // presentation 只剩 mode 与 slash commands。预热不能为读取 presentation 额外创建
       // Agent App，否则其 MCP close 会占住协议通道并阻塞真正的 Session 初始化。
       logger.info(
-        `ZCode agent warmup ready (${reason}) workspace=${workspacePath} transport=${result.transportKind ?? "unknown"}`,
+        `YCode agent warmup ready (${reason}) workspace=${workspacePath} transport=${result.transportKind ?? "unknown"}`,
       );
     })
     .catch((error) => {
-      logger.warn(`ZCode agent warmup failed (${reason}) workspace=${workspacePath}:`, error);
+      logger.warn(`YCode agent warmup failed (${reason}) workspace=${workspacePath}:`, error);
     });
 }
 
@@ -1707,7 +1707,7 @@ async function createWindowRemoteConnectionHandle(params: {
   });
 
   let disposed = false;
-  // 远端 workspace 的 CLI 与 MCP 样本走与本地同一条路径：远端 zcode-server → 本地 Host → main。
+  // 远端 workspace 的 CLI 与 MCP 样本走与本地同一条路径：远端 ycode-server → 本地 Host → main。
   // 订阅寿命等于这份远端 services 的寿命：由 connection handle 持有，registry 释放 entry
   // （WSL idle 回收、最后一个 logical session 关闭、掉线后的 session 清理）时随 dispose 一起收口。
   const resourceTelemetry = registerHostServiceResourceTelemetry({
@@ -2456,7 +2456,7 @@ parentPort.on("message", async (e: Electron.MessageEvent) => {
       parentPort.postMessage({
         type: HostResponseTypes.SessionMessageDeliverResult,
         result: {
-          error: "ZCode task service is not initialized.",
+          error: "YCode task service is not initialized.",
           messageId: msg.request.messageId,
           requestId: msg.request.requestId,
           sessionId: msg.request.fromSessionId,
@@ -2492,7 +2492,7 @@ parentPort.on("message", async (e: Electron.MessageEvent) => {
   if (msg.type === HostMessageTypes.SessionMessageDeliveryResult) {
     const zcodeTaskService = activeServices?.getOptional(IZCodeTaskService);
     if (!zcodeTaskService) {
-      logger.warn("session message delivery result received before ZCode task service initialized");
+      logger.warn("session message delivery result received before YCode task service initialized");
       return;
     }
     void zcodeTaskService.sendSessionMessageDeliveryResult(msg.result).catch((error) => {
@@ -2945,7 +2945,7 @@ async function setupRemoteConnection(
 ): Promise<HostRemoteConnection> {
   // 延迟加载 remote backend，避免 local 模式下因 ssh2 依赖链进入 asar 后崩溃
   const { createRemoteBackend, connectRemote, pickRemoteRuntimeEnv } =
-    await import("@zcode/server/remote");
+    await import("@ycode/server/remote");
   const backend = await createRemoteBackend(target);
   const connection = await connectRemote(backend, {
     ...remoteAssets,
@@ -2953,9 +2953,9 @@ async function setupRemoteConnection(
     remoteRuntimeNetwork,
     signal,
     // SSH/Docker 远端 server 由 host process 单独启动，不能依赖桌面 main 的环境继承。
-    // 这里显式透传编译期版本，避免漏导入后生成裸 ZCODE_VERSION 引用导致 SSH 初始化直接 ReferenceError。
-    appVersion: ZCODE_VERSION,
-    // 远端 zcode-server/agent 是独立进程，不能继承 host 里的测试/生产 endpoint 选择。
+    // 这里显式透传编译期版本，避免漏导入后生成裸 YCODE_VERSION 引用导致 SSH 初始化直接 ReferenceError。
+    appVersion: YCODE_VERSION,
+    // 远端 ycode-server/agent 是独立进程，不能继承 host 里的测试/生产 endpoint 选择。
     // 这里只透传 server 侧白名单允许的公开环境变量，避免把 credential/token 带到远端机器。
     remoteRuntimeEnv: pickRemoteRuntimeEnv(process.env),
     assetInstallMode: target.kind === "ssh" ? target.assetInstallMode : undefined,

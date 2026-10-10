@@ -29,7 +29,7 @@ import {
   TID_V4_ROW,
   TID_V4_ROW_ATTACHMENTS,
   testId,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type {
   AttachmentRef,
   ArtifactRow,
@@ -45,7 +45,7 @@ import type {
   TurnHeaderRow,
   UserInputRow,
   V4ConversationFileRewindPreviewResult,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@ycode/shared/ycode-protocol-v4";
 import { AssistantPreviewCards } from "@/AssistantPreviewCards.js";
 import { AssistantCodeCommentCards } from "@/AssistantCodeCommentCards.js";
 import { useAssistantCodeCommentFeatureEnabled } from "@/AssistantCodeCommentFeatureProvider.js";
@@ -1425,7 +1425,7 @@ export const ConversationAssistantTextActions = memo(function ConversationAssist
             <span
               className={cn(
                 "relative inline-flex",
-                localFeedback === "like" && "zcode-reaction-burst",
+                localFeedback === "like" && "ycode-reaction-burst",
               )}
             >
               <ThumbsUpIcon className="size-3.5" />
@@ -1443,7 +1443,7 @@ export const ConversationAssistantTextActions = memo(function ConversationAssist
             <span
               className={cn(
                 "relative inline-flex",
-                localFeedback === "dislike" && "zcode-reaction-burst",
+                localFeedback === "dislike" && "ycode-reaction-burst",
               )}
             >
               <ThumbsDownIcon className="size-3.5" />

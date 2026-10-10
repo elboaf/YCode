@@ -43,12 +43,12 @@ import {
   testId,
   type PlanIdentitySnapshot,
   type ZCodeProvider,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type {
   AttachmentRef,
   ConversationSnapshot,
   SessionConfigState,
-} from "@zcode/shared/zcode-protocol-v4";
+} from "@ycode/shared/ycode-protocol-v4";
 import {
   ArrowUpIcon,
   ClipboardPenLineIcon,
@@ -118,7 +118,7 @@ import {
 } from "@/lib/workspaceFileDrag.js";
 import { appendWorkspaceFileMentionToComposer } from "@/lib/workspaceFileComposer.js";
 import { resolveProviderBaseURL } from "@/lib/registryProviderView.js";
-import type { ModelSelectionView } from "@zcode/services";
+import type { ModelSelectionView } from "@ycode/services";
 import type { ModelSelectionState } from "@/hooks/useModelSelectionView.js";
 import type { ZCodeUiError } from "@/lib/zcodeUiError.js";
 import {

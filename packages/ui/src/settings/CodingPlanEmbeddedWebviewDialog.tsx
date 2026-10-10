@@ -31,8 +31,8 @@ import {
 import {
   CodingPlanWebviewChannels,
   type CodingPlanPurchaseCompletePayload,
-  ZCODE_VERSION,
-} from "@zcode/shared";
+  YCODE_VERSION,
+} from "@ycode/shared";
 
 interface CodingPlanEmbeddedWebviewDialogProps {
   credentialService: {
@@ -49,7 +49,7 @@ interface CodingPlanEmbeddedWebviewDialogProps {
    * 官网页购买成功后的回调。
    *
    * 官网页通过 preload 注入的 window.zcodeBridge.notifyPurchaseComplete({ provider })
-   * 发送 zcode:coding-plan-purchase-complete 频道消息，本组件在 webview 的
+   * 发送 ycode:coding-plan-purchase-complete 频道消息，本组件在 webview 的
    * ipc-message 事件里识别该频道并触发此回调（经 onPurchaseCompleteRef 防 stale closure）。
    * 上层（CodingPlanUpgradeDialog）在此回调里刷新 entitlements/providers 并关闭 webview。
    */
@@ -181,15 +181,15 @@ export function CodingPlanEmbeddedWebviewDialog({
               }
             : {
                 bigmodelAccessToken: values[0],
-                // BigModel OAuth callback 同样会落盘 zcode JWT；官网用它在
-                // zcode-plan 域查 billing/balance 判定 Start Plan 状态。
+                // BigModel OAuth callback 同样会落盘 ycode JWT；官网用它在
+                // ycode-plan 域查 billing/balance 判定 Start Plan 状态。
                 zcodeJwtToken: values[1],
               };
         const reportContext = buildCodingPlanEmbeddedReportContext({
           funnelContext,
           deviceMid,
           userId,
-          appVersion: ZCODE_VERSION,
+          appVersion: YCODE_VERSION,
         });
         const script = createCodingPlanAuthInjectionScript({
           provider,
@@ -350,7 +350,7 @@ export function CodingPlanEmbeddedWebviewDialog({
         onOpenResultRef.current?.(false);
       };
       // ipc-message: 官网页通过 preload 的 window.zcodeBridge.notifyPurchaseComplete
-      // 发回购买完成信号（zcode:coding-plan-purchase-complete）。
+      // 发回购买完成信号（ycode:coding-plan-purchase-complete）。
       // 参照 useEmbeddedBrowserWheelChain.ts 的 ipc-message handler 模式。
       const handleIpcMessage = (event: ElectronWebviewIpcMessageEvent) => {
         if (event.channel !== CodingPlanWebviewChannels.PurchaseComplete) {
@@ -502,7 +502,7 @@ export function CodingPlanEmbeddedWebviewDialog({
           <webview
             ref={handleWebviewRef}
             allowpopups={"" as unknown as boolean}
-            partition="persist:zcode-coding-plan"
+            partition="persist:ycode-coding-plan"
             src={webviewUrl}
             className={cn(
               "min-h-0 flex-1 bg-background [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",

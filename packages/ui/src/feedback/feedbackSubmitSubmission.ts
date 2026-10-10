@@ -3,8 +3,8 @@ import {
   type FeedbackTicketModule,
   type FeedbackTicketSeverity,
   type FeedbackTicketType,
-} from "@zcode/shared";
-import type { IFeedbackService } from "@zcode/services";
+} from "@ycode/shared";
+import type { IFeedbackService } from "@ycode/services";
 import { persistFeedbackContactPreference } from "@/feedback/feedbackContactPreference.js";
 import type { FeedbackSubmitDraft } from "@/feedback/feedbackStore.js";
 import type { ScreenshotAttachmentDraft } from "@/feedback/FeedbackScreenshotPicker.js";
@@ -19,7 +19,7 @@ import {
   type FeedbackSubmissionJob,
 } from "@/feedback/feedbackSubmissionJob.js";
 
-const FEEDBACK_ZCODE_AGENT_LABEL = "ZCode Agent";
+const FEEDBACK_ZCODE_AGENT_LABEL = "YCode Agent";
 
 export const DEFAULT_FEEDBACK_TYPE: FeedbackTicketType = "bug";
 export const DEFAULT_FEEDBACK_SEVERITY: FeedbackTicketSeverity = "P2-中";

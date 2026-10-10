@@ -4,11 +4,11 @@ import {
   TID_CHAT_MODE_SELECT_TRIGGER,
   TID_CHAT_MODE_SELECT_ITEM,
   TID_V4_COMPOSER_INPUT,
-  ZCODE_AGENT_PROVIDER,
+  YCODE_AGENT_PROVIDER,
   getZCodeAgentAvailableModes,
   testId,
   type ZCodeConfigOption,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -57,7 +57,7 @@ function V4ComposerModeSwitchImpl({
   | "onSwitchMode"
 >) {
   const { intl } = useZCodeIntl();
-  const displayProvider = provider ?? ZCODE_AGENT_PROVIDER;
+  const displayProvider = provider ?? YCODE_AGENT_PROVIDER;
   const modeShortcutLabel = useShortcutCommandLabel("cycleSessionMode");
   const modes = getZCodeAgentAvailableModes();
   const permissions = modes.filter((mode) => mode.id !== "plan");

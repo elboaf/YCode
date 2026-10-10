@@ -5,7 +5,7 @@ import type {
   SettingsSyncDiscoveryResult,
   SettingsSyncImportResult,
   SettingsSyncSelection,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { logger } from "@/logger.js";
 import { useServices } from "@/hooks/useServices.js";
 import { useZCodeSessionService } from "@/hooks/useZCodeSessionService.js";

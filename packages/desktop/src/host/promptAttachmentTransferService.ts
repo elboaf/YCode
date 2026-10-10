@@ -1,11 +1,11 @@
-import { Emitter } from "@zcode/rpc";
-import type { IRemoteBackend } from "@zcode/server/remote";
+import { Emitter } from "@ycode/rpc";
+import type { IRemoteBackend } from "@ycode/server/remote";
 import type {
   IPromptAttachmentTransferService,
   PromptAttachmentStageResult,
   PromptAttachmentTransferProgress,
-} from "@zcode/services";
-import type { ZCodePromptAttachment } from "@zcode/shared";
+} from "@ycode/services";
+import type { ZCodePromptAttachment } from "@ycode/shared";
 import {
   cleanupRemotePromptAttachment,
   cleanupStaleRemotePromptAttachments,

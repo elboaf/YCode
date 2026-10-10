@@ -1,5 +1,5 @@
 /* eslint-disable max-lines -- autoUpdater 需要集中维护 Electron 事件、菜单状态与 IPC 交互，过度拆分会让更新状态流更难追踪 */
-import type { ISettingService } from "@zcode/services";
+import type { ISettingService } from "@ycode/services";
 import {
   DEFAULT_LOCALE,
   DEFAULT_ZCODE_ENDPOINT_ORIGIN,
@@ -8,13 +8,13 @@ import {
   getDesktopMenuMessage,
   PlatformChannels,
   resolveRuntimeZCodeEndpointOrigin,
-  ZCODE_VERSION,
+  YCODE_VERSION,
   type ElectronReleaseChannel,
   type Locale,
   type PostUpdateReleaseNotesPayload,
   type UpdateCheckResultPayload,
   type UpdateStatePayload,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import pkg, { CancellationToken } from "electron-updater";
 import semver from "semver";
@@ -24,12 +24,12 @@ const { autoUpdater } = pkg;
 
 export const CHECK_FOR_UPDATE_MENU_ID = "check-for-update";
 const AUTO_UPDATE_POLL_INTERVAL_MS = 60 * 60 * 1000;
-const UPDATE_FEED_URL_ENV = "ZCODE_UPDATE_FEED_URL";
-const UPDATE_FEED_URL_SWITCH = "--zcode-update-feed-url";
-const DEV_AUTO_UPDATE_ENV = "ZCODE_AUTO_UPDATE_DEV";
-const DEV_AUTO_UPDATE_SWITCH = "--zcode-auto-update-dev";
-const DEV_AUTO_UPDATE_VERSION_ENV = "ZCODE_AUTO_UPDATE_DEV_VERSION";
-const DEV_AUTO_UPDATE_VERSION_SWITCH = "--zcode-auto-update-dev-version";
+const UPDATE_FEED_URL_ENV = "YCODE_UPDATE_FEED_URL";
+const UPDATE_FEED_URL_SWITCH = "--ycode-update-feed-url";
+const DEV_AUTO_UPDATE_ENV = "YCODE_AUTO_UPDATE_DEV";
+const DEV_AUTO_UPDATE_SWITCH = "--ycode-auto-update-dev";
+const DEV_AUTO_UPDATE_VERSION_ENV = "YCODE_AUTO_UPDATE_DEV_VERSION";
+const DEV_AUTO_UPDATE_VERSION_SWITCH = "--ycode-auto-update-dev-version";
 let readyUpdateVersion: string | null = null;
 let readyUpdateReleaseNotes: PostUpdateReleaseNotesPayload | null = null;
 let readyUpdateRestoredFromPendingReleaseNotes = false;
@@ -167,7 +167,7 @@ function resolveDevAutoUpdateVersion(): string | null {
   const configuredVersion =
     process.env[DEV_AUTO_UPDATE_VERSION_ENV]?.trim() ||
     readCommandLineSwitchValue(DEV_AUTO_UPDATE_VERSION_SWITCH)?.trim() ||
-    ZCODE_VERSION;
+    YCODE_VERSION;
   const parsed = semver.parse(configuredVersion);
   if (!parsed) {
     logger.warn(`[auto-update] ignore invalid dev update version=${configuredVersion}`);

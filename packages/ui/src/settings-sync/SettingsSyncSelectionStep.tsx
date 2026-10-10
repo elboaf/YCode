@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { CheckIcon, MinusIcon } from "lucide-react";
-import type { SettingsSyncCategory, SettingsSyncDiscoveryResult } from "@zcode/shared";
+import type { SettingsSyncCategory, SettingsSyncDiscoveryResult } from "@ycode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { renderProviderCliIcon } from "@/lib/providerCliIcon.js";
@@ -30,8 +30,8 @@ function agentsWithCategory(
 
 function formatAgentName(agent: string, intl: ReturnType<typeof useZCodeIntl>["intl"]): string {
   switch (agent) {
-    case "zcode":
-      return intl.formatMessage({ id: "settingsSync.agent.zcode" });
+    case "ycode":
+      return intl.formatMessage({ id: "settingsSync.agent.ycode" });
     case "claudeCode":
       return intl.formatMessage({ id: "settingsSync.agent.claudeCode" });
     case "codexCli":

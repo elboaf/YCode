@@ -20,7 +20,7 @@ import {
   TID_OFFPEAK_CARD_SESSION,
   TID_OFFPEAK_CARD_MENU,
   type ZCodeOffPeakTask,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   DropdownMenu,
   DropdownMenuContent,

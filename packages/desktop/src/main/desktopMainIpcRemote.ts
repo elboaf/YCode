@@ -16,7 +16,7 @@ import {
   type ArmsRumEnv,
   type RemoteTarget,
   type TelemetryEventPayload,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { dispatchTaskNotification } from "./desktopNotifications.js";
 import {
   clearOAuthRoutesForWindow,

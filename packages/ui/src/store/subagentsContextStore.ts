@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import type { ISubagentsService } from "@zcode/services";
+import type { ISubagentsService } from "@ycode/services";
 import {
   normalizeAgentProviderToZCodeAgent,
   type AgentSummary,
   type AgentsCapability,
   type ZCodeProvider,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { logger } from "@/logger.js";
 
 interface SubagentsContextSnapshot {

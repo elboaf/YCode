@@ -2,8 +2,8 @@ import {
   projectModelSelectionProviderView,
   type ModelSelectionView,
   type ProviderRegistryView,
-} from "@zcode/provider";
-import { OFF_PEAK_PROVIDER_IDS } from "@zcode/shared";
+} from "@ycode/provider";
+import { OFF_PEAK_PROVIDER_IDS } from "@ycode/shared";
 
 /** Off-Peak 只投影固定隐藏 Provider，不向普通用户选择面开放隐藏候选。 */
 export function buildOffPeakModelSelectionView(registry: ProviderRegistryView): ModelSelectionView {

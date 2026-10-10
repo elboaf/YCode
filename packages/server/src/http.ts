@@ -14,7 +14,7 @@ import {
   ChannelServer,
   LoggingChannelServer,
   type ISocket,
-} from "@zcode/rpc";
+} from "@ycode/rpc";
 import {
   ServiceCollection,
   IZCodeAgentService,
@@ -25,19 +25,19 @@ import {
   ITerminalService,
   IBotsService,
   IProviderProvisioningTargetService,
-} from "@zcode/services";
+} from "@ycode/services";
 import {
   botProviders,
   formatLogPrefix,
   formatZodError,
   remoteTargetSchema,
   SERVER_REMOTE_PROTOCOL_VERSION,
-  ZCODE_RPC_HOST_CAPABILITY_HEADER,
-  ZCODE_VERSION,
+  YCODE_RPC_HOST_CAPABILITY_HEADER,
+  YCODE_VERSION,
   type BotProvider,
   type ServerRemoteInfo,
   type ServerRemoteWorkspaceInfo,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { connectRemote, createRemoteBackend, type RemoteConnection } from "./remote/index.js";
 import { createHostCapabilityStore } from "./hostCapability.js";
 
@@ -81,7 +81,7 @@ function wrapWebSocket(ws: WebSocket): ISocket {
 }
 
 const log = (...args: unknown[]) =>
-  console.log(formatLogPrefix("zcode-server:http", process.pid), ...args);
+  console.log(formatLogPrefix("ycode-server:http", process.pid), ...args);
 
 function setupChannelServer(
   ws: WebSocket,
@@ -149,7 +149,7 @@ function readTrimmedEnv(name: string): string | undefined {
 
 function resolveServerId(options: HttpServerOptions): string {
   return (
-    options.serverId?.trim() || readTrimmedEnv("ZCODE_SERVER_ID") || hostname() || "zcode-server"
+    options.serverId?.trim() || readTrimmedEnv("YCODE_SERVER_ID") || hostname() || "ycode-server"
   );
 }
 
@@ -157,7 +157,7 @@ function resolveServerWorkspaces(options: HttpServerOptions): ServerRemoteWorksp
   if (options.workspaces) {
     return options.workspaces;
   }
-  const workspacePath = readTrimmedEnv("ZCODE_SERVER_WORKSPACE") || process.cwd();
+  const workspacePath = readTrimmedEnv("YCODE_SERVER_WORKSPACE") || process.cwd();
   return [
     {
       path: workspacePath,
@@ -169,12 +169,12 @@ function resolveServerWorkspaces(options: HttpServerOptions): ServerRemoteWorksp
 function createServerInfo(options: HttpServerOptions): ServerRemoteInfo {
   return {
     serverId: resolveServerId(options),
-    ...(options.name?.trim() || readTrimmedEnv("ZCODE_SERVER_NAME")
-      ? { name: options.name?.trim() || readTrimmedEnv("ZCODE_SERVER_NAME") }
+    ...(options.name?.trim() || readTrimmedEnv("YCODE_SERVER_NAME")
+      ? { name: options.name?.trim() || readTrimmedEnv("YCODE_SERVER_NAME") }
       : {}),
-    version: ZCODE_VERSION,
+    version: YCODE_VERSION,
     protocolVersion: SERVER_REMOTE_PROTOCOL_VERSION,
-    authRequired: options.authRequired ?? Boolean(readTrimmedEnv("ZCODE_SERVER_TOKEN")),
+    authRequired: options.authRequired ?? Boolean(readTrimmedEnv("YCODE_SERVER_TOKEN")),
     workspaces: resolveServerWorkspaces(options),
     capabilities: {
       desktopContinuous: true,
@@ -184,7 +184,7 @@ function createServerInfo(options: HttpServerOptions): ServerRemoteInfo {
   };
 }
 
-const zcodeLiteTokenCookieName = "zcode_lite_token";
+const zcodeLiteTokenCookieName = "ycode_lite_token";
 
 const staticMimeTypes: Record<string, string> = {
   ".css": "text/css; charset=utf-8",
@@ -337,7 +337,7 @@ export function createHttpServer(
     },
   }));
   app.use("/ws/host", async (c, next) => {
-    const capability = c.req.header(ZCODE_RPC_HOST_CAPABILITY_HEADER);
+    const capability = c.req.header(YCODE_RPC_HOST_CAPABILITY_HEADER);
     if (!hostCapabilities.consume(capability)) {
       return c.json({ error: "Invalid or expired host capability" }, 401);
     }
@@ -388,7 +388,7 @@ export function createHttpServer(
         rawBody = { payload: rawBodyText };
       }
     }
-    const webhookSecret = c.req.header("x-zcode-bot-secret");
+    const webhookSecret = c.req.header("x-ycode-bot-secret");
     const botId = c.req.param("botId");
     const result = await botsService.handleProviderCallbackResponse(provider, {
       ...(typeof rawBody === "object" && rawBody !== null ? rawBody : { payload: rawBody }),

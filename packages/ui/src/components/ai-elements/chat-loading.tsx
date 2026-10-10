@@ -24,7 +24,7 @@ export function ChatLoading({ loading, size = "default", className, ...props }: 
     <div
       aria-label={intl.formatMessage({ id: "common.loading" })}
       {...props}
-      data-zcode-chat-loading-animate="true"
+      data-ycode-chat-loading-animate="true"
       role="status"
       className={cn("flex items-center", className)}
     >

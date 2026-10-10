@@ -5,7 +5,7 @@ import type {
   BotOutboundMessage,
   BotStructuredElicitationResponse,
   SelectionPrompt,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type { BotProviderAdapter } from "./types.js";
 
 interface WebhookProviderDeps {
@@ -89,7 +89,7 @@ function parseWebhookAttachments(payload: Record<string, unknown>): BotInboundAt
 function parseWebhookElicitationResponse(
   payload: Record<string, unknown>,
 ): BotStructuredElicitationResponse | undefined {
-  if (payload.type !== "zcode.bot.elicitation_response") {
+  if (payload.type !== "ycode.bot.elicitation_response") {
     return undefined;
   }
   const requestId =
@@ -147,10 +147,10 @@ export function createWebhookBotProvider(deps: WebhookProviderDeps): BotProvider
           method: "POST",
           headers: {
             "content-type": "application/json",
-            [bot.webhookAuthHeaderName || "x-zcode-bot-secret"]: secret ?? "",
+            [bot.webhookAuthHeaderName || "x-ycode-bot-secret"]: secret ?? "",
           },
           body: JSON.stringify({
-            type: "zcode.bot.test",
+            type: "ycode.bot.test",
             botId: bot.id,
             provider: "webhook",
             sentAt: Date.now(),
@@ -178,20 +178,20 @@ export function createWebhookBotProvider(deps: WebhookProviderDeps): BotProvider
         "content-type": "application/json",
       };
       if (secret) {
-        headers[bot.webhookAuthHeaderName || "x-zcode-bot-secret"] = secret;
+        headers[bot.webhookAuthHeaderName || "x-ycode-bot-secret"] = secret;
       }
       const response = await postWebhookWithRetry(bot.webhookUrl, {
         method: "POST",
         headers,
         body: JSON.stringify({
-          type: "zcode.bot.message",
+          type: "ycode.bot.message",
           botId: bot.id,
           provider: "webhook",
           userId: message.providerUserId,
           text: buildSelectionText(message),
           selection: message.selection,
           elicitation: message.elicitation,
-          ...(message.elicitation ? { type: "zcode.bot.elicitation_request" } : {}),
+          ...(message.elicitation ? { type: "ycode.bot.elicitation_request" } : {}),
           sentAt: Date.now(),
         }),
       });

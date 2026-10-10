@@ -3,7 +3,7 @@ import {
   type OAuthProviderId,
   type OAuthTokenSet,
   type OAuthUserProfile,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import type { OAuthProviderAdapter } from "./providers/index.js";
 
 const BIGMODEL_PROFILE_SCHEMA_VERSION = 2;
@@ -125,7 +125,7 @@ export async function refreshLegacyBigModelCachedProfile(
       }),
     );
     if (isBigModelUserInfoFallback(refreshedProfile)) {
-      // 旧版本可能把 zcode JWT 写进 BigModel access token。
+      // 旧版本可能把 ycode JWT 写进 BigModel access token。
       // adapter 会返回 unknown/User 哨兵值表示无法查 BigModel 用户信息；
       // 迁移不能把已有可信缓存覆盖成这个哨兵值，否则版本标记会永久固化错误展示名。
       await saveProfile(withProviderProfileSchema(BIGMODEL_PROVIDER_ID, cachedProfile));

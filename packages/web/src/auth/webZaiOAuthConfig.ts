@@ -3,7 +3,7 @@ import {
   buildZCodeEndpointUrls,
   DEFAULT_ZCODE_ENDPOINT_ORIGIN,
   resolveBigModelApiOrigin,
-} from "@zcode/shared";
+} from "@ycode/shared";
 
 interface WebImportMetaEnv {
   VITE_DEV_ORIGIN?: string;
@@ -57,8 +57,8 @@ function createWebZaiOAuthConfig(env: WebImportMetaEnv = {}): WebZaiOAuthConfig 
     // client_id 会出现在授权 URL 中，属于公开配置；这里允许 VITE_ 注入，但不能放 secret/token。
     clientId: env.VITE_ZAI_OAUTH_CLIENT_ID?.trim() || "client_P8X5CMWmlaRO9gyO-KSqtg",
     bigmodelAuthorizeUrl: buildBigModelAuthorizeUrl(env.VITE_BIGMODEL_OAUTH_ORIGIN),
-    // BigModel 用 appId 而不是 client_id，且默认值就是桌面端在用的 "zcode"。
-    bigmodelAppId: env.VITE_BIGMODEL_OAUTH_APP_ID?.trim() || "zcode",
+    // BigModel 用 appId 而不是 client_id，且默认值就是桌面端在用的 "ycode"。
+    bigmodelAppId: env.VITE_BIGMODEL_OAUTH_APP_ID?.trim() || "ycode",
     redirectUri: zcodeEndpointUrls.webShareCallbackUrl,
     shareRedirectUri: zcodeEndpointUrls.webShareCallbackUrl,
     ...(devOrigin ? { devOrigin } : {}),

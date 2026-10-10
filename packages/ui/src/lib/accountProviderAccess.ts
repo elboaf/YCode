@@ -1,5 +1,5 @@
-import type { ProviderSettingsView } from "@zcode/services";
-import { type ZCodeProviderAccountAccess, zcodeProviderAccountAccessSchema } from "@zcode/shared";
+import type { ProviderSettingsView } from "@ycode/services";
+import { type ZCodeProviderAccountAccess, zcodeProviderAccountAccessSchema } from "@ycode/shared";
 
 interface EntitledAccountProviderAccess {
   readonly providerId: string;

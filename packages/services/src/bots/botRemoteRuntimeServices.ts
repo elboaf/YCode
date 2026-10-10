@@ -4,7 +4,7 @@ import {
   ProxyChannel,
   type MessagePortLike,
   type MessagePortPayload,
-} from "@zcode/rpc";
+} from "@ycode/rpc";
 import {
   IZCodeTaskService,
   type IZCodeTaskService as IZCodeTaskServiceShape,
@@ -12,11 +12,11 @@ import {
 import {
   IZCodeAgentService,
   type IZCodeAgentService as IZCodeAgentServiceShape,
-} from "#src/zcode-agent/zcodeAgent.js";
+} from "#src/ycode-agent/zcodeAgent.js";
 import {
   IZCodeSessionService,
   type IZCodeSessionService as IZCodeSessionServiceShape,
-} from "#src/zcode-session/zcodeSession.js";
+} from "#src/ycode-session/zcodeSession.js";
 import {
   IModelSelectionService,
   type IModelSelectionService as IModelSelectionServiceShape,

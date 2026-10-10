@@ -1,4 +1,4 @@
-import type { ZCodePluginInfo, ZCodePluginUserConfigOption } from "@zcode/shared";
+import type { ZCodePluginInfo, ZCodePluginUserConfigOption } from "@ycode/shared";
 
 export type PluginOptionDraftValue = string | number | boolean | null;
 

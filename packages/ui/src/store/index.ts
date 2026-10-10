@@ -5,9 +5,9 @@
  * 广播频道前缀 "state:" 表示状态同步类消息。
  */
 import { create } from "zustand";
-import type { IBroadcastService, BroadcastMessage } from "@zcode/services";
-import type { OAuthProviderId, UserInfo } from "@zcode/shared";
-import type { CodingPlanResetType } from "@zcode/shared";
+import type { IBroadcastService, BroadcastMessage } from "@ycode/services";
+import type { OAuthProviderId, UserInfo } from "@ycode/shared";
+import type { CodingPlanResetType } from "@ycode/shared";
 import type { CodePreviewSettings } from "@/lib/codePreviewSettings.js";
 import type {
   CodingPlanQuotaResetUiEntries,
@@ -67,8 +67,8 @@ export interface LoginEntryAttempt {
   status: LoginEntryAttemptStatus;
 }
 
-const CODE_PREVIEW_SETTINGS_KEY = "zcode-code-preview-settings";
-const PERFORMANCE_MODE_STORAGE_KEY = "zcode-performance-mode";
+const CODE_PREVIEW_SETTINGS_KEY = "ycode-code-preview-settings";
+const PERFORMANCE_MODE_STORAGE_KEY = "ycode-performance-mode";
 
 function loadCodePreviewSettings(): CodePreviewSettings {
   try {
@@ -254,19 +254,19 @@ export function createZCodeStore(
     },
     // 默认主题统一收敛到 Zai dark，避免首次启动时 store 与其他主题入口表现不一致。
     // 仍然优先尊重 localStorage 中已保存的用户选择，不覆盖已有偏好。
-    theme: normalizeThemePreference((readSafeLocalStorage("zcode-theme") as Theme) || "zai-dark"),
+    theme: normalizeThemePreference((readSafeLocalStorage("ycode-theme") as Theme) || "zai-dark"),
     setTheme: (theme: Theme) => {
       const normalizedTheme = normalizeThemePreference(theme);
-      writeSafeLocalStorage("zcode-theme", normalizedTheme);
+      writeSafeLocalStorage("ycode-theme", normalizedTheme);
       syncSystemThemeListener(normalizedTheme);
       applyTheme(normalizedTheme);
 
       set({ theme: normalizedTheme });
     },
 
-    locale: readSafeLocalStorage("zcode-locale") || "zh-CN",
+    locale: readSafeLocalStorage("ycode-locale") || "zh-CN",
     setLocale: (locale: string) => {
-      writeSafeLocalStorage("zcode-locale", locale);
+      writeSafeLocalStorage("ycode-locale", locale);
       set({ locale });
     },
 

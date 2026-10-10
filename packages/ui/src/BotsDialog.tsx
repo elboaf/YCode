@@ -9,14 +9,14 @@ import type {
   BotState,
   BotWorkspaceRef,
   BotsConfigFile,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import {
   ALL_BOT_WORKSPACES,
   createUuid,
   DEFAULT_BOT_REPLY_GRANULARITY,
   isFeishuBotProvider,
   normalizeBotReplyGranularity,
-} from "@zcode/shared";
+} from "@ycode/shared";
 import { Button } from "@/components/ui/button.js";
 import {
   Dialog,
@@ -696,7 +696,7 @@ export function BotsDialog({
         await saveBot({
           ...bot,
           name: "",
-          ...(provider === "webhook" ? { webhookAuthHeaderName: "x-zcode-bot-secret" } : {}),
+          ...(provider === "webhook" ? { webhookAuthHeaderName: "x-ycode-bot-secret" } : {}),
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
