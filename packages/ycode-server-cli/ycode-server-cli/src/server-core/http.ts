@@ -14,8 +14,8 @@ import {
   type ISocket,
 } from "@ycode/rpc";
 import {
-  createZCodeAgentConnectionScope,
-  IZCodeAgentService,
+  createYCodeAgentConnectionScope,
+  IYCodeAgentService,
   ServiceCollection,
 } from "@ycode/services";
 import { createServiceLogger } from "@ycode/services/node";
@@ -94,9 +94,9 @@ function exposeWebSocket(
   const protocol = new SocketProtocol(socket);
   const rawServer = new ChannelServer(protocol, "server");
   const server = new LoggingChannelServer(rawServer, (...args) => log.debug(undefined, ...args));
-  const agentService = services.getOptional(IZCodeAgentService);
+  const agentService = services.getOptional(IYCodeAgentService);
   const scope = agentService
-    ? createZCodeAgentConnectionScope(agentService, {
+    ? createYCodeAgentConnectionScope(agentService, {
         connectionId: `server-core-ws-${randomUUID()}`,
         clientMode,
         role: clientMode === "desktop-continuous" ? "trusted-host-relay" : "terminal-client",
@@ -104,7 +104,7 @@ function exposeWebSocket(
     : undefined;
   services.exposeOnChannelServer(
     server,
-    scope ? new Map([[IZCodeAgentService.channelName, scope.service]]) : new Map(),
+    scope ? new Map([[IYCodeAgentService.channelName, scope.service]]) : new Map(),
   );
   socket.onClose(() => {
     void scope?.dispose();

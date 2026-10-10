@@ -1,22 +1,22 @@
 /**
  * YCode Session Store 选择器与内部辅助函数
  *
- * 从 zcodeSessionStore.ts 拆分出来，包含 workspace 状态读取/更新辅助函数，
+ * 从 ycodeSessionStore.ts 拆分出来，包含 workspace 状态读取/更新辅助函数，
  * 以及所有按 task 粒度的只读访问器和独立选择器。
  */
-import type { ZCodeTaskRuntimeStatus, ZCodeTaskMeta } from "@ycode/shared";
-import { mergeTaskWithOptimisticMeta } from "@/lib/zcodeTaskMetaMerge.js";
+import type { YCodeTaskRuntimeStatus, YCodeTaskMeta } from "@ycode/shared";
+import { mergeTaskWithOptimisticMeta } from "@/lib/ycodeTaskMetaMerge.js";
 import {
   DEFAULT_TASK_UI_STATE,
   DEFAULT_WORKSPACE_INIT_STATE,
   DEFAULT_TASK_RUNTIME_STATE,
   createDefaultWorkspaceState,
   getDefaultWorkspaceState,
-  type ZCodeSessionStoreState,
+  type YCodeSessionStoreState,
   type WorkspaceInitState,
   type TaskRuntimeState,
-  type WorkspaceZCodeUIState,
-} from "./zcodeSessionStoreTypes.js";
+  type WorkspaceYCodeUIState,
+} from "./ycodeSessionStoreTypes.js";
 
 // ────────────────────────────────────────────
 // Internal helpers（store 本体也需要使用）
@@ -38,7 +38,7 @@ function copyTaskRecordEntries<T>(
 }
 
 function collectIdentityTaskIds(
-  baseState: WorkspaceZCodeUIState,
+  baseState: WorkspaceYCodeUIState,
   workspaceIdentity: string,
 ): Set<string> {
   const normalizedIdentity = workspaceIdentity.trim();
@@ -57,9 +57,9 @@ function collectIdentityTaskIds(
 }
 
 function createIdentityWorkspaceStateSeed(
-  baseState: WorkspaceZCodeUIState | undefined,
+  baseState: WorkspaceYCodeUIState | undefined,
   workspaceIdentity?: string,
-): WorkspaceZCodeUIState {
+): WorkspaceYCodeUIState {
   if (!baseState) {
     return createDefaultWorkspaceState(getDefaultWorkspaceState().selectedProvider);
   }
@@ -112,10 +112,10 @@ function createIdentityWorkspaceStateSeed(
 }
 
 export function getWorkspaceState(
-  state: ZCodeSessionStoreState,
+  state: YCodeSessionStoreState,
   workspacePath: string,
   workspaceIdentity?: string,
-): WorkspaceZCodeUIState {
+): WorkspaceYCodeUIState {
   const baseState = state.workspaces[workspacePath] ?? getDefaultWorkspaceState();
   const workspaceKey = resolveWorkspaceStateKey(workspacePath, workspaceIdentity);
   if (workspaceKey === workspacePath) {
@@ -134,11 +134,11 @@ export function getWorkspaceState(
 }
 
 export function updateWorkspaceState(
-  state: ZCodeSessionStoreState,
+  state: YCodeSessionStoreState,
   workspacePath: string,
-  updater: (current: WorkspaceZCodeUIState) => WorkspaceZCodeUIState,
+  updater: (current: WorkspaceYCodeUIState) => WorkspaceYCodeUIState,
   workspaceIdentity?: string,
-): Pick<ZCodeSessionStoreState, "workspaces"> {
+): Pick<YCodeSessionStoreState, "workspaces"> {
   const workspaceKey = resolveWorkspaceStateKey(workspacePath, workspaceIdentity);
   const current =
     workspaceKey === workspacePath
@@ -179,19 +179,19 @@ export function updateWorkspaceState(
 // ────────────────────────────────────────────
 
 export function getTaskRuntimeState(
-  workspaceState: WorkspaceZCodeUIState,
+  workspaceState: WorkspaceYCodeUIState,
   taskId: string,
 ): TaskRuntimeState {
   return workspaceState.taskRuntimeByTaskId[taskId] ?? DEFAULT_TASK_RUNTIME_STATE;
 }
 
 interface WorkspaceDisplayedTaskState {
-  taskStatus: ZCodeTaskRuntimeStatus;
+  taskStatus: YCodeTaskRuntimeStatus;
   taskError: string | null;
 }
 
 export function getWorkspaceDisplayedTaskState(
-  workspaceState: WorkspaceZCodeUIState,
+  workspaceState: WorkspaceYCodeUIState,
 ): WorkspaceDisplayedTaskState {
   if (!workspaceState.activeTaskId) {
     return {
@@ -207,16 +207,16 @@ export function getWorkspaceDisplayedTaskState(
   };
 }
 
-export function getTaskUiState(workspaceState: WorkspaceZCodeUIState, taskId: string) {
+export function getTaskUiState(workspaceState: WorkspaceYCodeUIState, taskId: string) {
   return workspaceState.taskUiByTaskId[taskId] ?? DEFAULT_TASK_UI_STATE;
 }
 
 export function getTaskMeta(
   workspaceState:
-    | WorkspaceZCodeUIState
-    | Partial<Pick<WorkspaceZCodeUIState, "optimisticTaskListByTaskId" | "taskListCache">>,
+    | WorkspaceYCodeUIState
+    | Partial<Pick<WorkspaceYCodeUIState, "optimisticTaskListByTaskId" | "taskListCache">>,
   taskId: string,
-): ZCodeTaskMeta | null {
+): YCodeTaskMeta | null {
   const optimisticTask = workspaceState.optimisticTaskListByTaskId?.[taskId];
   const cachedTask = workspaceState.taskListCache?.find((task) => task.taskId === taskId) ?? null;
 
@@ -233,10 +233,10 @@ export function getTaskMeta(
 
 export function getVisibleTaskMetas(
   workspaceState:
-    | WorkspaceZCodeUIState
-    | Partial<Pick<WorkspaceZCodeUIState, "optimisticTaskListByTaskId" | "taskListCache">>,
-): ZCodeTaskMeta[] {
-  const taskById = new Map<string, ZCodeTaskMeta>();
+    | WorkspaceYCodeUIState
+    | Partial<Pick<WorkspaceYCodeUIState, "optimisticTaskListByTaskId" | "taskListCache">>,
+): YCodeTaskMeta[] {
+  const taskById = new Map<string, YCodeTaskMeta>();
 
   for (const task of workspaceState.taskListCache ?? []) {
     taskById.set(task.taskId, task);
@@ -251,15 +251,15 @@ export function getVisibleTaskMetas(
 
 export function getTaskUnreadIndicator(
   workspaceState:
-    | WorkspaceZCodeUIState
+    | WorkspaceYCodeUIState
     | Partial<
         Pick<
-          WorkspaceZCodeUIState,
+          WorkspaceYCodeUIState,
           "optimisticTaskListByTaskId" | "taskListCache" | "taskUnreadByTaskId"
         >
       >,
   taskId: string,
-  fallbackTask?: Pick<ZCodeTaskMeta, "unreadAt">,
+  fallbackTask?: Pick<YCodeTaskMeta, "unreadAt">,
 ): boolean {
   const storedTask = getTaskMeta(workspaceState, taskId);
   // IDE 升级或重启后，任务列表会先从 query cache 恢复，而 session store 尚未水合；
@@ -274,8 +274,8 @@ export function getTaskUnreadIndicator(
 // Standalone selector functions
 // ────────────────────────────────────────────
 
-export function selectWorkspaceZCodeState(
-  state: ZCodeSessionStoreState,
+export function selectWorkspaceYCodeState(
+  state: YCodeSessionStoreState,
   workspacePath: string,
   workspaceIdentity?: string,
 ) {
@@ -283,7 +283,7 @@ export function selectWorkspaceZCodeState(
 }
 
 export function getWorkspaceInitState(
-  workspaceState: Pick<WorkspaceZCodeUIState, "workspaceInit">,
+  workspaceState: Pick<WorkspaceYCodeUIState, "workspaceInit">,
 ): WorkspaceInitState {
   return workspaceState.workspaceInit ?? DEFAULT_WORKSPACE_INIT_STATE;
 }

@@ -1,10 +1,10 @@
-import { YCODE_VERSION, type ZCodeEnv } from "@ycode/shared";
+import { YCODE_VERSION, type YCodeEnv } from "@ycode/shared";
 
-declare const __ZCODE_CDN_BASE_URL__: string | undefined;
+declare const __YCODE_CDN_BASE_URL__: string | undefined;
 const DEFAULT_CDN_BASE_URL = "https://cdn-ycode.z.ai";
 
 export interface ResolveRemoteCdnOptions {
-  env?: ZCodeEnv;
+  env?: YCodeEnv;
   locale?: string;
   timeZone?: string;
   overrideBaseUrl?: string;
@@ -24,7 +24,7 @@ export function resolveRemoteCdnBaseUrls(options: ResolveRemoteCdnOptions = {}):
   if (override) return [normalizeBaseUrl(override)];
   const baseUrl =
     process.env.YCODE_CDN_BASE_URL?.trim() ||
-    (typeof __ZCODE_CDN_BASE_URL__ === "undefined" ? "" : __ZCODE_CDN_BASE_URL__) ||
+    (typeof __YCODE_CDN_BASE_URL__ === "undefined" ? "" : __YCODE_CDN_BASE_URL__) ||
     DEFAULT_CDN_BASE_URL;
   return [
     `${normalizeBaseUrl(baseUrl)}/ycode/electron/releases/${options.version ?? YCODE_VERSION}`,

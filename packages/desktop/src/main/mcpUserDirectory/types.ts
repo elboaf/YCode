@@ -21,7 +21,7 @@ export interface McpSourceDescriptor {
 
 export const MCP_SOURCE_DESCRIPTORS: McpSourceDescriptor[] = [
   {
-    source: "zcodeagentmcp",
+    source: "ycodeagentmcp",
     configDirSegments: [".ycode", "cli"],
     fileName: "config.json",
     format: "json",

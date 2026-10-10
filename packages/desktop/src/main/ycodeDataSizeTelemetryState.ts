@@ -1,21 +1,21 @@
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
-export interface ZCodeDataSizeTelemetryState {
+export interface YCodeDataSizeTelemetryState {
   lastReportedAt?: number;
   reportReservedAt?: number;
 }
 
-export async function readZCodeDataSizeTelemetryState(
+export async function readYCodeDataSizeTelemetryState(
   stateFile: string,
-): Promise<ZCodeDataSizeTelemetryState | null> {
+): Promise<YCodeDataSizeTelemetryState | null> {
   try {
     const parsed: unknown = JSON.parse(await readFile(stateFile, "utf8"));
     if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
       throw new TypeError("Invalid YCode data size telemetry state");
     }
     const record = parsed as Record<string, unknown>;
-    const state: ZCodeDataSizeTelemetryState = {};
+    const state: YCodeDataSizeTelemetryState = {};
     if (record.lastReportedAt !== undefined) {
       if (typeof record.lastReportedAt !== "number" || !Number.isFinite(record.lastReportedAt)) {
         throw new TypeError("Invalid lastReportedAt in YCode data size telemetry state");
@@ -42,9 +42,9 @@ export async function readZCodeDataSizeTelemetryState(
   }
 }
 
-export async function writeZCodeDataSizeTelemetryState(
+export async function writeYCodeDataSizeTelemetryState(
   stateFile: string,
-  state: ZCodeDataSizeTelemetryState,
+  state: YCodeDataSizeTelemetryState,
 ): Promise<void> {
   await mkdir(dirname(stateFile), { recursive: true });
   const temporaryFile = `${stateFile}.${process.pid}.${Date.now()}.tmp`;

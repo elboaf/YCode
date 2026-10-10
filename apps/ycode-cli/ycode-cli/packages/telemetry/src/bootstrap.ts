@@ -221,10 +221,10 @@ function normalizeTelemetryId(value: string | undefined): string | undefined {
 }
 
 async function resolveStandaloneDeviceMid(
-  zcodeHome: string | undefined,
+  ycodeHome: string | undefined,
 ): Promise<string | undefined> {
-  const stateFile = zcodeHome
-    ? join(zcodeHome, "v2", "telemetry-state.json")
+  const stateFile = ycodeHome
+    ? join(ycodeHome, "v2", "telemetry-state.json")
     : join(homedir(), ".ycode", "v2", "telemetry-state.json");
   const pending = pendingStandaloneDeviceMidByStateFile.get(stateFile);
   if (pending) return pending;

@@ -2,20 +2,20 @@ import { existsSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import {
-  materializeZCodeBuiltinProviderConfig,
-  NodeZCodeBuiltinProviderConfigSource,
+  materializeYCodeBuiltinProviderConfig,
+  NodeYCodeBuiltinProviderConfigSource,
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
-  resolveZCodeBuiltinCachePaths,
-  resolveZCodeBuiltinClientPlatform,
+  resolveYCodeBuiltinCachePaths,
+  resolveYCodeBuiltinClientPlatform,
   YCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
   YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
   YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
-  type ZCodeBuiltinRefreshEvent,
+  type YCodeBuiltinRefreshEvent,
 } from "@ycode/provider-node";
-import { resolveRuntimeZCodeEndpointOrigin, YCODE_VERSION } from "@ycode/shared";
+import { resolveRuntimeYCodeEndpointOrigin, YCODE_VERSION } from "@ycode/shared";
 import type { CliEnv } from "./env.js";
 
-export const SEA_ZCODE_BUILTIN_PROVIDER_CONFIG_ASSET_KEY = "ycode-provider/ycode-builtin.json";
+export const SEA_YCODE_BUILTIN_PROVIDER_CONFIG_ASSET_KEY = "ycode-provider/ycode-builtin.json";
 
 export function createCliProviderRefreshReporter(
   stderr: Pick<NodeJS.WriteStream, "write"> = process.stderr,
@@ -26,7 +26,7 @@ export function createCliProviderRefreshReporter(
         `YCode Built-in 刷新失败: ${error instanceof Error ? error.message : "unknown error"}\n`,
       );
     },
-    onBuiltinRefreshResult(event: ZCodeBuiltinRefreshEvent) {
+    onBuiltinRefreshResult(event: YCodeBuiltinRefreshEvent) {
       // TTL 检查不是生产事件；成功更新才默认留痕，不能输出 CDN URL 查询参数或内容。
       if (event.result === "updated" || process.env.NODE_ENV !== "production") {
         stderr.write(
@@ -55,19 +55,19 @@ export async function prepareCliProviderRuntimeEnv(
 ): Promise<Record<string, string>> {
   if (!requiresProviderRuntime(options.argv)) return {};
 
-  const explicitZCodeBuiltin = options.env[YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
+  const explicitYCodeBuiltin = options.env[YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
   const explicitPersonal = options.env[YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
   const dataBaseDir = options.dataBaseDir ?? options.env.YCODE_DATA_BASE_DIR?.trim() ?? homedir();
-  if (explicitZCodeBuiltin && explicitPersonal) {
+  if (explicitYCodeBuiltin && explicitPersonal) {
     return {
-      [YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: explicitZCodeBuiltin,
+      [YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: explicitYCodeBuiltin,
       [YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: explicitPersonal,
     };
   }
 
-  const zcodeBuiltinFilePath =
-    explicitZCodeBuiltin ??
-    (await resolveBundledZCodeBuiltinProviderConfig({
+  const ycodeBuiltinFilePath =
+    explicitYCodeBuiltin ??
+    (await resolveBundledYCodeBuiltinProviderConfig({
       dataBaseDir,
       entrypoint: options.entrypoint ?? process.argv[1],
       sea: options.sea ?? getSeaProviderConfigAssets(),
@@ -75,16 +75,16 @@ export async function prepareCliProviderRuntimeEnv(
   const personalFilePath =
     explicitPersonal ?? join(dataBaseDir, ".ycode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME);
   const appVersion = options.appVersion ?? YCODE_VERSION;
-  const platform = options.platform ?? resolveZCodeBuiltinClientPlatform();
-  const zcodeEndpointOrigin = resolveRuntimeZCodeEndpointOrigin(options.env);
-  const cachePaths = resolveZCodeBuiltinCachePaths({
+  const platform = options.platform ?? resolveYCodeBuiltinClientPlatform();
+  const ycodeEndpointOrigin = resolveRuntimeYCodeEndpointOrigin(options.env);
+  const cachePaths = resolveYCodeBuiltinCachePaths({
     environmentConfigRoot: join(dataBaseDir, ".ycode", "v2"),
     platform,
     appVersion,
-    zcodeEndpointOrigin,
+    ycodeEndpointOrigin,
   });
-  const source = new NodeZCodeBuiltinProviderConfigSource({
-    bundledFilePath: zcodeBuiltinFilePath,
+  const source = new NodeYCodeBuiltinProviderConfigSource({
+    bundledFilePath: ycodeBuiltinFilePath,
     activeFilePath: cachePaths.activeFilePath,
     watch: false,
   });
@@ -97,7 +97,7 @@ export async function prepareCliProviderRuntimeEnv(
 
   return {
     [YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: cachePaths.activeFilePath,
-    [YCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
+    [YCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]: ycodeBuiltinFilePath,
     [YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
   };
 }
@@ -129,14 +129,14 @@ function requiresProviderRuntime(argv: readonly string[]): boolean {
   );
 }
 
-async function resolveBundledZCodeBuiltinProviderConfig(input: {
+async function resolveBundledYCodeBuiltinProviderConfig(input: {
   readonly dataBaseDir: string;
   readonly entrypoint: string | undefined;
   readonly sea: SeaProviderConfigAssets | undefined;
 }): Promise<string> {
   if (input.sea?.isSea()) {
-    const content = input.sea.getAsset(SEA_ZCODE_BUILTIN_PROVIDER_CONFIG_ASSET_KEY, "utf8");
-    return materializeZCodeBuiltinProviderConfig({
+    const content = input.sea.getAsset(SEA_YCODE_BUILTIN_PROVIDER_CONFIG_ASSET_KEY, "utf8");
+    return materializeYCodeBuiltinProviderConfig({
       environmentConfigRoot: join(input.dataBaseDir, ".ycode", "v2"),
       content,
     });

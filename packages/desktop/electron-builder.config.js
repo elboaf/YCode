@@ -458,7 +458,7 @@ export default {
   // CI 环境下若这些字段缺失会在产物阶段直接失败。这里统一在构建配置补齐，避免依赖外部注入。
   extraMetadata: {
     version: buildMetadata.appVersion,
-    zcodeProductFlavor: desktopProductIdentity.flavor,
+    ycodeProductFlavor: desktopProductIdentity.flavor,
     homepage: "https://ycode.z.ai",
     author: {
       name: "YCode",
@@ -698,7 +698,7 @@ export default {
     target: ["AppImage", "deb", "rpm", "pacman"],
     artifactName: buildDesktopArtifactName("linux"),
     // desktop 包名是 scoped package（@ycode/desktop），electron-builder 默认会把
-    // Linux executable/Icon 推成 @zcodedesktop。部分桌面环境无法按这个 icon name 命中
+    // Linux executable/Icon 推成 @ycodedesktop。部分桌面环境无法按这个 icon name 命中
     // hicolor 图标，最终回退成系统齿轮。这里固定成稳定的小写名称，让 Icon=ycode
     // 与 /usr/share/icons/hicolor/*/apps/ycode.png 保持一致。
     executableName: desktopProductIdentity.linuxExecutableName,

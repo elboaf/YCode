@@ -1,13 +1,13 @@
-import type { IZCodeSessionService } from "@ycode/services";
+import type { IYCodeSessionService } from "@ycode/services";
 import { logger } from "@/logger.js";
-import { useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
+import { useYCodeSessionStore } from "@/store/ycodeSessionStore.js";
 
 interface DeferredDraftRuntimeChangeParams {
   logScope: string;
   reason: string;
   workspacePath?: string | null;
   workspaceIdentity?: string | null;
-  zcodeSessionService: Pick<IZCodeSessionService, "closeSession">;
+  ycodeSessionService: Pick<IYCodeSessionService, "closeSession">;
 }
 
 export async function invalidateDeferredDraftSessionForRuntimeChange(
@@ -18,7 +18,7 @@ export async function invalidateDeferredDraftSessionForRuntimeChange(
   }
 
   const workspaceIdentity = params.workspaceIdentity?.trim() || undefined;
-  const store = useZCodeSessionStore.getState();
+  const store = useYCodeSessionStore.getState();
   const draftSessionId = store.getWorkspaceState(
     params.workspacePath,
     workspaceIdentity,
@@ -31,7 +31,7 @@ export async function invalidateDeferredDraftSessionForRuntimeChange(
   }
 
   try {
-    await params.zcodeSessionService.closeSession({
+    await params.ycodeSessionService.closeSession({
       workspacePath: params.workspacePath,
       ...(workspaceIdentity ? { workspaceIdentity } : {}),
       sessionId: draftSessionId,

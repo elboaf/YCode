@@ -1,6 +1,6 @@
-import { resolveZCodeAgentSpawnCwd } from "#src/ycode-agent/zcodeAgentSpawnCwd.js";
-import type { ZCodeAgentStorageStartupSnapshot } from "#src/ycode-agent/zcodeAgent.js";
-/* eslint-disable max-lines -- zcodeAgentProcessManager 集中维护 agent 子进程启动、复用、超时回收和 runtime identity，拆分会扩大进程生命周期状态同步面 */
+import { resolveYCodeAgentSpawnCwd } from "#src/ycode-agent/ycodeAgentSpawnCwd.js";
+import type { YCodeAgentStorageStartupSnapshot } from "#src/ycode-agent/ycodeAgent.js";
+/* eslint-disable max-lines -- ycodeAgentProcessManager 集中维护 agent 子进程启动、复用、超时回收和 runtime identity，拆分会扩大进程生命周期状态同步面 */
 import { spawn } from "node:child_process";
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -8,7 +8,7 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { Emitter } from "@ycode/rpc";
 import {
-  parseZCodeProcessDiagnostic,
+  parseYCodeProcessDiagnostic,
   YCODE_AGENT_LIFECYCLE_LOG_MARKER,
   YCODE_PROCESS_DIAGNOSTIC_NAME_MAX_CHARS,
   YCODE_PROCESS_DIAGNOSTIC_MESSAGE_MAX_CHARS,
@@ -19,24 +19,24 @@ import {
   YCODE_AGENT_PROVIDER,
   YCODE_RUNTIME_ENV_KEY,
   resolveWorkspaceKey,
-  resolveZCodeRuntimeEnv,
-  sanitizeZCodeRuntimeEnv,
+  resolveYCodeRuntimeEnv,
+  sanitizeYCodeRuntimeEnv,
 } from "@ycode/shared";
 import {
-  findZCodeAgentRuntimeBinary,
-  findZCodeAgentRuntimeNodeBundle,
+  findYCodeAgentRuntimeBinary,
+  findYCodeAgentRuntimeNodeBundle,
 } from "../runtime-tools/providerRuntimeResolver.js";
 import { isEffectiveDevelopmentNodeEnv } from "#src/runtime-tools/nodeEnv.js";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
-import { ZCodeProtocolClient } from "./zcodeProtocolClient.js";
-import { ZCodeStdioTransport } from "./zcodeStdioTransport.js";
-import { readZCodeStdioTapDevState } from "./zcodeStdioTapDevConfig.js";
-import type { ZCodeAgentPresentationSurface } from "./zcodeAgentPresentationSurface.js";
+import { YCodeProtocolClient } from "./ycodeProtocolClient.js";
+import { YCodeStdioTransport } from "./ycodeStdioTransport.js";
+import { readYCodeStdioTapDevState } from "./ycodeStdioTapDevConfig.js";
+import type { YCodeAgentPresentationSurface } from "./ycodeAgentPresentationSurface.js";
 import { shouldSpawnInDetachedProcessGroup } from "../process/processTreeTerminator.js";
 import type { RuntimeProcessLifecycleReporter } from "../process/runtimeProcessLifecycle.js";
 import { buildAgentWorkspaceIdentityEnv } from "../runtime-tools/agentProxyEnv.js";
 
-export interface ZCodeAgentCommand {
+export interface YCodeAgentCommand {
   /** 本地配套 CLI bundle 的存储专用 Worker 入口；远端/自定义命令不推断能力。 */
   storagePreparationEntry?: string;
   /** 本次部署的 Agent 支持迁移前的启动通知；旧自定义命令保持原协议。 */
@@ -47,20 +47,20 @@ export interface ZCodeAgentCommand {
   env?: Record<string, string>;
 }
 
-export interface ZCodeAgentCommandResolverContext {
-  presentationSurface?: ZCodeAgentPresentationSurface;
+export interface YCodeAgentCommandResolverContext {
+  presentationSurface?: YCodeAgentPresentationSurface;
   workspacePath: string;
   workspaceIdentity?: string;
   workspaceKey: string;
 }
 
-export type ZCodeAgentCommandResolver = (
-  context: ZCodeAgentCommandResolverContext,
-) => Promise<ZCodeAgentCommand | null> | ZCodeAgentCommand | null;
+export type YCodeAgentCommandResolver = (
+  context: YCodeAgentCommandResolverContext,
+) => Promise<YCodeAgentCommand | null> | YCodeAgentCommand | null;
 
-export interface ZCodeAgentProcessManagerOptions {
-  commandResolver?: ZCodeAgentCommandResolver;
-  presentationSurface?: ZCodeAgentPresentationSurface;
+export interface YCodeAgentProcessManagerOptions {
+  commandResolver?: YCodeAgentCommandResolver;
+  presentationSurface?: YCodeAgentPresentationSurface;
   requestTimeoutMs?: number;
   processLifecycleReporter?: RuntimeProcessLifecycleReporter;
   /**
@@ -105,8 +105,8 @@ export interface ZCodeAgentProcessManagerOptions {
   }) => Promise<void> | void;
 }
 
-interface ManagedZCodeAgentProcess {
-  client: ZCodeProtocolClient;
+interface ManagedYCodeAgentProcess {
+  client: YCodeProtocolClient;
   child: ChildProcessWithoutNullStreams;
   cleanupPromise?: Promise<void>;
   exited: boolean;
@@ -114,7 +114,7 @@ interface ManagedZCodeAgentProcess {
   idleTimer?: ReturnType<typeof setTimeout>;
   readyAt?: number;
   readyReported: boolean;
-  runtimeIdentity: ZCodeAgentRuntimeIdentity;
+  runtimeIdentity: YCodeAgentRuntimeIdentity;
   runtimeInstanceId: string;
   spawned: boolean;
   startedAt: number;
@@ -204,20 +204,20 @@ function buildE2EAgentCoverageEnv(env: NodeJS.ProcessEnv = process.env): Record<
  * 首个 getClient 重新拉起）。v4 订阅（sessions-index/workspace-config/conversation）
  * 都活在 CLI 进程内存里，进程换代即失效——订阅方收到本事件后必须重发 subscribe。
  */
-interface ZCodeAgentRuntimeRestartedEvent {
+interface YCodeAgentRuntimeRestartedEvent {
   workspaceKey: string;
-  runtimeIdentity: ZCodeAgentRuntimeIdentity;
+  runtimeIdentity: YCodeAgentRuntimeIdentity;
 }
 
-export interface ZCodeAgentRuntimeLifecycleEvent {
+export interface YCodeAgentRuntimeLifecycleEvent {
   workspacePath: string;
   workspaceIdentity?: string;
   workspaceKey: string;
-  runtimeIdentity: ZCodeAgentRuntimeIdentity;
+  runtimeIdentity: YCodeAgentRuntimeIdentity;
   state: "available" | "unavailable";
 }
 
-interface ZCodeAgentRuntimeIdentity {
+interface YCodeAgentRuntimeIdentity {
   generation: number;
   identity: string;
   processId?: number;
@@ -226,7 +226,7 @@ interface ZCodeAgentRuntimeIdentity {
   lane?: string;
 }
 
-interface ZCodeAgentSpawnPreflight {
+interface YCodeAgentSpawnPreflight {
   command: string;
   args: string[];
   requestedCwd: string;
@@ -320,18 +320,18 @@ function findUpward(relativePath: string): string | null {
   }
 }
 
-async function buildZCodeAgentSpawnPreflight(
-  command: ZCodeAgentCommand,
+async function buildYCodeAgentSpawnPreflight(
+  command: YCodeAgentCommand,
   workspacePath: string,
   spawnFallbackCwd?: string,
-): Promise<ZCodeAgentSpawnPreflight> {
+): Promise<YCodeAgentSpawnPreflight> {
   const commandPathKind = isAbsolute(command.command) ? "absolute" : "path-search";
   const requestedCwd = command.cwd ?? workspacePath;
   const {
     cwd,
     usedFallback: shouldUseWorkspaceFallback,
     cwdExists,
-  } = await resolveZCodeAgentSpawnCwd({ requestedCwd, workspacePath, spawnFallbackCwd });
+  } = await resolveYCodeAgentSpawnCwd({ requestedCwd, workspacePath, spawnFallbackCwd });
   return {
     command: command.command,
     args: command.args ?? [],
@@ -350,9 +350,9 @@ async function buildZCodeAgentSpawnPreflight(
   };
 }
 
-function resolveBundledWorkspaceZCodeAgentCommand(
-  context: ZCodeAgentCommandResolverContext,
-): ZCodeAgentCommand | null {
+function resolveBundledWorkspaceYCodeAgentCommand(
+  context: YCodeAgentCommandResolverContext,
+): YCodeAgentCommand | null {
   const distEntrypoint = findUpward("apps/ycode-cli/packages/cli/dist/ycode.cjs");
   if (distEntrypoint) {
     const useBytecode =
@@ -388,17 +388,17 @@ function resolveBundledWorkspaceZCodeAgentCommand(
   };
 }
 
-function resolveDeployedZCodeAgentBinaryCommand(
-  context: ZCodeAgentCommandResolverContext,
-): ZCodeAgentCommand | null {
+function resolveDeployedYCodeAgentBinaryCommand(
+  context: YCodeAgentCommandResolverContext,
+): YCodeAgentCommand | null {
   // 旧 resolver 只识别 YCODE_AGENT_SERVER_COMMAND env 和 monorepo 源码树。
   // SSH 远端把 ycode-server.cjs 单文件部署到 ~/.ycode/server/，宿主进程的 cwd 不在仓库内、
   // env 也不会被 ssh exec 继承，即使 ycode-agent 已经部署到 ~/.ycode/server/agents/glm/，
   // resolver 也找不到，第一次 getClient 就抛 "YCode agent server command is not configured"。
-  // 这里复用 findZCodeAgentRuntimeBinary 的候选链（含 GLM_BINARY_PATH env、
+  // 这里复用 findYCodeAgentRuntimeBinary 的候选链（含 GLM_BINARY_PATH env、
   // packagedResourcesPath、~/.ycode/server/agents/glm、bundled-agents 等），
   // 把已部署的原生 binary 当成最终兜底，远端/桌面打包形态都能命中。
-  const binaryPath = findZCodeAgentRuntimeBinary();
+  const binaryPath = findYCodeAgentRuntimeBinary();
   if (!binaryPath) {
     return null;
   }
@@ -409,9 +409,9 @@ function resolveDeployedZCodeAgentBinaryCommand(
   };
 }
 
-function resolveElectronRuntimeZCodeAgentCommand(
-  context: ZCodeAgentCommandResolverContext,
-): ZCodeAgentCommand | null {
+function resolveElectronRuntimeYCodeAgentCommand(
+  context: YCodeAgentCommandResolverContext,
+): YCodeAgentCommand | null {
   // 桌面打包态：host 跑在 Electron utility process 里，process.execPath 指向 Electron Helper，
   // 它内置的 Node runtime 与 ycode-cli 目标版本一致（Electron 41 = Node 24.x）。
   // 这里直接用 app 自带的 Electron Node 执行打进 resources/glm 的 ycode.cjs，
@@ -421,7 +421,7 @@ function resolveElectronRuntimeZCodeAgentCommand(
   if (!process.versions.electron) {
     return null;
   }
-  const bundlePath = findZCodeAgentRuntimeNodeBundle();
+  const bundlePath = findYCodeAgentRuntimeNodeBundle();
   if (!bundlePath) {
     return null;
   }
@@ -435,9 +435,9 @@ function resolveElectronRuntimeZCodeAgentCommand(
   };
 }
 
-export function resolveDefaultZCodeAgentCommand(
-  context: ZCodeAgentCommandResolverContext,
-): ZCodeAgentCommand | null {
+export function resolveDefaultYCodeAgentCommand(
+  context: YCodeAgentCommandResolverContext,
+): YCodeAgentCommand | null {
   const command = process.env.YCODE_AGENT_SERVER_COMMAND?.trim();
   if (command) {
     return applyPresentationSurfaceToCommand(
@@ -453,20 +453,20 @@ export function resolveDefaultZCodeAgentCommand(
   // 顺序：env 显式覆盖 → monorepo dev 源码/dist（dev 改源码立刻生效，不会被远端历史装的 native binary
   // 抢先匹配）→ 桌面打包态 Electron Node runtime 跑 ycode.cjs → 已部署 native binary（远端 SSH 兜底）。
   const bundled =
-    resolveBundledWorkspaceZCodeAgentCommand(context) ??
-    resolveElectronRuntimeZCodeAgentCommand(context);
+    resolveBundledWorkspaceYCodeAgentCommand(context) ??
+    resolveElectronRuntimeYCodeAgentCommand(context);
   return applyPresentationSurfaceToCommand(
     bundled
       ? { ...bundled, supportsStorageStartup: true }
-      : resolveDeployedZCodeAgentBinaryCommand(context),
+      : resolveDeployedYCodeAgentBinaryCommand(context),
     context.presentationSurface,
   );
 }
 
 function applyPresentationSurfaceToCommand(
-  command: ZCodeAgentCommand | null,
-  presentationSurface: ZCodeAgentCommandResolverContext["presentationSurface"],
-): ZCodeAgentCommand | null {
+  command: YCodeAgentCommand | null,
+  presentationSurface: YCodeAgentCommandResolverContext["presentationSurface"],
+): YCodeAgentCommand | null {
   if (!command || presentationSurface !== "desktop") {
     return command;
   }
@@ -497,11 +497,11 @@ function applyPresentationSurfaceToCommand(
   };
 }
 
-function wrapZCodeAgentCommandWithStdioTapDevProxy(
-  command: ZCodeAgentCommand,
+function wrapYCodeAgentCommandWithStdioTapDevProxy(
+  command: YCodeAgentCommand,
   workspaceKey: string,
-): ZCodeAgentCommand {
-  const tapState = readZCodeStdioTapDevState();
+): YCodeAgentCommand {
+  const tapState = readYCodeStdioTapDevState();
   if (!tapState.enabled) {
     return command;
   }
@@ -535,10 +535,10 @@ function wrapZCodeAgentCommandWithStdioTapDevProxy(
   };
 }
 
-export class ZCodeAgentProcessManager {
-  private readonly processesByWorkspaceKey = new Map<string, ManagedZCodeAgentProcess>();
-  private readonly ownedProcesses = new Set<ManagedZCodeAgentProcess>();
-  private readonly startingByWorkspaceKey = new Map<string, Promise<ZCodeProtocolClient>>();
+export class YCodeAgentProcessManager {
+  private readonly processesByWorkspaceKey = new Map<string, ManagedYCodeAgentProcess>();
+  private readonly ownedProcesses = new Set<ManagedYCodeAgentProcess>();
+  private readonly startingByWorkspaceKey = new Map<string, Promise<YCodeProtocolClient>>();
   private readonly restartGenerationByWorkspaceKey = new Map<string, number>();
   private readonly runtimeGenerationByWorkspaceKey = new Map<string, number>();
   private readonly availableRuntimeIdentityByWorkspaceKey = new Map<string, string>();
@@ -548,14 +548,14 @@ export class ZCodeAgentProcessManager {
   >();
   private readonly storageStartupEmitter = new Emitter<{
     workspaceKey: string;
-    snapshot: ZCodeAgentStorageStartupSnapshot;
+    snapshot: YCodeAgentStorageStartupSnapshot;
   }>();
   readonly onStorageStartupChanged = this.storageStartupEmitter.event;
 
   getStorageStartupState(params: {
     workspacePath: string;
     workspaceIdentity?: string;
-  }): ZCodeAgentStorageStartupSnapshot | null {
+  }): YCodeAgentStorageStartupSnapshot | null {
     const managed = this.processesByWorkspaceKey.get(resolveWorkspaceKey(params));
     return managed
       ? {
@@ -565,27 +565,27 @@ export class ZCodeAgentProcessManager {
       : null;
   }
 
-  private readonly commandResolver: ZCodeAgentCommandResolver;
-  private readonly presentationSurface: ZCodeAgentProcessManagerOptions["presentationSurface"];
+  private readonly commandResolver: YCodeAgentCommandResolver;
+  private readonly presentationSurface: YCodeAgentProcessManagerOptions["presentationSurface"];
   private readonly requestTimeoutMs: number | undefined;
   private readonly processLifecycleReporter: RuntimeProcessLifecycleReporter | undefined;
-  private readonly resolveSpawnEnv: ZCodeAgentProcessManagerOptions["resolveSpawnEnv"];
-  private readonly waitForSpawnAdmission: ZCodeAgentProcessManagerOptions["waitForSpawnAdmission"];
+  private readonly resolveSpawnEnv: YCodeAgentProcessManagerOptions["resolveSpawnEnv"];
+  private readonly waitForSpawnAdmission: YCodeAgentProcessManagerOptions["waitForSpawnAdmission"];
   private readonly spawnFallbackCwd: string | undefined;
   private readonly lane: string | undefined;
   private readonly idleTimeoutMs: number | undefined;
-  private readonly runtimeRestartedEmitter = new Emitter<ZCodeAgentRuntimeRestartedEvent>();
-  private readonly runtimeLifecycleEmitter = new Emitter<ZCodeAgentRuntimeLifecycleEvent>();
+  private readonly runtimeRestartedEmitter = new Emitter<YCodeAgentRuntimeRestartedEvent>();
+  private readonly runtimeLifecycleEmitter = new Emitter<YCodeAgentRuntimeLifecycleEvent>();
   private disposeAllInFlight: Promise<void> | undefined;
   private disposed = false;
 
-  /** 进程换代通知（generation>1 时触发）；v4 订阅方据此重订，见 ZCodeAgentRuntimeRestartedEvent。 */
+  /** 进程换代通知（generation>1 时触发）；v4 订阅方据此重订，见 YCodeAgentRuntimeRestartedEvent。 */
   readonly onRuntimeRestarted = this.runtimeRestartedEmitter.event;
   /** 进程真实 spawn 后 available，当前 protocol client 关闭后 unavailable。 */
   readonly onRuntimeLifecycle = this.runtimeLifecycleEmitter.event;
 
-  constructor(options?: ZCodeAgentProcessManagerOptions) {
-    this.commandResolver = options?.commandResolver ?? resolveDefaultZCodeAgentCommand;
+  constructor(options?: YCodeAgentProcessManagerOptions) {
+    this.commandResolver = options?.commandResolver ?? resolveDefaultYCodeAgentCommand;
     this.presentationSurface = options?.presentationSurface;
     this.requestTimeoutMs = options?.requestTimeoutMs;
     this.processLifecycleReporter = options?.processLifecycleReporter;
@@ -613,7 +613,7 @@ export class ZCodeAgentProcessManager {
     }
   }
 
-  private clearIdleTimer(managed: ManagedZCodeAgentProcess): void {
+  private clearIdleTimer(managed: ManagedYCodeAgentProcess): void {
     if (managed.idleTimer) {
       clearTimeout(managed.idleTimer);
       delete managed.idleTimer;
@@ -625,7 +625,7 @@ export class ZCodeAgentProcessManager {
    * 主动回收整棵进程树（含挂在其下的 MCP 子进程）。归因为 expected/idle-timeout，
    * 不会被监控当作崩溃。到点时有新请求在飞则什么都不做，等下一次归零重新计时。
    */
-  private scheduleIdleReclaim(workspaceKey: string, managed: ManagedZCodeAgentProcess): void {
+  private scheduleIdleReclaim(workspaceKey: string, managed: ManagedYCodeAgentProcess): void {
     if (!this.idleTimeoutMs || this.disposed || managed.exited) {
       return;
     }
@@ -666,7 +666,7 @@ export class ZCodeAgentProcessManager {
   }
 
   private recordTerminationIntent(
-    managed: ManagedZCodeAgentProcess,
+    managed: ManagedYCodeAgentProcess,
     reason: AgentProcessCleanupReason,
   ): void {
     if (managed.firstCleanupReason) {
@@ -686,7 +686,7 @@ export class ZCodeAgentProcessManager {
     };
   }
 
-  private reportRuntimeUnavailable(managed: ManagedZCodeAgentProcess): void {
+  private reportRuntimeUnavailable(managed: ManagedYCodeAgentProcess): void {
     const workspaceKey = managed.runtimeIdentity.workspaceKey;
     if (
       this.availableRuntimeIdentityByWorkspaceKey.get(workspaceKey) !==
@@ -706,7 +706,7 @@ export class ZCodeAgentProcessManager {
     });
   }
 
-  private reportRuntimeReady(managed: ManagedZCodeAgentProcess): void {
+  private reportRuntimeReady(managed: ManagedYCodeAgentProcess): void {
     if (
       !managed.spawned ||
       managed.exited ||
@@ -732,7 +732,7 @@ export class ZCodeAgentProcessManager {
   }
 
   private cleanupManagedProcess(
-    managed: ManagedZCodeAgentProcess,
+    managed: ManagedYCodeAgentProcess,
     reason: AgentProcessCleanupReason,
     options: { reportError?: boolean } = {},
   ): Promise<void> {
@@ -780,7 +780,7 @@ export class ZCodeAgentProcessManager {
     return cleanupPromise;
   }
 
-  private async cleanupManagedProcessForShutdown(managed: ManagedZCodeAgentProcess): Promise<void> {
+  private async cleanupManagedProcessForShutdown(managed: ManagedYCodeAgentProcess): Promise<void> {
     await this.cleanupManagedProcessWithRetry(
       managed,
       "manager-dispose",
@@ -790,7 +790,7 @@ export class ZCodeAgentProcessManager {
   }
 
   private async cleanupManagedProcessWithRetry(
-    managed: ManagedZCodeAgentProcess,
+    managed: ManagedYCodeAgentProcess,
     reason: AgentProcessCleanupReason,
     retryReason: AgentProcessCleanupReason,
     retryScope: string,
@@ -832,7 +832,7 @@ export class ZCodeAgentProcessManager {
   async getClient(params: {
     workspacePath: string;
     workspaceIdentity?: string;
-  }): Promise<ZCodeProtocolClient> {
+  }): Promise<YCodeProtocolClient> {
     if (this.disposed) {
       throw new Error("YCode agent process manager is disposed.");
     }
@@ -892,7 +892,7 @@ export class ZCodeAgentProcessManager {
   getExistingClient(params: {
     workspacePath: string;
     workspaceIdentity?: string;
-  }): ZCodeProtocolClient | undefined {
+  }): YCodeProtocolClient | undefined {
     const managed = this.processesByWorkspaceKey.get(resolveWorkspaceKey(params));
     return managed && !managed.child.killed ? managed.client : undefined;
   }
@@ -903,14 +903,14 @@ export class ZCodeAgentProcessManager {
     workspacePath: string;
     workspaceIdentity?: string;
     lane?: string;
-    client: ZCodeProtocolClient;
+    client: YCodeProtocolClient;
   }> {
     const result: Array<{
       pid: number;
       workspacePath: string;
       workspaceIdentity?: string;
       lane?: string;
-      client: ZCodeProtocolClient;
+      client: YCodeProtocolClient;
     }> = [];
     for (const managed of this.processesByWorkspaceKey.values()) {
       if (managed.exited || managed.child.killed || typeof managed.child.pid !== "number") continue;
@@ -930,7 +930,7 @@ export class ZCodeAgentProcessManager {
   /** Agent service 首次通过 provider/model 门禁后调用；同一 runtime 只上报一次。 */
   markReady(
     params: { workspacePath: string; workspaceIdentity?: string },
-    client: ZCodeProtocolClient,
+    client: YCodeProtocolClient,
   ): void {
     const managed = this.processesByWorkspaceKey.get(resolveWorkspaceKey(params));
     if (!managed || managed.client !== client || managed.readyAt != null || managed.exited) {
@@ -950,7 +950,7 @@ export class ZCodeAgentProcessManager {
     workspaceKey: string,
     startGeneration: number,
     admissionSignal: AbortSignal,
-  ): Promise<ZCodeProtocolClient> {
+  ): Promise<YCodeProtocolClient> {
     const startStartedAt = Date.now();
     const resolveCommandStartedAt = Date.now();
     const command = await this.commandResolver({
@@ -967,7 +967,7 @@ export class ZCodeAgentProcessManager {
     if (admissionSignal.aborted) {
       throw admissionSignal.reason ?? new Error("YCode agent process start was cancelled.");
     }
-    const effectiveCommand = wrapZCodeAgentCommandWithStdioTapDevProxy(command, workspaceKey);
+    const effectiveCommand = wrapYCodeAgentCommandWithStdioTapDevProxy(command, workspaceKey);
     log("YCode agent command resolved", {
       workspaceKey,
       command: command.command,
@@ -993,7 +993,7 @@ export class ZCodeAgentProcessManager {
       throw new Error("YCode agent process start was cancelled.");
     }
     // cwd 探测也让出事件循环，必须放在最终 admission 与销毁/代际检查之前。
-    const spawnPreflight = await buildZCodeAgentSpawnPreflight(
+    const spawnPreflight = await buildYCodeAgentSpawnPreflight(
       effectiveCommand,
       params.workspacePath,
       this.spawnFallbackCwd,
@@ -1010,7 +1010,7 @@ export class ZCodeAgentProcessManager {
     }
     // app 以本地开发方式启动时，让 agent 子进程也带上 YCODE_RUNTIME_ENV=development；
     // 不再传 NODE_ENV，避免用户 shell/runtime 变量影响 YCode 运行模式或泄漏到 Bash 工具。
-    const runtimeEnv = resolveZCodeRuntimeEnv(process.env);
+    const runtimeEnv = resolveYCodeRuntimeEnv(process.env);
     log("YCode agent spawn preflight", {
       workspaceKey,
       spawnPreflight,
@@ -1022,7 +1022,7 @@ export class ZCodeAgentProcessManager {
       // 关闭时才能按进程树整体回收；Windows 保持非 detached，交给 taskkill /T 处理。
       detached: shouldSpawnInDetachedProcessGroup(),
       env: {
-        ...sanitizeZCodeRuntimeEnv(process.env),
+        ...sanitizeYCodeRuntimeEnv(process.env),
         [YCODE_RUNTIME_ENV_KEY]: runtimeEnv,
         ...spawnEnv,
         ...effectiveCommand.env,
@@ -1034,9 +1034,9 @@ export class ZCodeAgentProcessManager {
     });
     const startedAt = Date.now();
     const stderrTail = createAgentStderrTail();
-    const transport = new ZCodeStdioTransport(child, {
+    const transport = new YCodeStdioTransport(child, {
       onStderrLine: (line) => {
-        const diagnostic = parseZCodeProcessDiagnostic(line);
+        const diagnostic = parseYCodeProcessDiagnostic(line);
         if (diagnostic && typeof child.pid === "number") {
           // 根因：只保存 exit tail 会漏掉存活 runtime 的异常；此旁路不依赖 debug 开关。
           // 身份绑定创建时的 child，不能查当前 workspace，避免重启后的迟到事件串进程。
@@ -1080,7 +1080,7 @@ export class ZCodeAgentProcessManager {
       // 拥有的独立 PGID；异常 root exit 后 cleanup 仍可按组回收同组后代。
       ...(process.platform !== "win32" && child.pid ? { ownedProcessGroupId: child.pid } : {}),
     });
-    const client = new ZCodeProtocolClient(transport, {
+    const client = new YCodeProtocolClient(transport, {
       requireStorageStartup: effectiveCommand.supportsStorageStartup,
       requestTimeoutMs: this.requestTimeoutMs,
     });
@@ -1090,7 +1090,7 @@ export class ZCodeAgentProcessManager {
     this.runtimeGenerationByWorkspaceKey.set(workspaceKey, runtimeGeneration);
     // 生命周期事件关联只需要本次 runtime 的不透明身份，不能复用包含 workspaceKey 的协议 identity。
     const runtimeInstanceId = `agent-${randomUUID()}`;
-    const runtimeIdentity: ZCodeAgentRuntimeIdentity = {
+    const runtimeIdentity: YCodeAgentRuntimeIdentity = {
       generation: runtimeGeneration,
       identity: this.lane
         ? `${workspaceKey}:${runtimeGeneration}:${child.pid ?? "unknown"}:${this.lane}`
@@ -1099,7 +1099,7 @@ export class ZCodeAgentProcessManager {
       ...(this.lane ? { lane: this.lane } : {}),
       workspaceKey,
     };
-    const managed: ManagedZCodeAgentProcess = {
+    const managed: ManagedYCodeAgentProcess = {
       child,
       client,
       exited: false,
@@ -1338,7 +1338,7 @@ export class ZCodeAgentProcessManager {
   async getRuntimeIdentity(params: {
     workspacePath: string;
     workspaceIdentity?: string;
-  }): Promise<ZCodeAgentRuntimeIdentity> {
+  }): Promise<YCodeAgentRuntimeIdentity> {
     const workspaceKey = resolveWorkspaceKey(params);
     const managed = this.processesByWorkspaceKey.get(workspaceKey);
     // runtime identity 是查询接口，旧实现却复用了启动型 getClient，

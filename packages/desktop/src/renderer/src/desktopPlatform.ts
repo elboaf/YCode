@@ -138,8 +138,8 @@ export function createDesktopPlatform(options: {
     getDesktopSessionActivity: () =>
       window.ycode.getDesktopSessionActivity?.() ??
       Promise.resolve({ runningAgentSessionCount: 0 }),
-    getZCodeStdioTapDevState: () =>
-      window.ycode.getZCodeStdioTapDevState?.() ??
+    getYCodeStdioTapDevState: () =>
+      window.ycode.getYCodeStdioTapDevState?.() ??
       Promise.resolve({ enabled: false, visible: false, logDir: "", statePath: "" }),
     onSettingsChanged: (callback) => window.ycode.onSettingsChanged?.(callback) ?? (() => {}),
     onApplicationLocaleChanged: (callback) =>
@@ -161,6 +161,6 @@ export function createDesktopPlatform(options: {
       Promise.resolve(navigator.language.toLowerCase().startsWith("zh") ? "zh-CN" : "en-US"),
     setTitleBarTheme: (theme) => window.ycode.setTitleBarTheme(theme),
     getDeviceId: () =>
-      (window as Window & { __ZCODE_DEVICE_ID__?: string }).__ZCODE_DEVICE_ID__ ?? "",
+      (window as Window & { __YCODE_DEVICE_ID__?: string }).__YCODE_DEVICE_ID__ ?? "",
   };
 }

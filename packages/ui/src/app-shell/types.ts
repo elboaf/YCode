@@ -1,9 +1,9 @@
 import type { RefObject } from "react";
 import type {
-  ZCodeProvider,
+  YCodeProvider,
   SessionCreateSource,
-  ZCodeTaskRuntimeStatus,
-  ZCodeTaskMeta,
+  YCodeTaskRuntimeStatus,
+  YCodeTaskMeta,
   GitChangeSourceId,
   DesktopWindowChromeState,
   IPlatformService,
@@ -29,7 +29,7 @@ import type {
   WorkspaceSidePaneState,
 } from "@/lib/workspaceSidePane.js";
 import type { TreemappingSidePaneTab } from "@/lib/workspaceSidePane.js";
-import type { WorkspaceZCodeUIState } from "@/store/zcodeSessionStore.js";
+import type { WorkspaceYCodeUIState } from "@/store/ycodeSessionStore.js";
 import type { RemoteConnectionLogEntry } from "@/hooks/useRemoteConnectionLogs.js";
 import type { Theme } from "@/useTheme.js";
 import type {
@@ -40,26 +40,26 @@ import type {
 import type {
   ComposerMentionPrefill,
   GroupedDraftTaskPlacement,
-} from "@/store/zcodeSessionStoreTypes.js";
+} from "@/store/ycodeSessionStoreTypes.js";
 import type { TaskFindDialogProps } from "@/quickpick/TaskFindDialog.js";
 import type { AutomationsNavigationTab, OpenAutomationsMain } from "@/lib/taskNavigationHistory.js";
 
-export interface WorkspaceShellZCodeState {
-  activeTaskId: WorkspaceZCodeUIState["activeTaskId"];
-  draftFocusVersion: WorkspaceZCodeUIState["draftFocusVersion"];
-  modelSwitchPending: WorkspaceZCodeUIState["modelSwitchPending"];
-  modelSwitchStage: WorkspaceZCodeUIState["modelSwitchStage"];
-  selectedProvider: WorkspaceZCodeUIState["selectedProvider"];
-  optimisticTaskListByTaskId: WorkspaceZCodeUIState["optimisticTaskListByTaskId"];
-  workspaceInit: WorkspaceZCodeUIState["workspaceInit"];
-  taskStatus: ZCodeTaskRuntimeStatus;
+export interface WorkspaceShellYCodeState {
+  activeTaskId: WorkspaceYCodeUIState["activeTaskId"];
+  draftFocusVersion: WorkspaceYCodeUIState["draftFocusVersion"];
+  modelSwitchPending: WorkspaceYCodeUIState["modelSwitchPending"];
+  modelSwitchStage: WorkspaceYCodeUIState["modelSwitchStage"];
+  selectedProvider: WorkspaceYCodeUIState["selectedProvider"];
+  optimisticTaskListByTaskId: WorkspaceYCodeUIState["optimisticTaskListByTaskId"];
+  workspaceInit: WorkspaceYCodeUIState["workspaceInit"];
+  taskStatus: YCodeTaskRuntimeStatus;
   taskError: string | null;
 }
 
 export interface CreateTaskOptions {
   /** 异步预填只能提交到解析 Skill 时的同一新任务目标。 */
   expectedWorkspaceKey?: string;
-  provider?: ZCodeProvider;
+  provider?: YCodeProvider;
   groupedDraftPlacement?: GroupedDraftTaskPlacement;
   createSource?: SessionCreateSource;
   /** 新草稿输入框预填文本；只写草稿，不自动发送。 */
@@ -70,7 +70,7 @@ export interface CreateTaskOptions {
   targetWorkspace?: { workspacePath: string; workspaceIdentity?: string };
 }
 
-export type CreateTaskRequest = ZCodeProvider | CreateTaskOptions;
+export type CreateTaskRequest = YCodeProvider | CreateTaskOptions;
 
 export interface AppProps {
   services: IServiceAccessor;
@@ -130,7 +130,7 @@ export interface WorkspaceShellLayoutProps extends Omit<AppProps, "baseFeedbackS
   handleOpenAutomations: OpenAutomationsMain;
   handleOpenPluginStore: () => void;
   handleManageInstalledPlugins: () => void;
-  workspaceShellZCodeState: WorkspaceShellZCodeState;
+  workspaceShellYCodeState: WorkspaceShellYCodeState;
   theme: Theme;
   isMacFullscreen: boolean;
   desktopWindowChromeState: DesktopWindowChromeState | null;
@@ -175,8 +175,8 @@ export interface WorkspaceShellLayoutProps extends Omit<AppProps, "baseFeedbackS
   sidePaneOwnerId: string | null;
   activeTraceId: string | null;
   activeSessionId: string | null;
-  activeTaskProvider: ZCodeProvider | null;
-  resolvedActiveTaskMeta?: ZCodeTaskMeta | null;
+  activeTaskProvider: YCodeProvider | null;
+  resolvedActiveTaskMeta?: YCodeTaskMeta | null;
   activeTaskTitle: string;
   activeTaskChangeSummary: ReturnType<
     typeof import("@/lib/taskChangeSummary.js").getTaskChangeSummary
@@ -210,7 +210,7 @@ export interface WorkspaceShellLayoutProps extends Omit<AppProps, "baseFeedbackS
   reloadSessionPending: boolean;
   handleReloadSession: (options?: {
     resumeTaskId?: string | null;
-    provider?: ZCodeProvider | null;
+    provider?: YCodeProvider | null;
   }) => Promise<void>;
   handleSelectTask: (
     targetWorkspacePath: string,

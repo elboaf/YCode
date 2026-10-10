@@ -1,6 +1,6 @@
 import { traceContextToLogContext } from "../deps.js";
 import type { ModelRequestAuth } from "@ycode/contracts";
-import type { ZCodeProviderAccountAccess } from "@ycode/shared";
+import type { YCodeProviderAccountAccess } from "@ycode/shared";
 import type { Model, TraceContext } from "../deps.js";
 import type { AgentRuntimeInternal } from "../internal.js";
 
@@ -13,7 +13,7 @@ export function createRefreshRuntimeHeadersBeforeModelAttempt(
   },
 ):
   | ((attemptInput: {
-      accountAccess?: ZCodeProviderAccountAccess;
+      accountAccess?: YCodeProviderAccountAccess;
       attempt: number;
       reason?: "model-request";
       abortSignal?: AbortSignal;

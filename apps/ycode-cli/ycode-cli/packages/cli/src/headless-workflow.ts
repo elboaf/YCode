@@ -7,7 +7,7 @@ import {
 } from "@ycode/contracts";
 import { createDenyPermissionBroker } from "@ycode/core";
 import type { GlobalOptions } from "@ycode/shared-types";
-import type { ZCodeAppOptions } from "@ycode/bootstrap";
+import type { YCodeAppOptions } from "@ycode/bootstrap";
 import { readRuntimeFunction } from "./runtime-event-subscriber.js";
 
 /**
@@ -29,7 +29,7 @@ import { readRuntimeFunction } from "./runtime-event-subscriber.js";
  * 的 `??` 短路），权限事件照常发射，run 内 actor 照旧继承会话的权限 profile。
  */
 export const createHeadlessPermissionBroker = (): NonNullable<
-  ZCodeAppOptions["permissionBroker"]
+  YCodeAppOptions["permissionBroker"]
 > => {
   const denyBroker = createDenyPermissionBroker();
   return {
@@ -53,8 +53,8 @@ export const createHeadlessPermissionBroker = (): NonNullable<
 /**
  * stream-json 里 dwf 进度行的 `type`。
  *
- * 刻意**不**进 `zcodeSessionEventTypeSchema`（`shared/src/ycode-protocol/index.ts`）：
- * 那是个闭集 `z.enum` 且喂给 `zcodeSessionEventSchema` 的 discriminated union，加值等于让
+ * 刻意**不**进 `ycodeSessionEventTypeSchema`（`shared/src/ycode-protocol/index.ts`）：
+ * 那是个闭集 `z.enum` 且喂给 `ycodeSessionEventSchema` 的 discriminated union，加值等于让
  * v3 app-server 在类型面上宣告一个它永不发出的事件。stream-json 是 CLI 私有输出格式，
  * 不受协议 strict schema 约束。
  */
@@ -352,7 +352,7 @@ export const waitForHeadlessWorkflowSettle = async (input: {
  * 这个 app 的 runtime 能提供 busy 事实吗？
  *
  * 动态读取的理由见 `runtime-event-subscriber.ts` 的 `readRuntimeFunction`（同一个
- * `RunDependencies.createZCodeApp` 注入点边界）。
+ * `RunDependencies.createYCodeApp` 注入点边界）。
  *
  * **不静默降级**：拿不到 busy 事实就不进等待——"这个宿主没有这个能力"的诚实答复，
  * 而不是假装等过了。

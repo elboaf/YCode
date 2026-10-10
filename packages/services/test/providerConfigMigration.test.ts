@@ -5,7 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { createProviderConfigRuntime } from "../src/model-provider/providerConfigRuntime.js";
-import { readLegacyZCodeConfigProviders } from "../src/model-provider/legacyZCodeConfigProviderReader.js";
+import { readLegacyYCodeConfigProviders } from "../src/model-provider/legacyYCodeConfigProviderReader.js";
 import { getAppConfigDir, setDataBaseDir } from "../src/paths.js";
 
 const legacyConfig = {
@@ -40,7 +40,7 @@ async function setup() {
   let reads = 0;
   const recoveries: unknown[] = [];
   const runtime = createProviderConfigRuntime({
-    zcodeBuiltinFilePath: fileURLToPath(
+    ycodeBuiltinFilePath: fileURLToPath(
       new URL("../../../config/provider/ycode-builtin.json", import.meta.url),
     ),
     personalFilePath: personalPath,
@@ -48,7 +48,7 @@ async function setup() {
     watch: false,
     readLegacyProviders: async () => {
       reads += 1;
-      return readLegacyZCodeConfigProviders();
+      return readLegacyYCodeConfigProviders();
     },
     onPersonalConfigRecovery: (event) => recoveries.push(event.error),
   });

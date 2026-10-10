@@ -13,7 +13,7 @@ import { YCODE_OFFICIAL_PLUGIN_MARKETPLACE } from "@ycode/contracts";
 import { YCODE_PLUGIN_ID_ENV_KEY } from "@ycode/shared";
 import type { LoadedPlugin } from "./types.js";
 import { isNotFoundError, isPluginOptionValue, isRecord, resolveInside } from "./helpers.js";
-import { buildOfficialProvenance, parseZCodeOfficialAuth } from "./mcp-official-auth.js";
+import { buildOfficialProvenance, parseYCodeOfficialAuth } from "./mcp-official-auth.js";
 
 const SUPPORTED_MCP_TYPES = new Set(["stdio", "http", "sse"]);
 const TEMPLATE_PATTERN = /\$\{([^}]+)\}/g;
@@ -191,7 +191,7 @@ function resolveMcpServerConfig(
   //
   // stdio 之所以能放开：请求由插件进程自己发出，身份头随每条出站协议消息的 _meta 下发
   // （见 adapters/src/mcp/index.ts）。sse 没有对应通道，继续拒绝。
-  const officialAuth = parseZCodeOfficialAuth(server.auth, identity.mcpKey);
+  const officialAuth = parseYCodeOfficialAuth(server.auth, identity.mcpKey);
   if (officialAuth && type !== "http" && type !== "stdio") {
     throw new Error(
       `MCP server ${identity.mcpKey}: ${officialAuth.type} auth requires type "http" or "stdio", got "${type}"`,

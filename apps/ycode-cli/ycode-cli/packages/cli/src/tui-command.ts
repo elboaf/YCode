@@ -1,5 +1,5 @@
 import type { RunContext, GlobalOptions } from "@ycode/shared-types";
-import { resolveZCodeRuntimeEnv } from "@ycode/shared";
+import { resolveYCodeRuntimeEnv } from "@ycode/shared";
 import { createNodeClipboardImageReader } from "./clipboard-image.js";
 import { createNodeClipboardTextWriter } from "./clipboard-text.js";
 import { listSlashCommandSuggestions } from "./command-center.js";
@@ -28,7 +28,7 @@ export const runTuiCommand = async (
     const runTui = deps.runTui ?? (await loadTuiRuntime()).runTui;
     const workspaceDirectory = (deps.cwd ?? process.cwd)();
     const env = deps.env ?? process.env;
-    const developerMode = resolveZCodeRuntimeEnv(env) === "development";
+    const developerMode = resolveYCodeRuntimeEnv(env) === "development";
     const startupLocale = resolveTuiStartupLocale({
       deps,
       options,

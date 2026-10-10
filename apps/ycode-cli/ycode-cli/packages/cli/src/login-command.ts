@@ -29,7 +29,7 @@ export async function runLoginCommand(
       });
     }
 
-    const login = deps.loginZCodeCli ?? (await loadBootstrapModule()).loginZCodeCli;
+    const login = deps.loginYCodeCli ?? (await loadBootstrapModule()).loginYCodeCli;
     const result = await login({
       env,
       noBrowser,
@@ -102,7 +102,7 @@ export async function runLogoutCommand(
       });
     }
 
-    const logout = deps.logoutZCodeCli ?? (await loadBootstrapModule()).logoutZCodeCli;
+    const logout = deps.logoutYCodeCli ?? (await loadBootstrapModule()).logoutYCodeCli;
     const result = await logout({ env });
 
     if (options.json) {

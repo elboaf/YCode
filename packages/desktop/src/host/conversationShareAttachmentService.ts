@@ -1,9 +1,9 @@
 import { Event as RpcEvent } from "@ycode/rpc";
-import type { IConversationShareService, IZCodeAgentService } from "@ycode/services";
+import type { IConversationShareService, IYCodeAgentService } from "@ycode/services";
 import { conversationShareConnectionScopeFactory } from "@ycode/services/node";
 
 type ConversationShareAgentService = Pick<
-  IZCodeAgentService,
+  IYCodeAgentService,
   | "conversationRowsRangeV4"
   | "conversationFileChangesV4"
   | "conversationAttachmentReadV4"

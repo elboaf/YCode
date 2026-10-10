@@ -76,11 +76,11 @@ interface Copy {
   unavailableTitle: string;
   unavailableDescription: string;
   retry: string;
-  continueInZCode: string;
+  continueInYCode: string;
   switchToDarkTheme: string;
   switchToLightTheme: string;
   continueHelp: string;
-  downloadZCode: string;
+  downloadYCode: string;
   retryOpen: string;
   /** 结果物计数；{count} 占位。中文无复数，英文分单复数。 */
   artifactCountOne: string;
@@ -119,11 +119,11 @@ const COPY: Record<ConversationShareLandingLocale, Copy> = {
     unavailableTitle: "分享不可访问",
     unavailableDescription: "当前账号没有权限，或者分享内容已不存在。",
     retry: "重试",
-    continueInZCode: "去 YCode 继续",
+    continueInYCode: "去 YCode 继续",
     switchToDarkTheme: "切换到深色主题",
     switchToLightTheme: "切换到浅色主题",
     continueHelp: "如果没有自动打开 YCode，请先下载客户端，或再次尝试打开。",
-    downloadZCode: "下载 YCode",
+    downloadYCode: "下载 YCode",
     artifactCountOne: "{count} 个结果物",
     artifactCountOther: "{count} 个结果物",
     retryOpen: "再次打开",
@@ -159,11 +159,11 @@ const COPY: Record<ConversationShareLandingLocale, Copy> = {
     unavailableDescription:
       "This account is not allowed to view the share, or it no longer exists.",
     retry: "Try again",
-    continueInZCode: "Continue in YCode",
+    continueInYCode: "Continue in YCode",
     switchToDarkTheme: "Switch to dark theme",
     switchToLightTheme: "Switch to light theme",
     continueHelp: "If YCode did not open, download the app or try opening it again.",
-    downloadZCode: "Download YCode",
+    downloadYCode: "Download YCode",
     artifactCountOne: "{count} artifact",
     artifactCountOther: "{count} artifacts",
     retryOpen: "Try again",
@@ -451,12 +451,12 @@ export function ConversationShareLandingPage({
                             : SHARE_CONTINUE_LINK_CLASS
                         }
                         href={importLink}
-                        aria-label={copy.continueInZCode}
-                        title={copy.continueInZCode}
+                        aria-label={copy.continueInYCode}
+                        title={copy.continueInYCode}
                         onClick={handleContinue}
                       >
                         <span className={headerView.continueCompact ? "sr-only" : "truncate"}>
-                          {copy.continueInZCode}
+                          {copy.continueInYCode}
                         </span>
                         <ArrowUpRightIcon
                           className={
@@ -481,7 +481,7 @@ export function ConversationShareLandingPage({
                     </span>
                     {importLink ? (
                       <span className={SHARE_CONTINUE_MEASURE_CLASS}>
-                        <span>{copy.continueInZCode}</span>
+                        <span>{copy.continueInYCode}</span>
                         <ArrowUpRightIcon
                           className="size-4 shrink-0 sm:size-5"
                           aria-hidden="true"
@@ -543,7 +543,7 @@ export function ConversationShareLandingPage({
                 {copy.retryOpen}
               </a>
               <a className="text-brand underline underline-offset-2" href={YCODE_DOWNLOAD_URL}>
-                {copy.downloadZCode}
+                {copy.downloadYCode}
               </a>
             </div>
           </ShareContentInset>
@@ -568,7 +568,7 @@ export function ConversationShareLandingPage({
                 href={importLink}
                 onClick={handleContinue}
               >
-                <span className="truncate">{copy.continueInZCode}</span>
+                <span className="truncate">{copy.continueInYCode}</span>
                 <ArrowUpRightIcon className="size-4 shrink-0 sm:size-5" aria-hidden="true" />
               </a>
             </div>

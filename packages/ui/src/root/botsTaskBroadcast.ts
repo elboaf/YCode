@@ -1,6 +1,6 @@
 import {
   BOT_TASK_BROADCAST_CHANNEL,
-  type ZCodeTaskRuntimeStatus,
+  type YCodeTaskRuntimeStatus,
   type BotTaskBroadcastPayload,
 } from "@ycode/shared";
 import type { BroadcastMessage } from "@ycode/services";
@@ -79,7 +79,7 @@ export function resolveBotTaskBroadcastRefresh(
 
 export function resolveBotTaskBroadcastRuntimeStatus(
   event: BotTaskBroadcastPayload["event"],
-): ZCodeTaskRuntimeStatus {
+): YCodeTaskRuntimeStatus {
   switch (event) {
     case "created":
       return "creating";

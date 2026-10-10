@@ -1,24 +1,24 @@
 /* oxlint-disable eslint(max-lines) -- 当前文件承接 task 级状态切片，先保持最小改动修复草稿逻辑，后续再统一拆分 */
 import {
-  normalizeAgentProviderToZCodeAgent,
-  type ZCodeApiRetryStatus,
-  type ZCodeConfigOption,
-  type ZCodePermissionRequest,
-  type ZCodeElicitationRequest,
-  type ZCodeProvider,
-  type ZCodeTaskRuntimeStatus,
-  type ZCodeTaskMeta,
+  normalizeAgentProviderToYCodeAgent,
+  type YCodeApiRetryStatus,
+  type YCodeConfigOption,
+  type YCodePermissionRequest,
+  type YCodeElicitationRequest,
+  type YCodeProvider,
+  type YCodeTaskRuntimeStatus,
+  type YCodeTaskMeta,
 } from "@ycode/shared";
-import type { ZCodeUiError } from "@/lib/zcodeUiError.js";
+import type { YCodeUiError } from "@/lib/ycodeUiError.js";
 import { removeTaskFromHistory } from "@/lib/taskNavigationHistory.js";
-import { mergeTaskWithOptimisticMeta } from "@/lib/zcodeTaskMetaMerge.js";
+import { mergeTaskWithOptimisticMeta } from "@/lib/ycodeTaskMetaMerge.js";
 import type {
   ConfigOptionsStatus,
   ElicitationFormDraft,
-  ZCodeSessionStoreState,
+  YCodeSessionStoreState,
   TaskUsageState,
-} from "@/store/zcodeSessionStoreTypes.js";
-import { getDefaultWorkspaceState } from "@/store/zcodeSessionStoreTypes.js";
+} from "@/store/ycodeSessionStoreTypes.js";
+import { getDefaultWorkspaceState } from "@/store/ycodeSessionStoreTypes.js";
 import { clearPersistedComposerDraft } from "@/lib/chatComposerDraftStorage.js";
 import { areConfigOptionsEquivalent } from "@/lib/configOptionsEquality.js";
 import {
@@ -27,16 +27,16 @@ import {
   getWorkspaceState,
   resolveWorkspaceStateKey,
   updateWorkspaceState,
-} from "@/store/zcodeSessionStoreSelectors.js";
+} from "@/store/ycodeSessionStoreSelectors.js";
 
 type SetFn = (
   partial:
-    | ZCodeSessionStoreState
-    | Partial<ZCodeSessionStoreState>
-    | ((state: ZCodeSessionStoreState) => ZCodeSessionStoreState | Partial<ZCodeSessionStoreState>),
+    | YCodeSessionStoreState
+    | Partial<YCodeSessionStoreState>
+    | ((state: YCodeSessionStoreState) => YCodeSessionStoreState | Partial<YCodeSessionStoreState>),
 ) => void;
 
-function sortTasksByUpdatedAt(tasks: readonly ZCodeTaskMeta[]): ZCodeTaskMeta[] {
+function sortTasksByUpdatedAt(tasks: readonly YCodeTaskMeta[]): YCodeTaskMeta[] {
   return [...tasks].sort((left, right) => {
     if (right.updatedAt !== left.updatedAt) {
       return right.updatedAt - left.updatedAt;
@@ -49,8 +49,8 @@ function sortTasksByUpdatedAt(tasks: readonly ZCodeTaskMeta[]): ZCodeTaskMeta[] 
 }
 
 function arePermissionOptionsEqual(
-  left: ZCodePermissionRequest["options"],
-  right: ZCodePermissionRequest["options"],
+  left: YCodePermissionRequest["options"],
+  right: YCodePermissionRequest["options"],
 ): boolean {
   if (left.length !== right.length) {
     return false;
@@ -71,8 +71,8 @@ function arePermissionOptionsEqual(
 }
 
 function arePermissionRequestsEquivalent(
-  left: ZCodePermissionRequest,
-  right: ZCodePermissionRequest,
+  left: YCodePermissionRequest,
+  right: YCodePermissionRequest,
 ): boolean {
   if (left === right) {
     return true;
@@ -175,13 +175,13 @@ function normalizeTaskContextWindow(contextWindow: number | null): number | null
 }
 
 function updateWorkspaceStateForIdentityScopedTaskState(
-  state: ZCodeSessionStoreState,
+  state: YCodeSessionStoreState,
   workspacePath: string,
   workspaceIdentity: string | undefined,
   updater: (
     current: ReturnType<typeof getDefaultWorkspaceState>,
   ) => ReturnType<typeof getDefaultWorkspaceState>,
-): Pick<ZCodeSessionStoreState, "workspaces"> {
+): Pick<YCodeSessionStoreState, "workspaces"> {
   const workspaceKey = resolveWorkspaceStateKey(workspacePath, workspaceIdentity);
   if (workspaceKey === workspacePath) {
     return updateWorkspaceState(state, workspacePath, updater);
@@ -200,10 +200,10 @@ export function createTaskSlice(set: SetFn) {
     setTaskRuntimeState: (
       workspacePath: string,
       taskId: string,
-      status: ZCodeTaskRuntimeStatus,
+      status: YCodeTaskRuntimeStatus,
       error?: string | null,
       workspaceIdentity?: string,
-      provider?: ZCodeProvider,
+      provider?: YCodeProvider,
     ) => {
       set((state) =>
         updateWorkspaceState(
@@ -309,7 +309,7 @@ export function createTaskSlice(set: SetFn) {
     setTaskApiRetryStatus: (
       workspacePath: string,
       taskId: string,
-      apiRetry: ZCodeApiRetryStatus | null,
+      apiRetry: YCodeApiRetryStatus | null,
       workspaceIdentity?: string,
     ) => {
       set((state) =>
@@ -334,7 +334,7 @@ export function createTaskSlice(set: SetFn) {
     setTaskConfigOptions: (
       workspacePath: string,
       taskId: string,
-      options: ZCodeConfigOption[],
+      options: YCodeConfigOption[],
       workspaceIdentity?: string,
       status: ConfigOptionsStatus = "ready",
     ) => {
@@ -376,7 +376,7 @@ export function createTaskSlice(set: SetFn) {
     setTaskPermissionRequest: (
       workspacePath: string,
       taskId: string,
-      request: ZCodePermissionRequest | null,
+      request: YCodePermissionRequest | null,
       workspaceIdentity?: string,
     ) => {
       set((state) =>
@@ -523,7 +523,7 @@ export function createTaskSlice(set: SetFn) {
     setTaskElicitationRequest: (
       workspacePath: string,
       taskId: string,
-      request: ZCodeElicitationRequest | null,
+      request: YCodeElicitationRequest | null,
       workspaceIdentity?: string,
     ) => {
       set((state) =>
@@ -709,7 +709,7 @@ export function createTaskSlice(set: SetFn) {
     setTaskError: (
       workspacePath: string,
       taskId: string,
-      error: ZCodeUiError | null,
+      error: YCodeUiError | null,
       workspaceIdentity?: string,
     ) => {
       set((state) =>
@@ -722,7 +722,7 @@ export function createTaskSlice(set: SetFn) {
               ...current.taskUiByTaskId,
               [taskId]: {
                 ...getTaskUiState(current, taskId),
-                // 完整错误对象之前只放在 ChatView/useZCodeChat 的本地 state。
+                // 完整错误对象之前只放在 ChatView/useYCodeChat 的本地 state。
                 // 一旦切换页面或任务，组件卸载后 traceId/code 就会一起丢失，只剩 taskRuntime.error 的纯文本。
                 // 这里改成按 task 写进 store，让错误提示能跟 plan/permission 一样跨页面恢复。
                 error,
@@ -737,8 +737,8 @@ export function createTaskSlice(set: SetFn) {
     initializeBackgroundTaskRuntime: (
       workspacePath: string,
       params: {
-        task: ZCodeTaskMeta;
-        provider: ZCodeProvider;
+        task: YCodeTaskMeta;
+        provider: YCodeProvider;
         activeInputId: string;
         workspaceIdentity?: string;
       },
@@ -764,7 +764,7 @@ export function createTaskSlice(set: SetFn) {
 
             return {
               ...current,
-              selectedProvider: normalizeAgentProviderToZCodeAgent(params.provider),
+              selectedProvider: normalizeAgentProviderToYCodeAgent(params.provider),
               // 性能优化：后台首发不需要先经历 optimistic -> cache -> runtime 多轮 set。
               // 合到一次写入可以削掉并发压测创建任务时的 renderer 订阅风暴。
               optimisticTaskListByTaskId: {
@@ -791,7 +791,7 @@ export function createTaskSlice(set: SetFn) {
 
     upsertOptimisticTaskListItem: (
       workspacePath: string,
-      task: ZCodeTaskMeta,
+      task: YCodeTaskMeta,
       workspaceIdentity?: string,
     ) => {
       set((state) =>

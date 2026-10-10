@@ -8,16 +8,16 @@ import {
   type McpTelemetryTracker,
 } from "@ycode/adapters/mcp";
 import {
-  zcodeProtocolNotifications,
-  type ZCodeMcpResourceSample,
-  type ZCodeMcpTelemetryEvent,
+  ycodeProtocolNotifications,
+  type YCodeMcpResourceSample,
+  type YCodeMcpTelemetryEvent,
 } from "@ycode/shared";
 import type { SqliteSessionStore } from "@ycode/adapters/storage";
 import { traceContextToLogContext, createRootTraceContext } from "@ycode/contracts";
 import type { McpPort, ModelSelection } from "@ycode/contracts";
 import type { PresentationSurface } from "@ycode/core";
-import type { RunZCodeProtocolAgentOptions, ZCodeAppOptions } from "./app/types.js";
-import { createZCodeApp } from "./app/create-app.js";
+import type { RunYCodeProtocolAgentOptions, YCodeAppOptions } from "./app/types.js";
+import { createYCodeApp } from "./app/create-app.js";
 import {
   createNodeReplBrowserBroker,
   type NodeReplBrowserBroker,
@@ -30,7 +30,7 @@ import { closeSessionStore, getSessionDbPath } from "./app/session-store.js";
 import { startProcessProviderRegistryRuntime } from "./app/process-provider-registry-runtime.js";
 import { scheduleStartupLogRetentionCleanup } from "./log-retention.js";
 import { StartupTimer, startupNow } from "./startup-logging.js";
-import { installZCodeProtocolAiSdkWarningLogger } from "./ycode-protocol/ai-sdk-warning-logger.js";
+import { installYCodeProtocolAiSdkWarningLogger } from "./ycode-protocol/ai-sdk-warning-logger.js";
 import {
   createOfficialMcpAuthHeadersPort,
   type OfficialMcpAuthRequestContext,
@@ -39,20 +39,20 @@ import {
   createOfficialMcpTrustedOriginRegistry,
   OFFICIAL_MCP_DEV_TRUSTED_ORIGINS_ENV,
   YCODE_WORKSPACE_IDENTITY_ENV,
-  resolveRuntimeZCodeEndpointOrigin,
+  resolveRuntimeYCodeEndpointOrigin,
 } from "@ycode/shared";
-import { ZCodeProtocolAgentServer } from "./ycode-protocol/server.js";
-import { ZCodeProtocolNdjsonConnection } from "./ycode-protocol/transport.js";
+import { YCodeProtocolAgentServer } from "./ycode-protocol/server.js";
+import { YCodeProtocolNdjsonConnection } from "./ycode-protocol/transport.js";
 import { cleanupProtocolRuntime } from "./ycode-protocol/runtime-cleanup.js";
 import { startProtocolResourceSampler } from "./ycode-protocol/resource-sampler.js";
 import { acquireProtocolStartupResource } from "./ycode-protocol/startup-resource.js";
-import type { ZCodeProcessResourceSampler } from "./process-resource-sampler.js";
-import { prepareZCodeTelemetryEnv, shutdownZCodeTelemetry } from "./telemetry-bootstrap.js";
+import type { YCodeProcessResourceSampler } from "./process-resource-sampler.js";
+import { prepareYCodeTelemetryEnv, shutdownYCodeTelemetry } from "./telemetry-bootstrap.js";
 
 function applyProtocolPresentationSurface(
-  options: Omit<ZCodeAppOptions, "providerRegistry">,
+  options: Omit<YCodeAppOptions, "providerRegistry">,
   presentationSurface: PresentationSurface,
-): Omit<ZCodeAppOptions, "providerRegistry"> {
+): Omit<YCodeAppOptions, "providerRegistry"> {
   return {
     ...options,
     runtimeConfig: {
@@ -68,10 +68,10 @@ function applyProtocolPresentationSurface(
  * 旧 workspace snapshot 不再参与 Provider 和 Model 执行。
  */
 function applyProtocolProviderRegistry(
-  options: Omit<ZCodeAppOptions, "providerRegistry">,
-  providerRegistry: ZCodeAppOptions["providerRegistry"],
+  options: Omit<YCodeAppOptions, "providerRegistry">,
+  providerRegistry: YCodeAppOptions["providerRegistry"],
   configuredDefaultModelSelection?: ModelSelection,
-): ZCodeAppOptions {
+): YCodeAppOptions {
   return {
     ...options,
     providerRegistry,
@@ -79,8 +79,8 @@ function applyProtocolProviderRegistry(
   };
 }
 
-export async function runZCodeProtocolAgent(
-  options: RunZCodeProtocolAgentOptions = {},
+export async function runYCodeProtocolAgent(
+  options: RunYCodeProtocolAgentOptions = {},
 ): Promise<void> {
   if (options.prepareStorageOnly) {
     const config = createConfig({ env: options.env });
@@ -105,7 +105,7 @@ export async function runZCodeProtocolAgent(
     ...traceContextToLogContext(traceContext),
     module: "bootstrap.ycode_protocol",
   });
-  installZCodeProtocolAiSdkWarningLogger(logger);
+  installYCodeProtocolAiSdkWarningLogger(logger);
   const startupTimer = new StartupTimer(
     logger,
     {
@@ -122,14 +122,14 @@ export async function runZCodeProtocolAgent(
   });
 
   let sessionStore: SqliteSessionStore | undefined;
-  let serverForCleanup: ZCodeProtocolAgentServer | undefined;
+  let serverForCleanup: YCodeProtocolAgentServer | undefined;
   let nodeReplBrowserBroker: NodeReplBrowserBroker | undefined;
   let mcpConnectionPool: McpConnectionPool | undefined;
   let mcpPort: McpPort | undefined;
   let mcpTelemetryTracker: McpTelemetryTracker | undefined;
-  let mcpResourceSink: ((samples: ZCodeMcpResourceSample[]) => void) | undefined;
-  let mcpTelemetrySink: ((event: ZCodeMcpTelemetryEvent) => void) | undefined;
-  let processResourceSampler: ZCodeProcessResourceSampler | undefined;
+  let mcpResourceSink: ((samples: YCodeMcpResourceSample[]) => void) | undefined;
+  let mcpTelemetrySink: ((event: YCodeMcpTelemetryEvent) => void) | undefined;
+  let processResourceSampler: YCodeProcessResourceSampler | undefined;
   let providerRegistryRuntime:
     | Awaited<ReturnType<typeof startProcessProviderRegistryRuntime>>
     | undefined;
@@ -171,9 +171,9 @@ export async function runZCodeProtocolAgent(
     const telemetryEnv = await acquireProtocolStartupResource({
       signal: options.lifecycle?.signal,
       logger,
-      disposeLate: () => shutdownZCodeTelemetry(),
+      disposeLate: () => shutdownYCodeTelemetry(),
       create: () =>
-        prepareZCodeTelemetryEnv(runtimeEnv, {
+        prepareYCodeTelemetryEnv(runtimeEnv, {
           cliVersion: options.version,
           productVersion: options.env?.YCODE_APP_VERSION,
           runtimeSurface,
@@ -193,9 +193,9 @@ export async function runZCodeProtocolAgent(
     // 返回结构化权限错误，stdio 则把 reason 下发给插件。连接与工具发现都不受影响。
     let officialMcpAuthContext: OfficialMcpAuthRequestContext | undefined;
     // stdio 官方 MCP 没有 url 可供校验，targetOrigin 只能由宿主给出。
-    // 与下面 trustedOrigins 的 resolveZCodeApiOrigin 必须是同一个表达式，否则两侧判定分叉。
-    const resolveZCodeApiOrigin = (): string =>
-      resolveRuntimeZCodeEndpointOrigin(options.env ?? process.env);
+    // 与下面 trustedOrigins 的 resolveYCodeApiOrigin 必须是同一个表达式，否则两侧判定分叉。
+    const resolveYCodeApiOrigin = (): string =>
+      resolveRuntimeYCodeEndpointOrigin(options.env ?? process.env);
     const workspaceIdentity = (options.env ?? process.env)[YCODE_WORKSPACE_IDENTITY_ENV]?.trim();
     const officialMcpAuth = {
       authHeadersPort: createOfficialMcpAuthHeadersPort({
@@ -215,13 +215,13 @@ export async function runZCodeProtocolAgent(
           };
         },
       }),
-      resolveZCodeApiOrigin,
+      resolveYCodeApiOrigin,
       ...(workspaceIdentity ? { workspaceIdentity } : {}),
       // 信任判定只看一条：目标 origin 等于当前 YCode API origin（https）。pluginId 不参与。
       // origin 运行时解析（跟随 production/test 与自建环境），不硬编码域名。
       trustedOrigins: createOfficialMcpTrustedOriginRegistry({
         devTrustedOriginsRaw: (options.env ?? process.env)[OFFICIAL_MCP_DEV_TRUSTED_ORIGINS_ENV],
-        resolveZCodeApiOrigin,
+        resolveYCodeApiOrigin,
       }),
     };
     mcpConnectionPool =
@@ -246,9 +246,9 @@ export async function runZCodeProtocolAgent(
       activeProviderRegistryRuntime.runtime.registryService,
     );
     options.lifecycle?.signal.throwIfAborted();
-    const server = (serverForCleanup = new ZCodeProtocolAgentServer({
-      createZCodeApp: (appOptions = {}) =>
-        createZCodeApp({
+    const server = (serverForCleanup = new YCodeProtocolAgentServer({
+      createYCodeApp: (appOptions = {}) =>
+        createYCodeApp({
           ...applyProtocolProviderRegistry(
             applyProtocolPresentationSurface(appOptions, presentationSurface),
             activeProviderRegistryRuntime.runtime.registryService,
@@ -279,7 +279,7 @@ export async function runZCodeProtocolAgent(
             : {}),
           sourceTitle: "electron",
           onToolExecResource: (params) =>
-            connection.send({ method: zcodeProtocolNotifications.toolExecResource, params }),
+            connection.send({ method: ycodeProtocolNotifications.toolExecResource, params }),
         }),
       cwd: options.cwd,
       env: options.env,
@@ -307,7 +307,7 @@ export async function runZCodeProtocolAgent(
         create: () => broker.ready,
       });
     }
-    const connection = new ZCodeProtocolNdjsonConnection({
+    const connection = new YCodeProtocolNdjsonConnection({
       signal: options.lifecycle?.signal,
       clearPostResponseMessages: () => server.clearPostResponseMessages(),
       handleMessage: (message) => server.handleMessage(message),
@@ -320,14 +320,14 @@ export async function runZCodeProtocolAgent(
     server.setNotificationSink((notification) => connection.send(notification));
     mcpResourceSink = (samples) =>
       connection.send({
-        method: zcodeProtocolNotifications.mcpResourceSamples,
+        method: ycodeProtocolNotifications.mcpResourceSamples,
         params: samples,
       });
     mcpTelemetrySink = (event) => {
       // 五分钟资源通知取代旧内存通知；tracker 内部孤儿事实仍保留原判据。
       if (event.kind === "memory") return;
       connection.send({
-        method: zcodeProtocolNotifications.mcpTelemetry,
+        method: ycodeProtocolNotifications.mcpTelemetry,
         params: event,
       });
     };

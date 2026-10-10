@@ -1,4 +1,4 @@
-import type { ZCodePluginStoreListing } from "./ycode-protocol/index.js";
+import type { YCodePluginStoreListing } from "./ycode-protocol/index.js";
 
 const CANONICAL_PLUGIN_NAME_ACRONYMS: Readonly<Record<string, string>> = {
   aws: "AWS",
@@ -42,7 +42,7 @@ export function formatCanonicalPluginName(name: string, locale: string): string 
  * 不按裸 manifest name 猜测官方产品名，避免同名 marketplace 插件互相覆盖。
  */
 export function resolvePluginDisplayName(
-  plugin: { name: string; listing?: ZCodePluginStoreListing },
+  plugin: { name: string; listing?: YCodePluginStoreListing },
   locale: string,
 ): string {
   return (

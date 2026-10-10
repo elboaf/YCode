@@ -6,7 +6,7 @@ import {
   type IPlatformService,
   type RemoteTarget,
   type UserInfo,
-  type ZCodeTaskClientMode,
+  type YCodeTaskClientMode,
 } from "@ycode/shared";
 import type { IServiceAccessor } from "@ycode/services";
 import type { CreateTaskRequest } from "@/app-shell/types.js";
@@ -18,7 +18,7 @@ import { parseWslUncWorkspacePath } from "@/lib/wslUncWorkspace.js";
 import { logger } from "@/logger.js";
 import { openFolderFromWorkspaceEntry } from "@/root/openWorkspaceFolderEntry.js";
 import { useConversationWorkspaceActions } from "@/root/useConversationWorkspaceActions.js";
-import { useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
+import { useYCodeSessionStore } from "@/store/ycodeSessionStore.js";
 import { isWorkspaceReadOnly, type TabStore, type TabStoreState } from "@/store/tabStore.js";
 import type { RootProps } from "@/root/types.js";
 import {
@@ -89,7 +89,7 @@ export function useRootWorkspaceActions({
   onOpenRemoteConnection,
   workbenchGroupClientMode = "desktop-continuous",
 }: {
-  intl: ReturnType<typeof import("@/i18n/IntlProvider.js").useZCodeIntl>["intl"];
+  intl: ReturnType<typeof import("@/i18n/IntlProvider.js").useYCodeIntl>["intl"];
   platform: IPlatformService;
   services: IServiceAccessor;
   tabStoreApi: TabStore;
@@ -107,7 +107,7 @@ export function useRootWorkspaceActions({
   onProviderFamilyDomainClearedAfterLogout?: () => void;
   userId?: string;
   onOpenRemoteConnection?: (preference?: OpenRemoteConnectionPreference) => void;
-  workbenchGroupClientMode?: ZCodeTaskClientMode;
+  workbenchGroupClientMode?: YCodeTaskClientMode;
 }) {
   const [workspaceActionError, setWorkspaceActionError] = useState<string | null>(null);
   const requestConfirmation = useConfirmDialog();
@@ -153,7 +153,7 @@ export function useRootWorkspaceActions({
         useWorkbenchGroupStore.getState().deactivateActiveGroup();
         usePaneLayoutStore.getState().resetToPrimaryPane();
       }
-      useZCodeSessionStore.getState().startDraft(workspacePath, undefined, workspaceIdentity);
+      useYCodeSessionStore.getState().startDraft(workspacePath, undefined, workspaceIdentity);
     },
     [workbenchGroupClientMode],
   );
@@ -245,7 +245,7 @@ export function useRootWorkspaceActions({
       // group / paneLayout 中继续拆一个 draft；目标 workspace 取 focused pane。
       useWorkbenchGroupStore.getState().deactivateActiveGroup();
       usePaneLayoutStore.getState().resetToPrimaryPane();
-      useZCodeSessionStore
+      useYCodeSessionStore
         .getState()
         .startDraft(
           newTaskTarget.workspacePath,
@@ -269,7 +269,7 @@ export function useRootWorkspaceActions({
             ...(initialPromptMention ? { mention: initialPromptMention } : {}),
           },
         );
-        useZCodeSessionStore
+        useYCodeSessionStore
           .getState()
           .requestComposerTextInsert(
             newTaskTarget.workspacePath,

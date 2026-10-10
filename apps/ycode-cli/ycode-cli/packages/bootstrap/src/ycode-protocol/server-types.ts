@@ -14,22 +14,22 @@ import type { McpTelemetryTracker } from "@ycode/adapters";
 import type { WorkspaceHookPolicyProvider } from "@ycode/core";
 import type { AccountProviderConfigSnapshot } from "@ycode/provider";
 import {
-  zcodeProtocolErrorCodes,
-  type ZCodeAutomationBotDeliveryTarget,
-  type ZCodeDeliveryKind,
+  ycodeProtocolErrorCodes,
+  type YCodeAutomationBotDeliveryTarget,
+  type YCodeDeliveryKind,
   type ModelSelection,
-  type ZCodeModelContextBudgetStrategy,
-  type ZCodeProtocolMessage,
-  type ZCodeProtocolMethod,
-  type ZCodeProtocolNotification,
-  type ZCodeProtocolRequest,
-  type ZCodeProtocolRequestId,
-  type ZCodeProtocolTrace,
-  type ZCodeSessionMode,
-  type ZCodeSessionPersistence,
-  type ZCodeWorkspaceRef,
+  type YCodeModelContextBudgetStrategy,
+  type YCodeProtocolMessage,
+  type YCodeProtocolMethod,
+  type YCodeProtocolNotification,
+  type YCodeProtocolRequest,
+  type YCodeProtocolRequestId,
+  type YCodeProtocolTrace,
+  type YCodeSessionMode,
+  type YCodeSessionPersistence,
+  type YCodeWorkspaceRef,
 } from "@ycode/shared";
-import type { ZCodeApp, ZCodeAppOptions } from "../app/types.js";
+import type { YCodeApp, YCodeAppOptions } from "../app/types.js";
 import type { V4InteractionRegistry } from "../ycode-protocol-v4/interaction-registry.js";
 import type { ConversationV4Gateway } from "../ycode-protocol-v4/v4-gateway.js";
 import type { SessionResidentPool, SessionResidentPoolOptions } from "./session-resident-pool.js";
@@ -38,8 +38,8 @@ export interface ParamsSchema<T> {
   parse(input: unknown): T;
 }
 
-export interface ZCodeProtocolAgentDependencies {
-  createZCodeApp(options?: Omit<ZCodeAppOptions, "providerRegistry">): ZCodeApp | Promise<ZCodeApp>;
+export interface YCodeProtocolAgentDependencies {
+  createYCodeApp(options?: Omit<YCodeAppOptions, "providerRegistry">): YCodeApp | Promise<YCodeApp>;
   /**
    * 每个 session record 的内存 event store 工厂。
    * 默认 turn 窗口保留策略；测试可注入 spy 或 unbounded 实现做对照。
@@ -66,27 +66,27 @@ export interface ZCodeProtocolAgentDependencies {
   refreshProviderRegistry?: (reason: string) => Promise<void>;
 }
 
-export type ZCodeProtocolAgentResolvedDependencies = ZCodeProtocolAgentDependencies & {
+export type YCodeProtocolAgentResolvedDependencies = YCodeProtocolAgentDependencies & {
   createSessionEventStore(sessionId: string): SessionEventStorePort;
   workspaceHookPolicyProvider: WorkspaceHookPolicyProvider;
 };
 
-export interface ZCodeProtocolEventSequenceState {
+export interface YCodeProtocolEventSequenceState {
   lastSeq: number;
   seqBySourceEventKey: Map<string, number>;
 }
 
-export interface ZCodeProtocolToolInputTransmissionState {
+export interface YCodeProtocolToolInputTransmissionState {
   streamedToolCallIdsWithInput: Set<string>;
 }
 
-export interface ZCodeProtocolSessionRecord {
-  app: ZCodeApp;
+export interface YCodeProtocolSessionRecord {
+  app: YCodeApp;
   memoryEnabled: boolean;
   nativeSearchEnhancementsEnabled: boolean;
-  modelContextBudgetStrategy: ZCodeModelContextBudgetStrategy;
+  modelContextBudgetStrategy: YCodeModelContextBudgetStrategy;
   createdAt: number;
-  deliveryKind?: ZCodeDeliveryKind;
+  deliveryKind?: YCodeDeliveryKind;
   /**
    * 旧 session/subscribe 没有 unsubscribe RPC；只在真正 subscribe 时置位，不能用
    * 会被 session/read 写入的 deliveryKind 代替。连接结束会销毁整个 CLI 进程。
@@ -94,15 +94,15 @@ export interface ZCodeProtocolSessionRecord {
   legacyStreamSubscribed?: boolean;
   eventStore: SessionEventStorePort;
   parentSessionId?: SessionId;
-  persistence: ZCodeSessionPersistence;
-  protocolEventSequences: Map<string, ZCodeProtocolEventSequenceState>;
-  protocolToolInputTransmissions: Map<string, ZCodeProtocolToolInputTransmissionState>;
+  persistence: YCodeSessionPersistence;
+  protocolEventSequences: Map<string, YCodeProtocolEventSequenceState>;
+  protocolToolInputTransmissions: Map<string, YCodeProtocolToolInputTransmissionState>;
   stateRevision: number;
   taskType?: SessionTaskType;
   traceContext: TraceContext;
   unsubscribe?: () => void;
   updatedAt: number;
-  workspace: ZCodeWorkspaceRef;
+  workspace: YCodeWorkspaceRef;
   activeAbortController?: AbortController;
   /** background runner 释放 ready lock 后，持久化/snapshot/broadcast 尚未完成的引用计数。 */
   residencyFinalizationCount?: number;
@@ -111,23 +111,23 @@ export interface ZCodeProtocolSessionRecord {
   /** 当前正在执行的闲时派发 turn；只在 turn 运行期间存在，禁止递归 OffPeakCreate。 */
   activeOffPeakTaskId?: string;
   /** 当前 Bot 入站 turn 的稳定回推地址；只允许 CronCreate 在本轮读取。 */
-  activeBotDeliveryTarget?: ZCodeAutomationBotDeliveryTarget;
+  activeBotDeliveryTarget?: YCodeAutomationBotDeliveryTarget;
   restoreWarning?: { message: string; type: string };
   /** 冷恢复候选只供初始投影；新的选模事件立即清除，不能替代 Runtime 执行绑定。 */
   restoredModelSelection?: ModelSelection;
 }
 
-export interface ZCodeProtocolClientRequestOptions {
+export interface YCodeProtocolClientRequestOptions {
   signal?: AbortSignal;
   timeoutMs?: number;
-  trace?: ZCodeProtocolTrace;
+  trace?: YCodeProtocolTrace;
   reannounceIntervalMs?: number;
 }
 
-export interface ZCodeProtocolAgentServerContext {
+export interface YCodeProtocolAgentServerContext {
   /** 进程退出期间，迟到的异步物化不能重新登记 session。 */
   assertServing?: () => void;
-  deps: ZCodeProtocolAgentResolvedDependencies;
+  deps: YCodeProtocolAgentResolvedDependencies;
   logger?: Logger;
   appRuntimePreferences: {
     askUserQuestionAutoResolutionEnabled: boolean;
@@ -150,13 +150,13 @@ export interface ZCodeProtocolAgentServerContext {
   // 单 CLI resident session 池。冷恢复入口经 waitForDeactivation 等待旧 app.close 收尾，
   // 协议请求则持有 operation lease，禁止异步 handler 与容量回收交错。
   sessionResidentPool?: SessionResidentPool;
-  sessions: Map<string, ZCodeProtocolSessionRecord>;
-  notify(notification: ZCodeProtocolNotification): void;
+  sessions: Map<string, YCodeProtocolSessionRecord>;
+  notify(notification: YCodeProtocolNotification): void;
   requestClient<T>(
-    method: ZCodeProtocolMethod,
+    method: YCodeProtocolMethod,
     params: unknown,
     resultSchema: ParamsSchema<T>,
-    options?: ZCodeProtocolClientRequestOptions,
+    options?: YCodeProtocolClientRequestOptions,
   ): Promise<T>;
 }
 
@@ -171,24 +171,24 @@ export class ProtocolRequestError extends Error {
   }
 }
 
-export function isRequest(message: ZCodeProtocolMessage): message is ZCodeProtocolRequest {
+export function isRequest(message: YCodeProtocolMessage): message is YCodeProtocolRequest {
   return "method" in message && "id" in message;
 }
 
 export function isNotification(
-  message: ZCodeProtocolMessage,
-): message is ZCodeProtocolNotification {
+  message: YCodeProtocolMessage,
+): message is YCodeProtocolNotification {
   return "method" in message && !("id" in message);
 }
 
 export function isResponse(
-  message: ZCodeProtocolMessage,
-): message is { id: ZCodeProtocolRequestId; result: unknown } {
+  message: YCodeProtocolMessage,
+): message is { id: YCodeProtocolRequestId; result: unknown } {
   return "id" in message && "result" in message;
 }
 
-export function isErrorResponse(message: ZCodeProtocolMessage): message is {
-  id: ZCodeProtocolRequestId;
+export function isErrorResponse(message: YCodeProtocolMessage): message is {
+  id: YCodeProtocolRequestId;
   error: { code: number; message: string; data?: unknown };
 } {
   return "id" in message && "error" in message;
@@ -228,7 +228,7 @@ export function parseParams<T>(schema: ParamsSchema<T>, params: unknown): T {
 }
 
 export function assertExpectedRevision(
-  record: ZCodeProtocolSessionRecord,
+  record: YCodeProtocolSessionRecord,
   expectedRevision: number | undefined,
 ): void {
   if (expectedRevision !== undefined && expectedRevision !== record.stateRevision) {
@@ -276,7 +276,7 @@ function createProtocolTraceId(_sessionId: SessionId): TraceContext["traceId"] {
 
 export function createProtocolRootTraceContext(
   sessionId: SessionId,
-  trace?: ZCodeProtocolTrace,
+  trace?: YCodeProtocolTrace,
 ): TraceContext {
   const context = createRootTraceContext({
     sessionId,
@@ -292,7 +292,7 @@ export function createProtocolRootTraceContext(
   return context;
 }
 
-export function protocolTraceFromTraceContext(context: TraceContext): ZCodeProtocolTrace {
+export function protocolTraceFromTraceContext(context: TraceContext): YCodeProtocolTrace {
   return {
     traceId: context.traceId,
     ...(context.spanId ? { spanId: context.spanId } : {}),
@@ -303,10 +303,10 @@ export function protocolTraceFromTraceContext(context: TraceContext): ZCodeProto
 }
 
 export function requireSession(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   sessionId: string,
-  options: { deliveryKind?: ZCodeDeliveryKind; operation?: string } = {},
-): ZCodeProtocolSessionRecord {
+  options: { deliveryKind?: YCodeDeliveryKind; operation?: string } = {},
+): YCodeProtocolSessionRecord {
   const record = context.sessions.get(sessionId);
   if (!record) {
     // 诊断：readSession 只读取活跃 runtime；记录缺失时要区分“冷会话尚未恢复”和“ID 已失效”，
@@ -321,14 +321,14 @@ export function requireSession(
       sessionId,
     });
     throw new ProtocolRequestError(
-      zcodeProtocolErrorCodes.sessionUnavailable,
+      ycodeProtocolErrorCodes.sessionUnavailable,
       `Session is not active: ${sessionId}`,
     );
   }
   return record;
 }
 
-export function createProtocolLogger(deps: ZCodeProtocolAgentDependencies): Logger | undefined {
+export function createProtocolLogger(deps: YCodeProtocolAgentDependencies): Logger | undefined {
   return deps.loggerFactory?.createLogger("ycode").child({
     module: "bootstrap.ycode_protocol",
   });

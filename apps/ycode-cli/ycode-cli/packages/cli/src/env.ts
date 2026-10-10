@@ -4,11 +4,11 @@ import { dirname, join, parse, resolve } from "node:path";
 import { config as loadDotenv } from "dotenv";
 import {
   YCODE_RUNTIME_ENV_KEY,
-  buildZCodeToolEnvPassthroughEnv,
-  normalizeZCodeRuntimeEnv,
-  sanitizeZCodeRuntimeEnv,
-  sanitizeZCodeRuntimeEnvInPlace,
-  type ZCodeRuntimeEnv,
+  buildYCodeToolEnvPassthroughEnv,
+  normalizeYCodeRuntimeEnv,
+  sanitizeYCodeRuntimeEnv,
+  sanitizeYCodeRuntimeEnvInPlace,
+  type YCodeRuntimeEnv,
 } from "@ycode/shared/runtime-env";
 
 export type CliEnv = Record<string, string | undefined>;
@@ -30,8 +30,8 @@ export function prepareCliRuntimeEnv(
   argv: readonly string[] = process.argv,
 ): CliEnv {
   const prepared = {
-    ...sanitizeZCodeRuntimeEnv(env),
-    ...buildZCodeToolEnvPassthroughEnv(env),
+    ...sanitizeYCodeRuntimeEnv(env),
+    ...buildYCodeToolEnvPassthroughEnv(env),
   };
   applyCliRuntimeEnvDefaults(prepared, argv);
   return prepared;
@@ -41,8 +41,8 @@ export function applyCliRuntimeEnvSanitization(
   env: CliEnv,
   argv: readonly string[] = process.argv,
 ): void {
-  const toolEnvPassthrough = buildZCodeToolEnvPassthroughEnv(env);
-  sanitizeZCodeRuntimeEnvInPlace(env);
+  const toolEnvPassthrough = buildYCodeToolEnvPassthroughEnv(env);
+  sanitizeYCodeRuntimeEnvInPlace(env);
   Object.assign(env, toolEnvPassthrough);
   applyCliRuntimeEnvDefaults(env, argv);
 }
@@ -116,8 +116,8 @@ function applyCliRuntimeEnvDefaults(env: CliEnv, argv: readonly string[]): void 
   applyBetaStorageDefault(env, argv);
 }
 
-function resolveCliRuntimeEnv(env: CliEnv, argv: readonly string[]): ZCodeRuntimeEnv {
-  const explicit = normalizeZCodeRuntimeEnv(env[YCODE_RUNTIME_ENV_KEY]);
+function resolveCliRuntimeEnv(env: CliEnv, argv: readonly string[]): YCodeRuntimeEnv {
+  const explicit = normalizeYCodeRuntimeEnv(env[YCODE_RUNTIME_ENV_KEY]);
   if (explicit) {
     return explicit;
   }

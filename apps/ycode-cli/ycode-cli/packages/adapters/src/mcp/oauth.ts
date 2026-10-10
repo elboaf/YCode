@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import type { McpOAuthConfig } from "@ycode/contracts";
-import { type SharedZCodeCredentialStore } from "../auth/shared-credentials.js";
+import { type SharedYCodeCredentialStore } from "../auth/shared-credentials.js";
 import { type McpOAuthAuthorizationContext } from "./oauth-shared.js";
 type McpAuthorizationCodeOAuthConfig = Extract<McpOAuthConfig, { type: "authorization_code" }>;
 
@@ -8,7 +8,7 @@ export type { McpOAuthAuthorizationContext };
 
 export interface McpOAuthRuntimeOptions {
   authorizationTimeoutMs?: number;
-  credentialStore?: SharedZCodeCredentialStore;
+  credentialStore?: SharedYCodeCredentialStore;
   onAuthorizationRequired?: (context: McpOAuthAuthorizationContext) => Promise<void> | void;
   openAuthorizationUrl?: (context: McpOAuthAuthorizationContext) => Promise<void> | void;
 }

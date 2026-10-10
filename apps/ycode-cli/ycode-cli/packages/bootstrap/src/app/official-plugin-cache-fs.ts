@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 
 const DEFAULT_RETRY_DURATION_MS = 1_500;
 const RETRY_DELAYS_MS = [25, 50, 100] as const;
-const RETRY_ATTEMPTS_FIELD = "zcodeOfficialPluginCacheAttempts";
+const RETRY_ATTEMPTS_FIELD = "ycodeOfficialPluginCacheAttempts";
 const TRANSIENT_ERROR_CODES = new Set(["EACCES", "EBUSY", "EEXIST", "ENOTEMPTY", "EPERM"]);
 
 export interface OfficialPluginCacheRetryBudget {

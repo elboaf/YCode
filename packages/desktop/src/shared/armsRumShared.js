@@ -1,4 +1,4 @@
-import { mapZCodeEnvToArmsRumEnv, YCODE_ARMS_RUM_ENDPOINT, YCODE_VERSION } from "@ycode/shared";
+import { mapYCodeEnvToArmsRumEnv, YCODE_ARMS_RUM_ENDPOINT, YCODE_VERSION } from "@ycode/shared";
 /** 主进程 init 的 browserCollectors，经 autoInject 注入到 renderer 的 RumSDK.init(collectors) */
 export const ARMS_BROWSER_COLLECTORS = {
   perf: true,
@@ -31,7 +31,7 @@ export function buildArmsBrowserInitConfig(runtimeEnv) {
     enable: true,
     version: YCODE_VERSION,
     endpoint: YCODE_ARMS_RUM_ENDPOINT,
-    env: mapZCodeEnvToArmsRumEnv(runtimeEnv),
+    env: mapYCodeEnvToArmsRumEnv(runtimeEnv),
     sessionConfig: {
       sampleRate: 1,
     },

@@ -134,7 +134,7 @@ export interface OAuthTokenSet {
   accessToken: string;
   refreshToken?: string;
   expiresAt?: number;
-  zcodeJwtToken?: string;
+  ycodeJwtToken?: string;
 }
 
 export interface UserInfo {

@@ -1,10 +1,10 @@
 import type { IDisposable } from "@ycode/rpc";
-import type { IZCodeAgentService } from "@ycode/services";
+import type { IYCodeAgentService } from "@ycode/services";
 import type { ProcessResourceRuntimeSurface } from "@ycode/shared";
 import { HostResponseTypes } from "@ycode/shared";
 
 interface RegisterHostAgentResourceTelemetryOptions {
-  agentService: Pick<IZCodeAgentService, "onDynamicProcessResourceSample">;
+  agentService: Pick<IYCodeAgentService, "onDynamicProcessResourceSample">;
   postMessage(message: unknown): void;
   runtimeSurface: ProcessResourceRuntimeSurface;
   environmentKey?: string;

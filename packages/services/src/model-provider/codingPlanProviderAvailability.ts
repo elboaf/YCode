@@ -18,7 +18,7 @@ import {
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 import { readApiJson } from "../providers/api/apiJson.js";
 import { normalizeApiKeyForHeader } from "../providers/api/index.js";
-import { resolveBigModelStartPlanZcodeJwt } from "./bigmodelStartPlanZcodeJwt.js";
+import { resolveBigModelStartPlanYcodeJwt } from "./bigmodelStartPlanYcodeJwt.js";
 import {
   buildZaiStartPlanBalanceUrl,
   fetchZaiStartPlanBalanceEnvelope,
@@ -34,7 +34,7 @@ const REQUEST_TIMEOUT_MS = 15_000;
 const log = createServiceLogger("coding-plan-availability");
 const BIGMODEL_SUBSCRIPTION_LIST_PATH = "/api/biz/subscription/list";
 
-const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "ycodejwttoken";
 
 export type CodingPlanUnavailableReason =
   | "coding_plan_not_authenticated"
@@ -239,10 +239,10 @@ async function validateSelectedTeamPlanAvailability(
   if (!token) {
     return { kind: "unavailable", reason: "coding_plan_not_connected" };
   }
-  const zcodeJwtToken = (await context.credentialService?.load(YCODE_JWT_TOKEN_KEY))?.trim();
-  // BigModel 旧版本可能把 zcodejwttoken 误写进 oauth access token；
+  const ycodeJwtToken = (await context.credentialService?.load(YCODE_JWT_TOKEN_KEY))?.trim();
+  // BigModel 旧版本可能把 ycodejwttoken 误写进 oauth access token；
   // 但 Z.ai 的 business JWT 本身就是合法 Bearer token，不能套用这个 stale-token 防御。
-  if (family === "bigmodel" && zcodeJwtToken && token === zcodeJwtToken) {
+  if (family === "bigmodel" && ycodeJwtToken && token === ycodeJwtToken) {
     return { kind: "unavailable", reason: "coding_plan_not_connected" };
   }
 
@@ -442,17 +442,17 @@ async function resolveStartPlanAuthorization(
   context: CodingPlanAvailabilityContext,
 ): Promise<StartPlanAuthorization> {
   if (provider.family === "bigmodel") {
-    const zcodeJwtToken = await resolveBigModelStartPlanZcodeJwt({
+    const ycodeJwtToken = await resolveBigModelStartPlanYcodeJwt({
       credentialService: context.credentialService,
       provider,
     });
     return {
-      value: zcodeJwtToken ? `Bearer ${zcodeJwtToken}` : "",
+      value: ycodeJwtToken ? `Bearer ${ycodeJwtToken}` : "",
       missingReason: "coding_plan_not_authenticated",
     };
   }
 
-  const credentialJwt = await loadZaiProviderConnectionZcodeJwtToken(context);
+  const credentialJwt = await loadZaiProviderConnectionYcodeJwtToken(context);
   const providerJwt = normalizeApiKeyForHeader(provider.apiKey ?? "");
   return {
     value: credentialJwt || providerJwt ? `Bearer ${credentialJwt || providerJwt}` : "",
@@ -504,7 +504,7 @@ function resolveStartPlanBalanceAvailability(
     : { kind: "available" };
 }
 
-async function loadZaiProviderConnectionZcodeJwtToken(
+async function loadZaiProviderConnectionYcodeJwtToken(
   context: CodingPlanAvailabilityContext,
 ): Promise<string> {
   return (await context.credentialService?.load(YCODE_JWT_TOKEN_KEY))?.trim() || "";

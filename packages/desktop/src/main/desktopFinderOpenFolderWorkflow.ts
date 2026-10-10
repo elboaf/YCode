@@ -8,7 +8,7 @@ const WORKFLOW_NAME = "Open in YCode.workflow";
 const WORKFLOW_BUNDLE_ID = "dev.ycode.app.finder-open-workflow";
 const WORKFLOW_VERSION = "5";
 const SERVICES_MENU_LABELS: Record<Locale, string> = {
-  "zh-CN": "在ZCode中打开",
+  "zh-CN": "在YCode中打开",
   "en-US": "Open in YCode",
 };
 

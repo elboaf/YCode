@@ -5,8 +5,8 @@ import {
   YCODE_ENV,
   YCODE_TELEMETRY_ENABLED,
   YCODE_TELEMETRY_REPORT_ENDPOINT,
-  buildZCodeSourceHeadersFromContext,
-  rewriteZCodeEndpointUrl,
+  buildYCodeSourceHeadersFromContext,
+  rewriteYCodeEndpointUrl,
   sanitizeTelemetryEventDetail,
   type TelemetryEventPayload,
   type TelemetryRendererContext,
@@ -57,7 +57,7 @@ interface TelemetryCoreDependencies {
   releaseChannel?: string;
   osVersion?: string;
   homeDir?: string;
-  resolveZCodeEndpointOrigin?: () => Promise<string> | string;
+  resolveYCodeEndpointOrigin?: () => Promise<string> | string;
   requestTimeoutMs?: number;
   sleep?: (ms: number) => Promise<void>;
   warn?: (message: string) => void;
@@ -406,13 +406,13 @@ export function createTelemetryCore(dependencies: TelemetryCoreDependencies = {}
     });
 
     const endpoint = String(
-      rewriteZCodeEndpointUrl(
+      rewriteYCodeEndpointUrl(
         YCODE_TELEMETRY_REPORT_ENDPOINT,
-        (await dependencies.resolveZCodeEndpointOrigin?.()) ?? YCODE_TELEMETRY_REPORT_ENDPOINT,
+        (await dependencies.resolveYCodeEndpointOrigin?.()) ?? YCODE_TELEMETRY_REPORT_ENDPOINT,
       ),
     );
 
-    const headers = buildZCodeSourceHeadersFromContext({
+    const headers = buildYCodeSourceHeadersFromContext({
       appVersion,
       platform,
       arch: dependencies.arch ?? process.arch,

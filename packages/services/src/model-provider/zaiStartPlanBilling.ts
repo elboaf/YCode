@@ -1,15 +1,15 @@
 import type { ApiClient } from "@ycode/shared";
 import {
-  buildRuntimeZCodeEndpointUrls,
+  buildRuntimeYCodeEndpointUrls,
   normalizeOfficialGlmModelId,
   YCODE_VERSION,
 } from "@ycode/shared";
 import { readApiJson } from "../providers/api/apiJson.js";
 
 const REQUEST_TIMEOUT_MS = 15_000;
-const ZAI_START_PLAN_BALANCE_URL = buildRuntimeZCodeEndpointUrls(
+const ZAI_START_PLAN_BALANCE_URL = buildRuntimeYCodeEndpointUrls(
   process.env,
-).zcodePlanBillingBalanceUrl;
+).ycodePlanBillingBalanceUrl;
 
 export interface ZaiStartPlanPlan {
   // user_plan_id 标识用户套餐实例；额度提醒用它关联同一实例的 entitlement 周期类型。

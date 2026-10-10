@@ -1,11 +1,11 @@
 // ── 旧协议兼容面（过渡期）──────────────────────────────
-// 剩余 5 个导出：旧 configOptions 投影函数（formatModelPickerValue/normalizeAvailableZCodeMode/
-// getZCodeAgentModeSelectOptions/getZCodeAgentAvailableModes/
-// zcodeSessionSettingsToZCodeConfigOptions）。
-// 消费者：services zcodeConfigOptions、UI zcodeSessionProjection 等旧栈。
+// 剩余 5 个导出：旧 configOptions 投影函数（formatModelPickerValue/normalizeAvailableYCodeMode/
+// getYCodeAgentModeSelectOptions/getYCodeAgentAvailableModes/
+// ycodeSessionSettingsToYCodeConfigOptions）。
+// 消费者：services ycodeConfigOptions、UI ycodeSessionProjection 等旧栈。
 import { formatModelPickerValue } from "./model-selection.js";
-import type { ZCodeSessionMode, ZCodeSessionSettingsState } from "./ycode-protocol/index.js";
-import type { ZCodeConfigOption, ZCodeTaskModeInfo } from "./ycode-task-types-core.js";
+import type { YCodeSessionMode, YCodeSessionSettingsState } from "./ycode-protocol/index.js";
+import type { YCodeConfigOption, YCodeTaskModeInfo } from "./ycode-task-types-core.js";
 const MODEL_CONFIG_ID = "model";
 const MODEL_CONFIG_CATEGORY = "model";
 const MODE_CONFIG_ID = "mode";
@@ -33,16 +33,16 @@ const YCODE_AGENT_MODE_OPTIONS = [
     name: "Full access",
     description: "Edit and run commands with fewer confirmations.",
   },
-] as const satisfies readonly ZCodeTaskModeInfo[];
+] as const satisfies readonly YCodeTaskModeInfo[];
 const YCODE_AGENT_MODE_ID_SET = new Set<string>(YCODE_AGENT_MODE_OPTIONS.map((mode) => mode.id));
 
 // OpenRouter 会把 `:free` 作为模型 ID 的一部分。UI/configOptions 的展示态
 // 不能再用冒号分隔 thought level，否则草稿选择会静默截断真实 modelId。
-export function normalizeAvailableZCodeMode(mode: ZCodeSessionMode): string {
+export function normalizeAvailableYCodeMode(mode: YCodeSessionMode): string {
   return YCODE_AGENT_MODE_ID_SET.has(mode) ? mode : "build";
 }
 
-export function getZCodeAgentModeSelectOptions(): NonNullable<ZCodeConfigOption["options"]> {
+export function getYCodeAgentModeSelectOptions(): NonNullable<YCodeConfigOption["options"]> {
   return YCODE_AGENT_MODE_OPTIONS.map((mode) => ({
     value: mode.id,
     name: mode.name,
@@ -50,14 +50,14 @@ export function getZCodeAgentModeSelectOptions(): NonNullable<ZCodeConfigOption[
   }));
 }
 
-export function getZCodeAgentAvailableModes(): ZCodeTaskModeInfo[] {
+export function getYCodeAgentAvailableModes(): YCodeTaskModeInfo[] {
   return YCODE_AGENT_MODE_OPTIONS.map((mode) => ({ ...mode }));
 }
 
-export function zcodeSessionSettingsToZCodeConfigOptions(
-  settings: ZCodeSessionSettingsState,
-): ZCodeConfigOption[] {
-  const configOptions: ZCodeConfigOption[] = [
+export function ycodeSessionSettingsToYCodeConfigOptions(
+  settings: YCodeSessionSettingsState,
+): YCodeConfigOption[] {
+  const configOptions: YCodeConfigOption[] = [
     {
       id: MODEL_CONFIG_ID,
       name: "Model",
@@ -87,8 +87,8 @@ export function zcodeSessionSettingsToZCodeConfigOptions(
       name: "Mode",
       category: MODE_CONFIG_CATEGORY,
       type: "select",
-      currentValue: normalizeAvailableZCodeMode(settings.mode.current),
-      options: getZCodeAgentModeSelectOptions(),
+      currentValue: normalizeAvailableYCodeMode(settings.mode.current),
+      options: getYCodeAgentModeSelectOptions(),
     },
   ];
   if (settings.thoughtLevel.enabled) {

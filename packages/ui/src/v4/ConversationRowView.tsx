@@ -84,7 +84,7 @@ import { workflowRunSettingsCeiling } from "@/components/workflow-timeline/workf
 import { isAmendWorkflowToolCall } from "@/lib/workflowToolNames.js";
 import { ToolCallBlock } from "@/ToolCallBlocks.js";
 import { resolveWorkflowRunOpenToolCallId } from "@/v4/workflowRunCardJoin.js";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import { useOptionalPlatform } from "@/hooks/usePlatform.js";
 import { reportAppTelemetryEvent } from "@/lib/appTelemetry.js";
 import { runUserAction, runUserActionAsync } from "@/lib/userActionTelemetry.js";
@@ -308,7 +308,7 @@ const UserInputAttachmentList = memo(function UserInputAttachmentList({
   readAttachment?: NonNullable<ConversationRowRenderContext["readAttachment"]>;
   readAttachmentRange?: NonNullable<ConversationRowRenderContext["readAttachmentRange"]>;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const [previewIndex, setPreviewIndex] = useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [failedRefs, setFailedRefs] = useState<ReadonlySet<string>>(() => new Set());
@@ -861,7 +861,7 @@ const UserInputRowView = memo(function UserInputRowView({
   editWorkspaceRewindAvailability?: EditWorkspaceRewindAvailability;
   status?: string;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   // 引擎尾注折叠：正文只到 epilogueStart，
   // 之后的引擎文本折进气泡底部的披露。提示词上下文解析也只看正文——尾注里没有用户引用。
   const { body: bodyText, epilogue } = splitUserInputEpilogue(row.text, row.epilogueStart);
@@ -1333,7 +1333,7 @@ export const ConversationAssistantTextActions = memo(function ConversationAssist
   onFeedbackChange?: AssistantFeedbackHandler;
   className?: string;
 }) {
-  const { intl, locale } = useZCodeIntl();
+  const { intl, locale } = useYCodeIntl();
   const platform = useOptionalPlatform();
   const [localFeedback, setLocalFeedback] = useState<AssistantMessageFeedback | null>(feedback);
   const copyLabel = intl.formatMessage({ id: "chat.message.copy" });
@@ -1522,7 +1522,7 @@ const AssistantTextRowView = memo(function AssistantTextRowView({
           selectable 语义必须放在稳定的 DOM 包装层上，完成态和 streaming 共用同一路径。 */}
       <div data-conversation-selectable="true" className="w-full text-ui-base">
         <MessageResponse
-          renderZCodeFileCitations
+          renderYCodeFileCitations
           streaming={streaming}
           workspacePath={context.workspacePath}
           workspaceIdentity={context.workspaceIdentity}
@@ -1753,7 +1753,7 @@ const TimelineMarkerRowView = memo(function TimelineMarkerRowView({
   row: TimelineMarkerRow;
   context: ConversationRowRenderContext;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const isOfficeMode = useIsOfficeMode();
   const marker = row.marker;
   const modelSelectionView = context.modelSelectionView ?? null;

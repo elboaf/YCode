@@ -38,9 +38,9 @@ import {
   TID_AUTOMATION_YEAR_MONTH_OPTION,
   TID_AUTOMATION_YEAR_MONTHDAY,
   YCODE_AGENT_PROVIDER,
-  type ZCodeAutomation,
-  type ZCodeAutomationRun,
-  type ZCodeAutomationScheduleRule,
+  type YCodeAutomation,
+  type YCodeAutomationRun,
+  type YCodeAutomationScheduleRule,
 } from "@ycode/shared";
 import {
   AutomationAddScheduleIcon,
@@ -124,13 +124,13 @@ import {
   resolveAutomationEditRequiredFieldErrors,
   type AutomationEditRequiredField,
 } from "@/settings/automationEditValidation.js";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog.js";
 import { useAutomationProjectOptions } from "@/hooks/useAutomationProjectOptions.js";
 import { useModelSelectionView } from "@/hooks/useModelSelectionView.js";
 import { resolveModelThoughtOption } from "@/lib/modelThoughtOption.js";
-import { decodeCustomModelValue, encodeCustomModelValue } from "@/lib/zcodeCustomModelValue.js";
-import { parseModelPickerValue } from "@/lib/zcodeSessionProjection.js";
+import { decodeCustomModelValue, encodeCustomModelValue } from "@/lib/ycodeCustomModelValue.js";
+import { parseModelPickerValue } from "@/lib/ycodeSessionProjection.js";
 import { startUserAction } from "@/lib/userActionTelemetry.js";
 import { logger } from "@/logger.js";
 import {
@@ -375,7 +375,7 @@ function MonthDayPicker({
 }: {
   month: number;
   day: number;
-  intl: ReturnType<typeof useZCodeIntl>["intl"];
+  intl: ReturnType<typeof useYCodeIntl>["intl"];
   onChange: (month: number, day: number) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -433,7 +433,7 @@ function WeekdayPicker({
   onChange,
 }: {
   weekdays: number[];
-  intl: ReturnType<typeof useZCodeIntl>["intl"];
+  intl: ReturnType<typeof useYCodeIntl>["intl"];
   onChange: (weekdays: number[]) => void;
 }) {
   const label = WEEKDAY_ORDER.filter((day) => weekdays.includes(day))
@@ -512,7 +512,7 @@ function EndDatePicker({
   value,
 }: {
   disabled: boolean;
-  intl: ReturnType<typeof useZCodeIntl>["intl"];
+  intl: ReturnType<typeof useYCodeIntl>["intl"];
   min: string;
   onChange: (value: string) => void;
   value: string;
@@ -638,7 +638,7 @@ function CustomRepeatDialog({
 }: {
   builder: CronBuilderState;
   endAt: number | undefined;
-  intl: ReturnType<typeof useZCodeIntl>["intl"];
+  intl: ReturnType<typeof useYCodeIntl>["intl"];
   onConfirm: (value: {
     interval: number;
     unit: CustomRepeatUnit;
@@ -1066,7 +1066,7 @@ export interface AutomationEditSubmit {
 
 interface AutomationEditViewProps {
   /** null = 新建；否则编辑。 */
-  editing: ZCodeAutomation | null;
+  editing: YCodeAutomation | null;
   /** 新建预填(来自 More ideas 模板)。 */
   initialDraft?: { title: string; cronExpr: string; prompt: string } | null;
   /** 当前列表所在项目,作为新建的默认目标项目。 */
@@ -1077,9 +1077,9 @@ interface AutomationEditViewProps {
   onSubmit: (params: AutomationEditSubmit) => Promise<boolean>;
   onBack: () => void;
   /** 编辑态:立即运行 / 启停 / 删除。 */
-  onRunNow?: (automation: ZCodeAutomation) => Promise<void> | void;
-  onToggle?: (automation: ZCodeAutomation, enabled: boolean) => void;
-  onDelete?: (automation: ZCodeAutomation) => void;
+  onRunNow?: (automation: YCodeAutomation) => Promise<void> | void;
+  onToggle?: (automation: YCodeAutomation, enabled: boolean) => void;
+  onDelete?: (automation: YCodeAutomation) => void;
   /** History tab 运行历史。 */
   runsEntry?: AutomationRunsEntry;
   onLoadRuns?: () => void;
@@ -1114,7 +1114,7 @@ function defaultBuilder(): CronBuilderState {
 }
 
 function initialBuilder(
-  editing: ZCodeAutomation | null,
+  editing: YCodeAutomation | null,
   initialDraft?: { title: string; cronExpr: string; prompt: string } | null,
 ): CronBuilderState {
   if (!editing) {
@@ -1141,7 +1141,7 @@ function initialBuilder(
 
 // ---- 运行历史状态映射(与 AutomationRunsDialog 保持一致) ----
 type RunStatusKind = "running" | "succeeded" | "failed" | "stopped" | "skipped";
-function resolveRunStatus(run: ZCodeAutomationRun): RunStatusKind {
+function resolveRunStatus(run: YCodeAutomationRun): RunStatusKind {
   if (run.dispatchStatus === "skipped") return "skipped";
   if (run.dispatchStatus === "failed_to_dispatch") return "failed";
   switch (run.outcome) {
@@ -1179,7 +1179,7 @@ const AUTOMATION_STATUS_DOT_CLASS: Record<AutomationStatusKind, string> = {
 };
 
 function normalizeAutomationScheduleRule(
-  rule: ZCodeAutomationScheduleRule | null | undefined,
+  rule: YCodeAutomationScheduleRule | null | undefined,
 ): Record<string, unknown> | null {
   if (!rule) return null;
   return {
@@ -1212,7 +1212,7 @@ export function AutomationEditView({
   onDeleteRun,
   onOpenSession,
 }: AutomationEditViewProps) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const confirmDialog = useConfirmDialog();
   const [tab, setTab] = useState<AutomationSettingsHistoryTab>("settings");
   const [runsPage, setRunsPage] = useState(1);
@@ -1665,7 +1665,7 @@ export function AutomationEditView({
     [editing?.automationId, requiredFieldErrors],
   );
 
-  const currentScheduleRule = useMemo<ZCodeAutomationScheduleRule | undefined>(
+  const currentScheduleRule = useMemo<YCodeAutomationScheduleRule | undefined>(
     () =>
       builder.frequency === "custom"
         ? {

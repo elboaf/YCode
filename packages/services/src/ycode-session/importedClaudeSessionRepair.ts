@@ -1,19 +1,19 @@
-import type { ZCodeSessionStateSnapshot } from "@ycode/shared";
+import type { YCodeSessionStateSnapshot } from "@ycode/shared";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 import { repairImportedClaudeSessionSnapshot } from "#src/session/claude-native/importedClaudeHistoryRepair.js";
-import type { IZCodeAgentService } from "#src/ycode-agent/zcodeAgent.js";
+import type { IYCodeAgentService } from "#src/ycode-agent/ycodeAgent.js";
 import type {
-  ZCodeSessionReadParams,
-  ZCodeSessionResumeParams,
-} from "#src/ycode-session/zcodeSession.js";
+  YCodeSessionReadParams,
+  YCodeSessionResumeParams,
+} from "#src/ycode-session/ycodeSession.js";
 
 const logger = createServiceLogger("ycode-session-service");
 
 export async function repairEmptyImportedClaudeSessionSnapshot(params: {
-  agentService: IZCodeAgentService;
-  snapshot: ZCodeSessionStateSnapshot;
-  target: ZCodeSessionResumeParams | ZCodeSessionReadParams;
-}): Promise<ZCodeSessionStateSnapshot> {
+  agentService: IYCodeAgentService;
+  snapshot: YCodeSessionStateSnapshot;
+  target: YCodeSessionResumeParams | YCodeSessionReadParams;
+}): Promise<YCodeSessionStateSnapshot> {
   const repaired = await repairImportedClaudeSessionSnapshot({
     snapshot: params.snapshot,
     target: {

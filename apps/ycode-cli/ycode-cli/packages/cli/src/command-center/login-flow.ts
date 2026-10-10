@@ -1,10 +1,10 @@
 import type { TuiSelection, TuiSubmitPrompt } from "@ycode/tui";
-import { getZCodeCopy } from "@ycode/i18n";
+import { getYCodeCopy } from "@ycode/i18n";
 import type { CommandCenterApp, CommandCenterLoginResult } from "./types.js";
 import { randomUUID } from "node:crypto";
 
 export function buildLoginSelection(locale?: string): TuiSelection {
-  const copy = getZCodeCopy(locale).tui.loginSetup;
+  const copy = getYCodeCopy(locale).tui.loginSetup;
   return {
     emptyMessage: copy.emptyMessage,
     filterable: false,
@@ -83,7 +83,7 @@ export function buildLoginSelection(locale?: string): TuiSelection {
 }
 
 export function loginSetupResponse(locale?: string): string {
-  return getZCodeCopy(locale).tui.loginSetup.response;
+  return getYCodeCopy(locale).tui.loginSetup.response;
 }
 
 export function formatLoginResult(result: CommandCenterLoginResult): string {

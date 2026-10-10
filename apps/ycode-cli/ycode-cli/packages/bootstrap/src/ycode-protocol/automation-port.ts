@@ -7,18 +7,18 @@ import {
 } from "@ycode/contracts";
 import {
   parseModelPickerValue,
-  zcodeAutomationCheckTaskBindingResultSchema,
-  zcodeAutomationCreateResultSchema,
-  zcodeAutomationDeleteResultSchema,
-  zcodeAutomationListResultSchema,
-  zcodeAutomationUpdateResultSchema,
-  zcodeProtocolMethods,
-  type ZCodeAutomationProtocol,
+  ycodeAutomationCheckTaskBindingResultSchema,
+  ycodeAutomationCreateResultSchema,
+  ycodeAutomationDeleteResultSchema,
+  ycodeAutomationListResultSchema,
+  ycodeAutomationUpdateResultSchema,
+  ycodeProtocolMethods,
+  type YCodeAutomationProtocol,
 } from "@ycode/shared";
 import {
   ProtocolRequestError,
-  type ZCodeProtocolAgentServerContext,
-  type ZCodeProtocolSessionRecord,
+  type YCodeProtocolAgentServerContext,
+  type YCodeProtocolSessionRecord,
 } from "./server-types.js";
 
 const AUTOMATION_CREATE_FROM_AUTOMATION_RUN_ERROR =
@@ -32,11 +32,11 @@ const AUTOMATION_CREATE_BOUND_SESSION_CHECK_ERROR =
   "Cannot verify whether this session belongs to a scheduled task. Try again later.";
 
 export function createProtocolAutomationPort(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   // 归属会话解析器：automation-port 是按 session 构造的，直接绑定「自己所服务的 session
   // record」。避免依赖 context.sessions 查找——V4/desktop 会话未必登记在该 legacy map 里，
   // 之前会导致 activeSession 命中失败、权限/思考等级丢失（模型有 createContext 兜底才幸存）。
-  resolveOwnSession?: () => ZCodeProtocolSessionRecord | undefined,
+  resolveOwnSession?: () => YCodeProtocolSessionRecord | undefined,
 ): AutomationPort {
   return {
     async create(input, createContext) {
@@ -61,9 +61,9 @@ export function createProtocolAutomationPort(
         try {
           try {
             const result = await context.requestClient(
-              zcodeProtocolMethods.automationCheckTaskBinding,
+              ycodeProtocolMethods.automationCheckTaskBinding,
               { targetTaskId: ownSessionId },
-              zcodeAutomationCheckTaskBindingResultSchema,
+              ycodeAutomationCheckTaskBindingResultSchema,
             );
             bound = result.bound;
           } catch (error) {
@@ -74,9 +74,9 @@ export function createProtocolAutomationPort(
             // 方法会返回 -32601。只有“方法不存在”能证明是能力差异，此时回退旧版列表筛选；
             // 数据库、传输和协议错误仍交给外层 fail-closed，不能误判为未绑定。
             const legacyResult = await context.requestClient(
-              zcodeProtocolMethods.automationList,
+              ycodeProtocolMethods.automationList,
               {},
-              zcodeAutomationListResultSchema,
+              ycodeAutomationListResultSchema,
             );
             bound = legacyResult.automations.some(
               (automation) => automation.targetTaskId === ownSessionId,
@@ -112,7 +112,7 @@ export function createProtocolAutomationPort(
       let result;
       try {
         result = await context.requestClient(
-          zcodeProtocolMethods.automationCreate,
+          ycodeProtocolMethods.automationCreate,
           {
             // 相对时间不由模型换算绝对时刻；兼容协议仍要求 cronExpr，服务层会用真实时钟覆盖占位值。
             // `!== null` 判定会把省略 delayMinutes 的普通 cron 调用误走相对分支，
@@ -143,7 +143,7 @@ export function createProtocolAutomationPort(
                 ? { maxRuns: input.maxRuns }
                 : {}),
           },
-          zcodeAutomationCreateResultSchema,
+          ycodeAutomationCreateResultSchema,
         );
       } catch (error) {
         if (!isAutomationCreateLimitError(error)) throw error;
@@ -179,7 +179,7 @@ export function createProtocolAutomationPort(
     async update(input) {
       const hasIntervalCarrier = input.intervalUnit !== undefined && input.interval !== undefined;
       const result = await context.requestClient(
-        zcodeProtocolMethods.automationUpdate,
+        ycodeProtocolMethods.automationUpdate,
         {
           automationId: input.id,
           ...(input.title !== undefined ? { title: input.title } : {}),
@@ -199,23 +199,23 @@ export function createProtocolAutomationPort(
                 ...(input.maxRuns !== undefined ? { maxRuns: input.maxRuns } : {}),
               }),
         },
-        zcodeAutomationUpdateResultSchema,
+        ycodeAutomationUpdateResultSchema,
       );
       return toCronAutomation(result.automation);
     },
     async list() {
       const result = await context.requestClient(
-        zcodeProtocolMethods.automationList,
+        ycodeProtocolMethods.automationList,
         {},
-        zcodeAutomationListResultSchema,
+        ycodeAutomationListResultSchema,
       );
       return result.automations.map(toCronAutomation);
     },
     async delete(input) {
       const result = await context.requestClient(
-        zcodeProtocolMethods.automationDelete,
+        ycodeProtocolMethods.automationDelete,
         { automationId: input.id },
-        zcodeAutomationDeleteResultSchema,
+        ycodeAutomationDeleteResultSchema,
       );
       return result.deleted;
     },
@@ -223,7 +223,7 @@ export function createProtocolAutomationPort(
 }
 
 function normalizeCronAutomationMode(
-  mode: ZCodeAutomationProtocol["mode"],
+  mode: YCodeAutomationProtocol["mode"],
 ): CronAutomation["mode"] {
   switch (mode) {
     case undefined:
@@ -243,7 +243,7 @@ function normalizeCronAutomationMode(
   }
 }
 
-function toCronAutomation(input: ZCodeAutomationProtocol): CronAutomation {
+function toCronAutomation(input: YCodeAutomationProtocol): CronAutomation {
   return {
     automationId: input.automationId,
     title: input.title,

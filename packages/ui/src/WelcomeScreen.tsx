@@ -18,13 +18,13 @@ import {
 } from "@ycode/shared";
 import { Alert, AlertDescription } from "./components/ui/alert.js";
 import { Button } from "./components/ui/button.js";
-import { ZCodeAboutLogo } from "@/components/ui/ZCodeAboutLogo.js";
+import { YCodeAboutLogo } from "@/components/ui/YCodeAboutLogo.js";
 import { useOAuth } from "./hooks/useOAuth.js";
-import { useZCodeIntl } from "./i18n/IntlProvider.js";
+import { useYCodeIntl } from "./i18n/IntlProvider.js";
 import { LoginApiKeyForm } from "./login/LoginApiKeyForm.js";
 import { renderOAuthProviderIcon } from "./lib/oauthProviderIcon.js";
 import { ThemeHeroVisual } from "./openWorkspacePageThemeHero.js";
-import { useZCodeStore } from "./store/StoreProvider.js";
+import { useYCodeStore } from "./store/StoreProvider.js";
 
 interface WelcomeScreenProps {
   onComplete: (reason: LoginCompleteReason) => void | Promise<void>;
@@ -69,7 +69,7 @@ function shouldCompleteLoginFromExistingUser(params: {
 }
 
 function LoginPanel({ active, onComplete }: LoginPanelProps) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const {
     startLogin,
     cancel,
@@ -81,14 +81,14 @@ function LoginPanel({ active, onComplete }: LoginPanelProps) {
     pendingProvider,
     refreshProviders,
   } = useOAuth();
-  const user = useZCodeStore((s) => s.user);
-  const oauthError = useZCodeStore((s) => s.oauthError);
-  const setOAuthError = useZCodeStore((s) => s.setOAuthError);
-  const oauthSuccessSeq = useZCodeStore((s) => s.oauthSuccessSeq);
-  const lastOAuthSuccessProvider = useZCodeStore((s) => s.lastOAuthSuccessProvider);
-  const loginEntryRequest = useZCodeStore((s) => s.loginEntryRequest);
-  const clearLoginEntryRequest = useZCodeStore((s) => s.clearLoginEntryRequest);
-  const markLoginEntryAttemptStatus = useZCodeStore((s) => s.markLoginEntryAttemptStatus);
+  const user = useYCodeStore((s) => s.user);
+  const oauthError = useYCodeStore((s) => s.oauthError);
+  const setOAuthError = useYCodeStore((s) => s.setOAuthError);
+  const oauthSuccessSeq = useYCodeStore((s) => s.oauthSuccessSeq);
+  const lastOAuthSuccessProvider = useYCodeStore((s) => s.lastOAuthSuccessProvider);
+  const loginEntryRequest = useYCodeStore((s) => s.loginEntryRequest);
+  const clearLoginEntryRequest = useYCodeStore((s) => s.clearLoginEntryRequest);
+  const markLoginEntryAttemptStatus = useYCodeStore((s) => s.markLoginEntryAttemptStatus);
   const [loginMode, setLoginMode] = useState<"providers" | "apiKey">("providers");
   const wasActiveRef = useRef(active);
   const consumedLoginRequestRef = useRef<number | null>(null);
@@ -480,7 +480,7 @@ function LoginPanelLogo() {
       aria-label="YCode"
       role="img"
     >
-      <ZCodeAboutLogo className="h-auto w-10" />
+      <YCodeAboutLogo className="h-auto w-10" />
     </div>
   );
 }
@@ -508,7 +508,7 @@ function getLoginOAuthRegionTagMessageId(providerId: string): string | null {
 }
 
 function LoginOAuthRegionTag({ providerId }: { providerId: string }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const messageId = getLoginOAuthRegionTagMessageId(providerId);
 
   if (!messageId) {

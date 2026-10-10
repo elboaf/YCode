@@ -1,5 +1,5 @@
 /* eslint-disable max-lines -- 开发态 agent 部署包含本地打包、远端 owner staging 与 wrapper 安装，后续独立拆分上传事务。 */
-import { YCODE_AGENT_PROVIDER, resolveZCodeRuntimeEnv } from "@ycode/shared";
+import { YCODE_AGENT_PROVIDER, resolveYCodeRuntimeEnv } from "@ycode/shared";
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { cp, lstat, mkdir, mkdtemp, readdir, readFile, readlink, rm } from "node:fs/promises";
@@ -21,11 +21,11 @@ import {
   buildRemoteAgentBundleWrapper,
   isRemoteAgentBundleWrapperCurrent,
   REMOTE_AGENT_BUNDLE_NAME,
-} from "@ycode/server/remote/zcodeAgentBundleWrapper.js";
+} from "@ycode/server/remote/ycodeAgentBundleWrapper.js";
 import {
   deployRemoteAgentWrapper,
   isWslBackend,
-} from "@ycode/server/remote/zcodeAgentWrapperDeploy.js";
+} from "@ycode/server/remote/ycodeAgentWrapperDeploy.js";
 import {
   REMOTE_AGENT_OFFICIAL_PLUGIN_DIR_NAME,
   REMOTE_AGENT_OFFICIAL_PLUGIN_INCLUDED_TOP_LEVEL_PATHS,
@@ -33,15 +33,15 @@ import {
   REMOTE_AGENT_OFFICIAL_PLUGIN_REQUIRED_RELATIVE_PATHS,
   buildRemoteAgentOfficialPluginDir,
   buildRemoteAgentOfficialPluginRequiredPaths,
-} from "@ycode/server/remote/zcodeAgentOfficialPluginAssets.js";
-import { repairLegacyRemoteOfficialPluginDirectoryPermissions } from "@ycode/server/remote/zcodeAgentOfficialPluginPermissionRepair.js";
+} from "@ycode/server/remote/ycodeAgentOfficialPluginAssets.js";
+import { repairLegacyRemoteOfficialPluginDirectoryPermissions } from "@ycode/server/remote/ycodeAgentOfficialPluginPermissionRepair.js";
 
 const DEV_AGENT_BUNDLE_RELATIVE_PATH = "apps/ycode-cli/packages/cli/dist/ycode.cjs";
 const DEV_AGENT_BUNDLE_ENV = "YCODE_REMOTE_DEV_AGENT_BUNDLE";
 const REMOTE_DEV_AGENT_BUNDLE_NAME = REMOTE_AGENT_BUNDLE_NAME;
 const REMOTE_DEV_AGENT_VERSION_FILE_NAME = ".dev-version";
 
-interface DeployDevelopmentZCodeAgentRuntimeParams {
+interface DeployDevelopmentYCodeAgentRuntimeParams {
   runtimeVersion: string;
   runtimeResourceDir: string;
   remoteProviderDir: string;
@@ -66,7 +66,7 @@ function findUpward(relativePath: string): { rootDir: string; path: string } | n
 }
 
 function shouldUseDevelopmentAgentBundle(): boolean {
-  if (resolveZCodeRuntimeEnv(process.env) !== "development") {
+  if (resolveYCodeRuntimeEnv(process.env) !== "development") {
     return false;
   }
 
@@ -187,7 +187,7 @@ async function findMissingRemoteOfficialPluginAssetPaths(params: {
   return missingPaths;
 }
 
-async function shouldSkipDevelopmentZCodeAgentDeploy(params: {
+async function shouldSkipDevelopmentYCodeAgentDeploy(params: {
   backend: IRemoteBackend;
   remoteVersionFile: string;
   remoteDevVersionFile: string;
@@ -345,9 +345,9 @@ async function uploadDevelopmentOfficialPluginPackages(params: {
   }
 }
 
-export async function deployDevelopmentZCodeAgentRuntime(
+export async function deployDevelopmentYCodeAgentRuntime(
   backend: IRemoteBackend,
-  params: DeployDevelopmentZCodeAgentRuntimeParams,
+  params: DeployDevelopmentYCodeAgentRuntimeParams,
   loggers: DeployLoggers,
 ): Promise<boolean> {
   const developmentBundle = resolveDevelopmentAgentBundle();
@@ -367,7 +367,7 @@ export async function deployDevelopmentZCodeAgentRuntime(
   });
 
   if (
-    await shouldSkipDevelopmentZCodeAgentDeploy({
+    await shouldSkipDevelopmentYCodeAgentDeploy({
       backend,
       remoteVersionFile: params.remoteVersionFile,
       remoteDevVersionFile,

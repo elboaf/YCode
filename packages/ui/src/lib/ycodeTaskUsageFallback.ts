@@ -1,5 +1,5 @@
-import type { ZCodeUsage } from "@ycode/shared";
-import type { TaskUsageState } from "@/store/zcodeSessionStoreTypes.js";
+import type { YCodeUsage } from "@ycode/shared";
+import type { TaskUsageState } from "@/store/ycodeSessionStoreTypes.js";
 
 interface TaskUsageKeyParams {
   workspacePath: string;
@@ -78,7 +78,7 @@ export function buildPromptCompletionUsageFallback(
   params: TaskUsageKeyParams & {
     currentUsage: TaskUsageState | null | undefined;
     currentContextWindow?: number | null;
-    usage?: ZCodeUsage;
+    usage?: YCodeUsage;
   },
 ): TaskUsageState | null {
   const { currentUsage, currentContextWindow, usage } = params;

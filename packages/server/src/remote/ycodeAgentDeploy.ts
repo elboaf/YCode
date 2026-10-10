@@ -12,23 +12,23 @@ import {
 } from "@ycode/server/remote/deployShared.js";
 import type { RemoteAssetInstaller } from "@ycode/server/remote/remoteAssetInstaller.js";
 import { buildWriteLiteralFileCommand } from "@ycode/server/remote/posixShell.js";
-import { deployDevelopmentZCodeAgentRuntime } from "@ycode/server/remote/zcodeAgentDevDeploy.js";
+import { deployDevelopmentYCodeAgentRuntime } from "@ycode/server/remote/ycodeAgentDevDeploy.js";
 import {
   buildRemoteAgentBundleWrapper,
   isRemoteAgentBundleWrapperCurrent,
   REMOTE_AGENT_BUNDLE_NAME,
-} from "@ycode/server/remote/zcodeAgentBundleWrapper.js";
+} from "@ycode/server/remote/ycodeAgentBundleWrapper.js";
 import {
   deployRemoteAgentWrapper,
   isWslBackend,
-} from "@ycode/server/remote/zcodeAgentWrapperDeploy.js";
+} from "@ycode/server/remote/ycodeAgentWrapperDeploy.js";
 import {
   buildRemoteAgentOfficialPluginDir,
   buildRemoteAgentOfficialPluginRequiredPaths,
   buildRemoteAgentOfficialPluginSourceRelativePath,
   REMOTE_AGENT_OFFICIAL_PLUGIN_REQUIRED_RELATIVE_PATHS,
-} from "@ycode/server/remote/zcodeAgentOfficialPluginAssets.js";
-import { repairLegacyRemoteOfficialPluginDirectoryPermissions } from "@ycode/server/remote/zcodeAgentOfficialPluginPermissionRepair.js";
+} from "@ycode/server/remote/ycodeAgentOfficialPluginAssets.js";
+import { repairLegacyRemoteOfficialPluginDirectoryPermissions } from "@ycode/server/remote/ycodeAgentOfficialPluginPermissionRepair.js";
 import {
   checkRemoteAssetComponentIdentity,
   writeRemoteAssetComponentMeta,
@@ -36,14 +36,14 @@ import {
 
 const REMOTE_AGENT_RUNTIME_BASE = `${REMOTE_BASE}/agents`;
 
-export interface DeployZCodeAgentRuntimeOptions extends RemoteAssetDeployOptions {
+export interface DeployYCodeAgentRuntimeOptions extends RemoteAssetDeployOptions {
   platformArch: string;
   installer: RemoteAssetInstaller;
   selectedResourcePackageIds?: RemoteResourcePackageId[];
   force?: boolean;
 }
 
-function isSelectedZCodeAgentComponent(
+function isSelectedYCodeAgentComponent(
   componentId: string,
   selectedResourcePackageIds: readonly RemoteResourcePackageId[] | undefined,
 ): boolean {
@@ -53,7 +53,7 @@ function isSelectedZCodeAgentComponent(
   );
 }
 
-async function shouldSkipZCodeAgentDeploy(params: {
+async function shouldSkipYCodeAgentDeploy(params: {
   backend: IRemoteBackend;
   remoteBinaryPath: string;
   remoteBundlePath: string;
@@ -149,16 +149,16 @@ async function findMissingRemoteOfficialPluginAssetPaths(
  *
  * 生产态只用 manifest SHA 判断制品是否变化；语义版本不参与跳过决策。
  */
-export async function deployZCodeAgentRuntime(
+export async function deployYCodeAgentRuntime(
   backend: IRemoteBackend,
   env: RemoteEnvironment,
-  options: DeployZCodeAgentRuntimeOptions,
+  options: DeployYCodeAgentRuntimeOptions,
   loggers: DeployLoggers,
 ): Promise<void> {
   const provider = YCODE_AGENT_PROVIDER;
   const runtime = YCODE_AGENT_RUNTIME;
   const componentId = provider;
-  if (!isSelectedZCodeAgentComponent(componentId, options.selectedResourcePackageIds)) {
+  if (!isSelectedYCodeAgentComponent(componentId, options.selectedResourcePackageIds)) {
     loggers.log(`[ycode-agent-deploy] ${provider}: 未选择资源包 ${componentId}，跳过检查和部署`);
     return;
   }
@@ -182,7 +182,7 @@ export async function deployZCodeAgentRuntime(
   );
 
   if (
-    await deployDevelopmentZCodeAgentRuntime(
+    await deployDevelopmentYCodeAgentRuntime(
       backend,
       {
         runtimeVersion: runtime.version,
@@ -209,7 +209,7 @@ export async function deployZCodeAgentRuntime(
   }
 
   if (
-    await shouldSkipZCodeAgentDeploy({
+    await shouldSkipYCodeAgentDeploy({
       backend,
       remoteBinaryPath,
       remoteBundlePath,

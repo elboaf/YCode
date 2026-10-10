@@ -6,8 +6,8 @@ import { logger } from "@/logger.js";
 import {
   getWorkspaceDisplayedTaskState,
   getWorkspaceInitState,
-  useZCodeSessionStore,
-} from "@/store/zcodeSessionStore.js";
+  useYCodeSessionStore,
+} from "@/store/ycodeSessionStore.js";
 
 export function useWorkspaceShellLifecycle({
   workspaceAbsPath,
@@ -43,7 +43,7 @@ export function useWorkspaceShellLifecycle({
 
   useEffect(() => {
     return () => {
-      const currentWorkspaceState = useZCodeSessionStore
+      const currentWorkspaceState = useYCodeSessionStore
         .getState()
         .getWorkspaceState(workspaceAbsPath);
       const displayedTaskState = getWorkspaceDisplayedTaskState(currentWorkspaceState);
@@ -69,14 +69,14 @@ export function useWorkspaceShellLifecycle({
       logger.info(
         `[App] 回退 workspace 预热状态 workspace=${workspaceAbsPath} provider=${provider}`,
       );
-      useZCodeSessionStore
+      useYCodeSessionStore
         .getState()
         .setWorkspaceInitAttempts(workspaceAbsPath, 0, workspaceIdentity);
-      useZCodeSessionStore
+      useYCodeSessionStore
         .getState()
         .setWorkspaceInitState(workspaceAbsPath, "idle", null, workspaceIdentity);
 
-      void services.zcodeTaskService
+      void services.ycodeTaskService
         .releaseWorkspacePreparation({
           workspacePath: workspaceAbsPath,
           ...(workspaceIdentity ? { workspaceIdentity } : {}),
@@ -89,5 +89,5 @@ export function useWorkspaceShellLifecycle({
           );
         });
     };
-  }, [services.zcodeTaskService, workspaceIdentity, workspaceAbsPath]);
+  }, [services.ycodeTaskService, workspaceIdentity, workspaceAbsPath]);
 }

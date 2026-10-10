@@ -1,17 +1,17 @@
-import type { ZCodeTaskMode } from "./ycode-task-types-core.js";
+import type { YCodeTaskMode } from "./ycode-task-types-core.js";
 import type { ModelSelection } from "./model-selection.js";
 
 // ---- 闲时任务(Off-Peak Task)领域类型 ----
 // off_peak_tasks 存 tasks-index.sqlite。
 // 与 automation 共用 scheduler 进程与派发管道，但数据表、消息类型、状态机全部独立，
-// 禁止往 ZCodeAutomation 上加字段。sqlite 列名 snake_case，此处为跨域 camelCase 领域类型。
+// 禁止往 YCodeAutomation 上加字段。sqlite 列名 snake_case，此处为跨域 camelCase 领域类型。
 
 /**
  * 客户端执行态六态（服务端准入态 queued/ready/active/expired/settled 是另一轴）：
  * queued=排队等服务端 ready；paused=用户 Pause 停止派发；running=执行中；
  * permission/elicitation 在普通 session 内等待且聚合态保持 running；completed/failed/cancelled=终态。
  */
-export type ZCodeOffPeakTaskStatus =
+export type YCodeOffPeakTaskStatus =
   | "queued"
   | "paused"
   | "running"
@@ -23,7 +23,7 @@ export type ZCodeOffPeakTaskStatus =
 export const OFF_PEAK_TERMINAL_STATUSES = ["completed", "failed", "cancelled"] as const;
 
 export function isOffPeakTerminalStatus(
-  status: ZCodeOffPeakTaskStatus,
+  status: YCodeOffPeakTaskStatus,
 ): status is "completed" | "failed" | "cancelled" {
   return (OFF_PEAK_TERMINAL_STATUSES as readonly string[]).includes(status);
 }
@@ -99,7 +99,7 @@ export function isOffPeakTicketExpiredError(message: string | undefined): boolea
 }
 
 /** 一条闲时任务：表单创建即取号排队，派发时 createTask 新建 session。 */
-export interface ZCodeOffPeakTask {
+export interface YCodeOffPeakTask {
   /** 本地主键，同时用作服务端 task_id（稳定，跨多个 ticket）。 */
   offPeakTaskId: string;
   /** 服务端取号返回的 Snowflake ticket_id；每次重新取号（3h 到期续跑/Continue 重取）更新。 */
@@ -117,8 +117,8 @@ export interface ZCodeOffPeakTask {
   sessionTitle?: string;
   /** 表单 Instructions。 */
   prompt: string;
-  /** 权限四档全开放，映射现有 ZCodeTaskMode，默认 "default"（Ask for approval）。 */
-  permissionMode: ZCodeTaskMode;
+  /** 权限四档全开放，映射现有 YCodeTaskMode，默认 "default"（Ask for approval）。 */
+  permissionMode: YCodeTaskMode;
   /**
    * 创建被接受时固定的结构化 Submission 选择。
    *
@@ -136,7 +136,7 @@ export interface ZCodeOffPeakTask {
   workspaceKey: string;
   workspacePath: string;
   workspaceIdentity?: string;
-  status: ZCodeOffPeakTaskStatus;
+  status: YCodeOffPeakTaskStatus;
   /** FIFO 序依据（服务端权威序由取号顺序决定，本地仅展示/派发排序用）。 */
   queuedAt: number;
   startedAt?: number;
@@ -165,10 +165,10 @@ export interface ZCodeOffPeakTask {
 }
 
 /** 创建闲时任务的入参（workspace 由调用方从上下文注入；取号在 service 层先行，成功才落库）。 */
-export interface ZCodeOffPeakTaskCreateParams {
+export interface YCodeOffPeakTaskCreateParams {
   title: string;
   prompt: string;
-  permissionMode: ZCodeTaskMode;
+  permissionMode: YCodeTaskMode;
   modelSelection: ModelSelection;
   workspacePath: string;
   workspaceIdentity?: string;
@@ -206,7 +206,7 @@ export type OffPeakTaskCreateErrorCategory =
 export type OffPeakTaskCreateResult =
   | {
       ok: true;
-      task: ZCodeOffPeakTask;
+      task: YCodeOffPeakTask;
       ticketInitialState: OffPeakTaskTicketInitialState;
       queuePosition?: number;
       providerName: string;

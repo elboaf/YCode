@@ -10,9 +10,9 @@ import {
   ISettingService,
   ICredentialService,
   IBroadcastService,
-  IZCodeTaskService,
-  IZCodeAgentService,
-  IZCodeSessionService,
+  IYCodeTaskService,
+  IYCodeAgentService,
+  IYCodeSessionService,
   IConversationShareService,
   IBotsService,
   IFileWatcherService,
@@ -68,10 +68,10 @@ import {
 } from "@ycode/services/node";
 import {
   BIGMODEL_PROVIDER_ID,
-  buildRuntimeZCodeApiUrl,
-  DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
+  buildRuntimeYCodeApiUrl,
+  DEFAULT_YCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
   type ProviderFamilyDomain,
-  type ZCodeSessionRuntimePreferencesResult,
+  type YCodeSessionRuntimePreferencesResult,
   ZAI_PROVIDER_ID,
 } from "@ycode/shared";
 import { assertLegacyRemoteWorkspaceRpcContract } from "./legacyRemoteWorkspaceRpcContract.js";
@@ -81,14 +81,14 @@ import {
 } from "./remoteProviderProvisioningService.js";
 
 const runtimePreferencesLogger = createServiceLogger("remote-runtime-preferences");
-const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "ycodejwttoken";
 
 export function createRemoteWorkspaceServiceCollection(params: {
   clientConfigService: IClientConfigService;
   connectionServices: IServiceAccessor;
   sourceServices?: ServiceCollection;
   parentPort: Parameters<typeof createBroadcastService>[0];
-  createReportingRemoteZCodeTaskService: <T extends object>(service: T) => T;
+  createReportingRemoteYCodeTaskService: <T extends object>(service: T) => T;
   createRemotePromptAttachmentTaskService: <T extends object>(service: T) => T;
   createRemotePromptAttachmentSessionService: <T extends object>(service: T) => T;
   promptAttachmentTransferService: IPromptAttachmentTransferService;
@@ -182,27 +182,27 @@ export function createRemoteWorkspaceServiceCollection(params: {
   const conversationShareClient = new ConversationShareHttpClient({
     // 远端 workspace 的分享也必须使用真实 API；本地 Mock 仅用于单测，不生成无法跨进程访问的链接。
     apiClient: localApiClient,
-    baseUrl: buildRuntimeZCodeApiUrl(process.env, "/api/v1"),
+    baseUrl: buildRuntimeYCodeApiUrl(process.env, "/api/v1"),
     tokenProvider: async () =>
       (await localCredentialService.load(YCODE_JWT_TOKEN_KEY))?.trim() || null,
   });
   const conversationShareService = new ConversationShareService({
-    zcodeAgentService: params.connectionServices.zcodeAgentService,
+    ycodeAgentService: params.connectionServices.ycodeAgentService,
     client: conversationShareClient,
     artifactSource: createRemoteConversationShareArtifactSource(
       params.connectionServices.fileService,
     ),
   });
-  const reportingRemoteZCodeTaskService = params.createReportingRemoteZCodeTaskService(
-    params.connectionServices.zcodeTaskService,
+  const reportingRemoteYCodeTaskService = params.createReportingRemoteYCodeTaskService(
+    params.connectionServices.ycodeTaskService,
   );
   // 手机 remote 的 replayable mirror 在 reporting wrapper 中发布用户消息；
   // 附件物化必须包在 reporting 外层，确保 mirror 和真正发给远端 agent 的 prompt 使用同一份远端路径。
-  const remoteZCodeTaskService = params.createRemotePromptAttachmentTaskService(
-    reportingRemoteZCodeTaskService,
+  const remoteYCodeTaskService = params.createRemotePromptAttachmentTaskService(
+    reportingRemoteYCodeTaskService,
   );
-  const remoteZCodeSessionService = params.createRemotePromptAttachmentSessionService(
-    params.connectionServices.zcodeSessionService,
+  const remoteYCodeSessionService = params.createRemotePromptAttachmentSessionService(
+    params.connectionServices.ycodeSessionService,
   );
   const remoteProviderProvisioningService =
     createRemoteProviderProvisioningExecutorFromWorkspace(params);
@@ -210,7 +210,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
   // desktop-attached remote 的 Agent 运行在远端，但 app-global 设置权威仍在
   // desktop shared Host。通过窄化的 runtime-preferences 请求原路返回，避免远端读取自己的 setting。
   const { onError } = params.runtimePreferencesBridge;
-  params.connectionServices.zcodeAgentService.onDynamicSessionRuntimePreferencesRequest()(
+  params.connectionServices.ycodeAgentService.onDynamicSessionRuntimePreferencesRequest()(
     (request) => {
       const startedAt = Date.now();
       const requestContext = {
@@ -255,12 +255,12 @@ export function createRemoteWorkspaceServiceCollection(params: {
           );
         };
         let resolution:
-          | { status: "resolved"; preferences: ZCodeSessionRuntimePreferencesResult }
+          | { status: "resolved"; preferences: YCodeSessionRuntimePreferencesResult }
           | { status: "failed"; message: string };
         try {
           // 与本地 Host 同源：固定预算不依赖配置网关，远程/手机偏好响应不再串行等待网络。
           const settings = await trackStage("settings", localSettingService.get());
-          const modelContextBudgetStrategy = DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY;
+          const modelContextBudgetStrategy = DEFAULT_YCODE_MODEL_CONTEXT_BUDGET_STRATEGY;
           resolution = {
             status: "resolved",
             preferences: {
@@ -287,7 +287,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
           });
         }
         // 只把设置读取失败编码为 -32603；发送失败交给最终 onError 记录，不能重试同一请求。
-        await params.connectionServices.zcodeAgentService.respondSessionRuntimePreferences({
+        await params.connectionServices.ycodeAgentService.respondSessionRuntimePreferences({
           requestId: request.requestId,
           resolution,
         });
@@ -320,15 +320,15 @@ export function createRemoteWorkspaceServiceCollection(params: {
     .register(ISettingService, localSettingService)
     .register(ICredentialService, localCredentialService)
     .register(IBroadcastService, localBroadcastService)
-    .register(IZCodeTaskService, remoteZCodeTaskService)
-    .register(IZCodeAgentService, params.connectionServices.zcodeAgentService)
-    .register(IZCodeSessionService, remoteZCodeSessionService)
+    .register(IYCodeTaskService, remoteYCodeTaskService)
+    .register(IYCodeAgentService, params.connectionServices.ycodeAgentService)
+    .register(IYCodeSessionService, remoteYCodeSessionService)
     .register(IConversationShareService, conversationShareService)
     .register(
       IBotsService,
       createBotsService({
         credentialService: localCredentialService,
-        zcodeTaskService: remoteZCodeTaskService,
+        ycodeTaskService: remoteYCodeTaskService,
         broadcastService: localBroadcastService,
         settingService: localSettingService,
         modelSelectionService: params.connectionServices.modelSelectionService,
@@ -355,7 +355,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
         apiClient: localApiClient,
         accountRequestAuthService: localAccountRequestAuthService,
         credentialService: localCredentialService,
-        zcodeAgentService: params.connectionServices.zcodeAgentService,
+        ycodeAgentService: params.connectionServices.ycodeAgentService,
       }),
     )
     .register(ICodingPlanSubscriptionService, localCodingPlanSubscriptionService)

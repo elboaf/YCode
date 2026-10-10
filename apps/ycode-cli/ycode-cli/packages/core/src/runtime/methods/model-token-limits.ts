@@ -1,4 +1,4 @@
-import { DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY as DEFAULT_BUDGET_STRATEGY } from "@ycode/shared";
+import { DEFAULT_YCODE_MODEL_CONTEXT_BUDGET_STRATEGY as DEFAULT_BUDGET_STRATEGY } from "@ycode/shared";
 import { traceContextToLogContext } from "../deps.js";
 import type { TraceContext } from "../deps.js";
 

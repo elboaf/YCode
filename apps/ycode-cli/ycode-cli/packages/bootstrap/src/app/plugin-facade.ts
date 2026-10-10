@@ -2,19 +2,19 @@ import type { ConfigResult } from "@ycode/adapters/config";
 import type { PluginLoadOutcome } from "@ycode/contracts";
 import { YCODE_OFFICIAL_PLUGIN_MARKETPLACE } from "@ycode/contracts";
 import {
-  listZCodePlugins,
-  setZCodePluginEnabled,
-  uninstallZCodeMarketplacePlugin,
+  listYCodePlugins,
+  setYCodePluginEnabled,
+  uninstallYCodeMarketplacePlugin,
 } from "../plugins.js";
 import type {
-  ZCodeApp,
-  ZCodeAppOptions,
-  ZCodePluginSetResult,
-  ZCodePluginUninstallResult,
+  YCodeApp,
+  YCodeAppOptions,
+  YCodePluginSetResult,
+  YCodePluginUninstallResult,
 } from "./types.js";
 
 type PluginFacade = Pick<
-  ZCodeApp,
+  YCodeApp,
   "listPlugins" | "setPluginEnabled" | "uninstallPlugin"
 >;
 
@@ -40,12 +40,12 @@ function createPluginFacade(options: CreatePluginFacadeOptions): PluginFacade {
   });
 
   return {
-    listPlugins: async (): Promise<PluginLoadOutcome> => listZCodePlugins(commonOptions()),
+    listPlugins: async (): Promise<PluginLoadOutcome> => listYCodePlugins(commonOptions()),
     setPluginEnabled: async (
       plugin: string,
       enabled: boolean,
-    ): Promise<ZCodePluginSetResult> => {
-      const result = await setZCodePluginEnabled({
+    ): Promise<YCodePluginSetResult> => {
+      const result = await setYCodePluginEnabled({
         ...commonOptions(),
         enabled,
         plugin,
@@ -56,8 +56,8 @@ function createPluginFacade(options: CreatePluginFacadeOptions): PluginFacade {
       };
       return result;
     },
-    uninstallPlugin: async (plugin: string): Promise<ZCodePluginUninstallResult> => {
-      const removed = await uninstallZCodeMarketplacePlugin({
+    uninstallPlugin: async (plugin: string): Promise<YCodePluginUninstallResult> => {
+      const removed = await uninstallYCodeMarketplacePlugin({
         ...commonOptions(),
         pluginId: plugin,
       });
@@ -81,7 +81,7 @@ function createPluginFacade(options: CreatePluginFacadeOptions): PluginFacade {
 
 export function createPluginFacadeForApp(input: {
   configResult: ConfigResult;
-  options: ZCodeAppOptions;
+  options: YCodeAppOptions;
   workingDirectory: string;
 }): PluginFacade {
   return createPluginFacade({

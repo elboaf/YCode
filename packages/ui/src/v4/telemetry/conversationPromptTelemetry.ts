@@ -1,6 +1,6 @@
-import { YCODE_AGENT_PROVIDER, type PlanIdentitySnapshot, type ZCodeProvider } from "@ycode/shared";
+import { YCODE_AGENT_PROVIDER, type PlanIdentitySnapshot, type YCodeProvider } from "@ycode/shared";
 import { buildPromptTelemetryExtraDetail } from "@/lib/messageTelemetry.js";
-import { encodeCustomModelValue } from "@/lib/zcodeCustomModelValue.js";
+import { encodeCustomModelValue } from "@/lib/ycodeCustomModelValue.js";
 import {
   legacyTelemetryModelValue,
   legacyTelemetryProviderId,
@@ -35,7 +35,7 @@ export function resolveLegacyRuntimeModelValue(params: {
 
 /** V4 config.provider 是实际模型 provider id；agentProvider 表示 YCode 运行时。 */
 export function buildV4ConversationPromptTelemetryExtraDetail(params: {
-  agentProvider?: ZCodeProvider;
+  agentProvider?: YCodeProvider;
   configProvider?: string | null;
   modelName?: string | null;
   askMode?: string | null;

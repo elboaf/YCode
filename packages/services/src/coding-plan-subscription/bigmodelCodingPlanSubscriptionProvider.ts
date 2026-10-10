@@ -48,7 +48,7 @@ import type {
   EnterpriseCodingPlanProjectApiKeyUnavailableReason,
   EnterpriseCodingPlanProjectContext,
   StartPlanPreviewConfig,
-  ZCodeModelContextBudgetStrategy,
+  YCodeModelContextBudgetStrategy,
   DynamicWorkflowClientConfig,
 } from "@ycode/shared";
 import type { ModelSelectionView } from "@ycode/provider";
@@ -57,13 +57,13 @@ import {
   BIGMODEL_PROVIDER_ID,
   BUILTIN_MODEL_PROVIDER_IDS,
   CODING_PLAN_SYSTEM_BUSY,
-  buildRuntimeZCodeApiUrl,
+  buildRuntimeYCodeApiUrl,
   isZaiCodingPlanProviderId,
   resolveBigModelApiOrigin,
   resolveZaiBusinessBaseUrl,
   ZAI_PROVIDER_ID,
   YCODE_VERSION,
-  DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
+  DEFAULT_YCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
   createDynamicWorkflowClientConfig,
   normalizeDynamicWorkflowMode,
   resolveDynamicWorkflowClientConfig,
@@ -85,7 +85,7 @@ const YCODE_CLIENT_CONFIG_API_PREFIX = "/api/v1/client/configs";
 const REQUEST_TIMEOUT_MS = 15_000;
 const CLIENT_CONFIG_CACHE_TTL_MS = 60 * 60 * 1000;
 const CODING_PLAN_ZAI_OVERSEAS_PAYMENT_REQUIRED = "coding_plan_zai_overseas_payment_required";
-const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "ycodejwttoken";
 const log = createServiceLogger("codingPlanSubscription");
 
 interface RemoteEnvelope<T> {
@@ -95,7 +95,7 @@ interface RemoteEnvelope<T> {
   data?: T | null;
 }
 
-interface ZCodeClientConfigEnvelope {
+interface YCodeClientConfigEnvelope {
   code?: number;
   msg?: string;
   success?: boolean;
@@ -155,9 +155,9 @@ export class BigModelCodingPlanSubscriptionProvider {
   protected readonly apiClient: ApiClient;
   protected readonly credentialService: Pick<ICredentialService, "load">;
   private readonly resolveOffPeakModelSelectionView?: () => Promise<ModelSelectionView>;
-  private clientConfigSnapshot: ZCodeClientConfigEnvelope | null = null;
+  private clientConfigSnapshot: YCodeClientConfigEnvelope | null = null;
   private clientConfigSnapshotExpiresAt = 0;
-  private clientConfigRequest: Promise<ZCodeClientConfigEnvelope> | null = null;
+  private clientConfigRequest: Promise<YCodeClientConfigEnvelope> | null = null;
 
   constructor(options: BigModelCodingPlanSubscriptionProviderOptions) {
     this.apiClient = options.apiClient;
@@ -268,9 +268,9 @@ export class BigModelCodingPlanSubscriptionProvider {
     }
   }
 
-  async getModelContextBudgetStrategy(): Promise<ZCodeModelContextBudgetStrategy> {
+  async getModelContextBudgetStrategy(): Promise<YCodeModelContextBudgetStrategy> {
     // 3.12.2：预算统一为 preflight-v1；保留兼容方法，但不能再为每次建会话等待远端配置。
-    return DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY;
+    return DEFAULT_YCODE_MODEL_CONTEXT_BUDGET_STRATEGY;
   }
 
   async getForceUpdateConfig(): Promise<ForceUpdateConfig | null> {
@@ -596,7 +596,7 @@ export class BigModelCodingPlanSubscriptionProvider {
     return unwrapEnvelope(payload, endpoint.providerId);
   }
 
-  private async getClientConfigs(): Promise<ZCodeClientConfigEnvelope> {
+  private async getClientConfigs(): Promise<YCodeClientConfigEnvelope> {
     if (this.clientConfigSnapshot && this.clientConfigSnapshotExpiresAt > Date.now()) {
       return this.clientConfigSnapshot;
     }
@@ -611,7 +611,7 @@ export class BigModelCodingPlanSubscriptionProvider {
     url.searchParams.set("platform", resolveClientPlatformKey());
     // StartPlanCard 和套餐列表都来自同一个 client/configs。
     // 同屏分别读取 preview/products 时必须合并请求，避免未登录设置页重复打远端配置。
-    this.clientConfigRequest = readCodingPlanApiJson<ZCodeClientConfigEnvelope>(
+    this.clientConfigRequest = readCodingPlanApiJson<YCodeClientConfigEnvelope>(
       this.apiClient,
       url,
       {
@@ -658,8 +658,8 @@ export class BigModelCodingPlanSubscriptionProvider {
     if (!token) {
       throw new Error("bigmodel_oauth_required");
     }
-    const zcodeJwtToken = (await this.credentialService.load(YCODE_JWT_TOKEN_KEY))?.trim();
-    if (zcodeJwtToken && token === zcodeJwtToken) {
+    const ycodeJwtToken = (await this.credentialService.load(YCODE_JWT_TOKEN_KEY))?.trim();
+    if (ycodeJwtToken && token === ycodeJwtToken) {
       // 旧版 BigModel OAuth callback 曾把 ycode JWT 同时写进
       // oauth:bigmodel:access_token，付费套餐预览会拿它去打 bigmodel.cn 并报令牌过期。
       // 这里在服务边界拦截旧污染状态，避免继续向 BigModel 业务接口发送错误凭据。
@@ -814,7 +814,7 @@ export class BigModelCodingPlanSubscriptionProvider {
 }
 
 function resolveCodingPlanClientConfigUrl(env: NodeJS.ProcessEnv): URL {
-  return new URL(buildRuntimeZCodeApiUrl(env, YCODE_CLIENT_CONFIG_API_PREFIX));
+  return new URL(buildRuntimeYCodeApiUrl(env, YCODE_CLIENT_CONFIG_API_PREFIX));
 }
 
 function resolveFallbackEnterpriseTeamPlanProduct(
@@ -1116,7 +1116,7 @@ function normalizeStaticProductProviderIds<T>(
 }
 
 function unwrapClientConfigProducts(
-  payload: ZCodeClientConfigEnvelope,
+  payload: YCodeClientConfigEnvelope,
 ): CodingPlanStaticProductsConfig {
   if (payload.code !== undefined && payload.code !== 0) {
     throw new Error(payload.msg?.trim() || "YCode client config request failed");
@@ -1129,7 +1129,7 @@ function unwrapClientConfigProducts(
 }
 
 function unwrapClientConfigTeamProducts(
-  payload: ZCodeClientConfigEnvelope,
+  payload: YCodeClientConfigEnvelope,
 ): CodingPlanStaticTeamProductsConfig {
   if (payload.code !== undefined && payload.code !== 0) {
     throw new Error(payload.msg?.trim() || "YCode client config request failed");
@@ -1193,7 +1193,7 @@ function isValidCardCopyConfigItem(value: unknown): boolean {
 }
 
 function unwrapClientConfigStartPlanPreview(
-  payload: ZCodeClientConfigEnvelope,
+  payload: YCodeClientConfigEnvelope,
 ): StartPlanPreviewConfig | null {
   if (payload.code !== undefined && payload.code !== 0) {
     throw new Error(payload.msg?.trim() || "YCode client config request failed");
@@ -1217,7 +1217,7 @@ function unwrapClientConfigStartPlanPreview(
 }
 
 function unwrapClientConfigForceUpdate(
-  payload: ZCodeClientConfigEnvelope,
+  payload: YCodeClientConfigEnvelope,
 ): ForceUpdateConfig | null {
   if (payload.code !== undefined && payload.code !== 0) {
     throw new Error(payload.msg?.trim() || "YCode client config request failed");
@@ -1326,7 +1326,7 @@ function dropUndefined(value: Record<string, unknown>): Record<string, unknown> 
  * mock 模式（YCODE_OFFPEAK_MOCK=1）只替代产品曝光与套餐状态；模型候选仍来自 Registry。
  */
 export function resolveOffPeakClientConfig(
-  payload: ZCodeClientConfigEnvelope,
+  payload: YCodeClientConfigEnvelope,
   env: NodeJS.ProcessEnv,
   modelSelectionView: ModelSelectionView = EMPTY_OFF_PEAK_MODEL_SELECTION_VIEW,
 ): OffPeakClientConfig {

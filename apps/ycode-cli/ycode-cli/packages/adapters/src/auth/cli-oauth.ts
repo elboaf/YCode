@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import type { HttpClientPort, HttpClientRunOptions, TraceContext } from "@ycode/contracts";
 
-const DEFAULT_ZCODE_OAUTH_BASE_URL = "https://ycode.z.ai/api/v1";
+const DEFAULT_YCODE_OAUTH_BASE_URL = "https://ycode.z.ai/api/v1";
 export type CliOAuthProviderId = "zai" | "bigmodel";
 const POLL_TOKEN_BYTES = 32;
 const JSON_CONTENT_TYPE = "application/json";
@@ -73,7 +73,7 @@ export class CliOAuthError extends Error {
 }
 
 export function createCliOAuthClient(options: CliOAuthClientOptions): CliOAuthClient {
-  const baseUrl = normalizeBaseUrl(options.baseUrl ?? DEFAULT_ZCODE_OAUTH_BASE_URL);
+  const baseUrl = normalizeBaseUrl(options.baseUrl ?? DEFAULT_YCODE_OAUTH_BASE_URL);
   const encoder = new TextEncoder();
 
   return {

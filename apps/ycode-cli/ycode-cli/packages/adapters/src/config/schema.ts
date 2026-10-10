@@ -283,7 +283,7 @@ const hooksSchema = z
   })
   .strict();
 
-export const ZCodeConfigFileSchema = z
+export const YCodeConfigFileSchema = z
   .object({
     $schema: z.string().optional(),
     modelStream: modelStreamSchema.optional(),
@@ -305,7 +305,7 @@ export const ZCodeConfigFileSchema = z
   })
   .passthrough();
 
-export type ZCodeConfigFile = z.infer<typeof ZCodeConfigFileSchema>;
+export type YCodeConfigFile = z.infer<typeof YCodeConfigFileSchema>;
 
 type SkillCommandOverrideMap = Record<string, { enable?: boolean }>;
 
@@ -388,14 +388,14 @@ export function parseConfigFileToRuntimePatchWithDiagnostics(
 ): ParseConfigFileResult {
   const diagnostics: ConfigDiagnostic[] = [];
   const normalized = normalizeConfigFileInput(value, diagnostics);
-  const parsed = ZCodeConfigFileSchema.parse(normalized);
+  const parsed = YCodeConfigFileSchema.parse(normalized);
   return {
     config: parsedConfigFileToRuntimePatch(parsed),
     diagnostics,
   };
 }
 
-function parsedConfigFileToRuntimePatch(parsed: ZCodeConfigFile): RuntimeConfigPatch {
+function parsedConfigFileToRuntimePatch(parsed: YCodeConfigFile): RuntimeConfigPatch {
   const config: RuntimeConfigPatch = {};
   if (parsed.modelStream) config.modelStream = parsed.modelStream;
 
@@ -424,7 +424,7 @@ function parsedConfigFileToRuntimePatch(parsed: ZCodeConfigFile): RuntimeConfigP
 }
 
 function normalizePluginConfig(
-  plugins: ZCodeConfigFile["plugins"],
+  plugins: YCodeConfigFile["plugins"],
 ): NonNullable<RuntimeConfigPatch["plugins"]> {
   if (!plugins) return {};
   const enabledPlugins = plugins.enabledPlugins ? { ...plugins.enabledPlugins } : undefined;
@@ -521,7 +521,7 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function parseSkillsRuntimeConfig(
-  skills: ZCodeConfigFile["skills"],
+  skills: YCodeConfigFile["skills"],
 ): RuntimeConfigPatch["skills"] | undefined {
   if (!skills) return undefined;
   const next: NonNullable<RuntimeConfigPatch["skills"]> = {};
@@ -535,7 +535,7 @@ function parseSkillsRuntimeConfig(
 }
 
 function parseSkillOverridesFromPluralSkills(
-  skills: ZCodeConfigFile["skills"],
+  skills: YCodeConfigFile["skills"],
 ): SkillCommandOverrideMap | undefined {
   if (!skills) return undefined;
   const overrides: SkillCommandOverrideMap = {};

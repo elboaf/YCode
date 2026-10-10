@@ -1,7 +1,7 @@
-export type ZCodeAgentBinaryKind = "native-binary";
+export type YCodeAgentBinaryKind = "native-binary";
 
-export interface ZCodeAgentRuntimeDescriptor {
-  binaryKind: ZCodeAgentBinaryKind;
+export interface YCodeAgentRuntimeDescriptor {
+  binaryKind: YCodeAgentBinaryKind;
   binaryEnvVar: string;
   bundledResourceDir: string;
   version: string;
@@ -23,7 +23,7 @@ export function resolvePlatformBinaryName(binaryName: string, platform: string):
   return platform === "win32" ? `${binaryName}.exe` : binaryName;
 }
 
-export const YCODE_AGENT_RUNTIME: ZCodeAgentRuntimeDescriptor = {
+export const YCODE_AGENT_RUNTIME: YCodeAgentRuntimeDescriptor = {
   binaryKind: "native-binary",
   binaryEnvVar: "GLM_BINARY_PATH",
   bundledResourceDir: "glm",
@@ -40,6 +40,6 @@ export const YCODE_AGENT_RUNTIME: ZCodeAgentRuntimeDescriptor = {
   },
 };
 
-export function getZCodeAgentRuntime(): ZCodeAgentRuntimeDescriptor {
+export function getYCodeAgentRuntime(): YCodeAgentRuntimeDescriptor {
   return YCODE_AGENT_RUNTIME;
 }

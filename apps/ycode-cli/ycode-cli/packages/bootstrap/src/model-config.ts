@@ -4,8 +4,8 @@ import type {
   EnvRecord,
 } from "@ycode/adapters/model";
 import {
-  resolveRuntimeZCodeEnv,
-  resolveRuntimeZCodeEndpointOrigin,
+  resolveRuntimeYCodeEnv,
+  resolveRuntimeYCodeEndpointOrigin,
   YCODE_APP_VERSION_ENV,
 } from "@ycode/shared";
 import {
@@ -27,7 +27,7 @@ export function createRuntimeAiSdkModelExecutionConfig(
 ): AiSdkModelExecutionConfig {
   const network = normalizeAiSdkNetworkConfig(options.network);
   return {
-    defaultHeaders: buildCliZCodeSourceHeaders(env, options),
+    defaultHeaders: buildCliYCodeSourceHeaders(env, options),
     env,
     ...(network ? { network } : {}),
   };
@@ -44,7 +44,7 @@ function normalizeAiSdkNetworkConfig(
   };
 }
 
-function buildCliZCodeSourceHeaders(
+function buildCliYCodeSourceHeaders(
   env: EnvRecord,
   options: Pick<RuntimeExecutionConfigOptions, "appVersion" | "sourceTitle"> = {},
 ): Record<string, string> {
@@ -53,11 +53,11 @@ function buildCliZCodeSourceHeaders(
   const locale = normalizePrintableHeaderValue(Intl.DateTimeFormat().resolvedOptions().locale);
   const timezone = normalizePrintableHeaderValue(Intl.DateTimeFormat().resolvedOptions().timeZone);
   return {
-    "HTTP-Referer": resolveRuntimeZCodeEndpointOrigin(env),
+    "HTTP-Referer": resolveRuntimeYCodeEndpointOrigin(env),
     "User-Agent": `YCode/${appVersion ?? "unknown"}`,
     ...(appVersion ? { "X-YCode-App-Version": appVersion } : {}),
     "X-Title": `Z Code@${sourceTitle}`,
-    "X-Release-Channel": resolveRuntimeZCodeEnv(env),
+    "X-Release-Channel": resolveRuntimeYCodeEnv(env),
     "X-Client-Language": locale ?? "unknown",
     "X-Client-Timezone": timezone ?? "unknown",
     "X-YCode-Agent": "glm",

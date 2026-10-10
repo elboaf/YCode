@@ -1,22 +1,22 @@
 import { randomUUID } from "node:crypto";
 import { Emitter } from "@ycode/rpc";
 import {
-  zcodeStorageStartupStateSchema,
-  type ZCodeStorageStartupState,
+  ycodeStorageStartupStateSchema,
+  type YCodeStorageStartupState,
   type DatabaseStartupErrorCode,
 } from "@ycode/shared";
 
 const FIRST_STATUS_TIMEOUT_MS = 30_000;
 
 /** 一个 protocol client 对应一个进程代次，状态只来自该连接的合法控制帧。 */
-export class ZCodeStorageStartupGate {
-  private current?: ZCodeStorageStartupState;
+export class YCodeStorageStartupGate {
+  private current?: YCodeStorageStartupState;
   private terminalError?: Error;
   private pending?: Promise<void>;
   private resolve?: () => void;
   private reject?: (error: Error) => void;
   private timer?: ReturnType<typeof setTimeout>;
-  private readonly changed = new Emitter<ZCodeStorageStartupState>();
+  private readonly changed = new Emitter<YCodeStorageStartupState>();
   readonly onDidChange = this.changed.event;
 
   constructor(required: boolean, firstStatusTimeoutMs = FIRST_STATUS_TIMEOUT_MS) {
@@ -31,12 +31,12 @@ export class ZCodeStorageStartupGate {
     return Boolean(this.terminalError || (this.pending && this.current?.phase !== "ready"));
   }
 
-  get snapshot(): ZCodeStorageStartupState | undefined {
+  get snapshot(): YCodeStorageStartupState | undefined {
     return this.current;
   }
 
   accept(input: unknown): boolean {
-    const parsed = zcodeStorageStartupStateSchema.safeParse(input);
+    const parsed = ycodeStorageStartupStateSchema.safeParse(input);
     if (!parsed.success || this.terminalError) return false;
     const next = parsed.data;
     if (

@@ -4,10 +4,10 @@ import { createNodeSkillAdapter } from "@ycode/adapters/skills";
 import type { Logger, SkillContent, SkillDiagnostic, SkillLoadOutcome } from "@ycode/contracts";
 import { resolveBundledSkillRoots } from "./app/bundled-skills.js";
 import { getCliStorageRoot } from "./app/paths.js";
-import { resolveZCodePlugins } from "./plugins.js";
+import { resolveYCodePlugins } from "./plugins.js";
 import { collectDisabledPaths } from "./skill-command-overrides.js";
 
-export interface ListZCodeSkillsOptions {
+export interface ListYCodeSkillsOptions {
   env?: NodeJS.ProcessEnv;
   logger?: Logger;
   projectConfigPath?: string;
@@ -16,17 +16,17 @@ export interface ListZCodeSkillsOptions {
   workingDirectory?: string;
 }
 
-export interface InspectZCodeSkillOptions extends ListZCodeSkillsOptions {
+export interface InspectYCodeSkillOptions extends ListYCodeSkillsOptions {
   name: string;
 }
 
-export interface ZCodeSkillInspection {
+export interface YCodeSkillInspection {
   diagnostics: SkillDiagnostic[];
   skill: SkillContent;
 }
 
-export async function listZCodeSkills(
-  options: ListZCodeSkillsOptions = {},
+export async function listYCodeSkills(
+  options: ListYCodeSkillsOptions = {},
 ): Promise<SkillLoadOutcome> {
   const discovery = await createSkillDiscovery(options);
   if (!discovery.enabled) {
@@ -42,9 +42,9 @@ export async function listZCodeSkills(
   });
 }
 
-export async function inspectZCodeSkill(
-  options: InspectZCodeSkillOptions,
-): Promise<ZCodeSkillInspection> {
+export async function inspectYCodeSkill(
+  options: InspectYCodeSkillOptions,
+): Promise<YCodeSkillInspection> {
   const discovery = await createSkillDiscovery(options);
   if (!discovery.enabled) {
     throw new Error("Skills are disabled.");
@@ -72,7 +72,7 @@ export async function inspectZCodeSkill(
   };
 }
 
-async function createSkillDiscovery(options: ListZCodeSkillsOptions): Promise<
+async function createSkillDiscovery(options: ListYCodeSkillsOptions): Promise<
   | {
       enabled: false;
       workingDirectory: string;
@@ -98,7 +98,7 @@ async function createSkillDiscovery(options: ListZCodeSkillsOptions): Promise<
       workingDirectory,
     };
   }
-  const pluginOutcome = resolveZCodePlugins({
+  const pluginOutcome = resolveYCodePlugins({
     configResult,
     env: options.env,
     logger: options.logger,

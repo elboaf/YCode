@@ -17,7 +17,7 @@ import {
   type SettingsDirectoryLocation,
   type SettingsDirectorySource,
   type UserCommand,
-  type ZCodeCommand,
+  type YCodeCommand,
 } from "@ycode/shared";
 import { DEFAULT_ENABLED_OFFICIAL_PLUGIN_IDS } from "@ycode/shared";
 import type { ICommandsService } from "./commands.js";
@@ -50,7 +50,7 @@ const YCODE_PLUGIN_MANIFEST_PATH = join(".ycode-plugin", "plugin.json");
 const CLAUDE_PLUGIN_MANIFEST_PATH = join(".claude-plugin", "plugin.json");
 const CODEX_PLUGIN_MANIFEST_PATH = join(".codex-plugin", "plugin.json");
 const YCODE_COMMAND_DESCRIPTOR: CommandAgentSourceDescriptor = {
-  agentSource: "zcodeAgent",
+  agentSource: "ycodeAgent",
   directorySource: "ycode",
   userDirectorySegments: [".ycode", "commands"],
   workspaceDirectorySegments: [".ycode", "commands"],
@@ -61,7 +61,7 @@ const YCODE_COMMAND_DESCRIPTOR: CommandAgentSourceDescriptor = {
 };
 
 const COMMAND_AGENT_SOURCE_DESCRIPTORS: Record<CommandAgentSource, CommandAgentSourceDescriptor> = {
-  zcodeAgent: YCODE_COMMAND_DESCRIPTOR,
+  ycodeAgent: YCODE_COMMAND_DESCRIPTOR,
 };
 
 const COMMAND_DIRECTORY_SOURCE_DESCRIPTORS: readonly CommandAgentSourceDescriptor[] = [
@@ -560,7 +560,7 @@ export function createCommandsService(_options?: CommandsServiceOptions): IComma
         : [];
 
     return {
-      commands: [...dedupedUserCommands, ...pluginCommands] as ZCodeCommand[],
+      commands: [...dedupedUserCommands, ...pluginCommands] as YCodeCommand[],
       userCommands: dedupedUserCommands,
       pluginCommands,
       capability: { userScopeAvailable: true },

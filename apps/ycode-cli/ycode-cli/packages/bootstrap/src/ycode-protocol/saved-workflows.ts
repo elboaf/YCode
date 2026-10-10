@@ -20,20 +20,20 @@ import {
 } from "@ycode/core";
 import {
   YCODE_WORKFLOWS_RUNS_MAX_LIMIT,
-  zcodeWorkflowsDeleteParamsSchema,
-  zcodeWorkflowsGetParamsSchema,
-  zcodeWorkflowsListParamsSchema,
-  zcodeWorkflowsMoveParamsSchema,
-  zcodeWorkflowsRunsParamsSchema,
-  zcodeWorkflowsUpdateMetaParamsSchema,
-  type ZCodeSavedWorkflowRun,
-  type ZCodeSavedWorkflowScope,
-  type ZCodeWorkflowsDeleteResult,
-  type ZCodeWorkflowsGetResult,
-  type ZCodeWorkflowsListResult,
-  type ZCodeWorkflowsMoveResult,
-  type ZCodeWorkflowsRunsResult,
-  type ZCodeWorkflowsUpdateMetaResult,
+  ycodeWorkflowsDeleteParamsSchema,
+  ycodeWorkflowsGetParamsSchema,
+  ycodeWorkflowsListParamsSchema,
+  ycodeWorkflowsMoveParamsSchema,
+  ycodeWorkflowsRunsParamsSchema,
+  ycodeWorkflowsUpdateMetaParamsSchema,
+  type YCodeSavedWorkflowRun,
+  type YCodeSavedWorkflowScope,
+  type YCodeWorkflowsDeleteResult,
+  type YCodeWorkflowsGetResult,
+  type YCodeWorkflowsListResult,
+  type YCodeWorkflowsMoveResult,
+  type YCodeWorkflowsRunsResult,
+  type YCodeWorkflowsUpdateMetaResult,
 } from "@ycode/shared";
 import type { JournalStorePort } from "@ycode/dynamic-workflow";
 import { artifactsOf } from "../app/dynamic-workflow-run-observation.js";
@@ -41,18 +41,18 @@ import {
   resolveDynamicWorkflowJournalStore,
   supportsRunIntrospection,
 } from "../app/dynamic-workflow-run-service.js";
-import { parseParams, type ZCodeProtocolAgentServerContext } from "./server-types.js";
+import { parseParams, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
 // 缺省即 `project`：不给 scope 的旧 GUI 与项目档调用逐字走本项目根，形状不变（版本偏斜）。
-function scopeOf(params: { scope?: ZCodeSavedWorkflowScope }): ZCodeSavedWorkflowScope {
+function scopeOf(params: { scope?: YCodeSavedWorkflowScope }): YCodeSavedWorkflowScope {
   return params.scope ?? "project";
 }
 
 export async function listSavedWorkflowsOp(
-  _context: ZCodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodeWorkflowsListResult> {
-  const params = parseParams(zcodeWorkflowsListParamsSchema, rawParams);
+): Promise<YCodeWorkflowsListResult> {
+  const params = parseParams(ycodeWorkflowsListParamsSchema, rawParams);
   const cwd = params.workspace.workspacePath;
   const scope = scopeOf(params);
   // 中枢的 PROJECT 组只列本项目那一份，全局组只列全局那一份——**永远**传定向 scope，绝不走
@@ -67,10 +67,10 @@ export async function listSavedWorkflowsOp(
 }
 
 export async function getSavedWorkflowOp(
-  _context: ZCodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodeWorkflowsGetResult> {
-  const params = parseParams(zcodeWorkflowsGetParamsSchema, rawParams);
+): Promise<YCodeWorkflowsGetResult> {
+  const params = parseParams(ycodeWorkflowsGetParamsSchema, rawParams);
   // 定向 scope：`global` 只查全局根、不做遮蔽——中枢的全局组要看到被项目档遮蔽的那份。
   const resolved = resolveSavedWorkflow({
     cwd: params.workspace.workspacePath,
@@ -93,10 +93,10 @@ export async function getSavedWorkflowOp(
  * 读-改-写在同一次调用内完成；不做三方合并（文件小、单机、用户自己在改）。
  */
 export async function updateSavedWorkflowMetaOp(
-  _context: ZCodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodeWorkflowsUpdateMetaResult> {
-  const params = parseParams(zcodeWorkflowsUpdateMetaParamsSchema, rawParams);
+): Promise<YCodeWorkflowsUpdateMetaResult> {
+  const params = parseParams(ycodeWorkflowsUpdateMetaParamsSchema, rawParams);
   // shared 与 contracts 的 meta schema 逐字对齐，但序列化器认的是 contracts 那份类型；再过一遍
   // 让「两边漂移」在这里炸成 -32602 而不是写出一个自己读不回来的文件。
   const meta = SavedWorkflowMetaSchema.parse(params.meta);
@@ -116,10 +116,10 @@ export async function updateSavedWorkflowMetaOp(
  * `global` 删本机全局根那一份。同名的 legacy `.workflow.js` 是另一套解析器的文件，不在视野里。
  */
 export async function deleteSavedWorkflowOp(
-  _context: ZCodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodeWorkflowsDeleteResult> {
-  const params = parseParams(zcodeWorkflowsDeleteParamsSchema, rawParams);
+): Promise<YCodeWorkflowsDeleteResult> {
+  const params = parseParams(ycodeWorkflowsDeleteParamsSchema, rawParams);
   if (!isValidSavedWorkflowName(params.name)) {
     return { ok: false, reason: "invalid_name" };
   }
@@ -144,10 +144,10 @@ export async function deleteSavedWorkflowOp(
  * 取该名字的运行历史（全局工作流在任何项目里跑，历史因此跨 cwd）；每行回 `cwd` 供 GUI 标项目。
  */
 export async function listSavedWorkflowRunsOp(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodeWorkflowsRunsResult> {
-  const params = parseParams(zcodeWorkflowsRunsParamsSchema, rawParams);
+): Promise<YCodeWorkflowsRunsResult> {
+  const params = parseParams(ycodeWorkflowsRunsParamsSchema, rawParams);
   const journal = resolveDynamicWorkflowJournalStore(context.deps.sessionStore);
   if (journal === undefined || !supportsRunIntrospection(journal)) return { runs: [] };
   const limit = Math.min(YCODE_WORKFLOWS_RUNS_MAX_LIMIT, params.limit);
@@ -164,7 +164,7 @@ export async function listSavedWorkflowRunsOp(
   // 产物汇总：每行一次 `listArtifactRows`（journal 的持久家），只在能力在场时做——缺席即
   // 整字段缺席，中枢的 chips 就不画。**只对这一页的行**取数，所以代价与页大小同阶（≤ 50）。
   const artifactsByRun = savedWorkflowRunArtifacts(journal, page);
-  const runs: ZCodeSavedWorkflowRun[] = page.map((row) => ({
+  const runs: YCodeSavedWorkflowRun[] = page.map((row) => ({
     runId: row.runId,
     ...(row.name === undefined ? {} : { name: row.name }),
     status: row.status,
@@ -203,8 +203,8 @@ const SAVED_WORKFLOW_RUN_ARTIFACTS_LIMIT = 8;
 function savedWorkflowRunArtifacts(
   journal: JournalStorePort,
   page: readonly { runId: string }[],
-): Map<string, ZCodeSavedWorkflowRun["artifacts"]> {
-  const byRun = new Map<string, ZCodeSavedWorkflowRun["artifacts"]>();
+): Map<string, YCodeSavedWorkflowRun["artifacts"]> {
+  const byRun = new Map<string, YCodeSavedWorkflowRun["artifacts"]>();
   for (const row of page) {
     const { artifacts } = artifactsOf(row.runId, journal);
     if (artifacts === undefined || artifacts.length === 0) continue;
@@ -228,10 +228,10 @@ function savedWorkflowRunArtifacts(
  * `workspace` 既是载体也是目标项目：core 据它的 cwd 与本机 home 算出两个根。
  */
 export async function moveSavedWorkflowOp(
-  _context: ZCodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodeWorkflowsMoveResult> {
-  const params = parseParams(zcodeWorkflowsMoveParamsSchema, rawParams);
+): Promise<YCodeWorkflowsMoveResult> {
+  const params = parseParams(ycodeWorkflowsMoveParamsSchema, rawParams);
   const result = moveSavedWorkflow({ cwd: params.workspace.workspacePath, name: params.name });
   if (result.ok) {
     return { ok: true, from: result.from, to: result.to };

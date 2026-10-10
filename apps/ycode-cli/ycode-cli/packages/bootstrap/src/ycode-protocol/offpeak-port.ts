@@ -1,13 +1,13 @@
 import type { OffPeakPort, OffPeakTaskSummary } from "@ycode/contracts";
 import {
-  zcodeOffPeakCreateResultSchema,
-  zcodeOffPeakListResultSchema,
-  zcodeProtocolMethods,
-  type ZCodeOffPeakTaskProtocolSnapshot,
+  ycodeOffPeakCreateResultSchema,
+  ycodeOffPeakListResultSchema,
+  ycodeProtocolMethods,
+  type YCodeOffPeakTaskProtocolSnapshot,
 } from "@ycode/shared";
 import type {
-  ZCodeProtocolAgentServerContext,
-  ZCodeProtocolSessionRecord,
+  YCodeProtocolAgentServerContext,
+  YCodeProtocolSessionRecord,
 } from "./server-types.js";
 
 const OFF_PEAK_CREATE_FROM_OFF_PEAK_RUN_ERROR =
@@ -32,8 +32,8 @@ const OFF_PEAK_TERMINAL_STATUSES = new Set(["completed", "failed", "cancelled"])
  * - 不冻结会话标题：绑定的是用户的工作会话，标题不该被任务改写。
  */
 export function createProtocolOffPeakPort(
-  context: ZCodeProtocolAgentServerContext,
-  resolveOwnSession?: () => ZCodeProtocolSessionRecord | undefined,
+  context: YCodeProtocolAgentServerContext,
+  resolveOwnSession?: () => YCodeProtocolSessionRecord | undefined,
 ): OffPeakPort {
   return {
     async create(input, createContext) {
@@ -50,9 +50,9 @@ export function createProtocolOffPeakPort(
         let bound: boolean;
         try {
           const listed = await context.requestClient(
-            zcodeProtocolMethods.offPeakList,
+            ycodeProtocolMethods.offPeakList,
             {},
-            zcodeOffPeakListResultSchema,
+            ycodeOffPeakListResultSchema,
           );
           bound = listed.tasks.some(
             (task) =>
@@ -70,7 +70,7 @@ export function createProtocolOffPeakPort(
         if (bound) throw new Error(OFF_PEAK_CREATE_IN_BOUND_SESSION_ERROR);
       }
       const result = await context.requestClient(
-        zcodeProtocolMethods.offPeakCreate,
+        ycodeProtocolMethods.offPeakCreate,
         {
           title: input.title,
           prompt: input.prompt,
@@ -80,7 +80,7 @@ export function createProtocolOffPeakPort(
           // 绑定当前会话；workspace 仍由 host 端从当前 session 注入（对称 automation/create）。
           ...(boundSessionId ? { boundSessionId } : {}),
         },
-        zcodeOffPeakCreateResultSchema,
+        ycodeOffPeakCreateResultSchema,
       );
       if (!result.ok) {
         // 失败分类原样透传给 handler 翻译，禁止在端口层降级为 message 字符串。
@@ -95,16 +95,16 @@ export function createProtocolOffPeakPort(
     },
     async list() {
       const result = await context.requestClient(
-        zcodeProtocolMethods.offPeakList,
+        ycodeProtocolMethods.offPeakList,
         {},
-        zcodeOffPeakListResultSchema,
+        ycodeOffPeakListResultSchema,
       );
       return result.tasks.map(toOffPeakTaskSummary);
     },
   };
 }
 
-function toOffPeakTaskSummary(input: ZCodeOffPeakTaskProtocolSnapshot): OffPeakTaskSummary {
+function toOffPeakTaskSummary(input: YCodeOffPeakTaskProtocolSnapshot): OffPeakTaskSummary {
   return {
     offPeakTaskId: input.offPeakTaskId,
     title: input.title,

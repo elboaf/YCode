@@ -95,35 +95,35 @@ export type {
 } from "./broadcast/broadcast.js";
 
 // YCode task wrapper service — task 列表/置顶/归档等 app 侧包装状态入口。
-export { IZCodeTaskService } from "./session/zcodeTaskService.js";
+export { IYCodeTaskService } from "./session/ycodeTaskService.js";
 export type {
-  ZCodeArchivedTaskDeletionResult,
-  ZCodeModelTrajectory,
-  ZCodeModelTrajectoryCallSource,
-  ZCodeModelTrajectoryCallSourceKind,
-  ZCodeModelTrajectoryContentPart,
-  ZCodeModelTrajectoryMessage,
-  ZCodeModelTrajectoryRecord,
-  ZCodeModelTrajectoryUsage,
-  ZCodeTaskListKind,
-  ZCodeTaskListQuery,
-  ZCodeTaskListResult,
-  ZCodeTaskListSortBy,
-  ZCodeTaskListWorkspaceScope,
-  ZCodeTaskReadyOutcome,
-  ZCodeGroupedTaskRef,
-  ZCodeGroupedTaskView,
-  ZCodeGroupedTaskViewNode,
-  ZCodeGroupedTaskViewOrderInput,
-  ZCodeGroupedTaskViewQuery,
-  ZCodeGroupedTaskViewStructure,
-  ZCodeGroupedTaskViewStructureMember,
-  ZCodeGroupedTaskViewStructureTopOrder,
-  ZCodeGroupedTaskViewTopLevelNodeRef,
-  ZCodeTaskGroup,
-  ZCodeTaskGroupColor,
-} from "./session/zcodeTaskService.js";
-export type { ZCodeTaskListItem } from "./session/zcodeTaskListTypes.js";
+  YCodeArchivedTaskDeletionResult,
+  YCodeModelTrajectory,
+  YCodeModelTrajectoryCallSource,
+  YCodeModelTrajectoryCallSourceKind,
+  YCodeModelTrajectoryContentPart,
+  YCodeModelTrajectoryMessage,
+  YCodeModelTrajectoryRecord,
+  YCodeModelTrajectoryUsage,
+  YCodeTaskListKind,
+  YCodeTaskListQuery,
+  YCodeTaskListResult,
+  YCodeTaskListSortBy,
+  YCodeTaskListWorkspaceScope,
+  YCodeTaskReadyOutcome,
+  YCodeGroupedTaskRef,
+  YCodeGroupedTaskView,
+  YCodeGroupedTaskViewNode,
+  YCodeGroupedTaskViewOrderInput,
+  YCodeGroupedTaskViewQuery,
+  YCodeGroupedTaskViewStructure,
+  YCodeGroupedTaskViewStructureMember,
+  YCodeGroupedTaskViewStructureTopOrder,
+  YCodeGroupedTaskViewTopLevelNodeRef,
+  YCodeTaskGroup,
+  YCodeTaskGroupColor,
+} from "./session/ycodeTaskService.js";
+export type { YCodeTaskListItem } from "./session/ycodeTaskListTypes.js";
 
 export { IWindowControllerService } from "./window-controller/windowController.js";
 export type {
@@ -133,68 +133,68 @@ export type {
   WindowHostControllerTaskListResult,
 } from "./window-controller/windowController.js";
 
-// YCode agent service — IZCodeAgentService is both a type (interface) and value (descriptor)
+// YCode agent service — IYCodeAgentService is both a type (interface) and value (descriptor)
 export {
-  IZCodeAgentService,
-  type ZCodeAgentLocalRuntimeChildProcesses,
+  IYCodeAgentService,
+  type YCodeAgentLocalRuntimeChildProcesses,
   YCODE_AGENT_RUNTIME_UNAVAILABLE_CODE,
-} from "./ycode-agent/zcodeAgent.js";
+} from "./ycode-agent/ycodeAgent.js";
 export {
-  isZCodeAgentMcpStatusModeUnsupportedError,
+  isYCodeAgentMcpStatusModeUnsupportedError,
   YCODE_AGENT_MCP_STATUS_MODE_UNSUPPORTED_ERROR_CODE,
-  ZCodeAgentMcpStatusModeUnsupportedError,
-} from "./ycode-agent/zcodeAgentErrors.js";
+  YCodeAgentMcpStatusModeUnsupportedError,
+} from "./ycode-agent/ycodeAgentErrors.js";
 export {
-  createZCodeAgentConnectionScope,
-  readTrustedZCodeAgentV4Connection,
-} from "./ycode-agent/zcodeAgentConnectionScope.js";
+  createYCodeAgentConnectionScope,
+  readTrustedYCodeAgentV4Connection,
+} from "./ycode-agent/ycodeAgentConnectionScope.js";
 export type {
-  ZCodeAgentConnectionScope,
-  ZCodeAgentV4ClientMode,
-  ZCodeAgentV4ConnectionContext,
-} from "./ycode-agent/zcodeAgentConnectionScope.js";
+  YCodeAgentConnectionScope,
+  YCodeAgentV4ClientMode,
+  YCodeAgentV4ConnectionContext,
+} from "./ycode-agent/ycodeAgentConnectionScope.js";
 export type {
-  ZCodeAgentAttachmentBeginParams,
-  ZCodeAgentAttachmentChunkParams,
-  ZCodeAgentAttachmentTerminalParams,
-  ZCodeAgentCreateSessionParams,
-  ZCodeAgentCuaPermissionObservation,
-  ZCodeAgentInitializeResult,
-  ZCodeAgentStorageStartupSnapshot,
-  ZCodeAgentRuntimeLifecycleEvent,
-  ZCodeAgentRuntimePolicy,
-  ZCodeAgentReadSessionParams,
-  ZCodeAgentResumeSessionParams,
-  ZCodeAgentRunAutomationNowResult,
-  ZCodeAgentSavedWorkflowTarget,
-  ZCodeAgentSendPromptParams,
-  ZCodeAgentServiceEvent,
-  ZCodeAgentSessionSubscribeParams,
-  ZCodeAgentSessionTarget,
-  ZCodeAgentSetModeParams,
-  ZCodeAgentSetModelParams,
-  ZCodeAgentSetThoughtLevelParams,
-  ZCodeAgentWorkspaceTarget,
-} from "./ycode-agent/zcodeAgent.js";
+  YCodeAgentAttachmentBeginParams,
+  YCodeAgentAttachmentChunkParams,
+  YCodeAgentAttachmentTerminalParams,
+  YCodeAgentCreateSessionParams,
+  YCodeAgentCuaPermissionObservation,
+  YCodeAgentInitializeResult,
+  YCodeAgentStorageStartupSnapshot,
+  YCodeAgentRuntimeLifecycleEvent,
+  YCodeAgentRuntimePolicy,
+  YCodeAgentReadSessionParams,
+  YCodeAgentResumeSessionParams,
+  YCodeAgentRunAutomationNowResult,
+  YCodeAgentSavedWorkflowTarget,
+  YCodeAgentSendPromptParams,
+  YCodeAgentServiceEvent,
+  YCodeAgentSessionSubscribeParams,
+  YCodeAgentSessionTarget,
+  YCodeAgentSetModeParams,
+  YCodeAgentSetModelParams,
+  YCodeAgentSetThoughtLevelParams,
+  YCodeAgentWorkspaceTarget,
+} from "./ycode-agent/ycodeAgent.js";
 
 // YCode session service — app-facing session facade without YCode Agent naming.
-export { IZCodeSessionService } from "./ycode-session/zcodeSession.js";
+export { IYCodeSessionService } from "./ycode-session/ycodeSession.js";
 export type {
-  ZCodeSessionCreateParams,
-  ZCodeSessionEventsParams,
-  ZCodeSessionInitializeResult,
-  ZCodeSessionListParams,
-  ZCodeSessionMessagesParams,
-  ZCodeSessionReadParams,
-  ZCodeSessionResumeParams,
-  ZCodeSessionServiceEvent,
-  ZCodeSessionSetModeParams,
-  ZCodeSessionSetModelParams,
-  ZCodeSessionSetThoughtLevelParams,
-  ZCodeSessionSubscribeParams,
-  ZCodeTaskTarget,
-  ZCodeSessionWorkspaceTarget,
-} from "./ycode-session/zcodeSession.js";
+  YCodeSessionCreateParams,
+  YCodeSessionEventsParams,
+  YCodeSessionInitializeResult,
+  YCodeSessionListParams,
+  YCodeSessionMessagesParams,
+  YCodeSessionReadParams,
+  YCodeSessionResumeParams,
+  YCodeSessionServiceEvent,
+  YCodeSessionSetModeParams,
+  YCodeSessionSetModelParams,
+  YCodeSessionSetThoughtLevelParams,
+  YCodeSessionSubscribeParams,
+  YCodeTaskTarget,
+  YCodeSessionWorkspaceTarget,
+} from "./ycode-session/ycodeSession.js";
 
 // Bots service — IBotsService is both a type (interface) and value (descriptor).
 export { IBotsService } from "./bots/bots.js";
@@ -271,7 +271,7 @@ export {
 
 // Plugins service — IPluginsService is both a type (interface) and value (descriptor)
 export { IPluginsService } from "./plugins/plugins.js";
-// 设置页插件管理薄服务（UI 平台能力面不再直触 zcodeAgentService）
+// 设置页插件管理薄服务（UI 平台能力面不再直触 ycodeAgentService）
 export { IPluginManagementService } from "./plugins/pluginManagement.js";
 
 // Subagents service — ISubagentsService is both a type (interface) and value (descriptor)

@@ -176,8 +176,8 @@ export class WebAuthService {
     return this.repo.loadCachedSessionState();
   }
 
-  getZCodeJwtToken(): string | null {
-    return this.repo.loadZCodeJwtToken();
+  getYCodeJwtToken(): string | null {
+    return this.repo.loadYCodeJwtToken();
   }
 
   async logout(): Promise<void> {

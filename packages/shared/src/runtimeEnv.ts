@@ -22,7 +22,7 @@ export const YCODE_CUA_NODE_REPL_HOST_ENV_KEY = "YCODE_CUA_NODE_REPL_HOST";
 // main→host 边界删除，不能用于 signed release 的 runtime override。
 export const YCODE_CUA_DEV_MODE_ENV_KEY = "YCODE_CUA_DEV_MODE";
 
-export type ZCodeRuntimeEnv = "development" | "production" | "test";
+export type YCodeRuntimeEnv = "development" | "production" | "test";
 
 type EnvRecord = Record<string, string | undefined>;
 
@@ -31,7 +31,7 @@ export function isCuaDevModeRequested(env: EnvRecord = process.env): boolean {
   return explicit === "1" || explicit === "true" || explicit === "on";
 }
 
-export function isZCodeCuaInternalFeatureEnabled(env: EnvRecord = process.env): boolean {
+export function isYCodeCuaInternalFeatureEnabled(env: EnvRecord = process.env): boolean {
   // CUA 现已默认打包进正式版（plugin staged + Helper enabled），不再需要显式 env flag。
   // DEV_MODE 仍然 implied（开发一键），PRODUCT_HELPER=0/off/false 可显式关闭。
   if (isCuaDevModeRequested(env)) return true;
@@ -64,7 +64,7 @@ const SANITIZED_RUNTIME_ENV_KEYS = [
   // env 注入在 buildMcpStdioEnv 之后 spread，因此仍能拿到（见 adapters/mcp StdioClientTransport）。
   YCODE_CUA_BROKER_SOCKET_ENV_KEY,
   // 遗留 bearer token：当前 broker 是 identity 模式（socket + authority，无口令，见
-  // captureZCodeCuaBrokerCredentials），本进程不再产生也不再消费它。仍然剔除，因为用户机上
+  // captureYCodeCuaBrokerCredentials），本进程不再产生也不再消费它。仍然剔除，因为用户机上
   // 可能装着旧版 Helper —— 那些版本认 bearer token，一旦这个变量随 agent 全局 env 漏给别的
   // MCP server / Bash 子进程，同一个 confused-deputy 又成立。剔除一个已不用的键是零成本的。
   "YCODE_CUA_PERMISSION_BROKER_TOKEN",
@@ -109,7 +109,7 @@ const NON_TOOL_PASSTHROUGH_RUNTIME_ENV_KEYS = [
 const SANITIZED_PACKAGE_MANAGER_ENV_PATTERN =
   /^(npm_config|yarn|pnpm)_(http_proxy|https_proxy|proxy|all_proxy|no_proxy|cafile|ca)$/i;
 
-export function normalizeZCodeRuntimeEnv(value: string | undefined): ZCodeRuntimeEnv | undefined {
+export function normalizeYCodeRuntimeEnv(value: string | undefined): YCodeRuntimeEnv | undefined {
   const normalized = value?.trim().toLowerCase();
   if (normalized === "development" || normalized === "production" || normalized === "test") {
     return normalized;
@@ -117,11 +117,11 @@ export function normalizeZCodeRuntimeEnv(value: string | undefined): ZCodeRuntim
   return undefined;
 }
 
-export function resolveZCodeRuntimeEnv(
+export function resolveYCodeRuntimeEnv(
   env: Record<string, string | undefined>,
-  fallback: ZCodeRuntimeEnv = "production",
-): ZCodeRuntimeEnv {
-  return normalizeZCodeRuntimeEnv(env[YCODE_RUNTIME_ENV_KEY]) ?? fallback;
+  fallback: YCodeRuntimeEnv = "production",
+): YCodeRuntimeEnv {
+  return normalizeYCodeRuntimeEnv(env[YCODE_RUNTIME_ENV_KEY]) ?? fallback;
 }
 
 // Exported so services/node.ts can inject the Helper's plugin authority into the agent spawn env
@@ -135,16 +135,16 @@ interface CapturedCuaBrokerCredentials {
 }
 
 let capturedCuaBrokerCredentials: Readonly<CapturedCuaBrokerCredentials> | undefined;
-const capturedZCodeAgentTelemetryEnv: Record<string, string> = {};
+const capturedYCodeAgentTelemetryEnv: Record<string, string> = {};
 
 // CUA broker socket 会被上面的 sanitize 从子进程 env 中剔除（confused-deputy 防护 —— 不能让
 // 其它 MCP server / Bash / tool 子进程直接驱动已授权 Helper）。但 CLI 入口在 bootstrap
 // 解析全局 ~/.ycode/cli/config.json 里的 `ycode-cua` server 之前就会先 sanitize process.env，导致
 // 定向注入时已经读不到凭据 → 全局 ycode-cua 回退 `--backend auto`，让 Python/uvx 成为 TCC 主体
 // （fail-open，违反 "Python/uvx must never become the implicit permission owner"）。因此在剔除前把
-// 凭据捕获进本进程私有存储，只经 getCapturedZCodeCuaBrokerCredentials() 暴露给 bootstrap 的定向
+// 凭据捕获进本进程私有存储，只经 getCapturedYCodeCuaBrokerCredentials() 暴露给 bootstrap 的定向
 // 注入路径，绝不写回任何子进程 env。
-function captureZCodeCuaBrokerCredentials(env: Record<string, string | undefined>): void {
+function captureYCodeCuaBrokerCredentials(env: Record<string, string | undefined>): void {
   const socket = env[YCODE_CUA_BROKER_SOCKET_ENV_KEY]?.trim();
   const pluginAuthority = env[YCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]?.trim();
   const refreshMarker = env["YCODE_CUA_PERMISSION_BROKER_REFRESH_MARKER"]?.trim();
@@ -164,31 +164,31 @@ function captureZCodeCuaBrokerCredentials(env: Record<string, string | undefined
   }
 }
 
-function captureZCodeAgentTelemetryEnv(env: Record<string, string | undefined>): void {
-  Object.assign(capturedZCodeAgentTelemetryEnv, readZCodeAgentTelemetryEnv(env));
+function captureYCodeAgentTelemetryEnv(env: Record<string, string | undefined>): void {
+  Object.assign(capturedYCodeAgentTelemetryEnv, readYCodeAgentTelemetryEnv(env));
 }
 
 /**
  * 只提取供 Agent telemetry bootstrap 使用的配置。宿主可在经过通用 env 清洗后，
  * 将这组值定向传给 host/Agent；不得把它并入 Bash/MCP 的 tool env。
  */
-export function readZCodeAgentTelemetryEnv(
+export function readYCodeAgentTelemetryEnv(
   env: Record<string, string | undefined>,
 ): Record<string, string> {
   const telemetryEnv: Record<string, string> = {};
   for (const key of SANITIZED_RUNTIME_ENV_KEYS) {
-    if (!isZCodeAgentTelemetryEnvKey(key)) continue;
+    if (!isYCodeAgentTelemetryEnvKey(key)) continue;
     const value = env[key]?.trim();
     if (value) telemetryEnv[key] = value;
   }
   return telemetryEnv;
 }
 
-export function getCapturedZCodeAgentTelemetryEnv(): Record<string, string> {
-  return { ...capturedZCodeAgentTelemetryEnv };
+export function getCapturedYCodeAgentTelemetryEnv(): Record<string, string> {
+  return { ...capturedYCodeAgentTelemetryEnv };
 }
 
-export function getCapturedZCodeCuaBrokerCredentials(): {
+export function getCapturedYCodeCuaBrokerCredentials(): {
   socket: string | undefined;
   pluginAuthority: string | undefined;
   refreshMarker?: string;
@@ -199,24 +199,24 @@ export function getCapturedZCodeCuaBrokerCredentials(): {
 }
 
 // 仅供测试重置进程内捕获状态。
-export function resetCapturedZCodeCuaBrokerCredentialsForTest(): void {
+export function resetCapturedYCodeCuaBrokerCredentialsForTest(): void {
   capturedCuaBrokerCredentials = undefined;
 }
 
-export function resetCapturedZCodeAgentTelemetryEnvForTest(): void {
-  for (const key of Object.keys(capturedZCodeAgentTelemetryEnv)) {
-    delete capturedZCodeAgentTelemetryEnv[key];
+export function resetCapturedYCodeAgentTelemetryEnvForTest(): void {
+  for (const key of Object.keys(capturedYCodeAgentTelemetryEnv)) {
+    delete capturedYCodeAgentTelemetryEnv[key];
   }
 }
 
-export function sanitizeZCodeRuntimeEnv<T extends Record<string, string | undefined>>(
+export function sanitizeYCodeRuntimeEnv<T extends Record<string, string | undefined>>(
   env: T,
 ): Record<string, string> {
-  captureZCodeCuaBrokerCredentials(env);
-  captureZCodeAgentTelemetryEnv(env);
+  captureYCodeCuaBrokerCredentials(env);
+  captureYCodeAgentTelemetryEnv(env);
   const sanitized: Record<string, string> = {};
   for (const [key, value] of Object.entries(env)) {
-    if (value === undefined || shouldSanitizeZCodeRuntimeEnvKey(key)) {
+    if (value === undefined || shouldSanitizeYCodeRuntimeEnvKey(key)) {
       continue;
     }
     sanitized[key] = value;
@@ -224,20 +224,20 @@ export function sanitizeZCodeRuntimeEnv<T extends Record<string, string | undefi
   return sanitized;
 }
 
-export function buildZCodeToolEnvPassthroughEnv(env: EnvRecord): Record<string, string> {
-  const captured = readZCodeToolEnvPassthroughEnv(env);
+export function buildYCodeToolEnvPassthroughEnv(env: EnvRecord): Record<string, string> {
+  const captured = readYCodeToolEnvPassthroughEnv(env);
 
   for (const [key, value] of Object.entries(env)) {
-    if (value === undefined || !shouldCaptureZCodeToolEnvPassthroughKey(key)) {
+    if (value === undefined || !shouldCaptureYCodeToolEnvPassthroughKey(key)) {
       continue;
     }
     captured[key] = value;
   }
 
-  return stringifyZCodeToolEnvPassthroughEnv(captured);
+  return stringifyYCodeToolEnvPassthroughEnv(captured);
 }
 
-export function readZCodeToolEnvPassthroughEnv(env: EnvRecord): Record<string, string> {
+export function readYCodeToolEnvPassthroughEnv(env: EnvRecord): Record<string, string> {
   const raw = env[YCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY];
   if (!raw) {
     return {};
@@ -254,7 +254,7 @@ export function readZCodeToolEnvPassthroughEnv(env: EnvRecord): Record<string, s
       if (
         typeof value === "string" &&
         /^[A-Za-z_][A-Za-z0-9_]*$/.test(key) &&
-        shouldCaptureZCodeToolEnvPassthroughKey(key)
+        shouldCaptureYCodeToolEnvPassthroughKey(key)
       ) {
         captured[key] = value;
       }
@@ -265,17 +265,17 @@ export function readZCodeToolEnvPassthroughEnv(env: EnvRecord): Record<string, s
   }
 }
 
-export function sanitizeZCodeRuntimeEnvInPlace(env: Record<string, string | undefined>): void {
-  captureZCodeCuaBrokerCredentials(env);
-  captureZCodeAgentTelemetryEnv(env);
+export function sanitizeYCodeRuntimeEnvInPlace(env: Record<string, string | undefined>): void {
+  captureYCodeCuaBrokerCredentials(env);
+  captureYCodeAgentTelemetryEnv(env);
   for (const key of Object.keys(env)) {
-    if (shouldSanitizeZCodeRuntimeEnvKey(key)) {
+    if (shouldSanitizeYCodeRuntimeEnvKey(key)) {
       delete env[key];
     }
   }
 }
 
-function isZCodeAgentTelemetryEnvKey(key: string): boolean {
+function isYCodeAgentTelemetryEnvKey(key: string): boolean {
   return (
     key.startsWith("OTEL_") ||
     key.startsWith("YCODE_TELEMETRY_") ||
@@ -283,7 +283,7 @@ function isZCodeAgentTelemetryEnvKey(key: string): boolean {
   );
 }
 
-export function shouldSanitizeZCodeRuntimeEnvKey(key: string): boolean {
+export function shouldSanitizeYCodeRuntimeEnvKey(key: string): boolean {
   const upperKey = key.toUpperCase();
   return (
     SANITIZED_RUNTIME_ENV_KEYS.some((candidate) => candidate === upperKey) ||
@@ -291,18 +291,18 @@ export function shouldSanitizeZCodeRuntimeEnvKey(key: string): boolean {
   );
 }
 
-export function shouldCaptureZCodeToolEnvPassthroughKey(key: string): boolean {
+export function shouldCaptureYCodeToolEnvPassthroughKey(key: string): boolean {
   const upperKey = key.toUpperCase();
-  if (isZCodeAgentTelemetryEnvKey(upperKey)) {
+  if (isYCodeAgentTelemetryEnvKey(upperKey)) {
     return false;
   }
   if (NON_TOOL_PASSTHROUGH_RUNTIME_ENV_KEYS.some((candidate) => candidate === upperKey)) {
     return false;
   }
-  return shouldSanitizeZCodeRuntimeEnvKey(key);
+  return shouldSanitizeYCodeRuntimeEnvKey(key);
 }
 
-function stringifyZCodeToolEnvPassthroughEnv(
+function stringifyYCodeToolEnvPassthroughEnv(
   captured: Record<string, string>,
 ): Record<string, string> {
   const entries = Object.entries(captured).sort(([left], [right]) => left.localeCompare(right));

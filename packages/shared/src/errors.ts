@@ -87,6 +87,6 @@ export function normalizeUnknownError(error: unknown): NormalizedUnknownError {
   };
 }
 
-export function isZCodeFileLockTimeoutError(error: unknown): boolean {
+export function isYCodeFileLockTimeoutError(error: unknown): boolean {
   return normalizeUnknownError(error).code === YCODE_FILE_LOCK_TIMEOUT_ERROR_CODE;
 }

@@ -40,10 +40,10 @@ import {
   resolveRegistryThoughtLevel,
   type ResolvedRegistrySelection,
 } from "./provider-registry-selection.js";
-import type { PrepareUserExecutionBoundary, ZCodeApp } from "./types.js";
+import type { PrepareUserExecutionBoundary, YCodeApp } from "./types.js";
 
 type SessionFacade = Pick<
-  ZCodeApp,
+  YCodeApp,
   | "readBackgroundBashOutput"
   | "cancelBackgroundTask"
   | "clearTarget"
@@ -332,10 +332,10 @@ export function createSessionFacade(deps: CreateSessionFacadeDeps): SessionFacad
         traceContext: input.traceContext ?? deps.traceContext,
       }),
     setTarget: async (input) =>
-      (await setTargetStatus("set", input)) as Awaited<ReturnType<ZCodeApp["setTarget"]>>,
+      (await setTargetStatus("set", input)) as Awaited<ReturnType<YCodeApp["setTarget"]>>,
     updateTargetStatus: async (status) =>
       (await setTargetStatus("status_updated", { status })) as Awaited<
-        ReturnType<ZCodeApp["updateTargetStatus"]>
+        ReturnType<YCodeApp["updateTargetStatus"]>
       >,
     clearTarget: async () => (await setTargetStatus("cleared", {})) as boolean,
     listModels: () => {

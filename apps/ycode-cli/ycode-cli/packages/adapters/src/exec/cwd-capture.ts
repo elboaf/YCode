@@ -51,18 +51,18 @@ export function createCwdCapturePlan(
 function createPosixCwdCaptureCommand(command: string, cwdFilePath: string): string {
   return [
     command,
-    "__zcode_status=$?",
-    `if [ "$__zcode_status" -eq 0 ]; then pwd -P > ${shellQuote(cwdFilePath)}; fi`,
-    'exit "$__zcode_status"',
+    "__ycode_status=$?",
+    `if [ "$__ycode_status" -eq 0 ]; then pwd -P > ${shellQuote(cwdFilePath)}; fi`,
+    'exit "$__ycode_status"',
   ].join("\n");
 }
 
 function createWindowsCmdCwdCaptureCommand(command: string, cwdFilePath: string): string {
   return [
     command,
-    'set "__zcode_status=%ERRORLEVEL%"',
-    `if "%__zcode_status%"=="0" cd > ${cmdQuote(cwdFilePath)}`,
-    "exit /b %__zcode_status%",
+    'set "__ycode_status=%ERRORLEVEL%"',
+    `if "%__ycode_status%"=="0" cd > ${cmdQuote(cwdFilePath)}`,
+    "exit /b %__ycode_status%",
   ].join("\r\n");
 }
 

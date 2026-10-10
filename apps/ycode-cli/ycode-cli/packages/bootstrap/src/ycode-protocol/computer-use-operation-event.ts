@@ -1,5 +1,5 @@
 import { SessionEventType, type SessionEvent } from "@ycode/contracts";
-import type { ZCodeComputerUseOperationEvent } from "@ycode/shared";
+import type { YCodeComputerUseOperationEvent } from "@ycode/shared";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -42,7 +42,7 @@ function baseEvent(event: SessionEvent) {
 
 export function mapComputerUseOperationEvent(
   event: SessionEvent,
-): ZCodeComputerUseOperationEvent | undefined {
+): YCodeComputerUseOperationEvent | undefined {
   const turnId = event.turnId ? String(event.turnId) : undefined;
   const payload = asRecord(event.payload);
   switch (event.type) {

@@ -49,19 +49,19 @@ export const useComposerAttachmentUploadStore = create<ComposerAttachmentUploadS
 
 declare global {
   interface Window {
-    __zcodeComposerAttachmentUploadStoreE2E?: typeof useComposerAttachmentUploadStore;
-    __zcodeCurrentComposerAttachmentScopeKeyE2E?: string;
+    __ycodeComposerAttachmentUploadStoreE2E?: typeof useComposerAttachmentUploadStore;
+    __ycodeCurrentComposerAttachmentScopeKeyE2E?: string;
   }
 }
 
 if (shouldExposeE2EStoreBridge()) {
   // E2E 只暴露当前唯一附件 owner，供 scope 切换用例准备状态；不再把附件塞回旧 Session Store。
-  window.__zcodeComposerAttachmentUploadStoreE2E = useComposerAttachmentUploadStore;
+  window.__ycodeComposerAttachmentUploadStoreE2E = useComposerAttachmentUploadStore;
 }
 
 export function exposeComposerAttachmentScopeKeyForE2E(scopeKey: string): void {
-  if (window.__zcodeComposerAttachmentUploadStoreE2E) {
-    window.__zcodeCurrentComposerAttachmentScopeKeyE2E = scopeKey;
+  if (window.__ycodeComposerAttachmentUploadStoreE2E) {
+    window.__ycodeCurrentComposerAttachmentScopeKeyE2E = scopeKey;
   }
 }
 

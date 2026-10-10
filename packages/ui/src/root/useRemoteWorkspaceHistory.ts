@@ -17,7 +17,7 @@ import {
   type RemoteWorkspaceSession,
   unregisterRemoteWorkspaceSession,
 } from "@/store/remoteWorkspaceSessionStore.js";
-import { useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
+import { useYCodeSessionStore } from "@/store/ycodeSessionStore.js";
 import { refreshRemotePinnedTasksForSession } from "@/store/remotePinnedTaskStore.js";
 import { refreshRemoteTimelineTasksForSession } from "@/store/remoteTimelineTaskStore.js";
 import { toast } from "@/components/ui/toast.js";
@@ -629,7 +629,7 @@ export function useRemoteWorkspaceHistory({
   addTab,
   onWorkspaceActivated,
 }: {
-  intl: ReturnType<typeof import("@/i18n/IntlProvider.js").useZCodeIntl>["intl"];
+  intl: ReturnType<typeof import("@/i18n/IntlProvider.js").useYCodeIntl>["intl"];
   services: IServiceAccessor;
   platform: IPlatformService;
   supportsSettings: boolean;
@@ -1149,11 +1149,11 @@ export function useRemoteWorkspaceHistory({
       ]
         .filter(Boolean)
         .join(" ");
-      const zcodeSessionStore = useZCodeSessionStore.getState();
+      const ycodeSessionStore = useYCodeSessionStore.getState();
       const failedTaskCount = markRemoteWorkspaceRunningTasksFailed({
         tabs: matchedTabs,
-        getWorkspaceState: zcodeSessionStore.getWorkspaceState,
-        setTaskRuntimeState: zcodeSessionStore.setTaskRuntimeState,
+        getWorkspaceState: ycodeSessionStore.getWorkspaceState,
+        setTaskRuntimeState: ycodeSessionStore.setTaskRuntimeState,
         reason,
       });
 

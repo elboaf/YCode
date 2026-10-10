@@ -1,23 +1,23 @@
 import type { ProviderConfigLayerSnapshot, ProviderSource } from "@ycode/provider";
 import {
-  normalizeZCodeBuiltinEndpointOrigin,
-  resolveZCodeBuiltinCachePaths,
+  normalizeYCodeBuiltinEndpointOrigin,
+  resolveYCodeBuiltinCachePaths,
 } from "./ycode-builtin-cache-paths.js";
-import { NodeZCodeBuiltinProviderConfigSource } from "./ycode-builtin-provider-config-source.js";
+import { NodeYCodeBuiltinProviderConfigSource } from "./ycode-builtin-provider-config-source.js";
 import {
-  ZCodeBuiltinRemoteSynchronizer,
-  type ZCodeBuiltinRefreshResult,
-  type ZCodeBuiltinRemoteSynchronizerOptions,
+  YCodeBuiltinRemoteSynchronizer,
+  type YCodeBuiltinRefreshResult,
+  type YCodeBuiltinRemoteSynchronizerOptions,
 } from "./ycode-builtin-remote-synchronizer.js";
 
-export interface EndpointScopedZCodeBuiltinSourceOptions {
+export interface EndpointScopedYCodeBuiltinSourceOptions {
   readonly bundledFilePath: string;
   readonly environmentConfigRoot: string;
   readonly platform: string;
   readonly appVersion: string;
   readonly resolveEndpointOrigin: () => string | Promise<string>;
-  readonly fetchRelease: ZCodeBuiltinRemoteSynchronizerOptions["fetchRelease"];
-  readonly onRefreshResult?: ZCodeBuiltinRemoteSynchronizerOptions["onRefreshResult"];
+  readonly fetchRelease: YCodeBuiltinRemoteSynchronizerOptions["fetchRelease"];
+  readonly onRefreshResult?: YCodeBuiltinRemoteSynchronizerOptions["onRefreshResult"];
   readonly watch?: boolean;
 }
 
@@ -25,14 +25,14 @@ export interface EndpointScopedZCodeBuiltinSourceOptions {
  * 让 Environment 的 YCode 控制面 Endpoint 同时决定 Active/LKG 与刷新控制路径。
  * Endpoint 切换只替换当前 Source，不读取上一 Endpoint 的缓存。
  */
-export class EndpointScopedZCodeBuiltinSource implements ProviderSource<ProviderConfigLayerSnapshot> {
-  readonly #options: EndpointScopedZCodeBuiltinSourceOptions;
+export class EndpointScopedYCodeBuiltinSource implements ProviderSource<ProviderConfigLayerSnapshot> {
+  readonly #options: EndpointScopedYCodeBuiltinSourceOptions;
   readonly #listeners = new Set<(reason: string) => void>();
   #current: CurrentEndpointSource | null = null;
   #ensureInFlight: Promise<CurrentEndpointSource> | null = null;
   #disposed = false;
 
-  constructor(options: EndpointScopedZCodeBuiltinSourceOptions) {
+  constructor(options: EndpointScopedYCodeBuiltinSourceOptions) {
     this.#options = options;
   }
 
@@ -46,7 +46,7 @@ export class EndpointScopedZCodeBuiltinSource implements ProviderSource<Provider
     return () => this.#listeners.delete(listener);
   }
 
-  async refresh(options?: { readonly force?: boolean }): Promise<ZCodeBuiltinRefreshResult> {
+  async refresh(options?: { readonly force?: boolean }): Promise<YCodeBuiltinRefreshResult> {
     return (await this.#ensureCurrent()).synchronizer.refresh(options);
   }
 
@@ -74,28 +74,28 @@ export class EndpointScopedZCodeBuiltinSource implements ProviderSource<Provider
   }
 
   async #resolveCurrent(): Promise<CurrentEndpointSource> {
-    const endpointOrigin = normalizeZCodeBuiltinEndpointOrigin(
+    const endpointOrigin = normalizeYCodeBuiltinEndpointOrigin(
       await this.#options.resolveEndpointOrigin(),
     );
-    const paths = resolveZCodeBuiltinCachePaths({
+    const paths = resolveYCodeBuiltinCachePaths({
       environmentConfigRoot: this.#options.environmentConfigRoot,
       platform: this.#options.platform,
       appVersion: this.#options.appVersion,
-      zcodeEndpointOrigin: endpointOrigin,
+      ycodeEndpointOrigin: endpointOrigin,
     });
     if (this.#current?.activeFilePath === paths.activeFilePath) return this.#current;
 
-    const source = new NodeZCodeBuiltinProviderConfigSource({
+    const source = new NodeYCodeBuiltinProviderConfigSource({
       bundledFilePath: this.#options.bundledFilePath,
       activeFilePath: paths.activeFilePath,
       watch: this.#options.watch,
     });
     const sourceDispose = source.onDidChange((reason) => this.#emit(reason));
-    const synchronizer = new ZCodeBuiltinRemoteSynchronizer({
+    const synchronizer = new YCodeBuiltinRemoteSynchronizer({
       source,
       controlFilePath: paths.controlFilePath,
       resolveEndpointKey: async () =>
-        normalizeZCodeBuiltinEndpointOrigin(await this.#options.resolveEndpointOrigin()),
+        normalizeYCodeBuiltinEndpointOrigin(await this.#options.resolveEndpointOrigin()),
       fetchRelease: this.#options.fetchRelease,
       onRefreshResult: this.#options.onRefreshResult,
     });
@@ -128,15 +128,15 @@ export class EndpointScopedZCodeBuiltinSource implements ProviderSource<Provider
   }
 
   #assertNotDisposed(): void {
-    if (this.#disposed) throw new Error("EndpointScopedZCodeBuiltinSource 已 dispose");
+    if (this.#disposed) throw new Error("EndpointScopedYCodeBuiltinSource 已 dispose");
   }
 }
 
 class CurrentEndpointSource {
   constructor(
     readonly activeFilePath: string,
-    readonly source: NodeZCodeBuiltinProviderConfigSource,
-    readonly synchronizer: ZCodeBuiltinRemoteSynchronizer,
+    readonly source: NodeYCodeBuiltinProviderConfigSource,
+    readonly synchronizer: YCodeBuiltinRemoteSynchronizer,
     readonly sourceDispose: () => void,
   ) {}
 

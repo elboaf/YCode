@@ -14,7 +14,7 @@ export interface CustomCommandRootResolutionOptions {
   extraRoots?: string[];
   extraResolvedRoots?: CustomCommandRoot[];
   homeDirectory?: string;
-  includeZcodeCommands?: boolean;
+  includeYcodeCommands?: boolean;
 }
 
 export async function resolveDefaultCustomCommandRoots(
@@ -23,7 +23,7 @@ export async function resolveDefaultCustomCommandRoots(
 ): Promise<CustomCommandRoot[]> {
   const resolvedWorkingDirectory = resolve(workingDirectory);
   const roots: CustomCommandRoot[] = [];
-  const includeZcode = options.includeZcodeCommands ?? true;
+  const includeYcode = options.includeYcodeCommands ?? true;
   const home = options.homeDirectory ?? homedir();
   let priority = 0;
   const nextPriority = () => {
@@ -42,13 +42,13 @@ export async function resolveDefaultCustomCommandRoots(
     );
   }
 
-  if (includeZcode) {
+  if (includeYcode) {
     roots.push(...commandRootsForBase(home, "user", nextPriority));
   }
 
   const projectDirectories = await resolveProjectDirectories(resolvedWorkingDirectory);
   for (const directory of projectDirectories) {
-    if (includeZcode) {
+    if (includeYcode) {
       roots.push(...commandRootsForBase(directory, "project", nextPriority));
     }
   }

@@ -1,12 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { atomicWritePrivateTextFile, withFileLock } from "@ycode/shared/node";
-import type { NodeZCodeBuiltinProviderConfigSource } from "./ycode-builtin-provider-config-source.js";
-import type { ZCodeBuiltinRelease } from "./ycode-builtin-release.js";
+import type { NodeYCodeBuiltinProviderConfigSource } from "./ycode-builtin-provider-config-source.js";
+import type { YCodeBuiltinRelease } from "./ycode-builtin-release.js";
 
 const HOUR_MS = 60 * 60 * 1_000;
 
-export type ZCodeBuiltinRefreshResult =
+export type YCodeBuiltinRefreshResult =
   | "updated"
   | "unchanged"
   | "stale"
@@ -14,15 +14,15 @@ export type ZCodeBuiltinRefreshResult =
   | "skipped"
   | "disposed";
 
-export interface ZCodeBuiltinRemoteSynchronizerOptions {
-  readonly source: NodeZCodeBuiltinProviderConfigSource;
+export interface YCodeBuiltinRemoteSynchronizerOptions {
+  readonly source: NodeYCodeBuiltinProviderConfigSource;
   readonly controlFilePath: string;
   readonly resolveEndpointKey: () => string | Promise<string>;
   readonly fetchRelease: (
     endpointKey: string,
     signal: AbortSignal,
-  ) => Promise<ZCodeBuiltinRelease | null>;
-  readonly onRefreshResult?: (event: ZCodeBuiltinRefreshEvent) => void;
+  ) => Promise<YCodeBuiltinRelease | null>;
+  readonly onRefreshResult?: (event: YCodeBuiltinRefreshEvent) => void;
   readonly now?: () => number;
   readonly successIntervalMs?: number;
   readonly leaseDurationMs?: number;
@@ -30,8 +30,8 @@ export interface ZCodeBuiltinRemoteSynchronizerOptions {
   readonly failureMaxDelayMs?: number;
 }
 
-export interface ZCodeBuiltinRefreshEvent {
-  readonly result: ZCodeBuiltinRefreshResult;
+export interface YCodeBuiltinRefreshEvent {
+  readonly result: YCodeBuiltinRefreshResult;
   readonly reason?: "lease-held" | "not-due" | "endpoint-changed";
   readonly revision?: number;
 }
@@ -46,19 +46,19 @@ interface RefreshControl {
 }
 
 /** Environment 共享控制文件合并多进程刷新；网络期间不持有文件锁。 */
-export class ZCodeBuiltinRemoteSynchronizer {
-  readonly #options: ZCodeBuiltinRemoteSynchronizerOptions;
+export class YCodeBuiltinRemoteSynchronizer {
+  readonly #options: YCodeBuiltinRemoteSynchronizerOptions;
   readonly #now: () => number;
-  #inFlight: Promise<ZCodeBuiltinRefreshResult> | null = null;
+  #inFlight: Promise<YCodeBuiltinRefreshResult> | null = null;
   #disposed = false;
   #abortController: AbortController | null = null;
 
-  constructor(options: ZCodeBuiltinRemoteSynchronizerOptions) {
+  constructor(options: YCodeBuiltinRemoteSynchronizerOptions) {
     this.#options = options;
     this.#now = options.now ?? Date.now;
   }
 
-  refresh(options: { readonly force?: boolean } = {}): Promise<ZCodeBuiltinRefreshResult> {
+  refresh(options: { readonly force?: boolean } = {}): Promise<YCodeBuiltinRefreshResult> {
     if (this.#disposed) return Promise.resolve("disposed");
     if (this.#inFlight) return this.#inFlight;
     const controller = new AbortController();
@@ -78,7 +78,7 @@ export class ZCodeBuiltinRemoteSynchronizer {
     this.#abortController?.abort();
   }
 
-  async #refresh(force: boolean, signal: AbortSignal): Promise<ZCodeBuiltinRefreshResult> {
+  async #refresh(force: boolean, signal: AbortSignal): Promise<YCodeBuiltinRefreshResult> {
     const endpointKey = (await this.#options.resolveEndpointKey()).trim();
     if (this.#disposed) return "disposed";
     if (!endpointKey) throw new Error("YCode Built-in 远端 Endpoint 不能为空");
@@ -129,7 +129,7 @@ export class ZCodeBuiltinRemoteSynchronizer {
     }
   }
 
-  #report(event: ZCodeBuiltinRefreshEvent): void {
+  #report(event: YCodeBuiltinRefreshEvent): void {
     if (this.#disposed) return;
     try {
       this.#options.onRefreshResult?.(event);

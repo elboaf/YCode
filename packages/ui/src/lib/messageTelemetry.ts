@@ -7,12 +7,12 @@ import {
 import type {
   InputId,
   PlanIdentitySnapshot,
-  ZCodeContextCompactionTimelineMeta,
-  ZCodePersistedFileChange,
-  ZCodeProvider,
-  ZCodeStreamEvent,
-  ZCodeTimelineStatus,
-  ZCodeUsage,
+  YCodeContextCompactionTimelineMeta,
+  YCodePersistedFileChange,
+  YCodeProvider,
+  YCodeStreamEvent,
+  YCodeTimelineStatus,
+  YCodeUsage,
 } from "@ycode/shared";
 import {
   CUSTOM_SUPPLIER_KEY_PREFIX,
@@ -38,7 +38,7 @@ interface PromptTelemetryState {
   waitingMs: number;
   permissionWaitsByRequestId: Map<string, PermissionWaitState>;
   firstTokenAt: number | null;
-  usage: ZCodeUsage | null;
+  usage: YCodeUsage | null;
   usageEventKeys: Set<string>;
   finalizedAgentStepCount: number;
   toolCallTotal: number;
@@ -55,8 +55,8 @@ interface FinalizePromptTelemetryInput {
   taskId: string;
   status: string;
   finishedAt: number;
-  fileChanges?: readonly ZCodePersistedFileChange[];
-  usage?: ZCodeUsage;
+  fileChanges?: readonly YCodePersistedFileChange[];
+  usage?: YCodeUsage;
   errorType?: string;
   errorMsg?: string;
   messageSource?: PromptMessageSource;
@@ -137,7 +137,7 @@ interface AgentStepUsageAttribution {
   requestIds: string[];
   requestCount: number;
   scope: "model_request" | "subagent_requests";
-  usage: ZCodeUsage;
+  usage: YCodeUsage;
 }
 
 interface AgentStepToolAttribution {
@@ -176,7 +176,7 @@ const agentStepTelemetryByTask = new Map<string, AgentStepTelemetryState>();
 
 function resolvePromptTelemetryModelProvider(params: {
   modelName?: string | null;
-  provider?: ZCodeProvider;
+  provider?: YCodeProvider;
   selectedSupplierKey?: string | null;
 }): string {
   const { modelName, provider, selectedSupplierKey } = params;
@@ -585,7 +585,7 @@ function closeToolSteps(
 export function buildPromptTelemetryExtraDetail(params: {
   askMode?: string | null;
   modelName?: string | null;
-  provider?: ZCodeProvider;
+  provider?: YCodeProvider;
   selectedSupplierKey?: string | null;
   providerBaseURL?: string | null;
   planIdentitySnapshot?: PlanIdentitySnapshot | null;
@@ -612,13 +612,13 @@ export function buildPromptTelemetryExtraDetail(params: {
   };
 }
 
-const COMPACTION_TERMINAL_STATUSES: readonly ZCodeTimelineStatus[] = [
+const COMPACTION_TERMINAL_STATUSES: readonly YCodeTimelineStatus[] = [
   "completed",
   "failed",
   "interrupted",
 ];
 
-function isCompactionTerminalStatus(status: ZCodeTimelineStatus): boolean {
+function isCompactionTerminalStatus(status: YCodeTimelineStatus): boolean {
   return COMPACTION_TERMINAL_STATUSES.includes(status);
 }
 
@@ -629,8 +629,8 @@ function isCompactionTerminalStatus(status: ZCodeTimelineStatus): boolean {
  * provider/model 维度复用 buildPromptTelemetryExtraDetail，version 由后端 reportEvent 注入。
  */
 export function buildCompactionTelemetryExtraDetail(params: {
-  timeline: ZCodeContextCompactionTimelineMeta;
-  provider?: ZCodeProvider;
+  timeline: YCodeContextCompactionTimelineMeta;
+  provider?: YCodeProvider;
   /** V4 fact 已从真实模型请求归一化出的 provider；优先于旧 UI supplier 推导。 */
   modelProvider?: string | null;
   modelName?: string | null;
@@ -677,7 +677,7 @@ export function buildCompactionTelemetryExtraDetail(params: {
 }
 
 function buildPromptUsageTelemetryExtraDetail(
-  usage: ZCodeUsage | undefined,
+  usage: YCodeUsage | undefined,
   tokenSource?: string,
 ): Record<string, string> {
   if (!usage) {
@@ -697,7 +697,7 @@ function buildPromptUsageTelemetryExtraDetail(
   };
 }
 
-function mergePromptUsage(left: ZCodeUsage | null, right: ZCodeUsage): ZCodeUsage {
+function mergePromptUsage(left: YCodeUsage | null, right: YCodeUsage): YCodeUsage {
   if (!left) {
     return {
       inputTokens: right.inputTokens,
@@ -750,7 +750,7 @@ function consumeComposerInputTiming(workspacePath: string, sendTime: number) {
   };
 }
 
-function collectFileChangeMetrics(fileChanges: readonly ZCodePersistedFileChange[] | undefined) {
+function collectFileChangeMetrics(fileChanges: readonly YCodePersistedFileChange[] | undefined) {
   if (!fileChanges || fileChanges.length === 0) {
     return {
       changedFileCount: 0,
@@ -922,7 +922,7 @@ export function activateDetachedAgentStepTelemetry(input: {
 
 export function recordPromptModelRequestStarted(
   taskId: string,
-  event: Extract<ZCodeStreamEvent, { type: "task_network_debug_status" }>,
+  event: Extract<YCodeStreamEvent, { type: "task_network_debug_status" }>,
   activeInputId?: string,
 ): void {
   if (event.statusType !== "model_request_started") {
@@ -1003,7 +1003,7 @@ export function recordSubagentToolAttribution(input: {
   providerName: string;
   agentId: string;
   agentRole?: AgentStepRole;
-  usage?: ZCodeUsage;
+  usage?: YCodeUsage;
 }): void {
   const state = agentStepTelemetryByTask.get(input.taskId);
   const step = state?.toolStepsById.get(input.toolCallId);
@@ -1099,7 +1099,7 @@ function materializePendingModelUsageBeforeTool(input: {
 
 export function recordAgentStepTelemetryEvent(input: {
   taskId: string;
-  event: ZCodeStreamEvent;
+  event: YCodeStreamEvent;
   activeInputId?: string;
   clientMode?: AgentStepTelemetryClientMode;
   toolAttribution?: AgentStepToolAttribution;
@@ -1143,7 +1143,7 @@ export function recordAgentStepTelemetryEvent(input: {
       return finalized;
 
     case "agent_message_chunk":
-      if (input.event.zcodeTimeline) {
+      if (input.event.ycodeTimeline) {
         return finalized;
       }
       if (input.event.parentToolUseId) {
@@ -1335,7 +1335,7 @@ export function getActivePromptMessageId(taskId: string): string | undefined {
 export function recordPromptTokenUsageDelta(input: {
   taskId: string;
   eventKey: string;
-  usage: ZCodeUsage;
+  usage: YCodeUsage;
   requestId?: string;
   modelName?: string;
   modelProvider?: string;

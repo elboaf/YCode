@@ -7,10 +7,10 @@ import type {
   CustomCommandLoadOutcome,
   Logger,
 } from "@ycode/contracts";
-import { resolveZCodePlugins } from "./plugins.js";
+import { resolveYCodePlugins } from "./plugins.js";
 import { collectDisabledPaths } from "./skill-command-overrides.js";
 
-export interface ListZCodeCustomCommandsOptions {
+export interface ListYCodeCustomCommandsOptions {
   env?: NodeJS.ProcessEnv;
   homeDirectory?: string;
   logger?: Logger;
@@ -20,17 +20,17 @@ export interface ListZCodeCustomCommandsOptions {
   workingDirectory?: string;
 }
 
-export interface InspectZCodeCustomCommandOptions extends ListZCodeCustomCommandsOptions {
+export interface InspectYCodeCustomCommandOptions extends ListYCodeCustomCommandsOptions {
   name: string;
 }
 
-export interface ZCodeCustomCommandInspection {
+export interface YCodeCustomCommandInspection {
   command: CustomCommandContent;
   diagnostics: CustomCommandDiagnostic[];
 }
 
-export async function listZCodeCustomCommands(
-  options: ListZCodeCustomCommandsOptions = {},
+export async function listYCodeCustomCommands(
+  options: ListYCodeCustomCommandsOptions = {},
 ): Promise<CustomCommandLoadOutcome> {
   const discovery = createCustomCommandDiscovery(options);
   return await discovery.adapter.discoverCommands({
@@ -38,9 +38,9 @@ export async function listZCodeCustomCommands(
   });
 }
 
-export async function inspectZCodeCustomCommand(
-  options: InspectZCodeCustomCommandOptions,
-): Promise<ZCodeCustomCommandInspection> {
+export async function inspectYCodeCustomCommand(
+  options: InspectYCodeCustomCommandOptions,
+): Promise<YCodeCustomCommandInspection> {
   const discovery = createCustomCommandDiscovery(options);
   const workingDirectory = discovery.workingDirectory;
   const adapter = discovery.adapter;
@@ -59,8 +59,8 @@ export async function inspectZCodeCustomCommand(
   };
 }
 
-export async function loadZCodeCustomCommand(
-  options: InspectZCodeCustomCommandOptions,
+export async function loadYCodeCustomCommand(
+  options: InspectYCodeCustomCommandOptions,
 ): Promise<CustomCommandContent> {
   const discovery = createCustomCommandDiscovery(options);
   return await discovery.adapter.loadCommand({
@@ -69,7 +69,7 @@ export async function loadZCodeCustomCommand(
   });
 }
 
-function createCustomCommandDiscovery(options: ListZCodeCustomCommandsOptions) {
+function createCustomCommandDiscovery(options: ListYCodeCustomCommandsOptions) {
   const workingDirectory = resolve(options.workingDirectory ?? process.cwd());
   const configResult = createConfig({
     env: options.env,
@@ -78,7 +78,7 @@ function createCustomCommandDiscovery(options: ListZCodeCustomCommandsOptions) {
     skipUserConfig: options.skipUserConfig,
     userConfigPath: options.userConfigPath,
   });
-  const pluginOutcome = resolveZCodePlugins({
+  const pluginOutcome = resolveYCodePlugins({
     configResult,
     env: options.env,
     logger: options.logger,

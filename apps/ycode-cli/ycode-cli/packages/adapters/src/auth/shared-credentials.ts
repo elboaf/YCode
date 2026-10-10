@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { atomicWritePrivateTextFile, backupCorruptFile, withFileLock } from "@ycode/shared/node";
-import { createZCodeCredentialCipher, type ZCodeCredentialCipher } from "./credential-cipher.js";
+import { createYCodeCredentialCipher, type YCodeCredentialCipher } from "./credential-cipher.js";
 
 const YCODE_DATA_BASE_DIR_ENV_KEY = "YCODE_DATA_BASE_DIR";
 const ZAI_PROVIDER_ID = "zai";
@@ -12,7 +12,7 @@ const credentialChangeListeners = new Map<
   Set<() => void | Promise<void>>
 >();
 
-export const SHARED_ZCODE_CREDENTIAL_KEYS = {
+export const SHARED_YCODE_CREDENTIAL_KEYS = {
   activeProvider: "oauth:active_provider",
   bigmodelAccessToken: "oauth:bigmodel:access_token",
   bigmodelRefreshToken: "oauth:bigmodel:refresh_token",
@@ -20,12 +20,12 @@ export const SHARED_ZCODE_CREDENTIAL_KEYS = {
   zaiAccessToken: "oauth:zai:access_token",
   zaiRefreshToken: "oauth:zai:refresh_token",
   zaiUserInfo: "oauth:zai:user_info",
-  zcodeJwtToken: "zcodejwttoken",
+  ycodeJwtToken: "ycodejwttoken",
 } as const;
 
-export interface SharedZCodeCredentialStoreOptions {
+export interface SharedYCodeCredentialStoreOptions {
   baseDir?: string;
-  cipher?: ZCodeCredentialCipher;
+  cipher?: YCodeCredentialCipher;
   env?: Record<string, string | undefined>;
   filePath?: string;
 }
@@ -43,7 +43,7 @@ export interface ZaiLoginCredentialPayload {
   user: ZaiLoginCredentialUser;
 }
 
-export interface SharedZCodeCredentialStore {
+export interface SharedYCodeCredentialStore {
   readonly filePath: string;
   clearZaiLoginCredentials(): Promise<void>;
   delete(key: string): Promise<void>;
@@ -65,26 +65,26 @@ export interface SharedZCodeCredentialStore {
   saveZaiLoginCredentials(payload: ZaiLoginCredentialPayload): Promise<void>;
 }
 
-export function createSharedZCodeCredentialStore(
-  options: SharedZCodeCredentialStoreOptions = {},
-): SharedZCodeCredentialStore {
+export function createSharedYCodeCredentialStore(
+  options: SharedYCodeCredentialStoreOptions = {},
+): SharedYCodeCredentialStore {
   const env = options.env ?? process.env;
-  const filePath = resolveSharedZCodeCredentialsPath(options);
-  const cipher = options.cipher ?? createZCodeCredentialCipher({ env });
+  const filePath = resolveSharedYCodeCredentialsPath(options);
+  const cipher = options.cipher ?? createYCodeCredentialCipher({ env });
 
   return {
     filePath,
 
     async clearZaiLoginCredentials(): Promise<void> {
       await mutateRawCredentialRecord(filePath, async (rawCredentials) => {
-        const activeProviderRaw = rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.activeProvider];
+        const activeProviderRaw = rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.activeProvider];
         const activeProvider = activeProviderRaw ? cipher.decrypt(activeProviderRaw) : null;
-        delete rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.zaiAccessToken];
-        delete rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.zaiRefreshToken];
-        delete rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.zaiUserInfo];
-        delete rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.zcodeJwtToken];
+        delete rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.zaiAccessToken];
+        delete rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.zaiRefreshToken];
+        delete rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.zaiUserInfo];
+        delete rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.ycodeJwtToken];
         if (activeProvider === ZAI_PROVIDER_ID) {
-          delete rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.activeProvider];
+          delete rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.activeProvider];
         }
       });
     },
@@ -241,22 +241,22 @@ export function createSharedZCodeCredentialStore(
         userInfo: cipher.encrypt(JSON.stringify(payload.user)),
       };
       await mutateRawCredentialRecord(filePath, (rawCredentials) => {
-        rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.activeProvider] =
+        rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.activeProvider] =
           encryptedCredentials.activeProvider;
-        rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.zaiAccessToken] =
+        rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.zaiAccessToken] =
           encryptedCredentials.accessToken;
-        rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.zcodeJwtToken] = encryptedCredentials.jwtToken;
-        rawCredentials[SHARED_ZCODE_CREDENTIAL_KEYS.zaiUserInfo] = encryptedCredentials.userInfo;
+        rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.ycodeJwtToken] = encryptedCredentials.jwtToken;
+        rawCredentials[SHARED_YCODE_CREDENTIAL_KEYS.zaiUserInfo] = encryptedCredentials.userInfo;
       });
     },
   };
 }
 
-export function loadSharedZCodeCredentialSync(
+export function loadSharedYCodeCredentialSync(
   key: string,
-  options: SharedZCodeCredentialStoreOptions = {},
+  options: SharedYCodeCredentialStoreOptions = {},
 ): string | undefined {
-  const filePath = resolveSharedZCodeCredentialsPath(options);
+  const filePath = resolveSharedYCodeCredentialsPath(options);
   if (!existsSync(filePath)) {
     return undefined;
   }
@@ -269,7 +269,7 @@ export function loadSharedZCodeCredentialSync(
     if (rawValue === undefined) {
       return undefined;
     }
-    const cipher = options.cipher ?? createZCodeCredentialCipher({ env: options.env });
+    const cipher = options.cipher ?? createYCodeCredentialCipher({ env: options.env });
     const decrypted = cipher.decrypt(rawValue);
     return decrypted.trim().length > 0 ? decrypted : undefined;
   } catch {
@@ -277,8 +277,8 @@ export function loadSharedZCodeCredentialSync(
   }
 }
 
-export function resolveSharedZCodeCredentialsPath(
-  options: SharedZCodeCredentialStoreOptions = {},
+export function resolveSharedYCodeCredentialsPath(
+  options: SharedYCodeCredentialStoreOptions = {},
 ): string {
   if (options.filePath) {
     return resolveUserPath(options.filePath);

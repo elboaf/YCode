@@ -2,87 +2,87 @@
 
 export * from "./app/create-app.js";
 export type {
-  ListZCodeSessionsOptions,
+  ListYCodeSessionsOptions,
   PromptInput,
   ResolveLatestSessionOptions,
   ResumeOptions,
-  RunZCodeProtocolAgentOptions,
+  RunYCodeProtocolAgentOptions,
   SendInputOptions,
   SendInputResult,
   SetLocaleResult,
   SteerTurnOptions,
   SubmitPromptOptions,
   UserPromptInput,
-  ZCodeApp,
-  ZCodeAppOptions,
-  ZCodeModelOption,
+  YCodeApp,
+  YCodeAppOptions,
+  YCodeModelOption,
 } from "./app/types.js";
 export * from "./auth-login.js";
 export {
-  inspectZCodeCustomCommand,
-  listZCodeCustomCommands,
-  loadZCodeCustomCommand,
+  inspectYCodeCustomCommand,
+  listYCodeCustomCommands,
+  loadYCodeCustomCommand,
 } from "./custom-commands.js";
 export type {
-  InspectZCodeCustomCommandOptions,
-  ListZCodeCustomCommandsOptions,
-  ZCodeCustomCommandInspection,
+  InspectYCodeCustomCommandOptions,
+  ListYCodeCustomCommandsOptions,
+  YCodeCustomCommandInspection,
 } from "./custom-commands.js";
 export { createModelAdapter } from "./model-factory.js";
 export type { CreateModelAdapterOptions } from "./model-factory.js";
 export { startProcessProviderRegistryRuntime } from "./app/process-provider-registry-runtime.js";
 export type { ProcessProviderRegistryRuntimeOptions } from "./app/process-provider-registry-runtime.js";
 export {
-  addZCodePluginMarketplace,
-  getZCodePluginsOverview,
-  installZCodeMarketplacePlugin,
-  listZCodePlugins,
-  removeZCodePluginMarketplace,
-  resolveZCodePlugins,
-  setZCodePluginEnabled,
-  uninstallZCodeMarketplacePlugin,
-  updateZCodeMarketplacePlugin,
-  updateZCodePluginMarketplace,
-  validateZCodePluginPath,
+  addYCodePluginMarketplace,
+  getYCodePluginsOverview,
+  installYCodeMarketplacePlugin,
+  listYCodePlugins,
+  removeYCodePluginMarketplace,
+  resolveYCodePlugins,
+  setYCodePluginEnabled,
+  uninstallYCodeMarketplacePlugin,
+  updateYCodeMarketplacePlugin,
+  updateYCodePluginMarketplace,
+  validateYCodePluginPath,
 } from "./plugins.js";
 export type {
-  AddZCodeMarketplaceOptions,
-  InstallZCodeMarketplacePluginOptions,
-  ListZCodePluginsOptions,
-  RemoveZCodeMarketplaceOptions,
-  ResolveZCodePluginsOptions,
-  SetZCodePluginEnabledOptions,
-  SetZCodePluginEnabledResult,
-  UninstallZCodeMarketplacePluginOptions,
-  UpdateZCodeMarketplaceOptions,
-  UpdateZCodeMarketplacePluginOptions,
-  ValidateZCodePluginPathOptions,
-  ZCodeAvailablePluginData,
-  ZCodeInstalledPluginData,
-  ZCodeMarketplaceSummaryData,
-  ZCodeMarketplaceUpdateData,
-  ZCodePluginInstallData,
-  ZCodePluginUpdateData,
-  ZCodePluginsOverviewData,
+  AddYCodeMarketplaceOptions,
+  InstallYCodeMarketplacePluginOptions,
+  ListYCodePluginsOptions,
+  RemoveYCodeMarketplaceOptions,
+  ResolveYCodePluginsOptions,
+  SetYCodePluginEnabledOptions,
+  SetYCodePluginEnabledResult,
+  UninstallYCodeMarketplacePluginOptions,
+  UpdateYCodeMarketplaceOptions,
+  UpdateYCodeMarketplacePluginOptions,
+  ValidateYCodePluginPathOptions,
+  YCodeAvailablePluginData,
+  YCodeInstalledPluginData,
+  YCodeMarketplaceSummaryData,
+  YCodeMarketplaceUpdateData,
+  YCodePluginInstallData,
+  YCodePluginUpdateData,
+  YCodePluginsOverviewData,
 } from "./plugins.js";
-export { runZCodeProtocolAgent } from "./ycode-protocol-entrypoint.js";
+export { runYCodeProtocolAgent } from "./ycode-protocol-entrypoint.js";
 // Exposed for the CLI's --output-format stream-json: it needs the same event
 // shape the protocol server emits, rather than inventing a second one.
 export { mapSessionEvent } from "./ycode-protocol/session-mapper.js";
-export { prepareZCodeTelemetryEnv, shutdownZCodeTelemetry } from "./telemetry-bootstrap.js";
+export { prepareYCodeTelemetryEnv, shutdownYCodeTelemetry } from "./telemetry-bootstrap.js";
 export type { SessionTranscriptMessage, SessionTranscriptPart } from "./session-transcript.js";
-export { listZCodeSessions, resolveLatestSession } from "./sessions.js";
-export { inspectZCodeSkill, listZCodeSkills } from "./skills.js";
+export { listYCodeSessions, resolveLatestSession } from "./sessions.js";
+export { inspectYCodeSkill, listYCodeSkills } from "./skills.js";
 export type {
-  InspectZCodeSkillOptions,
-  ListZCodeSkillsOptions,
-  ZCodeSkillInspection,
+  InspectYCodeSkillOptions,
+  ListYCodeSkillsOptions,
+  YCodeSkillInspection,
 } from "./skills.js";
 // Exposed for the CLI's headless slash routing: it must decide "is this a real
 // custom command?" with the *same* reserved-name gate the app facade's
 // customCommandPromptResolver applies, or the two disagree and a reserved name
 // reaches the model as literal prompt text. See prompt-command.ts.
-export { isReservedZCodeSlashCommandName } from "./slash-command-surface.js";
+export { isReservedYCodeSlashCommandName } from "./slash-command-surface.js";
 export {
   grantWorkspaceHookTrust,
   inspectWorkspaceHookTrust,

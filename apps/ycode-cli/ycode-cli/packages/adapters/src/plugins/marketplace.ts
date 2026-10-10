@@ -6,7 +6,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { PluginDiagnostic, PluginManifest, PluginStoreListing } from "@ycode/contracts";
 import { isOfficialMarketplaceId, YCODE_OFFICIAL_PLUGIN_MARKETPLACE } from "@ycode/contracts";
-import { DEFAULT_PLUGIN_MARKETPLACES, sanitizeZCodeRuntimeEnv } from "@ycode/shared";
+import { DEFAULT_PLUGIN_MARKETPLACES, sanitizeYCodeRuntimeEnv } from "@ycode/shared";
 import { loadPluginMcpServerDefinitions, resolvePluginMcpServers } from "./mcp.js";
 import {
   appendPluginSourceCleanupError,
@@ -179,7 +179,7 @@ export interface PluginManifestDisplayMetadata {
 function buildMarketplaceGitEnv(
   sourceEnv: NodeJS.ProcessEnv = process.env,
 ): Record<string, string> {
-  const env = sanitizeZCodeRuntimeEnv(sourceEnv);
+  const env = sanitizeYCodeRuntimeEnv(sourceEnv);
   // marketplace 安装会启动 Git 子进程，不能只依赖父进程继承的 shell 代理。
   // 这里统一从 YCode 显式网络环境恢复 HTTP(S)/NO_PROXY/CA，避免安装按钮卡到协议超时。
   return applyNetworkEgressEnv(env, { sourceEnv });

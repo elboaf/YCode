@@ -1,8 +1,8 @@
 import type { McpServerConfig } from "@ycode/contracts";
-import type { ZCodeProtocolMcpServer } from "@ycode/shared";
+import type { YCodeProtocolMcpServer } from "@ycode/shared";
 
 export function protocolMcpServersToRuntimeMcpConfig(
-  servers: ZCodeProtocolMcpServer[] | undefined,
+  servers: YCodeProtocolMcpServer[] | undefined,
 ): { enabled: true; servers: Record<string, McpServerConfig> } | undefined {
   if (!servers || servers.length === 0) {
     return undefined;

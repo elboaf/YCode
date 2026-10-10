@@ -6,14 +6,14 @@ import {
 } from "@ycode/shared";
 
 // Coding Plan 官网页 preload：
-// - 在官网页主世界挂 window.zcodeBridge，暴露三个能力：
+// - 在官网页主世界挂 window.ycodeBridge，暴露三个能力：
 //   1) notifyPurchaseComplete：购买完成后通过 sendToHost 通知 host renderer；
 //   2) getLang / onLangChange：读取 App 当前 locale 并订阅运行时切换；
 //   3) getReportContext：读取 App 注入的购买来源上下文；
 //   4) openExternal：用系统默认浏览器打开外链。webview 内 <a target="_blank">
 //      默认会被 setWindowOpenHandler 路由到内部 Browser tab，但官网侧希望
 //      条款/管理等外链直接拉起系统浏览器，由官网脚本拦截后调此方法转发。
-// - getLang 读 main world 的 window.__zcodeLang__（由 App executeJavaScript 注入）；
+// - getLang 读 main world 的 window.__ycodeLang__（由 App executeJavaScript 注入）；
 //   onLangChange 在 main world 监听 ycode-coding-plan-lang-change CustomEvent
 //   （同样由 App executeJavaScript 在 locale 变化时派发）。
 //   因为整个 bridge 通过 contextBridge.executeInMainWorld 挂在 main world，
@@ -25,11 +25,11 @@ import {
 // 注入时机：Electron webview 在 will-attach-webview 钩子里按 params.src 判断为官网购买页时，
 // 把 webPreferences.preload 切到本文件（见 desktopWindowChrome.ts）。
 
-const PUBLIC_BRIDGE_KEY = "zcodeBridge";
-const NATIVE_BRIDGE_KEY = "__zcodeCodingPlanWebviewNativeBridge__";
-const LANG_VAR = "__zcodeLang__";
+const PUBLIC_BRIDGE_KEY = "ycodeBridge";
+const NATIVE_BRIDGE_KEY = "__ycodeCodingPlanWebviewNativeBridge__";
+const LANG_VAR = "__ycodeLang__";
 const LANG_CHANGE_EVENT = "ycode-coding-plan-lang-change";
-const REPORT_CONTEXT_VAR = "__zcodeReportContext__";
+const REPORT_CONTEXT_VAR = "__ycodeReportContext__";
 
 function isTrustedCodingPlanBridgeLocation(): boolean {
   try {
@@ -37,7 +37,7 @@ function isTrustedCodingPlanBridgeLocation(): boolean {
     if (url.protocol !== "http:" && url.protocol !== "https:") return false;
     if (
       !isTrustedCodingPlanWebviewOrigin(url.origin, {
-        e2eStoreBridgeEnabled: process.env.VITE_ZCODE_E2E_STORE_BRIDGE === "1",
+        e2eStoreBridgeEnabled: process.env.VITE_YCODE_E2E_STORE_BRIDGE === "1",
       })
     ) {
       return false;
@@ -45,7 +45,7 @@ function isTrustedCodingPlanBridgeLocation(): boolean {
     if (!url.pathname.includes("coding-plan")) return false;
     if (url.searchParams.get("embedded") === "app") return true;
     // PayPal 回跳页本身不带 embedded=app，但 returnTo 指回内嵌购买页；
-    // 该页支付成功后仍需 zcodeBridge.notifyPurchaseComplete 通知 App 刷新模型设置。
+    // 该页支付成功后仍需 ycodeBridge.notifyPurchaseComplete 通知 App 刷新模型设置。
     if (!url.pathname.endsWith("/coding-plan/payment/callback")) return false;
     const returnTo = url.searchParams.get("returnTo");
     if (!returnTo) return false;

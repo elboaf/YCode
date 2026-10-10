@@ -33,11 +33,11 @@ import {
 } from "@ycode/contracts";
 import { collectDisabledPaths } from "../skill-command-overrides.js";
 import { parseProviderQualifiedModelSelection } from "./provider-registry-selection.js";
-import type { ZCodeAppOptions } from "./types.js";
+import type { YCodeAppOptions } from "./types.js";
 
 export interface ScriptWorkflowAgentRuntimeDeps {
   agentTelemetry: AgentExecutionTelemetryPort;
-  appOptions: ZCodeAppOptions;
+  appOptions: YCodeAppOptions;
   appVersion: string;
   artifactStore?: ToolArtifactStorePort;
   configResult: ConfigResult;

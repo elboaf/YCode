@@ -1,53 +1,53 @@
 import { ServiceChannels } from "@ycode/shared";
 import type {
   TraceId,
-  ZCodeAgentMcpServer,
-  ZCodeDeliveryKind,
-  ZCodeMessageWithParts,
+  YCodeAgentMcpServer,
+  YCodeDeliveryKind,
+  YCodeMessageWithParts,
   ModelSelection,
-  ZCodePermissionRequestParams,
-  ZCodeUserInputRequestParams,
-  ZCodeUserInputResponse,
-  ZCodeSessionInfo,
-  ZCodeSessionImportHistory,
-  ZCodeSessionEvent,
-  ZCodeSessionMode,
-  ZCodeSessionPersistence,
-  ZCodeSessionStateSnapshot,
-  ZCodeStateUpdatedNotification,
-  ZCodeWorkspacePresentation,
+  YCodePermissionRequestParams,
+  YCodeUserInputRequestParams,
+  YCodeUserInputResponse,
+  YCodeSessionInfo,
+  YCodeSessionImportHistory,
+  YCodeSessionEvent,
+  YCodeSessionMode,
+  YCodeSessionPersistence,
+  YCodeSessionStateSnapshot,
+  YCodeStateUpdatedNotification,
+  YCodeWorkspacePresentation,
 } from "@ycode/shared";
 import { createServiceDescriptor } from "#src/descriptors.js";
 
-export interface ZCodeSessionWorkspaceTarget {
+export interface YCodeSessionWorkspaceTarget {
   workspacePath: string;
   workspaceIdentity?: string;
   remoteSessionId?: string;
 }
 
-export type ZCodeSessionReadWorkspacePresentationParams = ZCodeSessionWorkspaceTarget;
+export type YCodeSessionReadWorkspacePresentationParams = YCodeSessionWorkspaceTarget;
 
-export interface ZCodeTaskTarget extends ZCodeSessionWorkspaceTarget {
+export interface YCodeTaskTarget extends YCodeSessionWorkspaceTarget {
   sessionId: string;
 }
 
-export interface ZCodeSessionCreateParams extends ZCodeSessionWorkspaceTarget {
+export interface YCodeSessionCreateParams extends YCodeSessionWorkspaceTarget {
   /** 仅导入事务使用的预分配 ID；普通新会话继续由 Agent 分配。 */
   sessionId?: string;
   sessionTraceId?: TraceId;
   parentSessionId?: string;
-  mode?: ZCodeSessionMode;
+  mode?: YCodeSessionMode;
   model?: ModelSelection;
-  persistence?: ZCodeSessionPersistence;
+  persistence?: YCodeSessionPersistence;
   thoughtLevel?: string;
-  mcpServers?: ZCodeAgentMcpServer[];
-  importedHistory?: ZCodeSessionImportHistory;
+  mcpServers?: YCodeAgentMcpServer[];
+  importedHistory?: YCodeSessionImportHistory;
 }
 
-export interface ZCodeSessionResumeParams extends ZCodeTaskTarget {
+export interface YCodeSessionResumeParams extends YCodeTaskTarget {
   model?: ModelSelection;
   thoughtLevel?: string;
-  mcpServers?: ZCodeAgentMcpServer[];
+  mcpServers?: YCodeAgentMcpServer[];
   /**
    * 默认广播 resume 得到的历史快照，并让 shadow 订阅请求初始 snapshot。
    * 续聊发送前的 runtime 预恢复会关闭它，避免旧终态快照覆盖本地已开始的新输入运行态。
@@ -55,46 +55,46 @@ export interface ZCodeSessionResumeParams extends ZCodeTaskTarget {
   broadcastSnapshot?: boolean;
 }
 
-export interface ZCodeSessionListParams extends ZCodeSessionWorkspaceTarget {
+export interface YCodeSessionListParams extends YCodeSessionWorkspaceTarget {
   includeArchived?: boolean;
   limit?: number;
 }
 
-export interface ZCodeSessionReadParams extends ZCodeTaskTarget {
-  deliveryKind?: ZCodeDeliveryKind;
+export interface YCodeSessionReadParams extends YCodeTaskTarget {
+  deliveryKind?: YCodeDeliveryKind;
   messageLimit?: number;
   afterSeq?: number;
 }
 
-export interface ZCodeSessionMessagesParams extends ZCodeTaskTarget {
+export interface YCodeSessionMessagesParams extends YCodeTaskTarget {
   afterMessageId?: string;
   limit?: number;
 }
 
-export interface ZCodeSessionEventsParams extends ZCodeTaskTarget {
+export interface YCodeSessionEventsParams extends YCodeTaskTarget {
   afterSeq?: number;
   limit?: number;
 }
 
-export interface ZCodeSessionSetModelParams extends ZCodeTaskTarget {
+export interface YCodeSessionSetModelParams extends YCodeTaskTarget {
   model: ModelSelection;
   expectedRevision?: number;
   persistAsWorkspaceLastUsed?: boolean;
 }
 
-export interface ZCodeSessionSetThoughtLevelParams extends ZCodeTaskTarget {
+export interface YCodeSessionSetThoughtLevelParams extends YCodeTaskTarget {
   thoughtLevel?: string;
   expectedRevision?: number;
   persistAsWorkspaceLastUsed?: boolean;
 }
 
-export interface ZCodeSessionSetModeParams extends ZCodeTaskTarget {
-  mode: ZCodeSessionMode;
+export interface YCodeSessionSetModeParams extends YCodeTaskTarget {
+  mode: YCodeSessionMode;
   expectedRevision?: number;
 }
 
-export interface ZCodeSessionSubscribeParams extends ZCodeTaskTarget {
-  deliveryKind: ZCodeDeliveryKind;
+export interface YCodeSessionSubscribeParams extends YCodeTaskTarget {
+  deliveryKind: YCodeDeliveryKind;
   afterSeq?: number;
   includeSnapshot?: boolean;
   eventCoalescing?: {
@@ -103,19 +103,19 @@ export interface ZCodeSessionSubscribeParams extends ZCodeTaskTarget {
   };
 }
 
-export type ZCodeSessionServiceEvent =
-  | { type: "session.event"; event: ZCodeSessionEvent }
-  | { type: "state.updated"; notification: ZCodeStateUpdatedNotification }
-  | { type: "permission.request"; request: ZCodePermissionRequestParams }
-  | { type: "userInput.request"; request: ZCodeUserInputRequestParams }
+export type YCodeSessionServiceEvent =
+  | { type: "session.event"; event: YCodeSessionEvent }
+  | { type: "state.updated"; notification: YCodeStateUpdatedNotification }
+  | { type: "permission.request"; request: YCodePermissionRequestParams }
+  | { type: "userInput.request"; request: YCodeUserInputRequestParams }
   | {
       type: "userInput.response";
       requestId: string;
-      response: ZCodeUserInputResponse;
+      response: YCodeUserInputResponse;
     }
-  | { type: "snapshot"; snapshot: ZCodeSessionStateSnapshot };
+  | { type: "snapshot"; snapshot: YCodeSessionStateSnapshot };
 
-export interface ZCodeSessionInitializeResult {
+export interface YCodeSessionInitializeResult {
   available: boolean;
   workspaceKey: string;
   protocolName?: string;
@@ -125,36 +125,36 @@ export interface ZCodeSessionInitializeResult {
   reasonCode?: "provider_not_ready";
 }
 
-export interface ZCodeSessionWorkspaceRuntimeIdentity {
+export interface YCodeSessionWorkspaceRuntimeIdentity {
   generation: number;
   identity: string;
   processId?: number;
   workspaceKey: string;
 }
 
-export interface IZCodeSessionService {
-  initializeWorkspace(params: ZCodeSessionWorkspaceTarget): Promise<ZCodeSessionInitializeResult>;
+export interface IYCodeSessionService {
+  initializeWorkspace(params: YCodeSessionWorkspaceTarget): Promise<YCodeSessionInitializeResult>;
   getWorkspaceRuntimeIdentity(
-    params: ZCodeSessionWorkspaceTarget,
-  ): Promise<ZCodeSessionWorkspaceRuntimeIdentity>;
+    params: YCodeSessionWorkspaceTarget,
+  ): Promise<YCodeSessionWorkspaceRuntimeIdentity>;
   readWorkspacePresentation(
-    params: ZCodeSessionReadWorkspacePresentationParams,
-  ): Promise<ZCodeWorkspacePresentation>;
-  createSession(params: ZCodeSessionCreateParams): Promise<ZCodeSessionStateSnapshot>;
-  resumeSession(params: ZCodeSessionResumeParams): Promise<ZCodeSessionStateSnapshot>;
-  listSessions(params: ZCodeSessionListParams): Promise<ZCodeSessionInfo[]>;
-  readSession(params: ZCodeSessionReadParams): Promise<ZCodeSessionStateSnapshot>;
-  readSessionMessages(params: ZCodeSessionMessagesParams): Promise<ZCodeMessageWithParts[]>;
-  readSessionEvents(params: ZCodeSessionEventsParams): Promise<ZCodeSessionEvent[]>;
-  promoteDeferredDraftSession(params: ZCodeTaskTarget): Promise<void>;
-  closeSession(params: ZCodeTaskTarget): Promise<void>;
-  closeDeferredDraftSession(params: ZCodeTaskTarget): Promise<boolean>;
-  setModel(params: ZCodeSessionSetModelParams): Promise<ZCodeSessionStateSnapshot>;
-  setThoughtLevel(params: ZCodeSessionSetThoughtLevelParams): Promise<ZCodeSessionStateSnapshot>;
-  setMode(params: ZCodeSessionSetModeParams): Promise<ZCodeSessionStateSnapshot>;
+    params: YCodeSessionReadWorkspacePresentationParams,
+  ): Promise<YCodeWorkspacePresentation>;
+  createSession(params: YCodeSessionCreateParams): Promise<YCodeSessionStateSnapshot>;
+  resumeSession(params: YCodeSessionResumeParams): Promise<YCodeSessionStateSnapshot>;
+  listSessions(params: YCodeSessionListParams): Promise<YCodeSessionInfo[]>;
+  readSession(params: YCodeSessionReadParams): Promise<YCodeSessionStateSnapshot>;
+  readSessionMessages(params: YCodeSessionMessagesParams): Promise<YCodeMessageWithParts[]>;
+  readSessionEvents(params: YCodeSessionEventsParams): Promise<YCodeSessionEvent[]>;
+  promoteDeferredDraftSession(params: YCodeTaskTarget): Promise<void>;
+  closeSession(params: YCodeTaskTarget): Promise<void>;
+  closeDeferredDraftSession(params: YCodeTaskTarget): Promise<boolean>;
+  setModel(params: YCodeSessionSetModelParams): Promise<YCodeSessionStateSnapshot>;
+  setThoughtLevel(params: YCodeSessionSetThoughtLevelParams): Promise<YCodeSessionStateSnapshot>;
+  setMode(params: YCodeSessionSetModeParams): Promise<YCodeSessionStateSnapshot>;
   // renderer 订阅面走 agentService 的 conversation/sessions-index 帧通道。
 }
 
-export const IZCodeSessionService = createServiceDescriptor<IZCodeSessionService>(
-  ServiceChannels.ZCodeSession,
+export const IYCodeSessionService = createServiceDescriptor<IYCodeSessionService>(
+  ServiceChannels.YCodeSession,
 );

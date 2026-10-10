@@ -5,7 +5,7 @@ import { loadBuiltinProviderConfig } from "../../scripts/builtin-provider-config
 import { stageThirdPartyNotices } from "../../scripts/third-party-notices.mjs";
 
 const { version } = JSON.parse(readFileSync("../../package.json", "utf-8"));
-const { content: zcodeBuiltinProviderConfigJson } = await loadBuiltinProviderConfig();
+const { content: ycodeBuiltinProviderConfigJson } = await loadBuiltinProviderConfig();
 
 /**
  * Let esbuild bundle node-pty's JS code normally, but keep .node native
@@ -43,8 +43,8 @@ const buildResult = await build({
   define: {
     "import.meta.url": "__import_meta_url",
     "import.meta.dirname": "__import_meta_dirname",
-    __ZCODE_VERSION__: JSON.stringify(version),
-    __ZCODE_BUILTIN_PROVIDER_CONFIG_JSON__: JSON.stringify(zcodeBuiltinProviderConfigJson),
+    __YCODE_VERSION__: JSON.stringify(version),
+    __YCODE_BUILTIN_PROVIDER_CONFIG_JSON__: JSON.stringify(ycodeBuiltinProviderConfigJson),
   },
   metafile: true,
 });

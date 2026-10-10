@@ -17,11 +17,11 @@ function resolveStorage(storage?: RestartMarkerStorage): RestartMarkerStorage | 
   }
 }
 
-export function markZcodeJwtInvalidRestart(storage?: RestartMarkerStorage): void {
+export function markYcodeJwtInvalidRestart(storage?: RestartMarkerStorage): void {
   resolveStorage(storage)?.setItem(YCODE_JWT_INVALID_RESTART_MARKER_KEY, "1");
 }
 
-export function consumeZcodeJwtInvalidRestartMarker(storage?: RestartMarkerStorage): boolean {
+export function consumeYcodeJwtInvalidRestartMarker(storage?: RestartMarkerStorage): boolean {
   const resolved = resolveStorage(storage);
   if (!resolved || resolved.getItem(YCODE_JWT_INVALID_RESTART_MARKER_KEY) !== "1") {
     return false;

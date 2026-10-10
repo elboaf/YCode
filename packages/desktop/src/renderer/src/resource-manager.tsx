@@ -3,7 +3,7 @@ import type { ResourceUsageSnapshot, StorageManagementBridge } from "@ycode/shar
 import "@ycode/ui/styles.css";
 import {
   ResourceManagerApp,
-  ZCodeIntlProvider,
+  YCodeIntlProvider,
   applyUiFontSizePx,
   loadUiFontSizePx,
   subscribeToUiFontSizeStorageChanges,
@@ -56,7 +56,7 @@ const root = document.getElementById("root");
 if (root) {
   createRoot(root).render(
     // 语言沿用主窗口写入 localStorage 的偏好；不接 settingService，避免独立窗口再起一份 RPC。
-    <ZCodeIntlProvider>
+    <YCodeIntlProvider>
       <ResourceManagerApp
         setSamplingActive={window.resourceManager?.setSamplingActive}
         getSnapshot={
@@ -64,6 +64,6 @@ if (root) {
         }
         storage={window.resourceManager?.storage}
       />
-    </ZCodeIntlProvider>,
+    </YCodeIntlProvider>,
   );
 }

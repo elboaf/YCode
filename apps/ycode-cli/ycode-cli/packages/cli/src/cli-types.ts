@@ -7,37 +7,37 @@ import type {
 } from "@ycode/adapters/browser";
 import type {
   createModelAdapter,
-  createZCodeApp,
+  createYCodeApp,
   CreateModelAdapterOptions,
   configureCodingPlanApiKey,
   ConfigureCodingPlanApiKeyOptions,
-  inspectZCodeSkill,
+  inspectYCodeSkill,
   inspectWorkspaceHookTrust,
   grantWorkspaceHookTrust,
   revokeWorkspaceHookTrustCli,
-  inspectZCodeCustomCommand,
-  InspectZCodeCustomCommandOptions,
-  InspectZCodeSkillOptions,
-  loginZCodeCli,
+  inspectYCodeCustomCommand,
+  InspectYCodeCustomCommandOptions,
+  InspectYCodeSkillOptions,
+  loginYCodeCli,
   loginBigmodelCodingPlan,
   LoginBigmodelCodingPlanOptions,
-  LoginZCodeCliOptions,
-  listZCodeCustomCommands,
-  ListZCodeCustomCommandsOptions,
-  loadZCodeCustomCommand,
-  listZCodeSessions,
-  listZCodeSkills,
-  ListZCodeSessionsOptions,
-  ListZCodeSkillsOptions,
-  logoutZCodeCli,
-  LogoutZCodeCliOptions,
+  LoginYCodeCliOptions,
+  listYCodeCustomCommands,
+  ListYCodeCustomCommandsOptions,
+  loadYCodeCustomCommand,
+  listYCodeSessions,
+  listYCodeSkills,
+  ListYCodeSessionsOptions,
+  ListYCodeSkillsOptions,
+  logoutYCodeCli,
+  LogoutYCodeCliOptions,
   resolveLatestSession,
   ResolveLatestSessionOptions,
-  RunZCodeProtocolAgentOptions,
-  prepareZCodeTelemetryEnv,
+  RunYCodeProtocolAgentOptions,
+  prepareYCodeTelemetryEnv,
   startProcessProviderRegistryRuntime,
-  shutdownZCodeTelemetry,
-  ZCodeAppOptions,
+  shutdownYCodeTelemetry,
+  YCodeAppOptions,
 } from "@ycode/bootstrap";
 import type { CliEnv, DotenvLoadResult, LoadCliDotenvOptions } from "./env.js";
 import type { PluginsCommandOverrides } from "./plugins-command.js";
@@ -47,7 +47,7 @@ import type { resolveWorkspaceGitBranch } from "./tui-workspace-git.js";
 export type BootstrapModule = typeof import("@ycode/bootstrap");
 
 export interface RunDependencies extends PluginsCommandOverrides {
-  protocolLifecycle?: RunZCodeProtocolAgentOptions["lifecycle"];
+  protocolLifecycle?: RunYCodeProtocolAgentOptions["lifecycle"];
   protocolInput?: NodeJS.ReadableStream;
   createManagedCdpBrowserRuntime?: (
     options?: ManagedCdpBrowserRuntimeOptions,
@@ -55,26 +55,26 @@ export interface RunDependencies extends PluginsCommandOverrides {
   createModelAdapter?: (
     options?: CreateModelAdapterOptions,
   ) => ReturnType<typeof createModelAdapter>;
-  createZCodeApp?: (
-    options?: ZCodeAppOptions,
-  ) => Awaited<ReturnType<typeof createZCodeApp>> | ReturnType<typeof createZCodeApp>;
+  createYCodeApp?: (
+    options?: YCodeAppOptions,
+  ) => Awaited<ReturnType<typeof createYCodeApp>> | ReturnType<typeof createYCodeApp>;
   /**
    * Session-event shaper for --output-format stream-json. Defaults to the
    * bootstrap module's, which is also what the protocol server uses; injectable
-   * so a caller that supplies its own `createZCodeApp` (tests, embedders) can
+   * so a caller that supplies its own `createYCodeApp` (tests, embedders) can
    * still stream, since the bootstrap module is not loaded on that path.
    */
   mapSessionEvent?: BootstrapModule["mapSessionEvent"];
   cwd?: () => string;
   env?: CliEnv;
-  inspectSkill?: (options: InspectZCodeSkillOptions) => ReturnType<typeof inspectZCodeSkill>;
+  inspectSkill?: (options: InspectYCodeSkillOptions) => ReturnType<typeof inspectYCodeSkill>;
   inspectWorkspaceHookTrust?: typeof inspectWorkspaceHookTrust;
   grantWorkspaceHookTrust?: typeof grantWorkspaceHookTrust;
   revokeWorkspaceHookTrustCli?: typeof revokeWorkspaceHookTrustCli;
   inspectCustomCommand?: (
-    options: InspectZCodeCustomCommandOptions,
-  ) => ReturnType<typeof inspectZCodeCustomCommand>;
-  loginZCodeCli?: (options?: LoginZCodeCliOptions) => ReturnType<typeof loginZCodeCli>;
+    options: InspectYCodeCustomCommandOptions,
+  ) => ReturnType<typeof inspectYCodeCustomCommand>;
+  loginYCodeCli?: (options?: LoginYCodeCliOptions) => ReturnType<typeof loginYCodeCli>;
   loginBigmodelCodingPlan?: (
     options?: LoginBigmodelCodingPlanOptions,
   ) => ReturnType<typeof loginBigmodelCodingPlan>;
@@ -82,19 +82,19 @@ export interface RunDependencies extends PluginsCommandOverrides {
     options: ConfigureCodingPlanApiKeyOptions,
   ) => ReturnType<typeof configureCodingPlanApiKey>;
   loadDotenv?: (options?: LoadCliDotenvOptions) => DotenvLoadResult;
-  prepareZCodeTelemetryEnv?: typeof prepareZCodeTelemetryEnv;
+  prepareYCodeTelemetryEnv?: typeof prepareYCodeTelemetryEnv;
   projectConfigPath?: string;
-  listSessions?: (options: ListZCodeSessionsOptions) => ReturnType<typeof listZCodeSessions>;
+  listSessions?: (options: ListYCodeSessionsOptions) => ReturnType<typeof listYCodeSessions>;
   listCustomCommands?: (
-    options: ListZCodeCustomCommandsOptions,
-  ) => ReturnType<typeof listZCodeCustomCommands>;
+    options: ListYCodeCustomCommandsOptions,
+  ) => ReturnType<typeof listYCodeCustomCommands>;
   loadCustomCommand?: (
-    options: InspectZCodeCustomCommandOptions,
-  ) => ReturnType<typeof loadZCodeCustomCommand>;
+    options: InspectYCodeCustomCommandOptions,
+  ) => ReturnType<typeof loadYCodeCustomCommand>;
   // headless slash 路由要和 app facade 的保留名 gate 用同一个判据；默认取 bootstrap 的，
   // 注入点只为让单测不必拉起整个 bootstrap 模块。见 prompt-command.ts。
-  isReservedSlashCommandName?: BootstrapModule["isReservedZCodeSlashCommandName"];
-  listSkills?: (options: ListZCodeSkillsOptions) => ReturnType<typeof listZCodeSkills>;
+  isReservedSlashCommandName?: BootstrapModule["isReservedYCodeSlashCommandName"];
+  listSkills?: (options: ListYCodeSkillsOptions) => ReturnType<typeof listYCodeSkills>;
   logger?: Logger;
   readClipboardImage?: TuiReadClipboardImage;
   writeClipboardText?: TuiWriteClipboardText;
@@ -102,8 +102,8 @@ export interface RunDependencies extends PluginsCommandOverrides {
     options: ResolveLatestSessionOptions,
   ) => ReturnType<typeof resolveLatestSession>;
   resolveWorkspaceGitBranch?: typeof resolveWorkspaceGitBranch;
-  logoutZCodeCli?: (options?: LogoutZCodeCliOptions) => ReturnType<typeof logoutZCodeCli>;
-  runZCodeProtocolAgent?: (options?: RunZCodeProtocolAgentOptions) => Promise<void>;
+  logoutYCodeCli?: (options?: LogoutYCodeCliOptions) => ReturnType<typeof logoutYCodeCli>;
+  runYCodeProtocolAgent?: (options?: RunYCodeProtocolAgentOptions) => Promise<void>;
   runTui?: typeof import("@ycode/tui").runTui;
   skipUserConfig?: boolean;
   userConfigPath?: string;
@@ -111,7 +111,7 @@ export interface RunDependencies extends PluginsCommandOverrides {
   shutdownCleanupTimeoutMs?: number;
   shutdownProcess?: CliShutdownProcess;
   startProcessProviderRegistryRuntime?: typeof startProcessProviderRegistryRuntime;
-  shutdownZCodeTelemetry?: typeof shutdownZCodeTelemetry;
+  shutdownYCodeTelemetry?: typeof shutdownYCodeTelemetry;
 }
 
 export type CliPermissionMode = "build" | "plan" | "edit" | "yolo";
@@ -127,7 +127,7 @@ export interface CliTargetRequest {
   replaceExisting: boolean;
 }
 
-export type ModeCapableApp = Awaited<ReturnType<typeof createZCodeApp>> & {
+export type ModeCapableApp = Awaited<ReturnType<typeof createYCodeApp>> & {
   getMode?: () => CliRuntimeMode;
   setLocale?: (locale: UiLocale) => Promise<{ locale: "en-US" | "zh-CN" }>;
   setMode?: (mode: CliRuntimeMode) => Promise<{ mode: CliRuntimeMode }>;

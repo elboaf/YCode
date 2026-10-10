@@ -47,7 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select.js";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 
 const DEFAULT_WSL_DISTRO_VALUE = "__default_wsl_distro__";
 const NO_SSH_CONFIG_ALIAS_VALUE = "__ssh_config_alias_none__";
@@ -136,7 +136,7 @@ export function RemoteConnectionFields({
   setDockerContainer: (value: string) => void;
   setManualDockerContainer: (value: string) => void;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const platform = usePlatform();
   const [sshAliasPopoverOpen, setSshAliasPopoverOpen] = useState(false);
   const [dockerContainerPopoverOpen, setDockerContainerPopoverOpen] = useState(false);

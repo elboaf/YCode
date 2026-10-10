@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { decodeZCodeBuiltinRelease, type ZCodeBuiltinRelease } from "./ycode-builtin-release.js";
+import { decodeYCodeBuiltinRelease, type YCodeBuiltinRelease } from "./ycode-builtin-release.js";
 
 const clientConfigSchema = z
   .object({
@@ -23,7 +23,7 @@ const clientConfigSchema = z
   })
   .passthrough();
 
-export interface ZCodeBuiltinDownloadOptions {
+export interface YCodeBuiltinDownloadOptions {
   readonly endpointOrigin: string;
   readonly appVersion: string;
   readonly platform: string;
@@ -32,9 +32,9 @@ export interface ZCodeBuiltinDownloadOptions {
 }
 
 /** App/CLI 共用下载边界。总预算包含两次请求正文，不依赖 ApiClient 的响应头超时。 */
-export async function downloadZCodeBuiltinRelease(
-  options: ZCodeBuiltinDownloadOptions,
-): Promise<ZCodeBuiltinRelease | null> {
+export async function downloadYCodeBuiltinRelease(
+  options: YCodeBuiltinDownloadOptions,
+): Promise<YCodeBuiltinRelease | null> {
   const controller = new AbortController();
   let timedOut = false;
   const timer = setTimeout(() => {
@@ -54,7 +54,7 @@ export async function downloadZCodeBuiltinRelease(
     const downloadUrl = payload.data.configs.builtin_provider_config_json;
     if (downloadUrl === undefined) return null;
     stage = "cdn";
-    return decodeZCodeBuiltinRelease(await readJson(new URL(downloadUrl)));
+    return decodeYCodeBuiltinRelease(await readJson(new URL(downloadUrl)));
   } catch (error) {
     // 不能把带 query 的 URL、响应正文或 Schema 输入（可能含凭据）交给上层日志。
     const reason = signal.aborted

@@ -7,23 +7,23 @@ const CREDENTIAL_CIPHER_IV_BYTES = 12;
 const CREDENTIAL_CIPHER_AUTH_TAG_BYTES = 16;
 const CREDENTIAL_SECRET_ENV_KEY = "YCODE_CREDENTIAL_SECRET";
 
-export interface ZCodeCredentialCipher {
+export interface YCodeCredentialCipher {
   decrypt(value: string): string;
   encrypt(value: string): string;
 }
 
-export interface ZCodeCredentialCipherOptions {
+export interface YCodeCredentialCipherOptions {
   env?: Record<string, string | undefined>;
 }
 
-export function createZCodeCredentialCipher(
-  options: ZCodeCredentialCipherOptions = {},
-): ZCodeCredentialCipher {
+export function createYCodeCredentialCipher(
+  options: YCodeCredentialCipherOptions = {},
+): YCodeCredentialCipher {
   const key = deriveCipherKey(resolveCredentialSecret(options.env ?? process.env));
 
   return {
     decrypt(value: string): string {
-      if (!isEncryptedZCodeCredentialValue(value)) {
+      if (!isEncryptedYCodeCredentialValue(value)) {
         return value;
       }
 
@@ -76,7 +76,7 @@ export function createZCodeCredentialCipher(
   };
 }
 
-export function isEncryptedZCodeCredentialValue(value: string): boolean {
+export function isEncryptedYCodeCredentialValue(value: string): boolean {
   return value.startsWith(ENCRYPTED_VALUE_PREFIX);
 }
 

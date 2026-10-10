@@ -11,9 +11,9 @@ import {
 import {
   OFFICIAL_CUA_PERMISSION_RULE_TOOL_NAME,
   WORKFLOW_REFINE_PERMISSION_OPTION_ID,
-  type ZCodePermissionOption,
-  type ZCodePermissionRequest,
-  type ZCodeProvider,
+  type YCodePermissionOption,
+  type YCodePermissionRequest,
+  type YCodeProvider,
 } from "@ycode/shared";
 import { MAX_PERMISSION_FEEDBACK_CHARS } from "@ycode/shared/ycode-protocol-v4";
 import { Button } from "@/components/ui/button.js";
@@ -44,9 +44,9 @@ import { InteractionRequestOriginBadge } from "@/InteractionRequestOriginBadge.j
 import { WorkflowPermissionBlock } from "@/WorkflowPermissionBlock.js";
 import { SaveWorkflowPermissionBlock } from "@/SaveWorkflowPermissionBlock.js";
 import { isSaveWorkflowToolCall } from "@/lib/workflowToolNames.js";
-import { useZCodeStoreWithDefault } from "@/store/StoreProvider.js";
+import { useYCodeStoreWithDefault } from "@/store/StoreProvider.js";
 import { DEFAULT_CODE_PREVIEW_SETTINGS } from "@/lib/codePreviewSettings.js";
-import { useZCodeIntl } from "./i18n/IntlProvider.js";
+import { useYCodeIntl } from "./i18n/IntlProvider.js";
 import { Info, LoaderIcon, WrenchIcon } from "lucide-react";
 
 const MCP_PERMISSION_TOOL_ICON = <WrenchIcon className="size-4 shrink-0 text-foreground-subtle" />;
@@ -90,7 +90,7 @@ function formatPermissionRuleScope(content: string): PermissionRuleScope {
   return { display: `${visible}${suffix}`, truncated };
 }
 
-function readPermissionRuleScopes(option: ZCodePermissionOption): PermissionRuleScope[] {
+function readPermissionRuleScopes(option: YCodePermissionOption): PermissionRuleScope[] {
   const scopes: PermissionRuleScope[] = [];
   for (const update of option.response?.permissionUpdates ?? []) {
     if (update.type !== "addRules" || update.behavior !== "allow") continue;
@@ -104,7 +104,7 @@ function readPermissionRuleScopes(option: ZCodePermissionOption): PermissionRule
   return scopes.slice(0, 5);
 }
 
-function isOfficialCuaProjectPermission(option: ZCodePermissionOption): boolean {
+function isOfficialCuaProjectPermission(option: YCodePermissionOption): boolean {
   return (option.response?.permissionUpdates ?? []).some(
     (update) =>
       update.type === "addRules" &&
@@ -118,7 +118,7 @@ function isOfficialCuaProjectPermission(option: ZCodePermissionOption): boolean 
  * 该选项不渲染成按钮，而是作为反馈行的应答目标：用户在其他确认窗同一行编号输入行里写修改意见，
  * 提交时应答携带 freeText，CLI broker 据此把 deny 升级为带 workflow_refine_feedback 的用户反馈。
  */
-function isWorkflowRefineOption(option: ZCodePermissionOption): boolean {
+function isWorkflowRefineOption(option: YCodePermissionOption): boolean {
   return option.optionId === WORKFLOW_REFINE_PERMISSION_OPTION_ID;
 }
 
@@ -160,7 +160,7 @@ function getOptionLabelMessageId(kind: string): string | null {
 }
 
 const PROVIDER_PERMISSION_OPTION_NAME_LABELS: Partial<
-  Record<ZCodeProvider, Record<string, string>>
+  Record<YCodeProvider, Record<string, string>>
 > = {
   glm: {
     // GLM/YCode Agent 通过 YCode Agent 发来的项目级记忆授权文案是英文原文。
@@ -191,7 +191,7 @@ const GLOBAL_PERMISSION_OPTION_NAME_LABELS: Record<string, PermissionOptionNameM
 };
 
 function getProviderOptionNameMessageIds(
-  provider: ZCodeProvider | undefined,
+  provider: YCodeProvider | undefined,
   name: string,
 ): PermissionOptionNameMessageIds | null {
   const normalizedName = name.trim().replace(/\s+/g, " ").toLowerCase();
@@ -231,7 +231,7 @@ function readUserFacingPermissionReason(value: unknown): string | null {
   return reason && !NON_USER_FACING_PERMISSION_REASONS.has(reason) ? reason : null;
 }
 
-function getPermissionDisplayReason(request: ZCodePermissionRequest): string | null {
+function getPermissionDisplayReason(request: YCodePermissionRequest): string | null {
   const rawInput = readRawToolCallInput(request.raw);
   const inputReason = isPlainRecord(rawInput)
     ? (readUserFacingPermissionReason(rawInput.description) ??
@@ -336,7 +336,7 @@ function getPermissionBlockInteraction(blockKind: PermissionBlockKind): Permissi
 }
 
 function buildPermissionToolCall(
-  request: ZCodePermissionRequest,
+  request: YCodePermissionRequest,
   preview: ReturnType<typeof getPermissionRequestPreview>,
 ): TaskChatToolCall {
   const rawInput = readRawToolCallInput(request.raw);
@@ -434,17 +434,17 @@ export function PermissionDialog({
   responding = false,
   responseError,
 }: {
-  request: ZCodePermissionRequest;
+  request: YCodePermissionRequest;
   responding?: boolean;
   responseError?: string;
-  onRespond: (requestId: string, option: ZCodePermissionOption, feedback?: string) => void;
+  onRespond: (requestId: string, option: YCodePermissionOption, feedback?: string) => void;
   workspacePath: string;
-  provider?: ZCodeProvider;
+  provider?: YCodeProvider;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   // store 耦合剥离：主题/代码预览设置在宿主处取 store，向下走 props/render context。
-  const theme = useZCodeStoreWithDefault((state) => state.theme, "system");
-  const codePreviewSettings = useZCodeStoreWithDefault(
+  const theme = useYCodeStoreWithDefault((state) => state.theme, "system");
+  const codePreviewSettings = useYCodeStoreWithDefault(
     (state) => state.codePreviewSettings,
     DEFAULT_CODE_PREVIEW_SETTINGS,
   );
@@ -557,7 +557,7 @@ export function PermissionDialog({
   );
 
   const respondWithOption = useCallback(
-    (option: ZCodePermissionOption) => {
+    (option: YCodePermissionOption) => {
       if (responding) return;
       const selectedKind = getPermissionOptionDisplayKind(option.kind);
       // 通用确认窗里 Deny 顺带把反馈行草稿作为拒绝理由发出；工作流确认窗的草稿属于 Refine，

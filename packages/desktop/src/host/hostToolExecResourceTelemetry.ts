@@ -1,9 +1,9 @@
 import type { IDisposable } from "@ycode/rpc";
-import type { IZCodeAgentService } from "@ycode/services";
+import type { IYCodeAgentService } from "@ycode/services";
 import { HostResponseTypes, type ProcessResourceRuntimeSurface } from "@ycode/shared";
 
 export function registerHostToolExecResourceTelemetry(options: {
-  agentService: Pick<IZCodeAgentService, "onDynamicToolExecResource">;
+  agentService: Pick<IYCodeAgentService, "onDynamicToolExecResource">;
   postMessage(message: unknown): void;
   runtimeSurface: ProcessResourceRuntimeSurface;
 }): IDisposable {

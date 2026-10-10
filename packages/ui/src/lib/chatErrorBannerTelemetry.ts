@@ -11,7 +11,7 @@ import {
   type ProviderBusinessErrorUiAction,
 } from "@/lib/providerBusinessError.js";
 import { resolveTelemetryAttribution } from "@/lib/chatErrorAttribution.js";
-import type { ZCodeUiError } from "@/lib/zcodeUiError.js";
+import type { YCodeUiError } from "@/lib/ycodeUiError.js";
 
 const CHAT_ERROR_BANNER_ARMS_EVENT_NAME = "chat_error_banner";
 const CHAT_ERROR_BANNER_ARMS_GROUP = "ui_error";
@@ -42,7 +42,7 @@ interface ChatProviderBusinessRecoveryAction {
 }
 
 export function resolveVisibleChatErrorTelemetryRecoveryAction(
-  error: Pick<ZCodeUiError, "code" | "message">,
+  error: Pick<YCodeUiError, "code" | "message">,
 ): ChatProviderBusinessRecoveryAction | null {
   // 修复原因：旧 UI 会把普通 provider 业务错误的可见恢复动作作为聚合维度上报；
   // 无可见动作的业务码（如 3007/3001）在这里自然返回 null，不再上报动作维度。
@@ -81,7 +81,7 @@ function hashTelemetryFingerprint(value: string): string {
 
 function resolveErrorKey(params: {
   errorKey?: string | null;
-  error: ZCodeUiError;
+  error: YCodeUiError;
   displayMessage: string;
   providerBusinessRecoveryAction: ChatProviderBusinessRecoveryAction | null;
 }): string {
@@ -116,7 +116,7 @@ function buildChatErrorBannerTelemetryPayload(params: {
   surface?: ChatErrorBannerSurface;
   errorKey?: string | null;
   displayMessage: string;
-  error: ZCodeUiError;
+  error: YCodeUiError;
   providerBusinessRecoveryAction: ChatProviderBusinessRecoveryAction | null;
 }): ArmsCustomEventPayload {
   const errorMsg = truncateTelemetryText(params.displayMessage);
@@ -175,7 +175,7 @@ export async function reportChatErrorBannerTelemetry(
     surface?: ChatErrorBannerSurface;
     errorKey?: string | null;
     displayMessage: string;
-    error: ZCodeUiError;
+    error: YCodeUiError;
     providerBusinessRecoveryAction: ChatProviderBusinessRecoveryAction | null;
   },
 ): Promise<void> {

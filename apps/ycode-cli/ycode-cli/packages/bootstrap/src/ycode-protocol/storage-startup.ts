@@ -3,22 +3,22 @@ import { SqliteSessionStore, type SqliteMigrationProgress } from "@ycode/adapter
 import {
   classifyDatabaseStartupError,
   databaseStartupErrorDetails,
-  zcodeProtocolNotifications,
-  zcodeStorageStartupStateSchema,
-  type ZCodeStorageStartupState,
+  ycodeProtocolNotifications,
+  ycodeStorageStartupStateSchema,
+  type YCodeStorageStartupState,
 } from "@ycode/shared";
 
 export async function openProtocolStartupStorage(options: {
   dbPath: string;
   output: NodeJS.WritableStream;
-  onProgress?: (progress: ZCodeStorageStartupState) => void;
+  onProgress?: (progress: YCodeStorageStartupState) => void;
 }): Promise<SqliteSessionStore> {
   const attemptId = randomUUID();
   const databaseId = createHash("sha256").update(options.dbPath).digest("hex");
   let sequence = 0;
   let failedReported = false;
   const report = async (progress: SqliteMigrationProgress) => {
-    const params = zcodeStorageStartupStateSchema.parse({
+    const params = ycodeStorageStartupStateSchema.parse({
       schemaVersion: 1,
       attemptId,
       databaseId,
@@ -31,7 +31,7 @@ export async function openProtocolStartupStorage(options: {
     // 不能先写入 JS 缓冲后立即阻塞执行 SQL；等待 Writable 确认控制帧已交给传输层。
     await new Promise<void>((resolve, reject) => {
       options.output.write(
-        `${JSON.stringify({ method: zcodeProtocolNotifications.storageStartup, params })}\n`,
+        `${JSON.stringify({ method: ycodeProtocolNotifications.storageStartup, params })}\n`,
         (error?: Error | null) => (error ? reject(error) : resolve()),
       );
     });
@@ -63,7 +63,7 @@ export async function prepareProtocolStartupStorage(options: {
   output: NodeJS.WritableStream;
 }): Promise<void> {
   const { createInterface } = await import("node:readline");
-  const { zcodeStoragePathReadySchema, classifyDatabaseStartupError } =
+  const { ycodeStoragePathReadySchema, classifyDatabaseStartupError } =
     await import("@ycode/shared");
   const lines = createInterface({ input: options.input });
   let timer: ReturnType<typeof setTimeout>;
@@ -80,7 +80,7 @@ export async function prepareProtocolStartupStorage(options: {
     lines.once("line", (line) => {
       try {
         if (line.length > 1024) throw new Error("Invalid storage acknowledgement");
-        const ack = zcodeStoragePathReadySchema.parse(JSON.parse(line));
+        const ack = ycodeStoragePathReadySchema.parse(JSON.parse(line));
         resolve(ack.reuse ?? false);
       } catch (error) {
         reject(error);

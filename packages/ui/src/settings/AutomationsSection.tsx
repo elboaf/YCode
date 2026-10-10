@@ -23,8 +23,8 @@ import {
   TID_OFFPEAK_TAB,
   isAutomationCreateLimitError,
   resolveWorkspaceKey,
-  type ZCodeAutomation,
-  type ZCodeOffPeakTask,
+  type YCodeAutomation,
+  type YCodeOffPeakTask,
 } from "@ycode/shared";
 import { Button } from "@/components/ui/button.js";
 import {
@@ -39,7 +39,7 @@ import { toast as showToast, type ToastOptions } from "@/components/ui/toast.js"
 import { cn } from "@/components/lib/utils.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { AutomationScheduledTemplateIcon } from "@/settings/AutomationScheduledTemplateIcon.js";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import { useServices } from "@/hooks/useServices.js";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog.js";
 import { usePlatform } from "@/hooks/usePlatform.js";
@@ -190,7 +190,7 @@ function OffPeakCreateButton({
   greyTooltip?: string;
   onCreate: () => void;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   // disabled 按钮 pointer-events-none，tooltip 必须挂在外层可指针元素上。
   const button = (
     <Button
@@ -230,9 +230,9 @@ interface AutomationDraft {
 type AutomationsView =
   | { mode: "list" }
   | { mode: "create"; draft: AutomationDraft | null }
-  | { mode: "edit"; automation: ZCodeAutomation }
+  | { mode: "edit"; automation: YCodeAutomation }
   | { mode: "offpeak-create"; draft?: OffPeakCreateDraft }
-  | { mode: "offpeak-edit"; task: ZCodeOffPeakTask };
+  | { mode: "offpeak-edit"; task: YCodeOffPeakTask };
 
 /** 主视图标签页：Scheduled 常驻，Idle-time 受灰度控制；不设 All 混排视图。 */
 type AutomationsTab = "scheduled" | "idle";
@@ -311,11 +311,11 @@ function automationPromptSummary(prompt: string): string {
   return normalized.length > 0 ? normalized : " ";
 }
 
-function canRestartAutomation(automation: Pick<ZCodeAutomation, "lifecycleStatus">): boolean {
+function canRestartAutomation(automation: Pick<YCodeAutomation, "lifecycleStatus">): boolean {
   return automation.lifecycleStatus === "failed";
 }
 
-function canToggleAutomation(automation: Pick<ZCodeAutomation, "lifecycleStatus">): boolean {
+function canToggleAutomation(automation: Pick<YCodeAutomation, "lifecycleStatus">): boolean {
   return automation.lifecycleStatus !== "completed" && automation.lifecycleStatus !== "failed";
 }
 
@@ -341,19 +341,19 @@ function getAutomationCreateErrorToastId(error: unknown): string {
 }
 
 function resolveAutomationDetailTarget(
-  automations: readonly ZCodeAutomation[],
+  automations: readonly YCodeAutomation[],
   automationId?: string | null,
-): ZCodeAutomation | null {
+): YCodeAutomation | null {
   const targetId = automationId?.trim();
   if (!targetId) return null;
   return automations.find((automation) => automation.automationId === targetId) ?? null;
 }
 
 function resolveAutomationDetailNavigation(
-  automations: readonly ZCodeAutomation[],
+  automations: readonly YCodeAutomation[],
   automationId: string | null | undefined,
   listReady: boolean,
-): { status: "pending" } | { status: "missing" } | { status: "found"; target: ZCodeAutomation } {
+): { status: "pending" } | { status: "missing" } | { status: "found"; target: YCodeAutomation } {
   if (!automationId?.trim() || !listReady) return { status: "pending" };
   const target = resolveAutomationDetailTarget(automations, automationId);
   return target ? { status: "found", target } : { status: "missing" };
@@ -366,7 +366,7 @@ function isOffPeakDetailNavigationId(automationId: string | null | undefined): b
 
 /** 闲时轮尾卡跳转的并行解析路径；与 cron 的 resolveAutomationDetailNavigation 对称。 */
 function resolveOffPeakDetailNavigation(
-  tasks: readonly ZCodeOffPeakTask[],
+  tasks: readonly YCodeOffPeakTask[],
   offPeakTaskId: string | null | undefined,
   listReady: boolean,
   listError: string | null = null,
@@ -374,7 +374,7 @@ function resolveOffPeakDetailNavigation(
   | { status: "pending" }
   | { status: "unavailable" }
   | { status: "missing" }
-  | { status: "found"; target: ZCodeOffPeakTask } {
+  | { status: "found"; target: YCodeOffPeakTask } {
   const targetId = offPeakTaskId?.trim();
   if (!targetId || !listReady) return { status: "pending" };
   // review：store.refresh 吞错保留旧列表；列表不可信时不能做 found/missing 终审。
@@ -384,15 +384,15 @@ function resolveOffPeakDetailNavigation(
 }
 
 interface AutomationActionsMenuProps {
-  automation: ZCodeAutomation;
+  automation: YCodeAutomation;
   busy: boolean;
   canRestart: boolean;
   canToggle: boolean;
-  onRunNow: (automation: ZCodeAutomation) => void;
-  onEdit: (automation: ZCodeAutomation) => void;
-  onToggle: (automation: ZCodeAutomation, enabled: boolean) => void;
-  onRestart: (automation: ZCodeAutomation) => void;
-  onDelete: (automation: ZCodeAutomation) => void;
+  onRunNow: (automation: YCodeAutomation) => void;
+  onEdit: (automation: YCodeAutomation) => void;
+  onToggle: (automation: YCodeAutomation, enabled: boolean) => void;
+  onRestart: (automation: YCodeAutomation) => void;
+  onDelete: (automation: YCodeAutomation) => void;
 }
 
 function AutomationActionsMenu({
@@ -406,7 +406,7 @@ function AutomationActionsMenu({
   onRestart,
   onDelete,
 }: AutomationActionsMenuProps) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -503,7 +503,7 @@ function AutomationActionsMenu({
 
 /** 状态筛选命中 0 条时的占位；复用闲时空态卡的描边样式，文案与「还没有任务」区分开。 */
 function AutomationStatusFilterEmpty() {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   return (
     <div className="rounded-[10px] border border-card-border px-3 py-3 text-ui-base text-foreground-subtle">
       {intl.formatMessage({ id: "automations.statusFilter.empty" })}
@@ -525,9 +525,9 @@ export function AutomationsSection({
   onOpenWorkflowConsumed,
   onOpenSession,
 }: AutomationsSectionProps) {
-  const { intl, locale } = useZCodeIntl();
+  const { intl, locale } = useYCodeIntl();
   const platform = usePlatform();
-  const { clientScenesService, offPeakTaskService, zcodeAgentService } = useServices();
+  const { clientScenesService, offPeakTaskService, ycodeAgentService } = useServices();
   const confirmDialog = useConfirmDialog();
   const { openCodingPlanUpgrade } = useCodingPlanUpgradeDialog();
   const providerSettingsRead = useProviderSettingsView();
@@ -703,14 +703,14 @@ export function AutomationsSection({
     void initialize({
       workspacePath,
       workspaceIdentity,
-      agentService: zcodeAgentService,
+      agentService: ycodeAgentService,
     }).then(() => {
       if (!disposed) setLoadedWorkspaceKey(workspaceKey);
     });
     return () => {
       disposed = true;
     };
-  }, [workspacePath, workspaceIdentity, zcodeAgentService, initialize]);
+  }, [workspacePath, workspaceIdentity, ycodeAgentService, initialize]);
 
   useEffect(() => {
     const nextTab = resolveAutomationTabAfterOffPeakChange(tab, offPeakVisible);
@@ -804,7 +804,7 @@ export function AutomationsSection({
     setRefreshing(true);
     try {
       await Promise.all([
-        refresh(zcodeAgentService),
+        refresh(ycodeAgentService),
         offPeakRefresh(offPeakTaskService),
         ...(offPeakGrayEnabled ? [offPeakRefreshCodingPlanSupport(offPeakTaskService)] : []),
       ]);
@@ -818,7 +818,7 @@ export function AutomationsSection({
     offPeakRefreshCodingPlanSupport,
     offPeakTaskService,
     refresh,
-    zcodeAgentService,
+    ycodeAgentService,
   ]);
 
   // New task 页模板卡跳转过来：消费预填草稿 → 切 idle tab + 打开创建表单预填。
@@ -1017,7 +1017,7 @@ export function AutomationsSection({
       workspaceIdentity: targetIdentity,
     }: AutomationEditSubmit) => {
       if (view.mode === "edit") {
-        const ok = await updateAutomation(view.automation.automationId, input, zcodeAgentService);
+        const ok = await updateAutomation(view.automation.automationId, input, ycodeAgentService);
         if (!ok) {
           toast(
             intl.formatMessage({
@@ -1039,7 +1039,7 @@ export function AutomationsSection({
           workspacePath: targetPath,
           workspaceIdentity: targetIdentity,
         },
-        zcodeAgentService,
+        ycodeAgentService,
       );
       void reportAutomationCreateResult(platform, {
         automationId: created?.automationId,
@@ -1073,13 +1073,13 @@ export function AutomationsSection({
       showAutomationCreateLimitToast,
       updateAutomation,
       view,
-      zcodeAgentService,
+      ycodeAgentService,
     ],
   );
 
   const handleToggle = useCallback(
-    async (automation: ZCodeAutomation, enabled: boolean) => {
-      await setEnabled(automation.automationId, enabled, zcodeAgentService);
+    async (automation: YCodeAutomation, enabled: boolean) => {
+      await setEnabled(automation.automationId, enabled, ycodeAgentService);
       const message = useAutomationManagementStore.getState().error;
       if (message) toast(intl.formatMessage({ id: getAutomationActionErrorToastId("toggle") }));
       else {
@@ -1100,12 +1100,12 @@ export function AutomationsSection({
         setNow(Date.now());
       }
     },
-    [intl, setEnabled, zcodeAgentService],
+    [intl, setEnabled, ycodeAgentService],
   );
 
   const handleRestart = useCallback(
-    async (automation: ZCodeAutomation) => {
-      await restartAutomation(automation.automationId, zcodeAgentService);
+    async (automation: YCodeAutomation) => {
+      await restartAutomation(automation.automationId, ycodeAgentService);
       const message = useAutomationManagementStore.getState().error;
       if (message)
         toast(
@@ -1115,11 +1115,11 @@ export function AutomationsSection({
         );
       else setNow(Date.now());
     },
-    [intl, restartAutomation, zcodeAgentService],
+    [intl, restartAutomation, ycodeAgentService],
   );
 
   const handleRunNow = useCallback(
-    async (automation: ZCodeAutomation, source: "list" | "editor" = "list") => {
+    async (automation: YCodeAutomation, source: "list" | "editor" = "list") => {
       logger.debug("[automations] 立即运行交互开始", {
         automationId: automation.automationId,
         source,
@@ -1130,14 +1130,14 @@ export function AutomationsSection({
         automation,
         providerSettingsView,
       });
-      const result = await runAutomationNow(automation.automationId, zcodeAgentService);
+      const result = await runAutomationNow(automation.automationId, ycodeAgentService);
       logger.debug("[automations] 立即运行交互结束", {
         automationId: automation.automationId,
         source,
         result,
       });
       if (result === "queued") {
-        await loadRuns(automation.automationId, zcodeAgentService, true);
+        await loadRuns(automation.automationId, ycodeAgentService, true);
         const latestSessionId = useAutomationManagementStore
           .getState()
           .runsCache[automation.automationId]?.runs?.find(
@@ -1182,12 +1182,12 @@ export function AutomationsSection({
       platform,
       providerSettingsView,
       runAutomationNow,
-      zcodeAgentService,
+      ycodeAgentService,
     ],
   );
 
   const handleDelete = useCallback(
-    async (automation: ZCodeAutomation, source: "list" | "editor" = "list") => {
+    async (automation: YCodeAutomation, source: "list" | "editor" = "list") => {
       const confirmed = await confirmDialog({
         presentation: "automation-confirmation",
         title: intl.formatMessage({ id: "automations.delete.title" }),
@@ -1208,7 +1208,7 @@ export function AutomationsSection({
         automation,
         providerSettingsView,
       });
-      await deleteAutomation(automation.automationId, zcodeAgentService);
+      await deleteAutomation(automation.automationId, ycodeAgentService);
       const message = useAutomationManagementStore.getState().error;
       if (message) toast(intl.formatMessage({ id: getAutomationActionErrorToastId("delete") }));
       // 若在编辑该任务的整页,删除后回列表。
@@ -1218,11 +1218,11 @@ export function AutomationsSection({
           : prev,
       );
     },
-    [confirmDialog, deleteAutomation, intl, platform, providerSettingsView, zcodeAgentService],
+    [confirmDialog, deleteAutomation, intl, platform, providerSettingsView, ycodeAgentService],
   );
 
   const handleOffPeakOpenSession = useCallback(
-    (task: ZCodeOffPeakTask) => {
+    (task: YCodeOffPeakTask) => {
       if (!task.sessionId || !onOpenSession) return;
       onOpenSession({
         sessionId: task.sessionId,
@@ -1233,14 +1233,14 @@ export function AutomationsSection({
     [onOpenSession],
   );
 
-  const handleOffPeakOpen = useCallback((task: ZCodeOffPeakTask) => {
+  const handleOffPeakOpen = useCallback((task: YCodeOffPeakTask) => {
     // 有 session 的卡片主点击不能直接跳会话：会使 Settings/History
     // 无法稳定到达。卡片主路径始终进入任务详情，会话只保留为显式次级动作。
     setView({ mode: "offpeak-edit", task });
   }, []);
 
   const handleOffPeakCancel = useCallback(
-    async (task: ZCodeOffPeakTask) => {
+    async (task: YCodeOffPeakTask) => {
       const confirmed = await confirmDialog({
         title: intl.formatMessage({ id: "offPeak.cancel.title" }),
         description: intl.formatMessage(
@@ -1258,7 +1258,7 @@ export function AutomationsSection({
   );
 
   const handleOffPeakDelete = useCallback(
-    async (task: ZCodeOffPeakTask) => {
+    async (task: YCodeOffPeakTask) => {
       const confirmed = await confirmDialog({
         title: intl.formatMessage({ id: "offPeak.delete.title" }),
         description: intl.formatMessage({ id: "offPeak.delete.description" }),
@@ -1278,7 +1278,7 @@ export function AutomationsSection({
   );
 
   const handleOffPeakDeleteHistory = useCallback(
-    async (task: ZCodeOffPeakTask) => {
+    async (task: YCodeOffPeakTask) => {
       await offPeakDeleteHistory(task.offPeakTaskId, offPeakTaskService);
       const message = useOffPeakTaskStore.getState().error;
       if (message) toast(message);
@@ -1426,11 +1426,11 @@ export function AutomationsSection({
           runsEntry={view.mode === "edit" ? runsCache[view.automation.automationId] : undefined}
           onLoadRuns={() => {
             if (view.mode === "edit")
-              void loadRuns(view.automation.automationId, zcodeAgentService, true);
+              void loadRuns(view.automation.automationId, ycodeAgentService, true);
           }}
           onDeleteRun={(runId) => {
             if (view.mode === "edit") {
-              void deleteRun(view.automation.automationId, runId, zcodeAgentService);
+              void deleteRun(view.automation.automationId, runId, ycodeAgentService);
             }
           }}
           onOpenSession={

@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   BUILTIN_MODEL_PROVIDER_IDS,
   resolveBigModelApiOrigin,
-  resolveRuntimeZCodeEnv,
+  resolveRuntimeYCodeEnv,
 } from "@ycode/shared";
 import {
   createModelProviderModelConfig,
@@ -68,14 +68,14 @@ function normalizeBigModelCodingPlanAnthropicBaseUrlForEnv(
   env: Record<string, string | undefined> = process.env,
 ): string {
   const fallbackBaseUrl =
-    resolveRuntimeZCodeEnv(env) === "production"
+    resolveRuntimeYCodeEnv(env) === "production"
       ? BIGMODEL_CODING_PLAN_ANTHROPIC_BASE_URL
       : `${resolveBigModelApiOrigin(env)}/api/anthropic`;
   const normalizedBaseUrl = normalizeModelProviderBaseUrlForKind(
     baseUrl ?? fallbackBaseUrl,
     "anthropic",
   );
-  if (resolveRuntimeZCodeEnv(env) === "production") {
+  if (resolveRuntimeYCodeEnv(env) === "production") {
     return normalizedBaseUrl || fallbackBaseUrl;
   }
 
@@ -91,7 +91,7 @@ function normalizeBigModelCodingPlanAnthropicBaseUrlForEnv(
   }
 }
 
-function getZCodeConfigFilePath(): string {
+function getYCodeConfigFilePath(): string {
   return join(getAppConfigDir(), "config.json");
 }
 
@@ -100,13 +100,13 @@ const RETIRED_ZAPI_PROVIDER_ID = "builtin:zapi";
 
 type JsonObject = Record<string, unknown>;
 
-interface ZCodeConfigFile {
+interface YCodeConfigFile {
   $schema?: string;
-  provider?: Record<string, ZCodeOpenCodeProviderConfig>;
+  provider?: Record<string, YCodeOpenCodeProviderConfig>;
   [key: string]: unknown;
 }
 
-interface ZCodeOpenCodeProviderConfig {
+interface YCodeOpenCodeProviderConfig {
   api?: string;
   name?: string;
   env?: string[];
@@ -132,18 +132,18 @@ interface ZCodeOpenCodeProviderConfig {
   providerMappings?: ProviderModelMappings;
   createdAt?: number;
   updatedAt?: number;
-  models?: Record<string, ZCodeOpenCodeModelConfig>;
-  ycode?: ZCodeProviderConfigExtension;
+  models?: Record<string, YCodeOpenCodeModelConfig>;
+  ycode?: YCodeProviderConfigExtension;
   [key: string]: unknown;
 }
 
-interface ZCodeOpenCodeModelConfig {
+interface YCodeOpenCodeModelConfig {
   id?: string;
   name?: string;
   family?: string;
   release_date?: string;
   attachment?: boolean;
-  reasoning?: boolean | ZCodeReasoningConfigExtension;
+  reasoning?: boolean | YCodeReasoningConfigExtension;
   temperature?: boolean;
   tool_call?: boolean;
   interleaved?: unknown;
@@ -179,18 +179,18 @@ interface ZCodeOpenCodeModelConfig {
   priority?: number;
   modified?: boolean;
   deleted?: boolean;
-  ycode?: ZCodeModelConfigExtension;
+  ycode?: YCodeModelConfigExtension;
   [key: string]: unknown;
 }
 
-interface ZCodeReasoningConfigExtension {
+interface YCodeReasoningConfigExtension {
   enabled?: boolean;
   variants?: string[];
   defaultVariant?: string;
   aliases?: Record<string, string>;
 }
 
-interface ZCodeProviderConfigExtension {
+interface YCodeProviderConfigExtension {
   enabled?: boolean;
   systemDisabledReason?: ModelProviderSystemDisabledReason;
   endpoints?: ModelProviderEndpoints;
@@ -210,7 +210,7 @@ interface ZCodeProviderConfigExtension {
   deletedModels?: string[];
 }
 
-interface ZCodeModelConfigExtension {
+interface YCodeModelConfigExtension {
   kinds?: ModelProviderKind[];
   defaultKind?: ModelProviderKind;
   modelIdByKind?: Partial<Record<ModelProviderKind, string>>;
@@ -225,10 +225,10 @@ interface ZCodeModelConfigExtension {
 }
 
 const jsonObjectSchema = z.record(z.string(), z.unknown());
-const zcodeModelProviderModalitySchema = z.enum(["text", "image", "video", "audio", "pdf"]);
-const zcodeProviderModelMappingsSchema = z.record(z.string(), z.unknown());
+const ycodeModelProviderModalitySchema = z.enum(["text", "image", "video", "audio", "pdf"]);
+const ycodeProviderModelMappingsSchema = z.record(z.string(), z.unknown());
 
-const zcodeReasoningConfigExtensionSchema = z
+const ycodeReasoningConfigExtensionSchema = z
   .object({
     enabled: z.boolean().optional(),
     variants: z.array(z.string().min(1)).optional(),
@@ -237,7 +237,7 @@ const zcodeReasoningConfigExtensionSchema = z
   })
   .passthrough();
 
-const zcodeModelConfigExtensionSchema = z
+const ycodeModelConfigExtensionSchema = z
   .object({
     kinds: z.array(modelProviderKindSchema).optional(),
     defaultKind: modelProviderKindSchema.optional(),
@@ -253,11 +253,11 @@ const zcodeModelConfigExtensionSchema = z
   })
   .passthrough();
 
-const zcodeOpenCodeModelConfigSchema: z.ZodType<ZCodeOpenCodeModelConfig> = z
+const ycodeOpenCodeModelConfigSchema: z.ZodType<YCodeOpenCodeModelConfig> = z
   .object({
     id: z.string().optional(),
     name: z.string().optional(),
-    reasoning: z.union([z.boolean(), zcodeReasoningConfigExtensionSchema]).optional(),
+    reasoning: z.union([z.boolean(), ycodeReasoningConfigExtensionSchema]).optional(),
     limit: z
       .object({
         context: z.number().positive().optional(),
@@ -269,8 +269,8 @@ const zcodeOpenCodeModelConfigSchema: z.ZodType<ZCodeOpenCodeModelConfig> = z
     maxOutputTokens: z.number().positive().optional(),
     modalities: z
       .object({
-        input: z.array(zcodeModelProviderModalitySchema).optional(),
-        output: z.array(zcodeModelProviderModalitySchema).optional(),
+        input: z.array(ycodeModelProviderModalitySchema).optional(),
+        output: z.array(ycodeModelProviderModalitySchema).optional(),
       })
       .optional(),
     options: jsonObjectSchema.optional(),
@@ -287,11 +287,11 @@ const zcodeOpenCodeModelConfigSchema: z.ZodType<ZCodeOpenCodeModelConfig> = z
     priority: z.number().finite().optional(),
     modified: z.boolean().optional(),
     deleted: z.boolean().optional(),
-    ycode: zcodeModelConfigExtensionSchema.optional(),
+    ycode: ycodeModelConfigExtensionSchema.optional(),
   })
   .passthrough();
 
-const zcodeProviderConfigExtensionSchema = z
+const ycodeProviderConfigExtensionSchema = z
   .object({
     enabled: z.boolean().optional(),
     systemDisabledReason: modelProviderSystemDisabledReasonSchema.optional(),
@@ -306,14 +306,14 @@ const zcodeProviderConfigExtensionSchema = z
     logoUrl: z.string().optional(),
     apiKeyUrl: z.string().optional(),
     defaultKind: modelProviderKindSchema.optional(),
-    providerMappings: zcodeProviderModelMappingsSchema.optional(),
+    providerMappings: ycodeProviderModelMappingsSchema.optional(),
     createdAt: z.number().optional(),
     updatedAt: z.number().optional(),
     deletedModels: z.array(z.string().min(1)).optional(),
   })
   .passthrough();
 
-const zcodeOpenCodeProviderConfigSchema: z.ZodType<ZCodeOpenCodeProviderConfig> = z
+const ycodeOpenCodeProviderConfigSchema: z.ZodType<YCodeOpenCodeProviderConfig> = z
   .object({
     api: z.string().optional(),
     name: z.string().optional(),
@@ -337,18 +337,18 @@ const zcodeOpenCodeProviderConfigSchema: z.ZodType<ZCodeOpenCodeProviderConfig> 
     logoUrl: z.string().optional(),
     apiKeyUrl: z.string().optional(),
     defaultKind: modelProviderKindSchema.optional(),
-    providerMappings: zcodeProviderModelMappingsSchema.optional(),
+    providerMappings: ycodeProviderModelMappingsSchema.optional(),
     createdAt: z.number().optional(),
     updatedAt: z.number().optional(),
-    models: z.record(z.string(), zcodeOpenCodeModelConfigSchema).optional(),
-    ycode: zcodeProviderConfigExtensionSchema.optional(),
+    models: z.record(z.string(), ycodeOpenCodeModelConfigSchema).optional(),
+    ycode: ycodeProviderConfigExtensionSchema.optional(),
   })
   .passthrough();
 
-const zcodeConfigFileSchema = z
+const ycodeConfigFileSchema = z
   .object({
     $schema: z.string().optional(),
-    provider: z.record(z.string(), zcodeOpenCodeProviderConfigSchema).optional(),
+    provider: z.record(z.string(), ycodeOpenCodeProviderConfigSchema).optional(),
   })
   .passthrough();
 
@@ -381,7 +381,7 @@ function readStringRecord(value: unknown): Record<string, string> | undefined {
 }
 
 function inferModelProviderKindFromOpenCodeProvider(
-  provider: ZCodeOpenCodeProviderConfig,
+  provider: YCodeOpenCodeProviderConfig,
 ): ModelProviderKind {
   if (provider.kind) {
     return provider.kind;
@@ -399,7 +399,7 @@ function inferModelProviderKindFromOpenCodeProvider(
   return "openai-compatible";
 }
 
-function hasOpenCodeProviderRuntimeFields(provider: ZCodeOpenCodeProviderConfig): boolean {
+function hasOpenCodeProviderRuntimeFields(provider: YCodeOpenCodeProviderConfig): boolean {
   // config.json 的权威运行态字段是 kind/options.baseURL。
   // 旧 endpoints/apiFormat/defaultKind/ycode 可能是历史迁移残留，若继续优先读取会覆盖新配置。
   return Boolean(
@@ -411,7 +411,7 @@ function hasOpenCodeProviderRuntimeFields(provider: ZCodeOpenCodeProviderConfig)
 }
 
 function resolveOpenCodeProviderDefaultKind(
-  provider: ZCodeOpenCodeProviderConfig,
+  provider: YCodeOpenCodeProviderConfig,
 ): ModelProviderKind {
   if (provider.kind) {
     return provider.kind;
@@ -482,7 +482,7 @@ function isBigModelCodingPlanLegacyOpenAiRuntime(
 }
 
 function resolveOpenCodeProviderEndpoints(
-  provider: ZCodeOpenCodeProviderConfig,
+  provider: YCodeOpenCodeProviderConfig,
   defaultKind: ModelProviderKind,
   providerId: string,
 ): ModelProviderEndpoints {
@@ -519,7 +519,7 @@ function resolveOpenCodeProviderEndpoints(
   return provider.endpoints ?? provider.ycode?.endpoints ?? {};
 }
 
-function stripZCodePrefixedProviderMappings(
+function stripYCodePrefixedProviderMappings(
   providerMappings: ProviderModelMappings | undefined,
 ): ProviderModelMappings | undefined {
   if (!providerMappings) {
@@ -532,7 +532,7 @@ function stripZCodePrefixedProviderMappings(
 }
 
 function openCodeReasoningToModelReasoning(
-  model: ZCodeOpenCodeModelConfig,
+  model: YCodeOpenCodeModelConfig,
   options: { preferOpenCodeFields: boolean },
 ): ModelProviderReasoningSpec | undefined {
   if (!options.preferOpenCodeFields && model.reasoningSpec) {
@@ -561,12 +561,12 @@ function openCodeReasoningToModelReasoning(
 
 function openCodeModelToModelProviderModel(
   modelId: string,
-  model: ZCodeOpenCodeModelConfig,
+  model: YCodeOpenCodeModelConfig,
   providerDefaultKind: ModelProviderKind,
   options: { preferOpenCodeFields: boolean },
 ): ModelProviderModelConfig {
   const ycode = options.preferOpenCodeFields ? undefined : model.ycode;
-  const zcodeExtensions = model.ycode;
+  const ycodeExtensions = model.ycode;
   const contextWindow =
     readPositiveNumber(model.limit?.context) ?? readPositiveNumber(model.contextWindow);
   const maxOutputTokens =
@@ -600,12 +600,12 @@ function openCodeModelToModelProviderModel(
       output: model.modalities?.output,
     },
     reasoning: openCodeReasoningToModelReasoning(model, options),
-    priority: readFiniteNumber(model.priority) ?? readFiniteNumber(zcodeExtensions?.priority),
+    priority: readFiniteNumber(model.priority) ?? readFiniteNumber(ycodeExtensions?.priority),
     disabledReason: model.disabledReason ?? ycode?.disabledReason,
     supportsTools: model.supportsTools ?? ycode?.supportsTools,
     supportsStructuredOutput: model.supportsStructuredOutput ?? ycode?.supportsStructuredOutput,
-    modified: model.modified ?? zcodeExtensions?.modified,
-    deleted: model.deleted ?? zcodeExtensions?.deleted,
+    modified: model.modified ?? ycodeExtensions?.modified,
+    deleted: model.deleted ?? ycodeExtensions?.deleted,
   });
 }
 
@@ -640,7 +640,7 @@ function createDeletedModelTombstone(
 
 function openCodeProviderToModelProviderConfig(
   providerId: string,
-  provider: ZCodeOpenCodeProviderConfig,
+  provider: YCodeOpenCodeProviderConfig,
 ): ModelProviderConfig {
   const ycode = provider.ycode;
   const preferOpenCodeFields = hasOpenCodeProviderRuntimeFields(provider);
@@ -671,7 +671,7 @@ function openCodeProviderToModelProviderConfig(
     provider.apiKeyRequired ?? ycode?.apiKeyRequired ?? readBoolean(options.apiKeyRequired);
   const providerMappings = preferOpenCodeFields
     ? undefined
-    : stripZCodePrefixedProviderMappings(provider.providerMappings ?? ycode?.providerMappings);
+    : stripYCodePrefixedProviderMappings(provider.providerMappings ?? ycode?.providerMappings);
   return normalizeProviderForStore({
     id: provider.id?.trim() || providerId,
     name: provider.name?.trim() || providerId,
@@ -728,8 +728,8 @@ function openCodeProviderToModelProviderConfig(
   });
 }
 
-async function readRawZCodeConfigFile(): Promise<ZCodeConfigFile | null> {
-  const filePath = getZCodeConfigFilePath();
+async function readRawYCodeConfigFile(): Promise<YCodeConfigFile | null> {
+  const filePath = getYCodeConfigFilePath();
   let raw: string;
   try {
     raw = await readFile(filePath, "utf-8");
@@ -747,7 +747,7 @@ async function readRawZCodeConfigFile(): Promise<ZCodeConfigFile | null> {
     // JSON/Zod 原始错误可能包含 API Key 等输入值；不能写入日志或通过 cause 向外传递。
     throw new Error(`旧 Provider 配置解析失败 stage=json path=${filePath}`);
   }
-  const parsed = zcodeConfigFileSchema.safeParse(json);
+  const parsed = ycodeConfigFileSchema.safeParse(json);
   if (!parsed.success) {
     const field = parsed.error.issues[0]?.path.map(String).join(".").slice(0, 256) ?? "";
     throw new Error(`旧 Provider 配置校验失败 stage=schema path=${filePath} field=${field}`);
@@ -755,8 +755,8 @@ async function readRawZCodeConfigFile(): Promise<ZCodeConfigFile | null> {
   return parsed.data;
 }
 
-async function readZCodeConfigProviders(): Promise<ModelProviderConfig[] | null> {
-  const config = await readRawZCodeConfigFile();
+async function readYCodeConfigProviders(): Promise<ModelProviderConfig[] | null> {
+  const config = await readRawYCodeConfigFile();
   if (!config?.provider) {
     return null;
   }
@@ -909,7 +909,7 @@ function normalizeProviderForStore(provider: ModelProviderConfig): ModelProvider
     models: normalizedModels,
     modelDisplayNames: undefined,
     modelSupportedFormats: undefined,
-    providerMappings: stripZCodePrefixedProviderMappings(
+    providerMappings: stripYCodePrefixedProviderMappings(
       stripLegacyClaudeProviderMappings(provider.providerMappings),
     ),
   };
@@ -931,8 +931,8 @@ function applyProviderStoreMigrations(providers: ModelProviderConfig[]): ModelPr
 }
 
 /** 只读取已发布旧 config.json；更早期的独立 Provider Store 已退出所有迁移链路。 */
-export async function readLegacyZCodeConfigProviders(): Promise<ModelProviderConfig[]> {
-  const configProviders = await readZCodeConfigProviders();
+export async function readLegacyYCodeConfigProviders(): Promise<ModelProviderConfig[]> {
+  const configProviders = await readYCodeConfigProviders();
   return configProviders ? filterDeletedProviderModelsForRead(configProviders) : [];
 }
 

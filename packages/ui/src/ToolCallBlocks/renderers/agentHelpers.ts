@@ -1,8 +1,8 @@
-import type { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import type { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import type { ToolCallBlockRenderContext } from "@/ToolCallBlocks/shared.js";
 import { isSubagentColor } from "@/lib/subagentColors.js";
 
-type AgentIntl = ReturnType<typeof useZCodeIntl>["intl"];
+type AgentIntl = ReturnType<typeof useYCodeIntl>["intl"];
 type AgentToolCall = ToolCallBlockRenderContext["toolCallNode"]["toolCall"];
 const DEFAULT_AGENT_TYPE_LABEL = "general-purpose";
 
@@ -164,11 +164,11 @@ export function readBackgroundAgentInfo(toolCall: AgentToolCall) {
   const raw = isPlainRecord(toolCall.raw) ? toolCall.raw : null;
   const meta = raw && isPlainRecord(raw._meta) ? raw._meta : null;
   const ycode = meta && isPlainRecord(meta.ycode) ? meta.ycode : null;
-  const zcodeBackgroundAgent =
+  const ycodeBackgroundAgent =
     ycode && isPlainRecord(ycode.backgroundAgent) ? ycode.backgroundAgent : null;
   const taskNotification =
     ycode && isPlainRecord(ycode.taskNotification) ? ycode.taskNotification : null;
-  const backgroundAgent = zcodeBackgroundAgent;
+  const backgroundAgent = ycodeBackgroundAgent;
   const input = isPlainRecord(toolCall.input) ? toolCall.input : null;
   const outputText = readTextFromUnknown(toolCall.output);
   const outputFile =

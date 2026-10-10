@@ -1,4 +1,4 @@
-export type BuiltinZCodeSlashCommandHelpEntry = {
+export type BuiltinYCodeSlashCommandHelpEntry = {
   aliases?: readonly string[];
   details: readonly string[];
   name: string;
@@ -6,7 +6,7 @@ export type BuiltinZCodeSlashCommandHelpEntry = {
   usage: string;
 };
 
-export const BUILTIN_ZCODE_SLASH_COMMAND_HELP_ENTRIES: readonly BuiltinZCodeSlashCommandHelpEntry[] =
+export const BUILTIN_YCODE_SLASH_COMMAND_HELP_ENTRIES: readonly BuiltinYCodeSlashCommandHelpEntry[] =
   [
     {
       details: [

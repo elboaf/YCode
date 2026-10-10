@@ -13,7 +13,7 @@ import {
 import { omitMcpServers, resolveTrustedOfficialCuaServerNames } from "../mcp-config.js";
 import { resolveDefaultEmbeddedSearchBackend } from "./embedded-search-backend.js";
 import { getProjectMemoryRoot } from "./paths.js";
-import type { ZCodeAppOptions } from "./types.js";
+import type { YCodeAppOptions } from "./types.js";
 import {
   resolveRegistryOwnedModelSelection,
   resolveRegistryModelSelection,
@@ -33,7 +33,7 @@ interface ResolvedInitialRegistrySelection extends ResolvedRegistrySelection {
 export function resolveAppRuntimeConfig(input: {
   cliStorageRoot: string;
   configResult: ConfigResult;
-  options: ZCodeAppOptions;
+  options: YCodeAppOptions;
   persistedMode?: CollaborationMode;
   builtInMcpServers?: Record<string, McpServerConfig>;
   builtInSubagentModelSelectionOverrides?: BuiltInSubagentModelSelectionOverrides;
@@ -210,7 +210,7 @@ function withHookConfigSource(
 }
 
 function resolveInitialRegistrySelection(
-  options: ZCodeAppOptions,
+  options: YCodeAppOptions,
 ): ResolvedInitialRegistrySelection | undefined {
   const registry = options.providerRegistry;
   if (!registry) return undefined;

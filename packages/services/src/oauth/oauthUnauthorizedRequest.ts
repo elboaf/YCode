@@ -26,7 +26,7 @@ export async function isCurrentOAuthCredentialRequest(options: {
 }): Promise<boolean> {
   const authorization = options.headers.get("authorization")?.trim() ?? "";
   if (!authorization) return false;
-  const currentJwt = (await options.credentialService.load("zcodejwttoken"))?.trim() ?? "";
+  const currentJwt = (await options.credentialService.load("ycodejwttoken"))?.trim() ?? "";
   if (currentJwt && authorization === `Bearer ${currentJwt}`) return true;
 
   // 原观察器只识别 YCode JWT，业务 access token 的 userinfo 401

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { SharedZCodeCredentialStore } from "@ycode/adapters/auth";
+import type { SharedYCodeCredentialStore } from "@ycode/adapters/auth";
 import type { ProviderRuntimeHeadersPort } from "@ycode/core";
 import {
   createAccountProviderConfigSnapshot,
@@ -10,7 +10,7 @@ import {
   type ProviderConfigLayerSnapshot,
 } from "@ycode/provider";
 import {
-  NodeZCodeBuiltinProviderConfigSource,
+  NodeYCodeBuiltinProviderConfigSource,
   YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
 } from "@ycode/provider-node";
 import type { ProviderFamilyDomain } from "@ycode/shared";
@@ -31,12 +31,12 @@ async function readStandaloneCodingPlanCatalog(
   env: Readonly<Record<string, string | undefined>>,
   config?: Pick<ProviderConfigLayerSnapshot, "revision" | "providers">,
 ): Promise<{
-  readonly zcodeBuiltinRevision: string;
+  readonly ycodeBuiltinRevision: string;
   readonly providers: readonly StandaloneCodingPlanProvider[];
 }> {
   if (config)
     return {
-      zcodeBuiltinRevision: config.revision,
+      ycodeBuiltinRevision: config.revision,
       providers: config.providers.entries().flatMap(([providerId, provider]) => {
         const access = provider.access;
         const modelId = provider.builtinModelIds?.find((candidate) => candidate.trim())?.trim();
@@ -52,7 +52,7 @@ async function readStandaloneCodingPlanCatalog(
   if (!filePath) {
     throw new Error(`${YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV} is required for login`);
   }
-  const source = new NodeZCodeBuiltinProviderConfigSource({
+  const source = new NodeYCodeBuiltinProviderConfigSource({
     bundledFilePath: filePath,
     watch: false,
   });
@@ -105,7 +105,7 @@ export function createStandaloneAccountIdentityFromSecret(secret: string): strin
 }
 
 export async function readStandaloneAccountProviderConfigSnapshot(
-  credentialStore: Pick<SharedZCodeCredentialStore, "loadMany">,
+  credentialStore: Pick<SharedYCodeCredentialStore, "loadMany">,
   env: Readonly<Record<string, string | undefined>>,
   config?: Pick<ProviderConfigLayerSnapshot, "revision" | "providers">,
 ): Promise<AccountProviderConfigSnapshot> {
@@ -152,11 +152,11 @@ export async function readStandaloneAccountProviderConfigSnapshot(
       ] as const;
     }),
   );
-  return createAccountProviderConfigSnapshot(catalog.zcodeBuiltinRevision, providers);
+  return createAccountProviderConfigSnapshot(catalog.ycodeBuiltinRevision, providers);
 }
 
 export async function hasStandaloneCodingPlanAccess(
-  credentialStore: Pick<SharedZCodeCredentialStore, "loadMany">,
+  credentialStore: Pick<SharedYCodeCredentialStore, "loadMany">,
   env: Readonly<Record<string, string | undefined>>,
 ): Promise<boolean> {
   return (await readStandaloneAccountProviderConfigSnapshot(credentialStore, env)).providers
@@ -167,7 +167,7 @@ export async function hasStandaloneCodingPlanAccess(
 }
 
 export function createStandaloneProviderRuntimeHeadersPort(
-  credentialStore: Pick<SharedZCodeCredentialStore, "load" | "loadMany">,
+  credentialStore: Pick<SharedYCodeCredentialStore, "load" | "loadMany">,
   env: Readonly<Record<string, string | undefined>>,
 ): ProviderRuntimeHeadersPort {
   return {

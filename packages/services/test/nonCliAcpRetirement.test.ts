@@ -8,13 +8,13 @@ import { fileURLToPath } from "node:url";
 import {
   YCODE_PROTOCOL_NAME,
   YCODE_PROTOCOL_VERSION,
-  zcodeSessionStateSnapshotSchema,
+  ycodeSessionStateSnapshotSchema,
 } from "@ycode/shared";
 import { TaskIndexRepo } from "../src/session/taskIndexRepo.js";
-import { createZCodeTaskServiceAdapter } from "../src/ycode-agent/zcodeTaskServiceAdapter.js";
+import { createYCodeTaskServiceAdapter } from "../src/ycode-agent/ycodeTaskServiceAdapter.js";
 import {
   getLegacyTaskSessionSnapshotPath,
-  getZCodeDataRootDir,
+  getYCodeDataRootDir,
   setDataBaseDir,
 } from "../src/paths.js";
 import { createMemoryService } from "../src/memory/memoryService.js";
@@ -38,7 +38,7 @@ test("current Project Memory catalog and files remain readable", async () => {
   try {
     const workspaceId = "example-0123456789abcdef";
     const memoryRoot = join(
-      getZCodeDataRootDir(),
+      getYCodeDataRootDir(),
       "cli",
       "memories",
       "projects",
@@ -106,14 +106,14 @@ test("missing sessions report the owner error even when a valid ACP snapshot exi
   await writeFile(path, content);
   const ownerError = new Error(`Session not found: ${meta.taskId}`);
   const disposable = () => ({ dispose() {} });
-  type Options = Parameters<typeof createZCodeTaskServiceAdapter>[0];
-  const service = createZCodeTaskServiceAdapter({
-    zcodeAgentService: {
+  type Options = Parameters<typeof createYCodeTaskServiceAdapter>[0];
+  const service = createYCodeTaskServiceAdapter({
+    ycodeAgentService: {
       async resumeSession() {
         throw ownerError;
       },
       disposeAll() {},
-    } as unknown as Options["zcodeAgentService"],
+    } as unknown as Options["ycodeAgentService"],
     taskIndexRepo: {
       async getTaskMeta() {
         return meta;
@@ -142,7 +142,7 @@ test("missing sessions report the owner error even when a valid ACP snapshot exi
 });
 
 test("current session recovery preserves Desktop and replayable projections", async () => {
-  const snapshot = zcodeSessionStateSnapshotSchema.parse({
+  const snapshot = ycodeSessionStateSnapshotSchema.parse({
     protocol: { name: YCODE_PROTOCOL_NAME, version: YCODE_PROTOCOL_VERSION },
     session: {
       sessionId: meta.taskId,
@@ -175,18 +175,18 @@ test("current session recovery preserves Desktop and replayable projections", as
     messages: [],
     slashCommands: [{ name: "compact", description: "Compact" }],
   });
-  type Options = Parameters<typeof createZCodeTaskServiceAdapter>[0];
+  type Options = Parameters<typeof createYCodeTaskServiceAdapter>[0];
   const disposable = () => ({ dispose() {} });
   const resumed: unknown[] = [];
   const indexed: unknown[] = [];
-  const service = createZCodeTaskServiceAdapter({
-    zcodeAgentService: {
+  const service = createYCodeTaskServiceAdapter({
+    ycodeAgentService: {
       async resumeSession(params: unknown) {
         resumed.push(params);
         return snapshot;
       },
       disposeAll() {},
-    } as unknown as Options["zcodeAgentService"],
+    } as unknown as Options["ycodeAgentService"],
     taskIndexRepo: {
       async getTaskMeta() {
         return meta;
@@ -226,7 +226,7 @@ test("current session recovery preserves Desktop and replayable projections", as
 test("current Provider configuration starts without an old config migration callback", async () => {
   const dir = await mkdtemp(join(tmpdir(), "ycode-provider-current-"));
   const runtime = createProviderConfigRuntime({
-    zcodeBuiltinFilePath: fileURLToPath(
+    ycodeBuiltinFilePath: fileURLToPath(
       new URL("../../../config/provider/ycode-builtin.json", import.meta.url),
     ),
     personalFilePath: join(dir, "personal.json"),
@@ -236,7 +236,7 @@ test("current Provider configuration starts without an old config migration call
   try {
     await runtime.start();
     const config = await runtime.configService.read();
-    assert.ok(config.zcodeBuiltinRevision);
+    assert.ok(config.ycodeBuiltinRevision);
     assert.deepEqual(config.personalProviderOrder, []);
     assert.deepEqual(config.personalProviders.toJSON(), []);
   } finally {

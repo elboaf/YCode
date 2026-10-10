@@ -2,7 +2,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { TID_MODEL_PROVIDER_API_KEY_INPUT } from "@ycode/shared";
 import { Button } from "@/components/ui/button.js";
 import { Input } from "@/components/ui/input.js";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import { TECHNICAL_INPUT_ATTRIBUTES } from "@/lib/technicalInputAttributes.js";
 
 export function ApiKeyInput({
@@ -26,7 +26,7 @@ export function ApiKeyInput({
   onCompositionEnd?: () => void;
   onToggleVisibility: () => void;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
 
   return (
     <div className="relative">

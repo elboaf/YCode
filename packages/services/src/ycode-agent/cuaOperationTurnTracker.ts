@@ -1,4 +1,4 @@
-import { resolveWorkspaceKey, type ZCodeComputerUseOperationEvent } from "@ycode/shared";
+import { resolveWorkspaceKey, type YCodeComputerUseOperationEvent } from "@ycode/shared";
 import type { PipSessionEvent } from "@ycode/ycode-cua/pip-session";
 
 export interface CuaOperationWorkspaceTarget {
@@ -19,7 +19,7 @@ export interface CuaOperationStateReporter {
 }
 
 interface CuaOperationTurnTracker {
-  accept(workspace: CuaOperationWorkspaceTarget, event: ZCodeComputerUseOperationEvent): void;
+  accept(workspace: CuaOperationWorkspaceTarget, event: YCodeComputerUseOperationEvent): void;
   /** 当前是否存在仍在执行 Computer Use 工具的 turn。 */
   hasActiveTurn(): boolean;
   clearWorkspaceKey(workspaceKey: string): void;
@@ -167,7 +167,7 @@ export function createCuaOperationTurnTracker(options: {
 
   function accept(
     workspace: CuaOperationWorkspaceTarget,
-    event: ZCodeComputerUseOperationEvent,
+    event: YCodeComputerUseOperationEvent,
   ): void {
     const workspaceKey = resolveWorkspaceKey(workspace);
     const sessionKey = sessionKeyFor(workspaceKey, event.sessionId);

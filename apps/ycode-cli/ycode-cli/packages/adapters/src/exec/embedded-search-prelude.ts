@@ -191,9 +191,9 @@ function indentShellContent(content: string): string {
 
 function createGrepBypassLines(): string[] {
   return [
-    "  local _zcode_grep_arg",
-    '  for _zcode_grep_arg in "$@"; do',
-    `    case "$_zcode_grep_arg" in ${GREP_BYPASS_CASE_PATTERN}) command grep "$@"; return ;; esac`,
+    "  local _ycode_grep_arg",
+    '  for _ycode_grep_arg in "$@"; do',
+    `    case "$_ycode_grep_arg" in ${GREP_BYPASS_CASE_PATTERN}) command grep "$@"; return ;; esac`,
     "  done",
   ];
 }

@@ -1,9 +1,9 @@
 import { lstat, opendir } from "node:fs/promises";
 import { join } from "node:path";
 
-export type ZCodeDataSizePartialReason = "file_limit" | "io_error" | "time_limit";
+export type YCodeDataSizePartialReason = "file_limit" | "io_error" | "time_limit";
 
-export type ZCodeDataSizeScanResult = {
+export type YCodeDataSizeScanResult = {
   bytes: number;
   directoriesScanned: number;
   durationMs: number;
@@ -11,16 +11,16 @@ export type ZCodeDataSizeScanResult = {
   scanErrorCount: number;
 } & (
   | { status: "complete"; partialReason?: never }
-  | { status: "partial"; partialReason: ZCodeDataSizePartialReason }
+  | { status: "partial"; partialReason: YCodeDataSizePartialReason }
 );
 
-export interface ZCodeDataSizeScanRequest {
+export interface YCodeDataSizeScanRequest {
   rootPath: string;
   maxDurationMs: number;
   maxFiles: number;
 }
 
-interface ZCodeDataSizeScanOptions extends ZCodeDataSizeScanRequest {
+interface YCodeDataSizeScanOptions extends YCodeDataSizeScanRequest {
   signal?: AbortSignal;
   /** 仅用于定向测试时间上限，不进入 Worker 消息。 */
   now?: () => number;
@@ -40,9 +40,9 @@ function isMissingPathError(error: unknown): boolean {
  * 异步统计数据根下普通文件的逻辑字节数。调用方必须把它放在 Worker 中执行；这里不跟随
  * 符号链接，避免循环或越出用户选择的数据根。
  */
-export async function scanZCodeDataDirectory(
-  options: ZCodeDataSizeScanOptions,
-): Promise<ZCodeDataSizeScanResult> {
+export async function scanYCodeDataDirectory(
+  options: YCodeDataSizeScanOptions,
+): Promise<YCodeDataSizeScanResult> {
   const now = options.now ?? Date.now;
   const startedAt = now();
   const directories = [options.rootPath];
@@ -50,7 +50,7 @@ export async function scanZCodeDataDirectory(
   let directoriesScanned = 0;
   let filesScanned = 0;
   let scanErrorCount = 0;
-  let terminalPartialReason: Exclude<ZCodeDataSizePartialReason, "io_error"> | null = null;
+  let terminalPartialReason: Exclude<YCodeDataSizePartialReason, "io_error"> | null = null;
 
   const elapsed = () => Math.max(0, now() - startedAt);
   const ensureWithinLimits = (): boolean => {
@@ -162,11 +162,11 @@ export async function scanZCodeDataDirectory(
   };
 }
 
-export function isZCodeDataSizeScanResult(value: unknown): value is ZCodeDataSizeScanResult {
+export function isYCodeDataSizeScanResult(value: unknown): value is YCodeDataSizeScanResult {
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  const candidate = value as Partial<ZCodeDataSizeScanResult>;
+  const candidate = value as Partial<YCodeDataSizeScanResult>;
   const finiteNumbers = [
     candidate.bytes,
     candidate.directoriesScanned,

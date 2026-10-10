@@ -1,15 +1,15 @@
 import {
-  getZCodeToolFamilyForName,
+  getYCodeToolFamilyForName,
   isTodoPlanToolName,
-  isZCodeFileContentWriteToolName,
-  normalizeZCodeToolName,
-  type ZCodeKnownToolName,
-  type ZCodeToolFamily,
+  isYCodeFileContentWriteToolName,
+  normalizeYCodeToolName,
+  type YCodeKnownToolName,
+  type YCodeToolFamily,
 } from "@ycode/shared";
 import { normalizeAskUserQuestionInput, readAskUserQuestionInput } from "@/lib/askUserQuestion.js";
 
 export type ToolCallPresentationFamily =
-  | ZCodeToolFamily
+  | YCodeToolFamily
   | "plan-guidance"
   | "switch-mode"
   | "explore"
@@ -27,7 +27,7 @@ export type ToolCallIdentitySource =
   | "unknown";
 
 export interface ToolCallIdentity {
-  toolName: ZCodeKnownToolName | string | null;
+  toolName: YCodeKnownToolName | string | null;
   family: ToolCallPresentationFamily;
   source: ToolCallIdentitySource;
   isLegacy: boolean;
@@ -80,11 +80,11 @@ function identityFromKnownToolName(
   value: string | null | undefined,
   source: ToolCallIdentitySource,
 ): ToolCallIdentity | null {
-  const toolName = normalizeZCodeToolName(value);
+  const toolName = normalizeYCodeToolName(value);
   if (!toolName) {
     return null;
   }
-  const family = getZCodeToolFamilyForName(toolName);
+  const family = getYCodeToolFamilyForName(toolName);
   if (!family) {
     return null;
   }
@@ -128,10 +128,10 @@ function isLegacyAgentTool(
   const kind = normalizeLegacyToken(toolCall.kind);
   const title = normalizeLegacyToken(toolCall.title);
   const rawDirect = normalizeLegacyToken(rawNames.direct);
-  const rawZCode = normalizeLegacyToken(rawNames.ycode);
+  const rawYCode = normalizeLegacyToken(rawNames.ycode);
 
   return (
-    rawZCode === "agent" ||
+    rawYCode === "agent" ||
     rawDirect === "agent" ||
     kind === "agent" ||
     (kind === "think" && (title === "agent" || title === "task")) ||
@@ -328,7 +328,7 @@ export function isFileContentWriteToolCall(
   if (identity.family !== "file-write") {
     return false;
   }
-  if (isZCodeFileContentWriteToolName(identity.toolName)) {
+  if (isYCodeFileContentWriteToolName(identity.toolName)) {
     return true;
   }
   const legacyKind = normalizeLegacyToken(toolCall.kind);

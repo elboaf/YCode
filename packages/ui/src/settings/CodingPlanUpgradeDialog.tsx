@@ -31,7 +31,7 @@ interface CodingPlanUpgradeDialogProps {
   onReopen?: (target: CodingPlanUpgradeDialogTarget) => void;
 }
 
-// 完成刷新：官网页通过 window.zcodeBridge.notifyPurchaseComplete 回传购买成功后调用。
+// 完成刷新：官网页通过 window.ycodeBridge.notifyPurchaseComplete 回传购买成功后调用。
 async function refreshCodingPlanUpgradeCompletion(params: {
   productsProviderId: CodingPlanProviderId | null;
   providerId: CodingPlanProviderId | null;

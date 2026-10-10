@@ -1,15 +1,15 @@
 import armsRum from "@arms/rum-electron";
 import type { ArmsRumEnv, FinalArmsCustomEventPayload } from "@ycode/shared";
 
-import type { ZCodeDataSizeScanResult } from "./zcodeDataSizeScanner.js";
+import type { YCodeDataSizeScanResult } from "./ycodeDataSizeScanner.js";
 import {
-  readZCodeDataSizeTelemetryState,
-  writeZCodeDataSizeTelemetryState,
-  type ZCodeDataSizeTelemetryState,
-} from "./zcodeDataSizeTelemetryState.js";
-import { scanZCodeDataDirectoryInWorker } from "./zcodeDataSizeWorkerClient.js";
+  readYCodeDataSizeTelemetryState,
+  writeYCodeDataSizeTelemetryState,
+  type YCodeDataSizeTelemetryState,
+} from "./ycodeDataSizeTelemetryState.js";
+import { scanYCodeDataDirectoryInWorker } from "./ycodeDataSizeWorkerClient.js";
 
-export type { ZCodeDataSizeTelemetryState } from "./zcodeDataSizeTelemetryState.js";
+export type { YCodeDataSizeTelemetryState } from "./ycodeDataSizeTelemetryState.js";
 
 const YCODE_DATA_SIZE_SCAN_MAX_DURATION_MS = 30_000;
 const YCODE_DATA_SIZE_SCAN_MAX_FILES = 200_000;
@@ -24,7 +24,7 @@ const YCODE_DATA_SIZE_ABORTED_RETRY_MS = 30 * 60 * 1000;
 const YCODE_DATA_SIZE_FAILURE_RETRY_MS = 6 * 60 * 60 * 1000;
 const YCODE_DATA_SIZE_ACTIVITY_POLL_MS = 1_000;
 
-interface ZCodeDataSizeTelemetryTiming {
+interface YCodeDataSizeTelemetryTiming {
   abortedRetryMs: number;
   activityPollMs: number;
   dailyIntervalMs: number;
@@ -37,7 +37,7 @@ interface ZCodeDataSizeTelemetryTiming {
   startupMinDelayMs: number;
 }
 
-const DEFAULT_TIMING: ZCodeDataSizeTelemetryTiming = {
+const DEFAULT_TIMING: YCodeDataSizeTelemetryTiming = {
   abortedRetryMs: YCODE_DATA_SIZE_ABORTED_RETRY_MS,
   activityPollMs: YCODE_DATA_SIZE_ACTIVITY_POLL_MS,
   dailyIntervalMs: YCODE_DATA_SIZE_DAILY_INTERVAL_MS,
@@ -50,22 +50,22 @@ const DEFAULT_TIMING: ZCodeDataSizeTelemetryTiming = {
   startupMinDelayMs: YCODE_DATA_SIZE_STARTUP_MIN_DELAY_MS,
 };
 
-interface ZCodeDataSizeTelemetryLogger {
+interface YCodeDataSizeTelemetryLogger {
   info: (...args: unknown[]) => void;
   warn: (...args: unknown[]) => void;
 }
 
-interface ZCodeDataSizeTelemetrySchedulerDependencies {
+interface YCodeDataSizeTelemetrySchedulerDependencies {
   deviceMid: string;
   getSystemIdleTimeSeconds: () => number;
   isAppBackground: () => boolean;
-  isZCodeBusy: () => boolean;
-  logger: ZCodeDataSizeTelemetryLogger;
-  readState: () => Promise<ZCodeDataSizeTelemetryState | null>;
-  report: (result: ZCodeDataSizeScanResult) => Promise<void> | void;
-  scan: (options: { signal: AbortSignal }) => Promise<ZCodeDataSizeScanResult>;
-  timing?: Partial<ZCodeDataSizeTelemetryTiming>;
-  writeState: (state: ZCodeDataSizeTelemetryState) => Promise<void>;
+  isYCodeBusy: () => boolean;
+  logger: YCodeDataSizeTelemetryLogger;
+  readState: () => Promise<YCodeDataSizeTelemetryState | null>;
+  report: (result: YCodeDataSizeScanResult) => Promise<void> | void;
+  scan: (options: { signal: AbortSignal }) => Promise<YCodeDataSizeScanResult>;
+  timing?: Partial<YCodeDataSizeTelemetryTiming>;
+  writeState: (state: YCodeDataSizeTelemetryState) => Promise<void>;
 }
 
 function normalizeOsCategory(platform: NodeJS.Platform): string {
@@ -89,7 +89,7 @@ function stringifyProperties(
   );
 }
 
-function buildZCodeDataSizeArmsPayload(params: {
+function buildYCodeDataSizeArmsPayload(params: {
   context: {
     appVersion: string;
     armsEnv: ArmsRumEnv;
@@ -97,9 +97,9 @@ function buildZCodeDataSizeArmsPayload(params: {
     deviceMid: string;
     platform: NodeJS.Platform;
   };
-  result: ZCodeDataSizeScanResult;
+  result: YCodeDataSizeScanResult;
 }): FinalArmsCustomEventPayload {
-  const eventName = "perf_resource_zcode_data_size";
+  const eventName = "perf_resource_ycode_data_size";
   return {
     group: "resource",
     name: eventName,
@@ -149,15 +149,15 @@ function unrefTimer(timer: ReturnType<typeof setTimeout> | ReturnType<typeof set
   }
 }
 
-function createZCodeDataSizeTelemetryScheduler(
-  dependencies: ZCodeDataSizeTelemetrySchedulerDependencies,
+function createYCodeDataSizeTelemetryScheduler(
+  dependencies: YCodeDataSizeTelemetrySchedulerDependencies,
 ): { start: () => Promise<void>; stop: () => void } {
   const timing = { ...DEFAULT_TIMING, ...dependencies.timing };
   let scheduledTimer: ReturnType<typeof setTimeout> | null = null;
   let activityTimer: ReturnType<typeof setInterval> | null = null;
   let activeAbortController: AbortController | null = null;
   let idleWaitingSince: number | null = null;
-  let persistedState: ZCodeDataSizeTelemetryState | null = null;
+  let persistedState: YCodeDataSizeTelemetryState | null = null;
   let stopped = true;
 
   function clearScheduledTimer(): void {
@@ -202,7 +202,7 @@ function createZCodeDataSizeTelemetryScheduler(
 
   function collectionEligibilityLost(relaxedIdle: boolean): boolean {
     try {
-      return dependencies.isZCodeBusy() || (!relaxedIdle && !isPreferredIdleWindow());
+      return dependencies.isYCodeBusy() || (!relaxedIdle && !isPreferredIdleWindow());
     } catch {
       return true;
     }
@@ -218,7 +218,7 @@ function createZCodeDataSizeTelemetryScheduler(
     }
   }
 
-  async function reserveReport(reservedAt: number): Promise<ZCodeDataSizeTelemetryState | null> {
+  async function reserveReport(reservedAt: number): Promise<YCodeDataSizeTelemetryState | null> {
     const previousState = persistedState;
     const reservation = { ...previousState, reportReservedAt: reservedAt };
     // Bug 根因：旧实现先发送再落盘，落盘失败后重启会再次发送，绕过 24 小时限流。
@@ -229,7 +229,7 @@ function createZCodeDataSizeTelemetryScheduler(
   }
 
   async function rollbackReportReservation(
-    previousState: ZCodeDataSizeTelemetryState | null,
+    previousState: YCodeDataSizeTelemetryState | null,
   ): Promise<void> {
     try {
       const restoredState = previousState ?? {};
@@ -322,7 +322,7 @@ function createZCodeDataSizeTelemetryScheduler(
     const now = Date.now();
     idleWaitingSince ??= now;
     const relaxedIdle = now - idleWaitingSince >= timing.idleWaitFallbackMs;
-    if (dependencies.isZCodeBusy()) {
+    if (dependencies.isYCodeBusy()) {
       schedule(timing.idlePollMs);
       return;
     }
@@ -334,7 +334,7 @@ function createZCodeDataSizeTelemetryScheduler(
   }
 
   async function initializeFromPersistedState(): Promise<void> {
-    let state: ZCodeDataSizeTelemetryState | null;
+    let state: YCodeDataSizeTelemetryState | null;
     try {
       state = await dependencies.readState();
     } catch (error) {
@@ -390,27 +390,27 @@ function createZCodeDataSizeTelemetryScheduler(
   };
 }
 
-let desktopScheduler: ReturnType<typeof createZCodeDataSizeTelemetryScheduler> | null = null;
+let desktopScheduler: ReturnType<typeof createYCodeDataSizeTelemetryScheduler> | null = null;
 
-export function registerDesktopZCodeDataSizeTelemetry(options: {
-  context: Parameters<typeof buildZCodeDataSizeArmsPayload>[0]["context"];
+export function registerDesktopYCodeDataSizeTelemetry(options: {
+  context: Parameters<typeof buildYCodeDataSizeArmsPayload>[0]["context"];
   getSystemIdleTimeSeconds: () => number;
   isAppBackground: () => boolean;
-  isZCodeBusy: () => boolean;
-  logger: ZCodeDataSizeTelemetryLogger;
+  isYCodeBusy: () => boolean;
+  logger: YCodeDataSizeTelemetryLogger;
   rootPath: string;
   stateFile: string;
 }): void {
-  stopDesktopZCodeDataSizeTelemetry();
-  desktopScheduler = createZCodeDataSizeTelemetryScheduler({
+  stopDesktopYCodeDataSizeTelemetry();
+  desktopScheduler = createYCodeDataSizeTelemetryScheduler({
     deviceMid: options.context.deviceMid,
     getSystemIdleTimeSeconds: options.getSystemIdleTimeSeconds,
     isAppBackground: options.isAppBackground,
-    isZCodeBusy: options.isZCodeBusy,
+    isYCodeBusy: options.isYCodeBusy,
     logger: options.logger,
-    readState: () => readZCodeDataSizeTelemetryState(options.stateFile),
+    readState: () => readYCodeDataSizeTelemetryState(options.stateFile),
     report: (result) => {
-      const payload = buildZCodeDataSizeArmsPayload({ context: options.context, result });
+      const payload = buildYCodeDataSizeArmsPayload({ context: options.context, result });
       armsRum.sendCustom({
         group: payload.group,
         name: payload.name,
@@ -420,7 +420,7 @@ export function registerDesktopZCodeDataSizeTelemetry(options: {
       });
     },
     scan: ({ signal }) =>
-      scanZCodeDataDirectoryInWorker(
+      scanYCodeDataDirectoryInWorker(
         {
           maxDurationMs: YCODE_DATA_SIZE_SCAN_MAX_DURATION_MS,
           maxFiles: YCODE_DATA_SIZE_SCAN_MAX_FILES,
@@ -428,14 +428,14 @@ export function registerDesktopZCodeDataSizeTelemetry(options: {
         },
         signal,
       ),
-    writeState: (state) => writeZCodeDataSizeTelemetryState(options.stateFile, state),
+    writeState: (state) => writeYCodeDataSizeTelemetryState(options.stateFile, state),
   });
   void desktopScheduler.start().catch((error) => {
     options.logger.warn("[ycode-data-size] scheduler start failed", error);
   });
 }
 
-export function stopDesktopZCodeDataSizeTelemetry(): void {
+export function stopDesktopYCodeDataSizeTelemetry(): void {
   desktopScheduler?.stop();
   desktopScheduler = null;
 }

@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { CircleHelp, Loader2 } from "lucide-react";
-import { YCODE_AGENT_PROVIDER, type ZCodeConfigOption } from "@ycode/shared";
+import { YCODE_AGENT_PROVIDER, type YCodeConfigOption } from "@ycode/shared";
 import { ThoughtLevelCycleControl } from "@/chat-input-toolbar/ThoughtLevelCycleControl.js";
-import type { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import type { useYCodeIntl } from "@/i18n/IntlProvider.js";
 
 export type SubagentReasoningFieldState =
   | { kind: "not-applicable" }
   | { kind: "unknown"; status: "loading" | "unavailable" }
   | { kind: "unsupported" }
-  | { kind: "supported"; option: ZCodeConfigOption };
+  | { kind: "supported"; option: YCodeConfigOption };
 
 export function SubagentReasoningField({
   disabled,
@@ -18,7 +18,7 @@ export function SubagentReasoningField({
   state,
 }: {
   disabled: boolean;
-  intl: ReturnType<typeof useZCodeIntl>["intl"];
+  intl: ReturnType<typeof useYCodeIntl>["intl"];
   labelVisibilityClassName: string;
   onValueCommit: (value: string) => void;
   state: SubagentReasoningFieldState;

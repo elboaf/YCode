@@ -21,13 +21,13 @@ import {
   type HostMcpTelemetryResponse,
   type HostSessionCreateTelemetryResponse,
   type TaskRealtimeHostDeliveryKind,
-  formatZCodeHostProcessName,
+  formatYCodeHostProcessName,
   HostMessageTypes,
   HostResponseTypes,
   hostResponseMessageSchema,
   InternalChannels,
   LAUNCH_MARKS_QUERY_KEY,
-  RUNTIME_ZCODE_DEBUG,
+  RUNTIME_YCODE_DEBUG,
   serializeLaunchMarks,
   type RemoteTarget,
   type WorkspacePurpose,
@@ -80,7 +80,7 @@ export interface HostInitMessage {
   }>;
   agentSpawnFallbackCwd?: string;
   /** Main 解析后的 YCode Built-in Provider Config 路径；Host/Services 不感知 Electron 安装布局。 */
-  zcodeBuiltinProviderConfigFilePath: string;
+  ycodeBuiltinProviderConfigFilePath: string;
   /** Main 提前异步采集并过滤的本机 runtime 环境；只允许传给 InitLocal。 */
   runtimeProcessEnvPatch?: Record<string, string>;
 }
@@ -251,11 +251,11 @@ export function spawnHostProcess(
   const hostId = randomUUID();
   const glmBinaryPath = resolveBundledGlmBinaryPath();
   const execArgv = [
-    ...(RUNTIME_ZCODE_DEBUG ? [`--inspect-brk=${RUNTIME_ZCODE_DEBUG}`] : []),
+    ...(RUNTIME_YCODE_DEBUG ? [`--inspect-brk=${RUNTIME_YCODE_DEBUG}`] : []),
     "--no-warnings",
   ];
   const child = electronUtilityProcess.fork(hostModulePath, [], {
-    serviceName: formatZCodeHostProcessName(label),
+    serviceName: formatYCodeHostProcessName(label),
     execArgv,
     env: {
       ...buildHostProcessEnv(dependencies.hostProcessLocalEnv),

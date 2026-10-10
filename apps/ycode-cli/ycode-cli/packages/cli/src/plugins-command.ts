@@ -1,6 +1,6 @@
 import { formatJson } from "@ycode/core";
 import type { GlobalOptions, RunContext } from "@ycode/shared-types";
-import type { SetZCodePluginEnabledResult, ZCodePluginInstallData } from "@ycode/bootstrap";
+import type { SetYCodePluginEnabledResult, YCodePluginInstallData } from "@ycode/bootstrap";
 import {
   formatAvailablePluginJson,
   formatDiagnosticJson,
@@ -213,7 +213,7 @@ async function runPluginsUpdateCommand(
 function reportInstallOutcome(
   ctx: RunContext,
   options: GlobalOptions,
-  result: ZCodePluginInstallData,
+  result: YCodePluginInstallData,
   pluginId: string,
 ): number {
   const failed = hasErrors(result.diagnostics);
@@ -286,7 +286,7 @@ async function runPluginsDisableCommand(
   const base = baseOptions(deps);
   const listPlugins = await resolveDep(deps, "listPlugins");
   const setPluginEnabled = await resolveDep(deps, "setPluginEnabled");
-  const entries: Array<{ plugin: PluginListItem; result?: SetZCodePluginEnabledResult; error?: string }> = [];
+  const entries: Array<{ plugin: PluginListItem; result?: SetYCodePluginEnabledResult; error?: string }> = [];
   for (const plugin of listPlugins(base).plugins) {
     if (!plugin.enabled) continue;
     try {

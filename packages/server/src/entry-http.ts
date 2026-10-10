@@ -1,21 +1,21 @@
 import { createLocalServices, getAppConfigDir } from "@ycode/services/node";
 import {
-  materializeBundledZCodeBuiltinProviderConfig,
-  readBundledZCodeBuiltinProviderConfig,
-} from "./bundledZCodeBuiltinProviderConfig.js";
+  materializeBundledYCodeBuiltinProviderConfig,
+  readBundledYCodeBuiltinProviderConfig,
+} from "./bundledYCodeBuiltinProviderConfig.js";
 import { createHttpServer } from "./http.js";
 
 async function main(): Promise<void> {
-  const zcodeBuiltinProviderConfigFilePath = await materializeBundledZCodeBuiltinProviderConfig({
+  const ycodeBuiltinProviderConfigFilePath = await materializeBundledYCodeBuiltinProviderConfig({
     environmentConfigRoot: getAppConfigDir(),
-    content: readBundledZCodeBuiltinProviderConfig(),
+    content: readBundledYCodeBuiltinProviderConfig(),
   });
   const port = Number(process.env["PORT"]) || 3030;
   const host = process.env["YCODE_SERVER_HOST"]?.trim() || process.env["HOST"]?.trim() || undefined;
   const staticRoot = process.env["YCODE_WEB_STATIC_ROOT"]?.trim() || undefined;
   const authToken = process.env["YCODE_SERVER_AUTH_TOKEN"]?.trim() || undefined;
   const services = createLocalServices({
-    zcodeBuiltinProviderConfigFilePath,
+    ycodeBuiltinProviderConfigFilePath,
     providerProvisioningTargetEnabled: Boolean(authToken),
   });
 

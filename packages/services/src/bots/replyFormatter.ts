@@ -1,8 +1,8 @@
 /* eslint-disable max-lines -- Bot bot reply formatter 集中维护第三方消息的文本颗粒度、工具摘要和权限摘要，避免 provider 间文案分叉。 */
 import type {
-  ZCodePermissionRequest,
-  ZCodeStreamEvent,
-  ZCodeTaskChangeSummary,
+  YCodePermissionRequest,
+  YCodeStreamEvent,
+  YCodeTaskChangeSummary,
   Locale,
 } from "@ycode/shared";
 import { getCompactToolCallSummary, getPermissionRequestPreview } from "@ycode/shared";
@@ -36,7 +36,7 @@ export type BotAssistantReplyBlock =
     }
   | {
       type: "change-summary";
-      changeSummary: ZCodeTaskChangeSummary;
+      changeSummary: YCodeTaskChangeSummary;
     };
 
 const MAX_TOOL_SUMMARY_ITEMS = 10;
@@ -184,7 +184,7 @@ function formatBotDiffCount(changeStat: { added: number; removed: number }): str
 }
 
 function formatPermissionRequestHeader(
-  request: Pick<ZCodePermissionRequest, "title" | "description" | "kind" | "raw">,
+  request: Pick<YCodePermissionRequest, "title" | "description" | "kind" | "raw">,
   options?: BotReplyFormatOptions,
 ): string {
   const preview = getPermissionRequestPreview(request);
@@ -192,7 +192,7 @@ function formatPermissionRequestHeader(
 }
 
 function formatPermissionRequestTitle(
-  request: Pick<ZCodePermissionRequest, "title" | "description" | "kind" | "raw">,
+  request: Pick<YCodePermissionRequest, "title" | "description" | "kind" | "raw">,
   preview: ReturnType<typeof getPermissionRequestPreview>,
   options?: BotReplyFormatOptions,
 ): string {
@@ -214,7 +214,7 @@ function formatPermissionRequestTitle(
 }
 
 function formatEditPermissionKindLabel(
-  request: Pick<ZCodePermissionRequest, "title" | "description" | "kind" | "raw">,
+  request: Pick<YCodePermissionRequest, "title" | "description" | "kind" | "raw">,
   preview: ReturnType<typeof getPermissionRequestPreview>,
   locale?: Locale,
 ): string {
@@ -318,7 +318,7 @@ export function formatBotToolCallReply(
 }
 
 export function formatBotPermissionRequestSummary(
-  request: Pick<ZCodePermissionRequest, "title" | "description" | "kind" | "raw">,
+  request: Pick<YCodePermissionRequest, "title" | "description" | "kind" | "raw">,
   options?: BotReplyFormatOptions,
 ): string {
   const preview = getPermissionRequestPreview(request);
@@ -348,7 +348,7 @@ export function isBotToolCallReplyTerminal(status?: BotReplyToolCallState["statu
 }
 
 function formatBotChangeSummary(
-  changeSummary?: ZCodeTaskChangeSummary | null,
+  changeSummary?: YCodeTaskChangeSummary | null,
   options?: Pick<BotReplyFormatOptions, "locale">,
 ): string {
   if (!changeSummary || changeSummary.fileCount <= 0 || changeSummary.files.length === 0) {
@@ -372,7 +372,7 @@ function formatBotChangeSummary(
 
 export function updateBotReplyToolCalls(
   toolCalls: Map<string, BotReplyToolCallState>,
-  event: ZCodeStreamEvent,
+  event: YCodeStreamEvent,
 ): void {
   if (event.type === "tool_call") {
     toolCalls.set(event.toolId, {

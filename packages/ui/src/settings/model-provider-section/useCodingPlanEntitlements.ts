@@ -6,8 +6,8 @@ import {
   type ModelProviderFamilySpec,
   type ProviderFamilyConnectionSelection,
   type ProviderFamilyConnectionSelectionSettings,
-  type ZCodeAccountAccess,
-  type ZCodeProviderAccountAccess,
+  type YCodeAccountAccess,
+  type YCodeProviderAccountAccess,
 } from "@ycode/shared";
 import {
   useUsageEntitlement,
@@ -131,9 +131,9 @@ function useProviderFamilyEntitlements(params: {
 }
 
 function resolveEntitlementAccountAccess(
-  access: ZCodeProviderAccountAccess | undefined,
+  access: YCodeProviderAccountAccess | undefined,
   selection: ProviderFamilyConnectionSelection | undefined,
-): ZCodeProviderAccountAccess | ZCodeAccountAccess | undefined {
+): YCodeProviderAccountAccess | YCodeAccountAccess | undefined {
   if (access?.mode !== "team-coding-plan" || selection?.kind !== "team-coding-plan") {
     // 展示查询针对这个套餐自身，不让执行期的 current 解析器改成当前另一套餐。
     return access && (access.mode === "start-plan" || access.mode === "individual-coding-plan")

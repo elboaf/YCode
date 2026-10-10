@@ -9,7 +9,7 @@ import {
   type RemoteResourcePackageSelection,
 } from "@ycode/shared";
 import type { IRemoteBackend, RemoteEnvironment } from "./backend.js";
-import { deployZCodeAgentRuntime } from "./zcodeAgentDeploy.js";
+import { deployYCodeAgentRuntime } from "./ycodeAgentDeploy.js";
 import {
   deployNodePtyPrebuilds,
   deployNodeRuntime,
@@ -27,7 +27,7 @@ import {
 import { quotePosixPathArg } from "@ycode/server/remote/posixShell.js";
 import { checkServerBundleRequiredMarkers } from "@ycode/server/remote/serverBundleDeployCheck.js";
 import { deployRuntimeTools } from "@ycode/server/remote/runtimeToolDeploy.js";
-import { REMOTE_AGENT_OFFICIAL_PLUGIN_REQUIRED_RELATIVE_PATHS } from "@ycode/server/remote/zcodeAgentOfficialPluginAssets.js";
+import { REMOTE_AGENT_OFFICIAL_PLUGIN_REQUIRED_RELATIVE_PATHS } from "@ycode/server/remote/ycodeAgentOfficialPluginAssets.js";
 import {
   ensureRemoteReleaseDirFromCdn,
   selectRemoteAssetManifestComponents,
@@ -289,7 +289,7 @@ export async function deployServer(
           { log, logWarn },
         );
       }
-      await deployZCodeAgentRuntime(
+      await deployYCodeAgentRuntime(
         backend,
         env,
         {
@@ -371,7 +371,7 @@ export async function deployServer(
     log("all uploads complete");
 
     // 部署 YCode Agent runtime 到远程，历史资源包选择已在入口统一忽略。
-    await deployZCodeAgentRuntime(
+    await deployYCodeAgentRuntime(
       backend,
       env,
       {

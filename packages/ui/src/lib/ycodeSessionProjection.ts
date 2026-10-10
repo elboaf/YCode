@@ -1,22 +1,22 @@
 /* oxlint-disable eslint(max-lines) -- YCode session 到当前聊天 projection 的迁移桥需要同时保持 snapshot 和 event 映射一致。 */
 import {
   decodeCustomModelValue,
-  deriveZCodeTaskStatusFromSessionSnapshot,
+  deriveYCodeTaskStatusFromSessionSnapshot,
   generateTraceId,
   parseModelPickerValue as parseSharedModelSelection,
   formatModelPickerValue as formatSharedModelSelection,
-  resolveZCodeVisibleSessionTitle,
+  resolveYCodeVisibleSessionTitle,
   YCODE_AGENT_PROVIDER,
-  type ZCodeConfigOption,
-  type ZCodeTaskGoal,
-  type ZCodeTaskMode,
-  type ZCodeTaskModeInfo,
-  type ZCodeTaskMeta,
-  type ZCodeMessageWithParts,
+  type YCodeConfigOption,
+  type YCodeTaskGoal,
+  type YCodeTaskMode,
+  type YCodeTaskModeInfo,
+  type YCodeTaskMeta,
+  type YCodeMessageWithParts,
   type ModelSelection,
-  type ZCodeSessionMode,
-  type ZCodeSessionSettingsState,
-  type ZCodeSessionStateSnapshot,
+  type YCodeSessionMode,
+  type YCodeSessionSettingsState,
+  type YCodeSessionStateSnapshot,
 } from "@ycode/shared";
 
 const MODEL_CONFIG_ID = "model";
@@ -43,7 +43,7 @@ const YCODE_AGENT_MODE_OPTIONS = [
     name: "Full access",
     description: "Edit and run commands with fewer confirmations.",
   },
-] as const satisfies readonly ZCodeTaskModeInfo[];
+] as const satisfies readonly YCodeTaskModeInfo[];
 const YCODE_AGENT_MODE_ID_SET = new Set<string>(YCODE_AGENT_MODE_OPTIONS.map((mode) => mode.id));
 
 export function formatModelPickerValue(ref: ModelSelection | undefined): string {
@@ -51,7 +51,7 @@ export function formatModelPickerValue(ref: ModelSelection | undefined): string 
 }
 
 function resolveLatestMessageModelSelection(
-  messages: readonly ZCodeMessageWithParts[],
+  messages: readonly YCodeMessageWithParts[],
 ): ModelSelection | undefined {
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const model = messages[index]?.info.model;
@@ -63,7 +63,7 @@ function resolveLatestMessageModelSelection(
 }
 
 function resolveTaskMetaModelSelectionFromSnapshot(
-  snapshot: ZCodeSessionStateSnapshot,
+  snapshot: YCodeSessionStateSnapshot,
 ): ModelSelection | undefined {
   // 历史 resume 被错误 runtimeModel 覆盖时，settings.current 会变成 app 当前默认模型，
   // 但消息 info.model 仍记录真实使用的模型。task meta 会作为下次冷恢复 hint，
@@ -85,10 +85,10 @@ export function parseModelPickerValue(value: string): ModelSelection {
   return parseSharedModelSelection(value);
 }
 
-export function zcodeSessionSettingsToConfigOptions(
-  settings: ZCodeSessionSettingsState,
-): ZCodeConfigOption[] {
-  const configOptions: ZCodeConfigOption[] = [
+export function ycodeSessionSettingsToConfigOptions(
+  settings: YCodeSessionSettingsState,
+): YCodeConfigOption[] {
+  const configOptions: YCodeConfigOption[] = [
     {
       id: MODEL_CONFIG_ID,
       name: "Model",
@@ -118,8 +118,8 @@ export function zcodeSessionSettingsToConfigOptions(
       name: "Mode",
       category: "mode",
       type: "select",
-      currentValue: normalizeAvailableZCodeMode(settings.mode.current),
-      options: getZCodeAgentModeSelectOptions(),
+      currentValue: normalizeAvailableYCodeMode(settings.mode.current),
+      options: getYCodeAgentModeSelectOptions(),
     },
   ];
   if (settings.thoughtLevel.enabled) {
@@ -139,23 +139,23 @@ export function zcodeSessionSettingsToConfigOptions(
   return configOptions;
 }
 
-export function zcodeWorkspacePresentationToConfigOptions(
-  mode: ZCodeSessionMode,
-): ZCodeConfigOption[] {
+export function ycodeWorkspacePresentationToConfigOptions(
+  mode: YCodeSessionMode,
+): YCodeConfigOption[] {
   return [
     {
       id: MODE_CONFIG_ID,
       name: "Mode",
       category: "mode",
       type: "select",
-      currentValue: normalizeAvailableZCodeMode(mode),
-      options: getZCodeAgentModeSelectOptions(),
+      currentValue: normalizeAvailableYCodeMode(mode),
+      options: getYCodeAgentModeSelectOptions(),
     },
   ];
 }
 
 function resolveSettingsThoughtLevelCurrentValue(
-  thoughtLevel: ZCodeSessionSettingsState["thoughtLevel"],
+  thoughtLevel: YCodeSessionSettingsState["thoughtLevel"],
 ): string | undefined {
   const thoughtLevelValues = new Set(thoughtLevel.available.map((level) => level.value));
   const currentThoughtLevel =
@@ -171,7 +171,7 @@ function resolveSettingsThoughtLevelCurrentValue(
   return currentThoughtLevel ?? defaultThoughtLevel ?? thoughtLevel.available[0]?.value;
 }
 
-export function zcodeSessionSnapshotToTaskMeta(snapshot: ZCodeSessionStateSnapshot): ZCodeTaskMeta {
+export function ycodeSessionSnapshotToTaskMeta(snapshot: YCodeSessionStateSnapshot): YCodeTaskMeta {
   return {
     taskId: snapshot.session.sessionId,
     traceId: generateTraceId(snapshot.session.sessionId),
@@ -180,11 +180,11 @@ export function zcodeSessionSnapshotToTaskMeta(snapshot: ZCodeSessionStateSnapsh
     workspaceIdentity: snapshot.session.workspace.workspaceIdentity,
     createdAt: snapshot.session.createdAt,
     updatedAt: snapshot.session.updatedAt,
-    mode: fromZCodeMode(snapshot.session.mode),
+    mode: fromYCodeMode(snapshot.session.mode),
     model: formatModelPickerValue(resolveTaskMetaModelSelectionFromSnapshot(snapshot)),
     thoughtLevel: snapshot.settings.thoughtLevel.current,
     provider: YCODE_AGENT_PROVIDER,
-    status: deriveZCodeTaskStatusFromSessionSnapshot(snapshot),
+    status: deriveYCodeTaskStatusFromSessionSnapshot(snapshot),
     lastError: snapshot.projection.lastError
       ? {
           code: snapshot.projection.lastError.code ?? snapshot.projection.lastError.type,
@@ -198,28 +198,28 @@ export function zcodeSessionSnapshotToTaskMeta(snapshot: ZCodeSessionStateSnapsh
         }
       : undefined,
     target: snapshot.projection.target
-      ? fromZCodeGoal(snapshot.projection.target)
+      ? fromYCodeGoal(snapshot.projection.target)
       : snapshot.projection.target,
   };
 }
 
-function deriveTitleFromSnapshot(snapshot: ZCodeSessionStateSnapshot): string {
-  return resolveZCodeVisibleSessionTitle({
+function deriveTitleFromSnapshot(snapshot: YCodeSessionStateSnapshot): string {
+  return resolveYCodeVisibleSessionTitle({
     title: snapshot.session.title,
     messages: snapshot.messages,
     target: snapshot.projection.target,
   });
 }
 
-function fromZCodeMode(mode: ZCodeSessionMode): ZCodeTaskMode {
+function fromYCodeMode(mode: YCodeSessionMode): YCodeTaskMode {
   return mode === "build" ? "build" : mode;
 }
 
-function normalizeAvailableZCodeMode(mode: ZCodeSessionMode): string {
+function normalizeAvailableYCodeMode(mode: YCodeSessionMode): string {
   return YCODE_AGENT_MODE_ID_SET.has(mode) ? mode : "build";
 }
 
-function getZCodeAgentModeSelectOptions(): NonNullable<ZCodeConfigOption["options"]> {
+function getYCodeAgentModeSelectOptions(): NonNullable<YCodeConfigOption["options"]> {
   return YCODE_AGENT_MODE_OPTIONS.map((mode) => ({
     value: mode.id,
     name: mode.name,
@@ -227,7 +227,7 @@ function getZCodeAgentModeSelectOptions(): NonNullable<ZCodeConfigOption["option
   }));
 }
 
-function fromZCodeGoal(goal: unknown): ZCodeTaskGoal {
+function fromYCodeGoal(goal: unknown): YCodeTaskGoal {
   const record = asRecord(goal);
   const time = asRecord(record.time);
   const status = stringValue(record.status);
@@ -236,7 +236,7 @@ function fromZCodeGoal(goal: unknown): ZCodeTaskGoal {
     targetID: stringValue(record.targetID) ?? stringValue(record.targetId) ?? "",
     objective: stringValue(record.objective) ?? "",
     summaryTitle: stringValue(record.summaryTitle) ?? null,
-    status: isZCodeTaskGoalStatus(status) ? status : "active",
+    status: isYCodeTaskGoalStatus(status) ? status : "active",
     tokenBudget: typeof record.tokenBudget === "number" ? record.tokenBudget : null,
     tokensUsed: numberValue(record.tokensUsed) ?? 0,
     timeUsedSeconds: numberValue(record.timeUsedSeconds) ?? 0,
@@ -250,7 +250,7 @@ function fromZCodeGoal(goal: unknown): ZCodeTaskGoal {
   };
 }
 
-function isZCodeTaskGoalStatus(status: string | undefined): status is ZCodeTaskGoal["status"] {
+function isYCodeTaskGoalStatus(status: string | undefined): status is YCodeTaskGoal["status"] {
   return (
     status === "active" ||
     status === "paused" ||

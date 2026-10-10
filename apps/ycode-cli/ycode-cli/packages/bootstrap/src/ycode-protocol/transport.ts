@@ -1,44 +1,44 @@
 import type {
-  ZCodeProtocolError,
-  ZCodeProtocolMessage,
-  ZCodeProtocolNotification,
-  ZCodeProtocolRequest,
-  ZCodeProtocolRequestId,
-  ZCodeProtocolResponse,
+  YCodeProtocolError,
+  YCodeProtocolMessage,
+  YCodeProtocolNotification,
+  YCodeProtocolRequest,
+  YCodeProtocolRequestId,
+  YCodeProtocolResponse,
 } from "@ycode/shared";
-import { zcodeProtocolMessageSchema, zcodeProtocolMethods } from "@ycode/shared";
+import { ycodeProtocolMessageSchema, ycodeProtocolMethods } from "@ycode/shared";
 import type { Logger } from "@ycode/contracts";
 
-type ZCodeProtocolOutgoingMessage =
-  | ZCodeProtocolError
-  | ZCodeProtocolNotification
-  | ZCodeProtocolRequest
-  | ZCodeProtocolResponse;
+type YCodeProtocolOutgoingMessage =
+  | YCodeProtocolError
+  | YCodeProtocolNotification
+  | YCodeProtocolRequest
+  | YCodeProtocolResponse;
 
-type ZCodeProtocolMessageHandler = (
-  message: ZCodeProtocolMessage,
-) => Promise<ZCodeProtocolOutgoingMessage | undefined>;
+type YCodeProtocolMessageHandler = (
+  message: YCodeProtocolMessage,
+) => Promise<YCodeProtocolOutgoingMessage | undefined>;
 
 const PROTOCOL_EOF_DRAIN_MS = 100;
 
-interface ZCodeProtocolNdjsonConnectionOptions {
+interface YCodeProtocolNdjsonConnectionOptions {
   signal?: AbortSignal;
   clearPostResponseMessages?: () => void;
-  handleMessage: ZCodeProtocolMessageHandler;
+  handleMessage: YCodeProtocolMessageHandler;
   input: NodeJS.ReadableStream;
   logger?: Logger;
   onTransportClosed?: (error: Error) => void;
   output: NodeJS.WritableStream;
   takePostResponseMessages?: (
-    requestId: ZCodeProtocolRequestId,
-  ) => readonly ZCodeProtocolOutgoingMessage[];
-  takePostResponseBatch?: (requestId: ZCodeProtocolRequestId) => {
-    readonly messages: readonly ZCodeProtocolOutgoingMessage[];
+    requestId: YCodeProtocolRequestId,
+  ) => readonly YCodeProtocolOutgoingMessage[];
+  takePostResponseBatch?: (requestId: YCodeProtocolRequestId) => {
+    readonly messages: readonly YCodeProtocolOutgoingMessage[];
     commit(): boolean;
   } | null;
 }
 
-export class ZCodeProtocolNdjsonConnection {
+export class YCodeProtocolNdjsonConnection {
   private buffer = "";
   private processing: Promise<void> = Promise.resolve();
   private lastQueuedMessageStarted: Promise<void> = Promise.resolve();
@@ -50,7 +50,7 @@ export class ZCodeProtocolNdjsonConnection {
   private draining = false;
   private drainTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(private readonly options: ZCodeProtocolNdjsonConnectionOptions) {
+  constructor(private readonly options: YCodeProtocolNdjsonConnectionOptions) {
     this.closedPromise = new Promise((resolve, reject) => {
       this.resolveClosed = resolve;
       this.rejectClosed = reject;
@@ -71,7 +71,7 @@ export class ZCodeProtocolNdjsonConnection {
     return this.closedPromise;
   }
 
-  send(message: ZCodeProtocolOutgoingMessage): void {
+  send(message: YCodeProtocolOutgoingMessage): void {
     if (this.terminal) return;
     try {
       this.options.output.write(`${JSON.stringify(message)}\n`);
@@ -195,7 +195,7 @@ export class ZCodeProtocolNdjsonConnection {
       });
   }
 
-  private decodeLine(line: string): ZCodeProtocolMessage | null {
+  private decodeLine(line: string): YCodeProtocolMessage | null {
     let decoded: unknown;
     try {
       decoded = JSON.parse(line);
@@ -210,7 +210,7 @@ export class ZCodeProtocolNdjsonConnection {
       return null;
     }
 
-    const parsed = zcodeProtocolMessageSchema.safeParse(decoded);
+    const parsed = ycodeProtocolMessageSchema.safeParse(decoded);
     if (!parsed.success) {
       this.sendError("invalid-message", -32600, "Invalid YCode Protocol message", {
         issues: parsed.error.issues,
@@ -221,18 +221,18 @@ export class ZCodeProtocolNdjsonConnection {
     return parsed.data;
   }
 
-  private shouldBypassProcessingQueue(message: ZCodeProtocolMessage): boolean {
+  private shouldBypassProcessingQueue(message: YCodeProtocolMessage): boolean {
     // 模型任务占住串行队列时，停止/取消请求必须仍能进入 server，
     // 才能把底层 AbortSignal 传给真实模型请求。控制面只旁路当前执行，普通请求仍保持串行。
     return (
       "id" in message &&
       "method" in message &&
-      (message.method === zcodeProtocolMethods.sessionStop ||
-        message.method === zcodeProtocolMethods.workspaceCancelGenerateText)
+      (message.method === ycodeProtocolMethods.sessionStop ||
+        message.method === ycodeProtocolMethods.workspaceCancelGenerateText)
     );
   }
 
-  private async handleMessage(message: ZCodeProtocolMessage): Promise<void> {
+  private async handleMessage(message: YCodeProtocolMessage): Promise<void> {
     if (this.terminal) return;
     const response = await this.options.handleMessage(message);
     if (response) {

@@ -5,7 +5,7 @@
 // starting/active 状态都会继续挡住同一 session 的第二次 start。
 import { type TurnBackgroundAttribution, type TurnInputIntentMetadata } from "@ycode/contracts";
 import type { TurnAttachment } from "@ycode/core";
-import type { ZCodeAutomationBotDeliveryTarget } from "@ycode/shared";
+import type { YCodeAutomationBotDeliveryTarget } from "@ycode/shared";
 import type { SendInputOptions, SendInputResult } from "../../app/types.js";
 import { runWithSessionResidencyFinalization } from "../../ycode-protocol/session-residency.js";
 import type { V4CommandCoreHost, V4SessionRecordView } from "./types.js";
@@ -26,7 +26,7 @@ interface StartPromptTurnParamsBase {
   /** sendQueuedNow 已持有 Core promotion lease，要求这次 admission 只能占用空闲位。 */
   requireIdle?: boolean;
   /** Bot 入站 turn 的稳定回推地址；仅在本 turn 内暴露给 CronCreate。 */
-  botDeliveryTarget?: ZCodeAutomationBotDeliveryTarget;
+  botDeliveryTarget?: YCodeAutomationBotDeliveryTarget;
 }
 
 type StartPromptTurnParams = StartPromptTurnParamsBase & TurnBackgroundAttribution;

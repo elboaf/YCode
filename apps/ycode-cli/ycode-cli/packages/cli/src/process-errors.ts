@@ -4,7 +4,7 @@ import {
   YCODE_PROCESS_DIAGNOSTIC_NAME_MAX_CHARS,
   YCODE_PROCESS_DIAGNOSTIC_MESSAGE_MAX_CHARS,
   YCODE_PROCESS_DIAGNOSTIC_STACK_MAX_CHARS,
-  type ZCodeProcessDiagnostic,
+  type YCodeProcessDiagnostic,
 } from "@ycode/shared/process-diagnostic";
 
 interface CliProcessErrorBoundaryTarget {
@@ -89,7 +89,7 @@ function writeProcessErrorDiagnostic(
 ): void {
   try {
     const detail = formatProcessError(reason).slice(0, YCODE_PROCESS_DIAGNOSTIC_STACK_MAX_CHARS);
-    const diagnostic: ZCodeProcessDiagnostic = {
+    const diagnostic: YCodeProcessDiagnostic = {
       version: 1,
       errorId: randomUUID(),
       kind,

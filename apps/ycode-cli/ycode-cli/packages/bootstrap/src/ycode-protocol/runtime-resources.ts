@@ -1,15 +1,15 @@
-import type { ZCodeApp } from "../app/types.js";
-import type { ZCodeProtocolAgentDependencies } from "./server-types.js";
+import type { YCodeApp } from "../app/types.js";
+import type { YCodeProtocolAgentDependencies } from "./server-types.js";
 
 /** 持有 app 资源而非业务 session；临时 workspace app、尚未登记的 app 也归此 owner。 */
 export class ProtocolRuntimeResources {
   private stopping = false;
-  private readonly apps = new Set<ZCodeApp>();
+  private readonly apps = new Set<YCodeApp>();
   private closePromise?: Promise<void>;
 
-  constructor(private readonly factory: ZCodeProtocolAgentDependencies["createZCodeApp"]) {}
+  constructor(private readonly factory: YCodeProtocolAgentDependencies["createYCodeApp"]) {}
 
-  readonly create: ZCodeProtocolAgentDependencies["createZCodeApp"] = async (options) => {
+  readonly create: YCodeProtocolAgentDependencies["createYCodeApp"] = async (options) => {
     this.assertServing();
     const app = await this.factory(options);
     const originalClose = app.close?.bind(app);
@@ -49,7 +49,7 @@ export class ProtocolRuntimeResources {
     return this.closePromise;
   }
 
-  private async stopApp(app: ZCodeApp): Promise<void> {
+  private async stopApp(app: YCodeApp): Promise<void> {
     try {
       app.runtime.beginShutdown();
       app.runtime.stopActiveForegroundExecution?.({ reason: "Protocol runtime stopping" });

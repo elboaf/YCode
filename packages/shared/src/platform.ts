@@ -327,7 +327,7 @@ export interface SSHConfigAliasOption {
   source?: string;
 }
 
-export interface ZCodeStdioTapDevState {
+export interface YCodeStdioTapDevState {
   enabled: boolean;
   visible: boolean;
   logDir: string;
@@ -491,11 +491,11 @@ export const DesktopCommandIds = {
   ExportLogs: "exportLogs",
   ToggleDevTools: "toggleDevTools",
   OpenResourceManager: "openResourceManager",
-  ToggleZCodeStdioTapDevProxy: "toggleZCodeStdioTapDevProxy",
-  SetZCodeEndpointProduction: "setZCodeEndpointProduction",
-  SetZCodeEndpointTest: "setZCodeEndpointTest",
-  SetZCodeEndpointCustom: "setZCodeEndpointCustom",
-  ResetZCodeEndpoint: "resetZCodeEndpoint",
+  ToggleYCodeStdioTapDevProxy: "toggleYCodeStdioTapDevProxy",
+  SetYCodeEndpointProduction: "setYCodeEndpointProduction",
+  SetYCodeEndpointTest: "setYCodeEndpointTest",
+  SetYCodeEndpointCustom: "setYCodeEndpointCustom",
+  ResetYCodeEndpoint: "resetYCodeEndpoint",
   ClearAllData: "clearAllData",
   ClearCodingPlanWebviewStorage: "clearCodingPlanWebviewStorage",
   GetCuaOsSupport: "getCuaOsSupport",
@@ -928,7 +928,7 @@ export interface IPlatformService {
   }>;
 
   /** 开发环境 stdio tap proxy 开关状态；非桌面平台可不实现 */
-  getZCodeStdioTapDevState?(): Promise<ZCodeStdioTapDevState>;
+  getYCodeStdioTapDevState?(): Promise<YCodeStdioTapDevState>;
 
   /** 是否为本地开发运行形态；桌面端用 !app.isPackaged 注入，Web 端可省略。 */
   isLocalDevelopmentRuntime?: boolean;

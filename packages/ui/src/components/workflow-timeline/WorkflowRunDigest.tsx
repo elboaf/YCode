@@ -11,7 +11,7 @@ import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import type { WorkflowCausalityGraphData } from "@/components/workflow-graph/types.js";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import type { WorkflowRunCardSummary } from "@/ToolCallBlocks/fileSummaryTypes.js";
 import { buildWorkflowTimeline, type TimelinePill } from "./timeline-model.js";
 import { workflowCardDetail } from "./timeline-summary.js";
@@ -90,7 +90,7 @@ export function WorkflowRunDigest({
   summary,
   testIdKey,
 }: WorkflowRunDigestProps) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const run = summary?.run;
   const [expanded, setExpanded] = useState(true);
 
@@ -290,7 +290,7 @@ function ConfigureRunButton({
   host: WorkflowRunSettingsHost;
   run: WorkflowRunState;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const { anchorRef, open, setOpen, toggleFrom } = useWorkflowRunSettingsPopoverState();
   const label = intl.formatMessage({ id: "chat.toolCall.workflow.run.settings.title" });
   return (
@@ -329,7 +329,7 @@ function ConfigureRunButton({
  * 撤走——决定已经做完了，没什么可再劝的。
  */
 function CancelRunButton({ onCancel }: { onCancel: () => void }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const [cancelling, setCancelling] = useState(false);
   const label = intl.formatMessage({
     id: cancelling ? "chat.toolCall.workflow.run.cancelling" : "chat.toolCall.workflow.run.cancel",

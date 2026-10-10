@@ -7,7 +7,7 @@ import {
 } from "@ycode/provider";
 import {
   isBuiltinModelProviderId,
-  resolveRuntimeZCodeEndpointOrigin,
+  resolveRuntimeYCodeEndpointOrigin,
   YCODE_VERSION,
 } from "@ycode/shared";
 import { dirname, join } from "node:path";
@@ -15,14 +15,14 @@ import {
   NodeModelSelectionConfigRepository,
   NodeProviderRegistryRuntime,
   resolveNodeProviderRuntimePaths,
-  downloadZCodeBuiltinRelease,
-  resolveZCodeBuiltinClientPlatform,
+  downloadYCodeBuiltinRelease,
+  resolveYCodeBuiltinClientPlatform,
   YCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
-  type ZCodeBuiltinRefreshEvent,
+  type YCodeBuiltinRefreshEvent,
 } from "@ycode/provider-node";
 import {
-  createSharedZCodeCredentialStore,
-  type SharedZCodeCredentialStore,
+  createSharedYCodeCredentialStore,
+  type SharedYCodeCredentialStore,
 } from "@ycode/adapters/auth";
 import { readLegacyCliPersonalProviderConfig } from "./legacy-cli-personal-provider-config-importer.js";
 import {
@@ -33,12 +33,12 @@ import {
 export interface ProcessProviderRegistryRuntimeOptions {
   /** Standalone Prompt CLI / TUI 自己拥有账号凭据与旧配置的一次性导入。 */
   readonly standalone?: {
-    readonly credentialStore?: SharedZCodeCredentialStore;
+    readonly credentialStore?: SharedYCodeCredentialStore;
     readonly legacyCliUserConfigFilePath?: string;
     readonly onAccountInitializationError?: (error: unknown) => void;
     readonly request?: typeof fetch;
     readonly onBuiltinRefreshError?: (error: unknown) => void;
-    readonly onBuiltinRefreshResult?: (event: ZCodeBuiltinRefreshEvent) => void;
+    readonly onBuiltinRefreshResult?: (event: YCodeBuiltinRefreshEvent) => void;
   };
 }
 
@@ -53,7 +53,7 @@ export async function startProcessProviderRegistryRuntime(
 
   const accountSource = new MutableAccountProviderConfigSource();
   const credentialStore = options.standalone
-    ? (options.standalone.credentialStore ?? createSharedZCodeCredentialStore({ env: { ...env } }))
+    ? (options.standalone.credentialStore ?? createSharedYCodeCredentialStore({ env: { ...env } }))
     : undefined;
   let standaloneAccount: AccountProviderService | undefined;
   const bundledFile = options.standalone
@@ -63,27 +63,27 @@ export async function startProcessProviderRegistryRuntime(
     ...paths,
     ...(bundledFile
       ? {
-          zcodeBuiltinFilePath: bundledFile,
-          zcodeBuiltinActiveFilePath: paths.zcodeBuiltinFilePath,
-          zcodeBuiltinRemote: {
+          ycodeBuiltinFilePath: bundledFile,
+          ycodeBuiltinActiveFilePath: paths.ycodeBuiltinFilePath,
+          ycodeBuiltinRemote: {
             controlFilePath: join(
-              dirname(paths.zcodeBuiltinFilePath),
+              dirname(paths.ycodeBuiltinFilePath),
               "ycode-builtin-refresh.json",
             ),
-            resolveEndpointKey: () => resolveRuntimeZCodeEndpointOrigin(env),
+            resolveEndpointKey: () => resolveRuntimeYCodeEndpointOrigin(env),
             fetchRelease: (endpointOrigin, signal) =>
-              downloadZCodeBuiltinRelease({
+              downloadYCodeBuiltinRelease({
                 endpointOrigin,
                 signal,
                 appVersion: YCODE_VERSION,
-                platform: resolveZCodeBuiltinClientPlatform(),
+                platform: resolveYCodeBuiltinClientPlatform(),
                 request: options.standalone?.request ?? globalThis.fetch,
               }),
             onRefreshResult: options.standalone?.onBuiltinRefreshResult,
           },
         }
       : {}),
-    onZCodeBuiltinRefreshError: options.standalone?.onBuiltinRefreshError,
+    onYCodeBuiltinRefreshError: options.standalone?.onBuiltinRefreshError,
     accountSource,
     ...(credentialStore
       ? {
@@ -123,12 +123,12 @@ export async function startProcessProviderRegistryRuntime(
       : {}),
   });
   const disposeRecovery = standaloneAccount
-    ? runtime.onDidCheckZCodeBuiltin(async () => {
+    ? runtime.onDidCheckYCodeBuiltin(async () => {
         const [config, account] = await Promise.all([
           runtime.configService.read(),
           standaloneAccount!.read(),
         ]);
-        if (config.zcodeBuiltinRevision !== account.basedOnZCodeBuiltinRevision)
+        if (config.ycodeBuiltinRevision !== account.basedOnYCodeBuiltinRevision)
           await standaloneAccount!.refresh("builtin-account-recovery");
       })
     : undefined;
@@ -193,14 +193,14 @@ export async function startProcessProviderRegistryRuntime(
 /** 把协议信封解析为进程 Registry 使用的第三层 Account Config Overlay。 */
 export function parseProcessAccountProviderConfigSnapshot(input: {
   readonly revision: string;
-  readonly basedOnZCodeBuiltinRevision: string;
+  readonly basedOnYCodeBuiltinRevision: string;
   readonly providers: unknown;
   readonly states?: AccountProviderStates;
 }): AccountProviderConfigSnapshot {
   const revision = input.revision.trim();
   if (!revision) throw new Error("Account Config revision 不能为空");
-  const basedOnZCodeBuiltinRevision = input.basedOnZCodeBuiltinRevision.trim();
-  if (!basedOnZCodeBuiltinRevision) {
+  const basedOnYCodeBuiltinRevision = input.basedOnYCodeBuiltinRevision.trim();
+  if (!basedOnYCodeBuiltinRevision) {
     throw new Error("Account Config Built-in revision 不能为空");
   }
   const providers = parseAccountProviderConfigMap(input.providers);
@@ -217,7 +217,7 @@ export function parseProcessAccountProviderConfigSnapshot(input: {
   }
   return Object.freeze({
     revision,
-    basedOnZCodeBuiltinRevision,
+    basedOnYCodeBuiltinRevision,
     providers,
     // 与 Overlay 属于同一快照；不能只更新 revision 却丢掉当前连接事实。
     ...(input.states ? { states: input.states } : {}),

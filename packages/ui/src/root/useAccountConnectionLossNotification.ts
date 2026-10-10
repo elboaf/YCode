@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { IServiceAccessor } from "@ycode/services";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import { toast, dismissToast } from "@/components/ui/toast.js";
 import {
   createAccountConnectionRefreshObserver,
@@ -15,7 +15,7 @@ export function useAccountConnectionLossNotification(
   intentKey: string,
   refreshAppSettings?: () => Promise<void>,
 ) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const latest = useRef({ intl, refreshAppSettings });
   latest.current = { intl, refreshAppSettings };
   const observerRef = useRef<ReturnType<typeof createAccountConnectionRefreshObserver> | null>(

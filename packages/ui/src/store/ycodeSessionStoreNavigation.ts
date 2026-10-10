@@ -1,7 +1,7 @@
 /**
  * YCode Session Store 导航切片 —— 任务前进/后退历史管理
  *
- * 从 zcodeSessionStore.ts 拆分出来，封装所有任务导航相关的初始状态和 action。
+ * 从 ycodeSessionStore.ts 拆分出来，封装所有任务导航相关的初始状态和 action。
  * 通过 createNavigationSlice(set, get) 返回可直接展开到 store 的对象。
  */
 import {
@@ -14,15 +14,15 @@ import {
   type AutomationsNavigationTab,
   type WorkspaceNavEntry,
 } from "@/lib/taskNavigationHistory.js";
-import type { ZCodeSessionStoreState } from "./zcodeSessionStoreTypes.js";
+import type { YCodeSessionStoreState } from "./ycodeSessionStoreTypes.js";
 
 type SetFn = (
   partial:
-    | ZCodeSessionStoreState
-    | Partial<ZCodeSessionStoreState>
-    | ((state: ZCodeSessionStoreState) => ZCodeSessionStoreState | Partial<ZCodeSessionStoreState>),
+    | YCodeSessionStoreState
+    | Partial<YCodeSessionStoreState>
+    | ((state: YCodeSessionStoreState) => YCodeSessionStoreState | Partial<YCodeSessionStoreState>),
 ) => void;
-type GetFn = () => ZCodeSessionStoreState;
+type GetFn = () => YCodeSessionStoreState;
 
 /**
  * 创建导航切片，供 store creator 展开使用：

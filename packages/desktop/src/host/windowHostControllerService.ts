@@ -1,6 +1,6 @@
 /* eslint-disable max-lines -- Controller source 聚合、路由、订阅与生命周期属于同一个 Host 边界。 */
 import { Emitter } from "@ycode/rpc";
-import type { ZCodeTaskMeta } from "@ycode/shared";
+import type { YCodeTaskMeta } from "@ycode/shared";
 import type {
   ControllerSubscribeParams,
   WindowHostControllerTaskRow,
@@ -9,13 +9,13 @@ import type {
 import { matchesTaskListMembershipKind } from "@ycode/shared/ycode-protocol-v4";
 import type {
   IWindowControllerService,
-  IZCodeAgentService,
-  IZCodeTaskService,
+  IYCodeAgentService,
+  IYCodeTaskService,
   WindowHostControllerFrame,
   WindowHostControllerTaskListItem,
   WindowHostControllerTaskListResult,
-  ZCodeTaskListQuery,
-  ZCodeTaskListWorkspaceScope,
+  YCodeTaskListQuery,
+  YCodeTaskListWorkspaceScope,
 } from "@ycode/services";
 import {
   createWindowHostControllerProjection,
@@ -31,8 +31,8 @@ import {
 
 interface ResolvedWindowHostControllerSource {
   scope: WindowHostControllerSourceScope;
-  taskService?: IZCodeTaskService;
-  agentService?: IZCodeAgentService;
+  taskService?: IYCodeTaskService;
+  agentService?: IYCodeAgentService;
   sourceAvailability: "online" | "offline";
 }
 
@@ -40,14 +40,14 @@ function sourceKey(scope: WindowHostControllerSourceScope): string {
   return `${scope.kind}\0${scope.kind === "remote" ? scope.remoteSessionId : "local"}\0${scope.workspaceIdentity?.trim() || scope.workspacePath}`;
 }
 
-function taskKey(task: Pick<ZCodeTaskMeta, "taskId" | "workspacePath" | "workspaceIdentity">) {
+function taskKey(task: Pick<YCodeTaskMeta, "taskId" | "workspacePath" | "workspaceIdentity">) {
   return `${task.workspaceIdentity?.trim() || task.workspacePath}\0${task.taskId}`;
 }
 
 function normalizeTaskMeta(
-  meta: ZCodeTaskMeta,
+  meta: YCodeTaskMeta,
   scope: WindowHostControllerSourceScope,
-): ZCodeTaskMeta {
+): YCodeTaskMeta {
   return {
     ...meta,
     workspacePath: scope.workspacePath,
@@ -60,7 +60,7 @@ function normalizeTaskMeta(
 function compareItems(
   left: WindowHostControllerTaskListItem,
   right: WindowHostControllerTaskListItem,
-  sortBy: ZCodeTaskListQuery["sortBy"],
+  sortBy: YCodeTaskListQuery["sortBy"],
 ): number {
   const leftAt = sortBy === "created" ? left.createdAt : left.updatedAt;
   const rightAt = sortBy === "created" ? right.createdAt : right.updatedAt;
@@ -124,7 +124,7 @@ function sessionOverlay(
   };
 }
 
-function liveStatusFromMeta(meta: ZCodeTaskMeta): WindowHostControllerTaskRow["liveStatus"] {
+function liveStatusFromMeta(meta: YCodeTaskMeta): WindowHostControllerTaskRow["liveStatus"] {
   if (meta.status === "completed") return "completed";
   if (meta.status === "error") return "error";
   return "idle";
@@ -136,7 +136,7 @@ function liveStatusFromMeta(meta: ZCodeTaskMeta): WindowHostControllerTaskRow["l
  */
 export function createWindowHostControllerRuntime(options: {
   createId: () => string;
-  resolveSource: (scope: ZCodeTaskListWorkspaceScope) => ResolvedWindowHostControllerSource | null;
+  resolveSource: (scope: YCodeTaskListWorkspaceScope) => ResolvedWindowHostControllerSource | null;
   onSourceError?: (
     scope: WindowHostControllerSourceScope,
     operation: "refresh" | "search",
@@ -146,18 +146,18 @@ export function createWindowHostControllerRuntime(options: {
   const projection = createWindowHostControllerProjection({ createId: options.createId });
   const registeredScopes = new Map<string, WindowHostControllerSourceScope>();
   const sourceAvailability = new Map<string, "online" | "offline">();
-  const sourceTaskServices = new Map<string, IZCodeTaskService>();
-  const sourceSnapshotTaskServices = new Map<string, IZCodeTaskService>();
+  const sourceTaskServices = new Map<string, IYCodeTaskService>();
+  const sourceSnapshotTaskServices = new Map<string, IYCodeTaskService>();
   const sourceEventSubscriptions = new Map<string, { dispose(): void }>();
   const sourceRefreshFlights = new Map<
     string,
-    { taskService: IZCodeTaskService; promise: Promise<void> }
+    { taskService: IYCodeTaskService; promise: Promise<void> }
   >();
   const sourceRefreshGenerations = new Map<string, number>();
   const sourceLiveOverlays = new Map<string, WindowHostControllerSessionOverlay[]>();
   const sourceSessionObservers = new Map<
     string,
-    { agentService: IZCodeAgentService; observer: WindowHostSessionsIndexObserver }
+    { agentService: IYCodeAgentService; observer: WindowHostSessionsIndexObserver }
   >();
   const pendingReplacementByNextSourceKey = new Map<string, WindowHostControllerSourceScope>();
 
@@ -360,7 +360,7 @@ export function createWindowHostControllerRuntime(options: {
     const membershipByTaskKey = new Map<
       string,
       {
-        meta: ZCodeTaskMeta;
+        meta: YCodeTaskMeta;
         membership: { pinned: boolean; archived: boolean; active: boolean };
       }
     >();
@@ -456,7 +456,7 @@ export function createWindowHostControllerRuntime(options: {
   }
 
   function resolveQuerySources(
-    scopes: ZCodeTaskListWorkspaceScope[],
+    scopes: YCodeTaskListWorkspaceScope[],
   ): ResolvedWindowHostControllerSource[] {
     const resolved = new Map<string, ResolvedWindowHostControllerSource>();
     for (const scope of scopes) {
@@ -470,7 +470,7 @@ export function createWindowHostControllerRuntime(options: {
   }
 
   async function listTaskList(
-    query: ZCodeTaskListQuery,
+    query: YCodeTaskListQuery,
   ): Promise<WindowHostControllerTaskListResult> {
     const resolvedSources = resolveQuerySources(query.workspaceScopes);
     await Promise.all(

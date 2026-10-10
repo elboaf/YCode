@@ -2,7 +2,7 @@ import type { SupportedLocale } from "@ycode/contracts";
 
 export type { SupportedLocale, UiLocale } from "@ycode/contracts";
 
-export interface ZCodeCopy {
+export interface YCodeCopy {
   cli: CliCopy;
   locale: SupportedLocale;
   tui: TuiCopy;

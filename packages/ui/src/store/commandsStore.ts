@@ -5,7 +5,7 @@ import type {
   CommandSetEnabledParams,
   CommandUpdateParams,
   UserCommand,
-  ZCodeCommand,
+  YCodeCommand,
 } from "@ycode/shared";
 import type { ICommandsService } from "@ycode/services";
 
@@ -14,9 +14,9 @@ interface CommandsStoreState {
   workspaceIdentity: string | null;
   loadedWorkspacePath: string | null;
   loadedWorkspaceIdentity: string | null;
-  commands: ZCodeCommand[];
+  commands: YCodeCommand[];
   userCommands: UserCommand[];
-  pluginCommands: ZCodeCommand[];
+  pluginCommands: YCodeCommand[];
   capability: { userScopeAvailable: boolean };
   loading: boolean;
   error: string | null;

@@ -1,28 +1,28 @@
 import {
   YCODE_PROTOCOL_NAME,
   YCODE_PROTOCOL_VERSION,
-  getZCodeGoalActiveIterationCount,
-  zcodeApiRetryFromModelNetworkStatusPayload,
-  zcodeApiRetryFromStreamRecoveryPayload,
-  zcodeContextUsageBreakdownSchema,
-  type ZCodeActiveToolCall,
-  type ZCodeContextUsageBreakdownItem,
-  type ZCodeDeliveryKind,
-  type ZCodePendingPermission,
-  type ZCodeSessionContextUsage,
-  type ZCodeSessionEvent,
-  type ZCodeSessionGoal,
-  type ZCodeSessionGoalVerification,
-  type ZCodeSessionGoalVerificationTimeline,
-  type ZCodeSessionGoalStats,
-  type ZCodeSessionInfo,
-  type ZCodeSessionKind,
-  type ZCodeSessionProjection,
-  type ZCodeSessionRuntimeState,
-  type ZCodeSessionSettingsState,
-  type ZCodeSessionStateSnapshot,
-  type ZCodeSessionTodoGroup,
-  type ZCodeWorkspaceRef,
+  getYCodeGoalActiveIterationCount,
+  ycodeApiRetryFromModelNetworkStatusPayload,
+  ycodeApiRetryFromStreamRecoveryPayload,
+  ycodeContextUsageBreakdownSchema,
+  type YCodeActiveToolCall,
+  type YCodeContextUsageBreakdownItem,
+  type YCodeDeliveryKind,
+  type YCodePendingPermission,
+  type YCodeSessionContextUsage,
+  type YCodeSessionEvent,
+  type YCodeSessionGoal,
+  type YCodeSessionGoalVerification,
+  type YCodeSessionGoalVerificationTimeline,
+  type YCodeSessionGoalStats,
+  type YCodeSessionInfo,
+  type YCodeSessionKind,
+  type YCodeSessionProjection,
+  type YCodeSessionRuntimeState,
+  type YCodeSessionSettingsState,
+  type YCodeSessionStateSnapshot,
+  type YCodeSessionTodoGroup,
+  type YCodeWorkspaceRef,
   isMainAgentToolProjectionSource,
 } from "@ycode/shared";
 import {
@@ -42,7 +42,7 @@ import {
   type TodoItem,
   type ToolState,
 } from "@ycode/contracts";
-import type { ZCodeApp } from "../app/types.js";
+import type { YCodeApp } from "../app/types.js";
 import { mapMessageWithParts } from "./message-mapper.js";
 import { formatProtocolModelSelection, optionalModelSelectionFromString } from "./model-mapper.js";
 import {
@@ -57,8 +57,8 @@ import {
 const SNAPSHOT_INLINE_IMAGE_DATA_URL_MAX_BYTES = 20 * 1024 * 1024;
 
 export async function buildSessionSnapshot(input: {
-  app: ZCodeApp;
-  deliveryKind?: ZCodeDeliveryKind;
+  app: YCodeApp;
+  deliveryKind?: YCodeDeliveryKind;
   eventSeq: number;
   fallbackCreatedAt?: number;
   fallbackUpdatedAt?: number;
@@ -72,8 +72,8 @@ export async function buildSessionSnapshot(input: {
   slashCommandOptions?: ListProtocolSlashCommandsOptions;
   target?: SessionGoal | null;
   todos?: TodoItem[];
-  workspace: ZCodeWorkspaceRef;
-}): Promise<ZCodeSessionStateSnapshot> {
+  workspace: YCodeWorkspaceRef;
+}): Promise<YCodeSessionStateSnapshot> {
   const runtimeProjection = await input.app.runtime.getProjection();
   const activeTurn = input.app.runtime.getActiveTurnInfo();
   const persistedGoalProjection = mergePersistedGoalVerificationEvents(
@@ -136,7 +136,7 @@ export async function buildSessionSnapshot(input: {
 }
 
 async function mapSnapshotMessages(
-  app: Pick<ZCodeApp, "readToolResultArtifact">,
+  app: Pick<YCodeApp, "readToolResultArtifact">,
   messages: readonly MessageWithParts[],
 ) {
   const mapped = messages.map(mapMessageWithParts);
@@ -149,7 +149,7 @@ async function mapSnapshotMessages(
 }
 
 async function hydrateSnapshotFilePartUrl(
-  app: Pick<ZCodeApp, "readToolResultArtifact">,
+  app: Pick<YCodeApp, "readToolResultArtifact">,
   part: ReturnType<typeof mapMessageWithParts>["parts"][number],
 ) {
   // 历史图片附件持久化后只剩 ycode-artifact:// 引用，UI/手机端不能直接渲染。
@@ -213,12 +213,12 @@ function isUsableDataUrl(value: string): boolean {
 }
 
 export async function mapSessionSettings(
-  app: ZCodeApp,
+  app: YCodeApp,
   options: {
     currentModelContextWindow?: number;
     modelAvailability?: "all" | "current";
   } = {},
-): Promise<ZCodeSessionSettingsState> {
+): Promise<YCodeSessionSettingsState> {
   const thoughtLevels = app.listThoughtLevels();
   const rawCurrentThoughtLevel = app.getThoughtLevel();
   // setModel 后 runtime 可能短暂保留上一个模型的 thoughtLevel。
@@ -277,15 +277,15 @@ export async function mapSessionSettings(
 }
 
 export function mapSessionInfo(input: {
-  app?: Pick<ZCodeApp, "getMode" | "getModel" | "sessionId" | "traceId">;
+  app?: Pick<YCodeApp, "getMode" | "getModel" | "sessionId" | "traceId">;
   fallbackCreatedAt?: number;
   fallbackUpdatedAt?: number;
   projection?: SessionProjection;
   session?: SessionInfo | null;
   taskType?: SessionInfo["taskType"];
   parentSessionId?: string;
-  workspace: ZCodeWorkspaceRef;
-}): ZCodeSessionInfo {
+  workspace: YCodeWorkspaceRef;
+}): YCodeSessionInfo {
   const sessionId = String(input.session?.id ?? input.app?.sessionId ?? "unknown");
   // 刚创建的 protocol session 可能还没有持久化 session 行。
   // 此时 runtime projection 的时间可能继承 workspace 预热 draft，不能作为正式 session 时间。
@@ -307,7 +307,7 @@ export function mapSessionInfo(input: {
     parentSessionId: input.session?.parentID ?? input.parentSessionId,
     traceId: input.session?.traceID ?? input.app?.traceId,
     sessionId,
-    sessionKind: (input.session?.taskType ?? input.taskType ?? "interactive") as ZCodeSessionKind,
+    sessionKind: (input.session?.taskType ?? input.taskType ?? "interactive") as YCodeSessionKind,
     status: input.projection?.status ?? "idle",
     target: mapSessionGoal(input.projection?.target),
     title: input.session?.title ?? "",
@@ -319,9 +319,9 @@ export function mapSessionInfo(input: {
 
 export function mapSessionEvent(
   event: SessionEvent,
-  deliveryKind?: ZCodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
   options: { seq?: number } = {},
-): ZCodeSessionEvent {
+): YCodeSessionEvent {
   return {
     deliveryKind,
     eventId: String(event.id),
@@ -337,9 +337,9 @@ export function mapSessionEvent(
 
 export function mapSessionEventForProtocol(
   event: SessionEvent,
-  deliveryKind?: ZCodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
   options: { seq?: number } = {},
-): ZCodeSessionEvent | null {
+): YCodeSessionEvent | null {
   if (!shouldExposeSessionEventToProtocol(event)) {
     return null;
   }
@@ -348,11 +348,11 @@ export function mapSessionEventForProtocol(
 
 export function mapSessionEvents(
   events: readonly SessionEvent[],
-  deliveryKind?: ZCodeDeliveryKind,
-): ZCodeSessionEvent[] {
+  deliveryKind?: YCodeDeliveryKind,
+): YCodeSessionEvent[] {
   return events
     .map((event) => mapSessionEventForProtocol(event, deliveryKind))
-    .filter((event): event is ZCodeSessionEvent => event !== null);
+    .filter((event): event is YCodeSessionEvent => event !== null);
 }
 
 export function shouldExposeSessionEventToProtocol(event: SessionEvent): boolean {
@@ -490,18 +490,18 @@ function mapModelRequestPayload(payload: unknown): Record<string, unknown> {
 
 function mapModelNetworkStatusPayload(payload: unknown): Record<string, unknown> {
   const record = asRecord(payload);
-  const apiRetry = zcodeApiRetryFromModelNetworkStatusPayload(record);
+  const apiRetry = ycodeApiRetryFromModelNetworkStatusPayload(record);
   if (apiRetry === undefined) {
     return record;
   }
   const meta = asRecord(record._meta);
-  const zcodeMeta = asRecord(meta.ycode);
+  const ycodeMeta = asRecord(meta.ycode);
   return {
     ...record,
     _meta: {
       ...meta,
       ycode: {
-        ...zcodeMeta,
+        ...ycodeMeta,
         // 网络重试是模型请求运行态，不属于可持久化消息内容。
         // 这里通过 app 私有 meta 暴露给旧 task 投影，app 再写入 host runtime snapshot。
         apiRetry,
@@ -512,18 +512,18 @@ function mapModelNetworkStatusPayload(payload: unknown): Record<string, unknown>
 
 function mapStreamRecoveryPayload(payload: unknown): Record<string, unknown> {
   const record = asRecord(payload);
-  const apiRetry = zcodeApiRetryFromStreamRecoveryPayload(record);
+  const apiRetry = ycodeApiRetryFromStreamRecoveryPayload(record);
   if (apiRetry === undefined) {
     return record;
   }
   const meta = asRecord(record._meta);
-  const zcodeMeta = asRecord(meta.ycode);
+  const ycodeMeta = asRecord(meta.ycode);
   return {
     ...record,
     _meta: {
       ...meta,
       ycode: {
-        ...zcodeMeta,
+        ...ycodeMeta,
         // streamRecovery.updated 才是 SSE 断流恢复的核心进度事件。
         // 之前只在后续 model_request_started 上补 meta，UI 错过该事件时不会显示重试次数。
         apiRetry,
@@ -532,7 +532,7 @@ function mapStreamRecoveryPayload(payload: unknown): Record<string, unknown> {
   };
 }
 
-function mapSessionProjection(projection: SessionProjection): ZCodeSessionProjection {
+function mapSessionProjection(projection: SessionProjection): YCodeSessionProjection {
   return {
     activeToolCalls: projection.activeToolCalls.map(mapActiveToolCall),
     backgroundJobs: projection.backgroundTasks.map(mapBackgroundTask),
@@ -551,14 +551,14 @@ function mapSessionProjection(projection: SessionProjection): ZCodeSessionProjec
 }
 
 function mapRuntimeState(input: {
-  activeTurn?: ReturnType<ZCodeApp["runtime"]["getActiveTurnInfo"]>;
-  deliveryKind?: ZCodeDeliveryKind;
+  activeTurn?: ReturnType<YCodeApp["runtime"]["getActiveTurnInfo"]>;
+  deliveryKind?: YCodeDeliveryKind;
   eventSeq: number;
   messages: MessageWithParts[];
   persistedContextUsageBreakdownEvents?: readonly SessionEvent[];
   projection: SessionProjection;
   stateRevision: number;
-}): ZCodeSessionRuntimeState {
+}): YCodeSessionRuntimeState {
   // projection.currentTurnId 是投影最后处理过的 turn，不代表当前仍在运行。
   // session 恢复/subscribe 快照如果把它回填成 runtime.activeTurnId，会让已 idle/complete 的任务误显示为 thinking。
   const activeTurnId = input.activeTurn?.turnId;
@@ -587,7 +587,7 @@ function mapRuntimeState(input: {
 }
 
 interface ContextUsageBreakdownCandidate {
-  breakdown: ZCodeContextUsageBreakdownItem[];
+  breakdown: YCodeContextUsageBreakdownItem[];
   contextWindow?: number;
   used: number;
 }
@@ -602,7 +602,7 @@ export function resolveSessionContextUsage(input: {
   messages: readonly MessageWithParts[];
   persistedContextUsageBreakdownEvents?: readonly SessionEvent[];
   projection: SessionProjection;
-}): ZCodeSessionContextUsage | undefined {
+}): YCodeSessionContextUsage | undefined {
   const persistedContextUsage = contextUsageFromPersistedMessages(
     input.messages,
     input.projection.contextWindow,
@@ -619,9 +619,9 @@ export function resolveSessionContextUsage(input: {
 }
 
 function applyContextUsageBreakdown(
-  contextUsage: ZCodeSessionContextUsage | undefined,
+  contextUsage: YCodeSessionContextUsage | undefined,
   candidate: ContextUsageBreakdownCandidate | undefined,
-): ZCodeSessionContextUsage | undefined {
+): YCodeSessionContextUsage | undefined {
   if (!contextUsage || !candidate || candidate.breakdown.length === 0) {
     return contextUsage;
   }
@@ -653,7 +653,7 @@ function latestContextUsageBreakdownFromEvents(
     if (querySource !== undefined && querySource !== "main_turn") {
       continue;
     }
-    const parsed = zcodeContextUsageBreakdownSchema.safeParse(payload.contextUsageBreakdown);
+    const parsed = ycodeContextUsageBreakdownSchema.safeParse(payload.contextUsageBreakdown);
     const used = getModelUsageContextTokens(payload.usage);
     if (!parsed.success || parsed.data.length === 0 || used === undefined) {
       continue;
@@ -672,7 +672,7 @@ function latestContextUsageBreakdownFromEvents(
 
 function mapGoalVerifications(
   verifications: SessionProjection["targetCompletionVerifications"] | undefined,
-): ZCodeSessionGoalVerification[] {
+): YCodeSessionGoalVerification[] {
   return (verifications ?? []).map((verification) => ({
     nextAction: verification.nextAction ?? null,
     passed: verification.passed,
@@ -682,7 +682,7 @@ function mapGoalVerifications(
 
 function mapGoalVerificationTimeline(
   timeline: SessionProjection["targetCompletionVerificationTimeline"] | undefined,
-): ZCodeSessionGoalVerificationTimeline[] {
+): YCodeSessionGoalVerificationTimeline[] {
   return (timeline ?? []).map((item) => ({
     version: 1,
     kind: "synthetic",
@@ -712,8 +712,8 @@ function mapGoalVerificationTimeline(
 
 function contextUsageFromProjection(
   projection: SessionProjection,
-  cache: ZCodeSessionContextUsage["cache"] | undefined,
-): ZCodeSessionContextUsage | undefined {
+  cache: YCodeSessionContextUsage["cache"] | undefined,
+): YCodeSessionContextUsage | undefined {
   if (projection.contextUsed <= 0 || projection.contextWindow <= 0) {
     return undefined;
   }
@@ -728,7 +728,7 @@ function contextUsageFromProjection(
 function contextUsageFromPersistedMessages(
   messages: readonly MessageWithParts[],
   contextWindow: number,
-): ZCodeSessionContextUsage | undefined {
+): YCodeSessionContextUsage | undefined {
   if (contextWindow <= 0) {
     return undefined;
   }
@@ -806,7 +806,7 @@ function contextUsedFromTokens(
 
 function contextCacheUsageFromMessages(
   messages: readonly MessageWithParts[],
-): ZCodeSessionContextUsage["cache"] | undefined {
+): YCodeSessionContextUsage["cache"] | undefined {
   let inputTokens = 0;
   let cacheReadTokens = 0;
   let cacheWriteTokens = 0;
@@ -850,11 +850,11 @@ function contextCacheUsageFromMessages(
   };
 }
 
-function mapPendingPermission(permission: PendingPermission): ZCodePendingPermission {
+function mapPendingPermission(permission: PendingPermission): YCodePendingPermission {
   // display / optionsPolicy 刻意不进 legacy v3 输出。
   // 根因不是"扩 schema 只能单向兼容"，而是 strict schema 随 packages/shared 打进每个桌面端
-  // 的产物：今天把 zcodePendingPermissionSchema（shared/src/ycode-protocol/index.ts:1139）和
-  // zcodePermissionRequestedEventPayloadSchema（同文件:1536）改成可选，也保护不了已经装出去
+  // 的产物：今天把 ycodePendingPermissionSchema（shared/src/ycode-protocol/index.ts:1139）和
+  // ycodePermissionRequestedEventPayloadSchema（同文件:1536）改成可选，也保护不了已经装出去
   // 的旧桌面。新 CLI 一旦在 v3 路径上带这两个字段，旧桌面会整份快照解析失败、并用 safeParse
   // 静默丢弃整个 permission.requested 事件——确认窗本身就没了，这违反"只允许预览降级、
   // 不允许 gate 降级"。剥离在源头是唯一对版本偏斜安全的做法；legacy 也没有画因果图的界面。
@@ -879,7 +879,7 @@ function mapPendingPermission(permission: PendingPermission): ZCodePendingPermis
 
 function mapPermissionRequestedPayload(payload: unknown): Record<string, unknown> {
   // 同 mapPendingPermission：这个 payload 是整体 spread 出去的，新字段必须在这里显式解构
-  // 剔除，否则会直接漏进 strict 的 zcodePermissionRequestedEventPayloadSchema。
+  // 剔除，否则会直接漏进 strict 的 ycodePermissionRequestedEventPayloadSchema。
   const { display: _display, optionsPolicy, ...record } = asRecord(payload);
   const toolName = stringValue(record.toolName) ?? "unknown";
   return {
@@ -895,7 +895,7 @@ function mapPermissionRequestedPayload(payload: unknown): Record<string, unknown
   };
 }
 
-function mapActiveToolCall(toolCall: ActiveToolCall): ZCodeActiveToolCall {
+function mapActiveToolCall(toolCall: ActiveToolCall): YCodeActiveToolCall {
   return {
     startedAt: toolCall.startedAt?.getTime(),
     status: toolCall.status,
@@ -1040,7 +1040,7 @@ function normalizeText(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-function mapSessionGoal(goal: SessionGoal | null | undefined): ZCodeSessionGoal | null | undefined {
+function mapSessionGoal(goal: SessionGoal | null | undefined): YCodeSessionGoal | null | undefined {
   if (goal === undefined) return undefined;
   if (goal === null) return null;
   return {
@@ -1083,7 +1083,7 @@ interface GoalIterationBucket {
 function buildGoalStats(
   projection: SessionProjection,
   messages: readonly MessageWithParts[],
-): ZCodeSessionGoalStats | undefined {
+): YCodeSessionGoalStats | undefined {
   const target = projection.target;
   if (!target) {
     return undefined;
@@ -1125,10 +1125,10 @@ function buildTodoGroups(
   messages: readonly MessageWithParts[],
   currentTodos: readonly TodoItem[],
   projection: SessionProjection,
-): ZCodeSessionTodoGroup[] {
+): YCodeSessionTodoGroup[] {
   const target = projection.target;
   const timeline = getTargetGoalVerificationTimeline(projection, target);
-  const groups = new Map<string, ZCodeSessionTodoGroup>();
+  const groups = new Map<string, YCodeSessionTodoGroup>();
   const todoOwners = new Map<string, { fingerprint: string; groupId: string }>();
   const sortedMessages = [...messages].sort(compareMessagesByCreatedTime);
 
@@ -1202,7 +1202,7 @@ function buildTodoGroups(
 }
 
 function ensureTodoGroup(
-  groups: Map<string, ZCodeSessionTodoGroup>,
+  groups: Map<string, YCodeSessionTodoGroup>,
   input: {
     goalIteration: number | undefined;
     groupId: string;
@@ -1210,13 +1210,13 @@ function ensureTodoGroup(
     targetId?: string;
     updatedAt: number;
   },
-): ZCodeSessionTodoGroup {
+): YCodeSessionTodoGroup {
   const existing = groups.get(input.groupId);
   if (existing) {
     existing.updatedAt = Math.max(existing.updatedAt ?? 0, input.updatedAt);
     return existing;
   }
-  const group: ZCodeSessionTodoGroup = {
+  const group: YCodeSessionTodoGroup = {
     id: input.groupId,
     source: input.goalIteration ? "goal_iteration" : "session",
     ...(input.goalIteration ? { goalIteration: input.goalIteration } : {}),
@@ -1230,7 +1230,7 @@ function ensureTodoGroup(
 }
 
 function addOrUpdateTodoInGroup(
-  group: ZCodeSessionTodoGroup,
+  group: YCodeSessionTodoGroup,
   fingerprint: string,
   todo: TodoItem,
 ): void {
@@ -1250,7 +1250,7 @@ function getGoalActiveIterationCount(
   target?: SessionGoal | null,
 ): number {
   const timeline = getTargetGoalVerificationTimeline(projection, target);
-  return getZCodeGoalActiveIterationCount({
+  return getYCodeGoalActiveIterationCount({
     targetStatus: target?.status ?? null,
     timeline,
   });
@@ -1475,7 +1475,7 @@ function compareMessagesByCreatedTime(left: MessageWithParts, right: MessageWith
   return String(left.info.id).localeCompare(String(right.info.id));
 }
 
-function mapSessionEventType(type: SessionEvent["type"]): ZCodeSessionEvent["type"] {
+function mapSessionEventType(type: SessionEvent["type"]): YCodeSessionEvent["type"] {
   switch (type) {
     case SessionEventType.SessionCreated:
       return "session.created";

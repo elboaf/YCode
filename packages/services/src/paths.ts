@@ -40,18 +40,18 @@ export function getDataBaseDir(): string {
 }
 
 /** {dataBaseDir}/.ycode */
-export function getZCodeDataRootDir(): string {
+export function getYCodeDataRootDir(): string {
   return join(getDataBaseDir(), ".ycode");
 }
 
 /** 非项目对话共享的真实工作目录；默认 ~/.ycode/workspace/default。 */
 export function getConversationWorkspaceDir(): string {
-  return join(getZCodeDataRootDir(), "workspace", "default");
+  return join(getYCodeDataRootDir(), "workspace", "default");
 }
 
 /** {dataBaseDir}/.ycode/v2 */
 export function getAppConfigDir(): string {
-  return join(getZCodeDataRootDir(), "v2");
+  return join(getYCodeDataRootDir(), "v2");
 }
 
 function readEnvValue(env: Record<string, string | undefined>, key: string): string | undefined {
@@ -159,15 +159,15 @@ export function validateDataBaseDirTarget(
 }
 
 export function getExportLogStageDir(): string {
-  return join(getZCodeDataRootDir(), "export-log-stage");
+  return join(getYCodeDataRootDir(), "export-log-stage");
 }
 
 export function getExportLogDir(): string {
-  return join(getZCodeDataRootDir(), "export-log");
+  return join(getYCodeDataRootDir(), "export-log");
 }
 
 export function getFeedbackRootDir(): string {
-  return join(getZCodeDataRootDir(), "feedback");
+  return join(getYCodeDataRootDir(), "feedback");
 }
 
 export function getFeedbackAttachmentDir(): string {
@@ -179,7 +179,7 @@ export function getFeedbackLogArchiveDir(): string {
 }
 
 export function getGitCheckpointIndexRootDir(): string {
-  return join(getZCodeDataRootDir(), "git-checkpoint-index");
+  return join(getYCodeDataRootDir(), "git-checkpoint-index");
 }
 
 /** ~/.ycode/v2/tasks-index.sqlite */

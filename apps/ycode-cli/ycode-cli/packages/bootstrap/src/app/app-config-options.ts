@@ -1,13 +1,13 @@
 import type { ConfigResult } from "@ycode/adapters/config";
 import { detectLocale, resolveLocale } from "@ycode/i18n";
 import type { RuntimeConfigPatch, SupportedLocale, UiLocale } from "@ycode/contracts";
-import type { ZCodeAppOptions } from "./types.js";
+import type { YCodeAppOptions } from "./types.js";
 
 export function isMessageEnabled(env: NodeJS.ProcessEnv): boolean {
   return env.YCODE_MESSAGE_ENABLED === "1" || env.YCODE_MESSAGE_ENABLED === "true";
 }
 
-export function createConfigCliOverrides(options: ZCodeAppOptions): RuntimeConfigPatch | undefined {
+export function createConfigCliOverrides(options: YCodeAppOptions): RuntimeConfigPatch | undefined {
   const overrides: RuntimeConfigPatch = {};
   const permission: NonNullable<RuntimeConfigPatch["permission"]> = {};
 
@@ -36,7 +36,7 @@ export function createConfigCliOverrides(options: ZCodeAppOptions): RuntimeConfi
 
 export function resolveEffectiveConfigResult(
   configResult: ConfigResult,
-  options: ZCodeAppOptions,
+  options: YCodeAppOptions,
 ): ConfigResult {
   const requestedLocale = configResult.config.ui.locale;
   const effectiveLocale = resolveEffectiveLocale(requestedLocale, options);
@@ -59,13 +59,13 @@ export function resolveEffectiveConfigResult(
 
 export function resolveEffectiveLocale(
   requestedLocale: UiLocale,
-  options: ZCodeAppOptions,
+  options: YCodeAppOptions,
 ): SupportedLocale {
   const detectedLocale = requestedLocale === "auto" ? detectAppLocale(options) : undefined;
   return resolveLocale(requestedLocale, detectedLocale);
 }
 
-function detectAppLocale(options: ZCodeAppOptions): SupportedLocale | undefined {
+function detectAppLocale(options: YCodeAppOptions): SupportedLocale | undefined {
   if (options.uiDetectedLocale !== undefined) {
     return detectLocale({
       intlLocale: options.uiDetectedLocale,

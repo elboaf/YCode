@@ -1,15 +1,15 @@
 import { randomUUID } from "node:crypto";
 import {
-  zcodeProtocolMethods,
-  zcodeProtocolNotifications,
-  zcodeProviderRuntimeHeadersResponseSchema,
-  type ZCodeWorkspaceRef,
+  ycodeProtocolMethods,
+  ycodeProtocolNotifications,
+  ycodeProviderRuntimeHeadersResponseSchema,
+  type YCodeWorkspaceRef,
 } from "@ycode/shared";
-import type { ZCodeAppOptions } from "../app/types.js";
+import type { YCodeAppOptions } from "../app/types.js";
 import {
   ProtocolRequestError,
   protocolTraceFromTraceContext,
-  type ZCodeProtocolAgentServerContext,
+  type YCodeProtocolAgentServerContext,
 } from "./server-types.js";
 
 // 无应答方时 UI 的 SDK 超时不会启动；端口总时限同时覆盖排队与凭据解析。
@@ -17,9 +17,9 @@ const PROVIDER_RUNTIME_HEADERS_TIMEOUT_MS = 180_000;
 const CLIENT_REQUEST_TIMEOUT_CODE = -32022;
 
 export function createProviderRuntimeHeadersPort(
-  context: ZCodeProtocolAgentServerContext,
-  workspace: ZCodeWorkspaceRef,
-): NonNullable<ZCodeAppOptions["providerRuntimeHeadersPort"]> {
+  context: YCodeProtocolAgentServerContext,
+  workspace: YCodeWorkspaceRef,
+): NonNullable<YCodeAppOptions["providerRuntimeHeadersPort"]> {
   return {
     shouldRefreshBeforeModelRequest() {
       // Account 请求由绑定 Model 决定是否进入鉴权，不能把所有账号收窄到旧 Start ID。
@@ -31,7 +31,7 @@ export function createProviderRuntimeHeadersPort(
       let result;
       try {
         result = await context.requestClient(
-          zcodeProtocolMethods.interactionRequestProviderRuntimeHeaders,
+          ycodeProtocolMethods.interactionRequestProviderRuntimeHeaders,
           {
             // 同一毫秒内的并发请求不能共用关联键，否则 pending 应答会覆盖或串用。
             requestId,
@@ -43,7 +43,7 @@ export function createProviderRuntimeHeadersPort(
             ...(input.accountAccess ? { accountAccess: input.accountAccess } : {}),
             reason: input.reason,
           },
-          zcodeProviderRuntimeHeadersResponseSchema,
+          ycodeProviderRuntimeHeadersResponseSchema,
           {
             signal: input.abortSignal,
             trace: protocolTraceFromTraceContext(input.traceContext),
@@ -58,7 +58,7 @@ export function createProviderRuntimeHeadersPort(
         // 总时限与主动停止都必须释放 Host；否则 CLI 已失败，旧请求仍会占用队列。
         if (input.abortSignal?.aborted || timedOut) {
           context.notify({
-            method: zcodeProtocolNotifications.providerRuntimeHeadersCancelled,
+            method: ycodeProtocolNotifications.providerRuntimeHeadersCancelled,
             trace: protocolTraceFromTraceContext(input.traceContext),
             params: { workspace, sessionId: input.sessionId, requestId },
           });

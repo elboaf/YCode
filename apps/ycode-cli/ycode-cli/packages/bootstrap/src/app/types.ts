@@ -1,4 +1,4 @@
-import type { ZCodeToolExecResource, BackgroundBashOutputResult } from "@ycode/shared";
+import type { YCodeToolExecResource, BackgroundBashOutputResult } from "@ycode/shared";
 import type { AiSdkModelAdapter } from "@ycode/adapters/model";
 import type {
   AgentRuntime,
@@ -25,11 +25,11 @@ import type {
   WorkspaceHookReviewDecision,
   WorkspaceHookTrustRevokeTarget,
 } from "@ycode/shared/ycode-protocol-v4";
-import type { ZCodeModelOption } from "@ycode/shared";
+import type { YCodeModelOption } from "@ycode/shared";
 import type { EffectiveModelSelectionResult } from "@ycode/shared/model-selection";
-export type { ZCodeModelOption } from "@ycode/shared";
+export type { YCodeModelOption } from "@ycode/shared";
 import type { ModelProviderSourceTitle } from "../model-config.js";
-import type { ZCodeInstalledPluginData } from "../plugins.js";
+import type { YCodeInstalledPluginData } from "../plugins.js";
 import type {
   AutomationPort,
   OffPeakPort,
@@ -118,14 +118,14 @@ export type RevokeWorkspaceHookTrustInput =
   | WorkspaceHookTrustRevokeTarget;
 
 /** 新 Session 可使用 Environment 默认选择；恢复 Session 允许保持未绑定，不补默认模型。 */
-export type ZCodeAppRuntimeConfigInput = AgentRuntimeConfig;
+export type YCodeAppRuntimeConfigInput = AgentRuntimeConfig;
 
-export interface ZCodeAppOptions {
+export interface YCodeAppOptions {
   sessionId?: SessionId;
   resume?: boolean;
   version?: string;
   traceContext?: TraceContext;
-  runtimeConfig?: ZCodeAppRuntimeConfigInput;
+  runtimeConfig?: YCodeAppRuntimeConfigInput;
   /**
    * stdio 协议模式的 agent 进程由 Electron host 拉起，模型服务需要看到 electron 来源。
    * 普通 CLI 不传，继续使用 cli 默认值。
@@ -154,7 +154,7 @@ export interface ZCodeAppOptions {
   pluginStorageRoot?: string;
   executionPort?: ExecutionPort;
   /** 资源遥测旁路；由协议宿主注入，主任务和 workflow 的执行适配器共用。 */
-  onToolExecResource?: (sample: ZCodeToolExecResource) => void;
+  onToolExecResource?: (sample: YCodeToolExecResource) => void;
   /** browser-use 控制端口；注入后 node_repl 的 agent.browsers.* 可用。缺省则不可用。 */
   browserControlPort?: BrowserControlPort;
   /** 可由协议宿主注入的进程级 node_repl Browser broker；缺省时 app 自建并拥有。 */
@@ -269,15 +269,15 @@ export interface ResumeOptions {
   persistedMessages?: MessageWithParts[];
 }
 
-export interface ZCodePluginSetResult {
+export interface YCodePluginSetResult {
   enabled: boolean;
   path: string;
   plugin: PluginMetadata;
 }
 
-export interface ZCodePluginUninstallResult {
+export interface YCodePluginUninstallResult {
   // null 表示该 plugin id 当前未安装（幂等 no-op），调用方据此提示"未安装"。
-  removed: ZCodeInstalledPluginData | null;
+  removed: YCodeInstalledPluginData | null;
 }
 
 export interface SetLocaleResult {
@@ -288,7 +288,7 @@ export interface SetLocaleResult {
   traceId: TraceContext["traceId"];
 }
 
-export interface ZCodeApp {
+export interface YCodeApp {
   readonly sessionId: SessionId;
   readonly traceId: string;
   readonly runtime: AgentRuntime;
@@ -317,9 +317,9 @@ export interface ZCodeApp {
   getMode(): CollaborationMode;
   getModel(): string;
   /** current-only 协议快照精确读取当前 Registry 模型，避免枚举整个目录。 */
-  getCurrentModelOption?(): ZCodeModelOption | undefined;
+  getCurrentModelOption?(): YCodeModelOption | undefined;
   /** 只读 Registry 元数据；不要求选项完整，也不绑定执行模型。 */
-  getModelOption?(selection: ModelSelection): ZCodeModelOption | undefined;
+  getModelOption?(selection: ModelSelection): YCodeModelOption | undefined;
   getLocale(): SupportedLocale;
   getTheme(): UiThemePreference;
   getDefaultThoughtLevel(): string | undefined;
@@ -328,7 +328,7 @@ export interface ZCodeApp {
   readSubagents(input?: {
     endedCursor?: string;
     endedLimit?: number;
-  }): Promise<import("@ycode/shared").ZCodeSessionSubagentsResult>;
+  }): Promise<import("@ycode/shared").YCodeSessionSubagentsResult>;
   readSubagentTranscript(
     childSessionId: string,
   ): Promise<import("./subagent-observation.js").SubagentTranscriptSnapshot>;
@@ -380,11 +380,11 @@ export interface ZCodeApp {
     kind?: InputHistoryKind,
   ): Promise<InputHistoryEntry | null>;
   recallPreviousInputHistory(skip?: number): Promise<InputHistoryEntry | null>;
-  listModels(): ZCodeModelOption[];
+  listModels(): YCodeModelOption[];
   listThoughtLevels(): string[];
   listPlugins(): Promise<PluginLoadOutcome>;
-  setPluginEnabled(plugin: string, enabled: boolean): Promise<ZCodePluginSetResult>;
-  uninstallPlugin(plugin: string): Promise<ZCodePluginUninstallResult>;
+  setPluginEnabled(plugin: string, enabled: boolean): Promise<YCodePluginSetResult>;
+  uninstallPlugin(plugin: string): Promise<YCodePluginUninstallResult>;
   /**
    * Session 冻结的 Plugin 身份 catalog。
    * 在 App 创建时由 resolveStartupPlugins 结果构建一次，之后只读；
@@ -727,7 +727,7 @@ export interface ResolveLatestSessionOptions {
   sessionStore?: SessionStorePort;
 }
 
-export interface RunZCodeProtocolAgentOptions {
+export interface RunYCodeProtocolAgentOptions {
   /** 入口拥有退出时限；bootstrap 只编排取消和资源清理，不直接退出进程。 */
   lifecycle?: {
     readonly signal: AbortSignal;
@@ -744,7 +744,7 @@ export interface RunZCodeProtocolAgentOptions {
   version?: string;
 }
 
-export interface ListZCodeSessionsOptions {
+export interface ListYCodeSessionsOptions {
   directory?: string;
   env?: NodeJS.ProcessEnv;
   limit?: number;

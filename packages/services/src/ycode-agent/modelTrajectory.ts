@@ -1,13 +1,13 @@
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import type {
-  ZCodeModelTrajectory,
-  ZCodeModelTrajectoryCallSource,
-  ZCodeModelTrajectoryContentPart,
-  ZCodeModelTrajectoryMessage,
-  ZCodeModelTrajectoryRecord,
-  ZCodeModelTrajectoryUsage,
-} from "#src/session/zcodeTaskService.js";
+  YCodeModelTrajectory,
+  YCodeModelTrajectoryCallSource,
+  YCodeModelTrajectoryContentPart,
+  YCodeModelTrajectoryMessage,
+  YCodeModelTrajectoryRecord,
+  YCodeModelTrajectoryUsage,
+} from "#src/session/ycodeTaskService.js";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 import {
   readTrajectoryFileTail,
@@ -27,13 +27,13 @@ const logger = createServiceLogger("model-trajectory");
  * 设计说明：
  * - model-io 由 adapters/model/runner-debug.ts 落盘；一个 session 一个
  *   `model-io-<sanitizedSessionId>.jsonl`。
- * - YCode Agent 把 taskId 当作 sessionId（见 zcodeTaskServiceAdapter），所以这里只读取
+ * - YCode Agent 把 taskId 当作 sessionId（见 ycodeTaskServiceAdapter），所以这里只读取
  *   该 session 的单文件，并按 `record.sessionId === taskId` 精确匹配。
  */
 export async function readModelTrajectory(
   taskId: string,
   limit = DEFAULT_TRAJECTORY_LIMIT,
-): Promise<ZCodeModelTrajectory> {
+): Promise<YCodeModelTrajectory> {
   const safeLimit =
     Number.isFinite(limit) && limit > 0 ? Math.trunc(limit) : DEFAULT_TRAJECTORY_LIMIT;
   const sanitized = sanitizeSessionSegment(taskId);
@@ -127,7 +127,7 @@ function toTime(value?: string): number {
   return Number.isNaN(time) ? 0 : time;
 }
 
-function mapRecord(record: Record<string, unknown>): ZCodeModelTrajectoryRecord {
+function mapRecord(record: Record<string, unknown>): YCodeModelTrajectoryRecord {
   const request = asObject(record.request);
   const response = asObject(record.response);
   const model = asObject(record.model);
@@ -135,7 +135,7 @@ function mapRecord(record: Record<string, unknown>): ZCodeModelTrajectoryRecord 
   const querySource = asString(record.querySource) ?? inferQuerySourceFromRequest(request);
   const modelRole = asString(model?.role);
 
-  const mapped: ZCodeModelTrajectoryRecord = {
+  const mapped: YCodeModelTrajectoryRecord = {
     requestId: asString(record.requestId) ?? "",
     attempt: asNumber(record.attempt) ?? 1,
     startedAt: asString(record.startedAt) ?? "",
@@ -198,7 +198,7 @@ function inferQuerySourceFromRequest(
 function classifyCallSource(
   querySource: string | undefined,
   modelRole: string | undefined,
-): ZCodeModelTrajectoryCallSource {
+): YCodeModelTrajectoryCallSource {
   if (querySource === "main_turn") {
     return { kind: "main", querySource };
   }
@@ -306,7 +306,7 @@ function expandMessageCollection(
   target[keys.collectionKey] = [...previousMessages.slice(0, offset), ...deltaMessages];
 }
 
-function mapMessages(value: unknown): ZCodeModelTrajectoryMessage[] {
+function mapMessages(value: unknown): YCodeModelTrajectoryMessage[] {
   if (!Array.isArray(value)) {
     return [];
   }
@@ -331,7 +331,7 @@ function mapContent(
   content: unknown,
   role?: string,
   messageTool?: { toolCallId?: string; toolName?: string; isError?: boolean },
-): ZCodeModelTrajectoryContentPart[] {
+): YCodeModelTrajectoryContentPart[] {
   if (typeof content === "string") {
     if (content.length === 0) return [];
     // tool 角色的字符串内容即工具输出，单独标记为 tool-result 便于 UI 区分。
@@ -362,7 +362,7 @@ function mapContent(
 function mapPart(
   rawPart: unknown,
   messageTool?: { toolCallId?: string; toolName?: string; isError?: boolean },
-): ZCodeModelTrajectoryContentPart {
+): YCodeModelTrajectoryContentPart {
   const part = asObject(rawPart);
   if (!part) {
     return { kind: "unknown", raw: rawPart };
@@ -395,7 +395,7 @@ function mapPart(
   }
 }
 
-function mapResponseToolCall(rawToolCall: unknown): ZCodeModelTrajectoryContentPart {
+function mapResponseToolCall(rawToolCall: unknown): YCodeModelTrajectoryContentPart {
   const toolCall = asObject(rawToolCall);
   if (!toolCall) {
     return { kind: "unknown", raw: rawToolCall };
@@ -409,7 +409,7 @@ function mapResponseToolCall(rawToolCall: unknown): ZCodeModelTrajectoryContentP
   };
 }
 
-function mapUsage(value: unknown): ZCodeModelTrajectoryUsage | undefined {
+function mapUsage(value: unknown): YCodeModelTrajectoryUsage | undefined {
   const usage = asObject(value);
   if (!usage) {
     return undefined;

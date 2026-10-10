@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { dirname, join } from "node:path";
 import { acquireFileLock } from "@ycode/shared/node";
 import { YCODE_FILE_LOCK_TIMEOUT_ERROR_CODE } from "@ycode/shared";
-import type { SharedZCodeCredentialStore } from "../auth/shared-credentials.js";
+import type { SharedYCodeCredentialStore } from "../auth/shared-credentials.js";
 import { isRecord, mcpOAuthCredentialKey } from "./oauth-credentials.js";
 
 const MCP_OAUTH_PENDING_AUTHORIZATION_KEY = "pending_authorization";
@@ -85,7 +85,7 @@ interface StoredPendingAuthorization {
 }
 
 export async function publishPendingAuthorization(
-  credentialStore: SharedZCodeCredentialStore,
+  credentialStore: SharedYCodeCredentialStore,
   keyPrefix: string,
   record: PendingAuthorizationRecord,
 ): Promise<void> {
@@ -103,7 +103,7 @@ export async function publishPendingAuthorization(
 
 /** 读取 pending；已过期视为不存在（TTL 只用于展示判断，不承担锁所有权语义）。 */
 export async function loadPendingAuthorization(
-  credentialStore: SharedZCodeCredentialStore,
+  credentialStore: SharedYCodeCredentialStore,
   keyPrefix: string,
   now = Date.now(),
 ): Promise<PendingAuthorizationRecord | undefined> {
@@ -143,7 +143,7 @@ export async function loadPendingAuthorization(
  * pending，follower 随即失去授权 URL。先读当前值确认归属，再按原始值 compare-and-delete。
  */
 export async function deletePendingAuthorizationIfOwned(
-  credentialStore: SharedZCodeCredentialStore,
+  credentialStore: SharedYCodeCredentialStore,
   keyPrefix: string,
   attemptId: string,
 ): Promise<boolean> {

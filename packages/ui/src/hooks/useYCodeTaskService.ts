@@ -1,21 +1,21 @@
 import { useServices } from "@/hooks/useServices.js";
 import { useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
-import type { IZCodeTaskService } from "@ycode/services";
-import type { ZCodeTaskSnapshot } from "@ycode/shared";
+import type { IYCodeTaskService } from "@ycode/services";
+import type { YCodeTaskSnapshot } from "@ycode/shared";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
 
-type GetTaskSnapshotParams = Parameters<IZCodeTaskService["getTaskSnapshot"]>[0];
-type GetTaskSnapshotResult = Promise<ZCodeTaskSnapshot | null>;
-type GetTaskSnapshotWithEtagParams = Parameters<IZCodeTaskService["getTaskSnapshotWithEtag"]>[0];
+type GetTaskSnapshotParams = Parameters<IYCodeTaskService["getTaskSnapshot"]>[0];
+type GetTaskSnapshotResult = Promise<YCodeTaskSnapshot | null>;
+type GetTaskSnapshotWithEtagParams = Parameters<IYCodeTaskService["getTaskSnapshotWithEtag"]>[0];
 
-const zcodeTaskServiceProxyCache = new WeakMap<IZCodeTaskService, IZCodeTaskService>();
+const ycodeTaskServiceProxyCache = new WeakMap<IYCodeTaskService, IYCodeTaskService>();
 const snapshotInflightRequestsByService = new WeakMap<
-  IZCodeTaskService,
+  IYCodeTaskService,
   Map<string, GetTaskSnapshotResult>
 >();
 const snapshotCacheByService = new WeakMap<
-  IZCodeTaskService,
-  Map<string, { etag: string; snapshot: ZCodeTaskSnapshot }>
+  IYCodeTaskService,
+  Map<string, { etag: string; snapshot: YCodeTaskSnapshot }>
 >();
 const SNAPSHOT_CACHE_STORAGE_KEY = "ycode-task-snapshot-cache:v1";
 const SNAPSHOT_CACHE_MAX_ENTRY_BYTES = 256 * 1024;
@@ -24,7 +24,7 @@ const SNAPSHOT_CACHE_MAX_ENTRIES = 20;
 type PersistedSnapshotCacheEntry = {
   key: string;
   etag: string;
-  snapshot: ZCodeTaskSnapshot;
+  snapshot: YCodeTaskSnapshot;
   updatedAt: number;
   sizeBytes: number;
 };
@@ -32,7 +32,7 @@ let persistedSnapshotCacheLoaded = false;
 const persistedSnapshotCache = new Map<string, PersistedSnapshotCacheEntry>();
 // 内存诊断计数器：WeakMap 无法枚举，记住最近一个
 // service 的内存缓存（renderer 内实际只有一个 task service 实例）。
-let latestSnapshotCache: Map<string, { etag: string; snapshot: ZCodeTaskSnapshot }> | undefined;
+let latestSnapshotCache: Map<string, { etag: string; snapshot: YCodeTaskSnapshot }> | undefined;
 uiMemoryDiagnosticsRegistry.register("taskSnapshotCache", () => ({
   entries: latestSnapshotCache?.size ?? 0,
   persisted: persistedSnapshotCache.size,
@@ -62,7 +62,7 @@ function buildSnapshotDedupeKey(params: GetTaskSnapshotParams): string {
 }
 
 function getOrCreateSnapshotInflightMap(
-  service: IZCodeTaskService,
+  service: IYCodeTaskService,
 ): Map<string, GetTaskSnapshotResult> {
   if (!service || typeof service !== "object") {
     return new Map();
@@ -77,8 +77,8 @@ function getOrCreateSnapshotInflightMap(
 }
 
 function getOrCreateSnapshotCacheMap(
-  service: IZCodeTaskService,
-): Map<string, { etag: string; snapshot: ZCodeTaskSnapshot }> {
+  service: IYCodeTaskService,
+): Map<string, { etag: string; snapshot: YCodeTaskSnapshot }> {
   if (!service || typeof service !== "object") {
     return new Map();
   }
@@ -87,7 +87,7 @@ function getOrCreateSnapshotCacheMap(
     latestSnapshotCache = existing;
     return existing;
   }
-  const created = new Map<string, { etag: string; snapshot: ZCodeTaskSnapshot }>();
+  const created = new Map<string, { etag: string; snapshot: YCodeTaskSnapshot }>();
   snapshotCacheByService.set(service, created);
   latestSnapshotCache = created;
   return created;
@@ -183,7 +183,7 @@ function readPersistedSnapshotEntry(key: string) {
   return { etag: entry.etag, snapshot: entry.snapshot };
 }
 
-function writePersistedSnapshotEntry(key: string, etag: string, snapshot: ZCodeTaskSnapshot): void {
+function writePersistedSnapshotEntry(key: string, etag: string, snapshot: YCodeTaskSnapshot): void {
   ensurePersistedSnapshotCacheLoaded();
   const serializedSnapshot = JSON.stringify(snapshot);
   const sizeBytes = new TextEncoder().encode(serializedSnapshot).byteLength;
@@ -212,7 +212,7 @@ function deletePersistedSnapshotEntry(key: string): void {
   flushPersistedSnapshotCache();
 }
 
-function createZCodeTaskServiceProxy(service: IZCodeTaskService): IZCodeTaskService {
+function createYCodeTaskServiceProxy(service: IYCodeTaskService): IYCodeTaskService {
   const inflight = getOrCreateSnapshotInflightMap(service);
   const snapshotCache = getOrCreateSnapshotCacheMap(service);
 
@@ -288,24 +288,24 @@ function createZCodeTaskServiceProxy(service: IZCodeTaskService): IZCodeTaskServ
 }
 
 /** 获取 YCode task wrapper 服务实例 */
-export function useZCodeTaskService(
+export function useYCodeTaskService(
   workspacePath?: string,
   preferredRemoteSessionId?: string | null,
   workspaceIdentity?: string | null,
-): IZCodeTaskService {
+): IYCodeTaskService {
   // YCode task 服务按 workspace 身份解析，保证所有 task RPC 都落到对应的 host。
   const services = workspacePath
     ? useWorkspaceServices(workspacePath, preferredRemoteSessionId, workspaceIdentity)
     : useServices();
-  const rawService = services.zcodeTaskService;
+  const rawService = services.ycodeTaskService;
   if (!rawService || typeof rawService !== "object") {
     return rawService;
   }
-  const cachedProxy = zcodeTaskServiceProxyCache.get(rawService);
+  const cachedProxy = ycodeTaskServiceProxyCache.get(rawService);
   if (cachedProxy) {
     return cachedProxy;
   }
-  const nextProxy = createZCodeTaskServiceProxy(rawService);
-  zcodeTaskServiceProxyCache.set(rawService, nextProxy);
+  const nextProxy = createYCodeTaskServiceProxy(rawService);
+  ycodeTaskServiceProxyCache.set(rawService, nextProxy);
   return nextProxy;
 }

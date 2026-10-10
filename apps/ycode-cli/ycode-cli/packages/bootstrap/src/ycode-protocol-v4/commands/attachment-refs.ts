@@ -12,7 +12,7 @@
 //    localPath 分支映射为 path 引用，core 已有读取阈值与降级策略。
 import type { TurnAttachment } from "@ycode/core";
 import type { AttachmentRef } from "@ycode/shared/ycode-protocol-v4";
-import type { ZCodeApp } from "../../app/types.js";
+import type { YCodeApp } from "../../app/types.js";
 
 const URI_REF_PATTERN = /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//;
 const INLINE_TEXT_ATTACHMENT_MAX_BYTES = 64 * 1024;
@@ -58,7 +58,7 @@ function decodeDataUrlText(content: string): string | undefined {
   }
 }
 
-async function mapAttachmentRef(app: ZCodeApp, ref: AttachmentRef): Promise<TurnAttachment> {
+async function mapAttachmentRef(app: YCodeApp, ref: AttachmentRef): Promise<TurnAttachment> {
   const displayMeta = displayMetaOf(ref);
   if (!isUriAttachmentRef(ref.ref)) {
     // 本地路径引用：交给 core 的文件/图片读取链路（阈值与降级已内建）。
@@ -105,7 +105,7 @@ async function mapAttachmentRef(app: ZCodeApp, ref: AttachmentRef): Promise<Turn
  * 空数组/缺省 → undefined（sendInput 语义：无附件不带字段）。
  */
 export async function mapAttachmentRefsToTurnAttachments(
-  app: ZCodeApp,
+  app: YCodeApp,
   refs: readonly AttachmentRef[] | undefined,
 ): Promise<TurnAttachment[] | undefined> {
   if (!refs || refs.length === 0) return undefined;

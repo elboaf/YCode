@@ -1,8 +1,8 @@
-import { getZCodeCopy } from "@ycode/i18n";
+import { getYCodeCopy } from "@ycode/i18n";
 import type { CommandCenterApp } from "./command-center.js";
 
 export function loginRequiredResponse(locale?: string): string {
-  const copy = getZCodeCopy(locale).tui.loginRequired;
+  const copy = getYCodeCopy(locale).tui.loginRequired;
   return [copy.message, copy.help].join("\n");
 }
 

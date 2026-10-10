@@ -2,7 +2,7 @@ import { extractDisallowedToolsArgs, parseGlobalArgs } from "./arguments.js";
 import { createNodeLoggerFactory } from "@ycode/adapters";
 import { getRuntimeInfo, type PresentationSurface } from "@ycode/core";
 import { color, formatJson, supportsColor } from "@ycode/core";
-import { getZCodeCopy, isUiLocale, type UiLocale } from "@ycode/i18n";
+import { getYCodeCopy, isUiLocale, type UiLocale } from "@ycode/i18n";
 import type { RunContext, GlobalOptions, GlobalOutputFormat } from "@ycode/shared-types";
 import {
   applyCliRuntimeEnvSanitization,
@@ -130,7 +130,7 @@ const normalizeOutputFormat = (value: string | undefined): GlobalOutputFormat | 
 const normalizeLocaleOption = (value: string | undefined): UiLocale | undefined => {
   if (value === undefined) return undefined;
   if (isUiLocale(value)) return value;
-  throw new Error(getZCodeCopy().cli.errors.localeUnsupported(value));
+  throw new Error(getYCodeCopy().cli.errors.localeUnsupported(value));
 };
 
 const normalizePromptMode = (value: string | undefined): CliPermissionMode | undefined => {
@@ -233,7 +233,7 @@ const runDoctor = (ctx: RunContext, options: GlobalOptions, workingDirectory: st
   return 0;
 };
 
-const runZCodeProtocolCommand = async (
+const runYCodeProtocolCommand = async (
   ctx: RunContext,
   options: GlobalOptions,
   deps: RunDependencies,
@@ -264,7 +264,7 @@ const runZCodeProtocolCommand = async (
     }
 
     const runProtocolAgent =
-      deps.runZCodeProtocolAgent ?? (await loadBootstrapModule()).runZCodeProtocolAgent;
+      deps.runYCodeProtocolAgent ?? (await loadBootstrapModule()).runYCodeProtocolAgent;
     await runProtocolAgent({
       lifecycle: deps.protocolLifecycle,
       cwd: workingDirectory,
@@ -536,7 +536,7 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
       return 0;
     case "agent-server":
     case "app-server":
-      return await runZCodeProtocolCommand(
+      return await runYCodeProtocolCommand(
         ctx,
         options,
         commandDeps,

@@ -1,9 +1,9 @@
 import { querySessionDebug } from "./session-debug.js";
 import {
-  zcodePluginsCancelOperationParamsSchema,
-  zcodeProtocolMethods,
-  zcodeWorkspaceCancelGenerateTextParamsSchema,
-  zcodeWorkspaceHookTrustGrantParamsSchema,
+  ycodePluginsCancelOperationParamsSchema,
+  ycodeProtocolMethods,
+  ycodeWorkspaceCancelGenerateTextParamsSchema,
+  ycodeWorkspaceHookTrustGrantParamsSchema,
 } from "@ycode/shared";
 import type { BrowserControlPort } from "@ycode/contracts";
 import { InMemoryWorkspaceHookPolicyProvider } from "@ycode/core";
@@ -15,13 +15,13 @@ import {
   parseWorkspaceConfigTopic,
 } from "@ycode/shared/ycode-protocol-v4";
 import type {
-  ZCodeProtocolError,
-  ZCodeProtocolMessage,
-  ZCodeProtocolMethod,
-  ZCodeProtocolNotification,
-  ZCodeProtocolRequest,
-  ZCodeProtocolRequestId,
-  ZCodeProtocolResponse,
+  YCodeProtocolError,
+  YCodeProtocolMessage,
+  YCodeProtocolMethod,
+  YCodeProtocolNotification,
+  YCodeProtocolRequest,
+  YCodeProtocolRequestId,
+  YCodeProtocolResponse,
 } from "@ycode/shared";
 import {
   cancelBackgroundTask,
@@ -109,18 +109,18 @@ import {
   type ParamsSchema,
   parseParams,
   toProtocolError,
-  type ZCodeProtocolClientRequestOptions,
-  type ZCodeProtocolAgentDependencies,
-  type ZCodeProtocolAgentServerContext,
-  type ZCodeProtocolSessionRecord,
+  type YCodeProtocolClientRequestOptions,
+  type YCodeProtocolAgentDependencies,
+  type YCodeProtocolAgentServerContext,
+  type YCodeProtocolSessionRecord,
 } from "./server-types.js";
 import { createInMemorySessionEventStore } from "@ycode/contracts";
 
-export type { ZCodeProtocolAgentDependencies, ZCodeProtocolSessionRecord };
+export type { YCodeProtocolAgentDependencies, YCodeProtocolSessionRecord };
 
 const MAX_CLIENT_REQUEST_REANNOUNCE_INTERVAL_MS = 10_000;
 
-type ZCodeProtocolOutboundMessage = ZCodeProtocolNotification | ZCodeProtocolRequest;
+type YCodeProtocolOutboundMessage = YCodeProtocolNotification | YCodeProtocolRequest;
 
 /**
  * Trust store 落盘后各 session 的 coordinator
@@ -130,7 +130,7 @@ type ZCodeProtocolOutboundMessage = ZCodeProtocolNotification | ZCodeProtocolReq
  */
 async function notifyWorkspaceHookTrustGrantSessions(input: {
   grantedWorkspaceKey?: string;
-  sessions: Map<string, ZCodeProtocolSessionRecord>;
+  sessions: Map<string, YCodeProtocolSessionRecord>;
 }): Promise<void> {
   if (!input.grantedWorkspaceKey) return;
   await Promise.all(
@@ -183,8 +183,8 @@ function getOperationId(params: unknown): string | undefined {
     : undefined;
 }
 
-interface ZCodeProtocolPostResponseBatch {
-  readonly messages: readonly ZCodeProtocolOutboundMessage[];
+interface YCodeProtocolPostResponseBatch {
+  readonly messages: readonly YCodeProtocolOutboundMessage[];
   commit(): boolean;
 }
 
@@ -200,7 +200,7 @@ interface PendingClientRequest<T> {
   abortHandler?: () => void;
 }
 
-export class ZCodeProtocolAgentServer {
+export class YCodeProtocolAgentServer {
   private readonly runtimeResources: ProtocolRuntimeResources;
   private shutdownPromise?: Promise<void>;
   readonly browserControlPort: BrowserControlPort;
@@ -209,13 +209,13 @@ export class ZCodeProtocolAgentServer {
    * MCP 连接池的构造早于 server，需要在 server 就绪后回填闭包持有的引用——
    * 与 v4Gateway 同样的构造顺序收口方式。只暴露 requestClient，不外泄整个 context。
    */
-  get officialMcpAuthRequestContext(): Pick<ZCodeProtocolAgentServerContext, "requestClient"> {
+  get officialMcpAuthRequestContext(): Pick<YCodeProtocolAgentServerContext, "requestClient"> {
     return this.context;
   }
 
-  private messageSink?: (message: ZCodeProtocolOutboundMessage) => void;
+  private messageSink?: (message: YCodeProtocolOutboundMessage) => void;
   private clientDisconnectError?: Error;
-  private readonly context: ZCodeProtocolAgentServerContext;
+  private readonly context: YCodeProtocolAgentServerContext;
   private readonly logger;
   private readonly pendingClientRequests = new Map<string, PendingClientRequest<unknown>>();
   private readonly pluginOperationControllers = new Map<string, AbortController>();
@@ -225,16 +225,16 @@ export class ZCodeProtocolAgentServer {
    * 再写 response line，最后按数组顺序写 notification，不能靠 microtask 猜时序。
    */
   private readonly postResponseOutbox = new Map<
-    ZCodeProtocolRequestId,
-    ZCodeProtocolPostResponseBatch
+    YCodeProtocolRequestId,
+    YCodeProtocolPostResponseBatch
   >();
   private nextClientRequestId = 1;
 
-  constructor(deps: ZCodeProtocolAgentDependencies) {
-    this.runtimeResources = new ProtocolRuntimeResources(deps.createZCodeApp);
+  constructor(deps: YCodeProtocolAgentDependencies) {
+    this.runtimeResources = new ProtocolRuntimeResources(deps.createYCodeApp);
     const resolvedDeps = {
       ...deps,
-      createZCodeApp: this.runtimeResources.create,
+      createYCodeApp: this.runtimeResources.create,
       // 默认 turn 窗口保留策略。
       createSessionEventStore:
         deps.createSessionEventStore ?? (() => createInMemorySessionEventStore()),
@@ -257,7 +257,7 @@ export class ZCodeProtocolAgentServer {
       notify: (notification) => this.messageSink?.(notification),
       requestClient: (method, params, resultSchema, options) =>
         this.requestClient(method, params, resultSchema, options),
-      sessions: new Map<string, ZCodeProtocolSessionRecord>(),
+      sessions: new Map<string, YCodeProtocolSessionRecord>(),
       // 交互应答登记表（broker 反向请求 × v4 resolveInteraction 命令的汇合点）。
       v4Interactions: new V4InteractionRegistry(
         resolveV4InteractionRegistryOptionsFromEnv(deps.env ?? process.env),
@@ -337,7 +337,7 @@ export class ZCodeProtocolAgentServer {
     return counters;
   }
 
-  setNotificationSink(sink: (message: ZCodeProtocolOutboundMessage) => void): void {
+  setNotificationSink(sink: (message: YCodeProtocolOutboundMessage) => void): void {
     this.runtimeResources.assertServing();
     this.clientDisconnectError = undefined;
     this.messageSink = sink;
@@ -385,14 +385,14 @@ export class ZCodeProtocolAgentServer {
   }
 
   /** 一次性取走某 request 的 post-response messages；重复 take 返回空数组。 */
-  takePostResponseMessages(requestId: ZCodeProtocolRequestId): ZCodeProtocolOutboundMessage[] {
+  takePostResponseMessages(requestId: YCodeProtocolRequestId): YCodeProtocolOutboundMessage[] {
     const batch = this.takePostResponseBatch(requestId);
     batch?.commit();
     return [...(batch?.messages ?? [])];
   }
 
   /** production NDJSON 取完整 batch；只有全部 write 成功后才调 commit。 */
-  takePostResponseBatch(requestId: ZCodeProtocolRequestId): ZCodeProtocolPostResponseBatch | null {
+  takePostResponseBatch(requestId: YCodeProtocolRequestId): YCodeProtocolPostResponseBatch | null {
     const batch = this.postResponseOutbox.get(requestId) ?? null;
     this.postResponseOutbox.delete(requestId);
     return batch;
@@ -404,8 +404,8 @@ export class ZCodeProtocolAgentServer {
   }
 
   async handleMessage(
-    message: ZCodeProtocolMessage,
-  ): Promise<ZCodeProtocolError | ZCodeProtocolResponse | undefined> {
+    message: YCodeProtocolMessage,
+  ): Promise<YCodeProtocolError | YCodeProtocolResponse | undefined> {
     this.runtimeResources.assertServing();
     if (isResponse(message)) {
       this.resolveClientRequest(message.id, message.result);
@@ -432,8 +432,8 @@ export class ZCodeProtocolAgentServer {
   }
 
   private async handleRequest(
-    request: ZCodeProtocolRequest,
-  ): Promise<ZCodeProtocolError | ZCodeProtocolResponse> {
+    request: YCodeProtocolRequest,
+  ): Promise<YCodeProtocolError | YCodeProtocolResponse> {
     // request id 可在前一请求完成后复用；新请求不能继承未消费的旧 outbox。
     this.postResponseOutbox.delete(request.id);
     let releaseResidencyOperation: (() => void) | undefined;
@@ -455,7 +455,7 @@ export class ZCodeProtocolAgentServer {
     }
   }
 
-  private async dispatchRequest(request: ZCodeProtocolRequest) {
+  private async dispatchRequest(request: YCodeProtocolRequest) {
     switch (request.method) {
       // ── v4 conversation 通道（竖切，与旧 session/* 并存）──
       case V4_METHODS.connectionFlow: {
@@ -566,45 +566,45 @@ export class ZCodeProtocolAgentServer {
         return this.requireV4Gateway().handleCommand(request.params);
       case V4_METHODS.commandsQuery:
         return this.requireV4Gateway().queryCommands(request.params);
-      case zcodeProtocolMethods.sessionCreate:
+      case ycodeProtocolMethods.sessionCreate:
         return await createSession(this.context, request.params, request.trace);
-      case zcodeProtocolMethods.sessionResume:
+      case ycodeProtocolMethods.sessionResume:
         return await resumeSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionList:
+      case ycodeProtocolMethods.sessionList:
         return await listSessions(this.context, request.params);
-      case zcodeProtocolMethods.sessionSubagents:
+      case ycodeProtocolMethods.sessionSubagents:
         return await listSessionSubagents(this.context, request.params);
-      case zcodeProtocolMethods.sessionRead:
+      case ycodeProtocolMethods.sessionRead:
         return await readSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionMessages:
+      case ycodeProtocolMethods.sessionMessages:
         return await readMessages(this.context, request.params);
-      case zcodeProtocolMethods.sessionEvents:
+      case ycodeProtocolMethods.sessionEvents:
         return await readEvents(this.context, request.params);
-      case zcodeProtocolMethods.sessionSubscribe:
+      case ycodeProtocolMethods.sessionSubscribe:
         return await subscribeSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionSend:
+      case ycodeProtocolMethods.sessionSend:
         return await sendPrompt(this.context, request.params);
-      case zcodeProtocolMethods.sessionStop:
+      case ycodeProtocolMethods.sessionStop:
         return await stopSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionCancelBackgroundTask:
+      case ycodeProtocolMethods.sessionCancelBackgroundTask:
         return await cancelBackgroundTask(this.context, request.params);
-      case zcodeProtocolMethods.sessionFork:
+      case ycodeProtocolMethods.sessionFork:
         return await forkSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionCompact:
+      case ycodeProtocolMethods.sessionCompact:
         return await compactSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionGoal:
+      case ycodeProtocolMethods.sessionGoal:
         return await goalSession(this.context, request.params);
-      case zcodeProtocolMethods.sessionSetModel:
+      case ycodeProtocolMethods.sessionSetModel:
         return await setModel(this.context, request.params);
-      case zcodeProtocolMethods.sessionSetThoughtLevel:
+      case ycodeProtocolMethods.sessionSetThoughtLevel:
         return await setThoughtLevel(this.context, request.params);
-      case zcodeProtocolMethods.sessionSetMode:
+      case ycodeProtocolMethods.sessionSetMode:
         return await setMode(this.context, request.params);
-      case zcodeProtocolMethods.sessionClose:
+      case ycodeProtocolMethods.sessionClose:
         return await closeSession(this.context, request.params);
-      case zcodeProtocolMethods.workspaceReadPresentation:
+      case ycodeProtocolMethods.workspaceReadPresentation:
         return await readWorkspacePresentation(this.context, request.params);
-      case zcodeProtocolMethods.workspaceHookTrustGrant: {
+      case ycodeProtocolMethods.workspaceHookTrustGrant: {
         const grantResult = await grantWorkspaceHookTrustForProtocol(request.params, {
           appVersion: this.context.deps.version,
           policyProvider: this.context.deps.workspaceHookPolicyProvider,
@@ -613,9 +613,9 @@ export class ZCodeProtocolAgentServer {
           await notifyWorkspaceHookTrustGrantSessions({
             // dispatch 层的 params 是弱类型；grant 内部已用同一 schema parse 过，这里
             // safeParse 只为取出 workspaceKey 做匹配，失败即跳过通知（防御，正常必成功）。
-            grantedWorkspaceKey: zcodeWorkspaceHookTrustGrantParamsSchema.safeParse(request.params)
+            grantedWorkspaceKey: ycodeWorkspaceHookTrustGrantParamsSchema.safeParse(request.params)
               .success
-              ? zcodeWorkspaceHookTrustGrantParamsSchema.parse(request.params).workspace
+              ? ycodeWorkspaceHookTrustGrantParamsSchema.parse(request.params).workspace
                   .workspaceKey
               : undefined,
             sessions: this.context.sessions,
@@ -623,95 +623,95 @@ export class ZCodeProtocolAgentServer {
         }
         return grantResult;
       }
-      case zcodeProtocolMethods.providerUpdateAccountConfig:
+      case ycodeProtocolMethods.providerUpdateAccountConfig:
         return await updateAccountProviderConfig(this.context, request.params);
-      case zcodeProtocolMethods.workspaceUpdateInteractionPreferences:
+      case ycodeProtocolMethods.workspaceUpdateInteractionPreferences:
         return await updateInteractionPreferences(this.context, request.params);
-      case zcodeProtocolMethods.workspaceUpdateModelIoPreferences:
+      case ycodeProtocolMethods.workspaceUpdateModelIoPreferences:
         return await updateModelIoPreferences(this.context, request.params);
-      case zcodeProtocolMethods.workspaceUpdateOffPeakToolPolicy:
+      case ycodeProtocolMethods.workspaceUpdateOffPeakToolPolicy:
         return await updateOffPeakToolPolicy(this.context, request.params);
-      case zcodeProtocolMethods.workspaceUpdateDynamicWorkflowPolicy:
+      case ycodeProtocolMethods.workspaceUpdateDynamicWorkflowPolicy:
         return await updateDynamicWorkflowPolicy(this.context, request.params);
-      case zcodeProtocolMethods.workspaceGenerateText:
+      case ycodeProtocolMethods.workspaceGenerateText:
         return await this.withWorkspaceGenerateTextSignal(request, (signal) =>
           generateWorkspaceText(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.workspaceCancelGenerateText:
+      case ycodeProtocolMethods.workspaceCancelGenerateText:
         return this.cancelWorkspaceGenerateText(request.params);
-      case zcodeProtocolMethods.providerTestModelConnectivity:
+      case ycodeProtocolMethods.providerTestModelConnectivity:
         return await testProviderModelConnectivity(this.context, request.params);
-      case zcodeProtocolMethods.mcpList:
+      case ycodeProtocolMethods.mcpList:
         return await listMcpServers(this.context, request.params);
-      case zcodeProtocolMethods.pluginsList:
+      case ycodeProtocolMethods.pluginsList:
         return await listPlugins(this.context, request.params);
-      case zcodeProtocolMethods.pluginsReferenceCatalogWithCategory:
+      case ycodeProtocolMethods.pluginsReferenceCatalogWithCategory:
         return await getPluginReferenceCatalog(this.context, request.params, true);
-      case zcodeProtocolMethods.pluginsReferenceCatalog:
+      case ycodeProtocolMethods.pluginsReferenceCatalog:
         return await getPluginReferenceCatalog(this.context, request.params);
-      case zcodeProtocolMethods.skillsReferenceCatalog:
+      case ycodeProtocolMethods.skillsReferenceCatalog:
         return await getSkillReferenceCatalog(this.context, request.params);
-      case zcodeProtocolMethods.workflowsList:
+      case ycodeProtocolMethods.workflowsList:
         return await listSavedWorkflowsOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsGet:
+      case ycodeProtocolMethods.workflowsGet:
         return await getSavedWorkflowOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsUpdateMeta:
+      case ycodeProtocolMethods.workflowsUpdateMeta:
         return await updateSavedWorkflowMetaOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsDelete:
+      case ycodeProtocolMethods.workflowsDelete:
         return await deleteSavedWorkflowOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsRuns:
+      case ycodeProtocolMethods.workflowsRuns:
         return await listSavedWorkflowRunsOp(this.context, request.params);
-      case zcodeProtocolMethods.workflowsMove:
+      case ycodeProtocolMethods.workflowsMove:
         return await moveSavedWorkflowOp(this.context, request.params);
-      case zcodeProtocolMethods.pluginsResolveSuggestedReference:
+      case ycodeProtocolMethods.pluginsResolveSuggestedReference:
         return await this.withPluginOperationSignal(request, (signal) =>
           resolveSuggestedPluginReference(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsSetEnabled:
+      case ycodeProtocolMethods.pluginsSetEnabled:
         return await this.withPluginOperationSignal(request, (signal) =>
           setPluginEnabled(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsOverview:
+      case ycodeProtocolMethods.pluginsOverview:
         return await getPluginsOverview(this.context, request.params);
-      case zcodeProtocolMethods.processChildProcesses:
+      case ycodeProtocolMethods.processChildProcesses:
         return listChildProcesses(this.context.deps.mcpTelemetry?.listProcesses() ?? []);
-      case zcodeProtocolMethods.runtimeCapabilities:
+      case ycodeProtocolMethods.runtimeCapabilities:
         return { independentPlanState: true };
-      case zcodeProtocolMethods.pluginsMarketplaceAdd:
+      case ycodeProtocolMethods.pluginsMarketplaceAdd:
         return await this.withPluginOperationSignal(request, (signal) =>
           addPluginMarketplace(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsMarketplaceRemove:
+      case ycodeProtocolMethods.pluginsMarketplaceRemove:
         return await removePluginMarketplace(this.context, request.params);
-      case zcodeProtocolMethods.pluginsMarketplaceUpdate:
+      case ycodeProtocolMethods.pluginsMarketplaceUpdate:
         return await this.withPluginOperationSignal(request, (signal) =>
           updatePluginMarketplace(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsInstall:
+      case ycodeProtocolMethods.pluginsInstall:
         return await this.withPluginOperationSignal(request, (signal) =>
           installPlugin(this.context, request.params, signal),
         );
-      case zcodeProtocolMethods.pluginsCancelOperation:
+      case ycodeProtocolMethods.pluginsCancelOperation:
         return this.cancelPluginOperation(request.params);
-      case zcodeProtocolMethods.pluginsUninstall:
+      case ycodeProtocolMethods.pluginsUninstall:
         return await uninstallPlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsUpdate:
+      case ycodeProtocolMethods.pluginsUpdate:
         return await updatePlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsRestoreBuiltin:
+      case ycodeProtocolMethods.pluginsRestoreBuiltin:
         return await restoreBuiltinPlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsConfigure:
+      case ycodeProtocolMethods.pluginsConfigure:
         return await configurePlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsResetConfig:
+      case ycodeProtocolMethods.pluginsResetConfig:
         return await resetPluginConfig(this.context, request.params);
-      case zcodeProtocolMethods.pluginsValidate:
+      case ycodeProtocolMethods.pluginsValidate:
         return await validatePlugin(this.context, request.params);
-      case zcodeProtocolMethods.pluginsDescribe:
+      case ycodeProtocolMethods.pluginsDescribe:
         return await describePlugin(this.context, request.params);
-      case zcodeProtocolMethods.usageStats:
+      case ycodeProtocolMethods.usageStats:
         return await getUsageStats(this.context, request.params);
-      case zcodeProtocolMethods.sessionDebug:
+      case ycodeProtocolMethods.sessionDebug:
         return querySessionDebug(this.context, request.params);
-      case zcodeProtocolMethods.sessionUsage:
+      case ycodeProtocolMethods.sessionUsage:
         return await getTaskTokenUsage(this.context, request.params);
       default:
         throw new ProtocolRequestError(-32601, `Method not found: ${request.method}`);
@@ -726,7 +726,7 @@ export class ZCodeProtocolAgentServer {
   }
 
   private async withPluginOperationSignal<T>(
-    request: ZCodeProtocolRequest,
+    request: YCodeProtocolRequest,
     run: (signal?: AbortSignal) => Promise<T>,
   ): Promise<T> {
     const operationId = getPluginOperationId(request.params);
@@ -744,7 +744,7 @@ export class ZCodeProtocolAgentServer {
   }
 
   private cancelPluginOperation(rawParams: unknown) {
-    const params = parseParams(zcodePluginsCancelOperationParamsSchema, rawParams);
+    const params = parseParams(ycodePluginsCancelOperationParamsSchema, rawParams);
     const controller = this.pluginOperationControllers.get(params.operationId);
     if (!controller) return { operationId: params.operationId, cancelled: false };
     // 插件同步的可取消能力必须保留在 V4 server；仅按 operationId 中止对应链路。
@@ -754,7 +754,7 @@ export class ZCodeProtocolAgentServer {
   }
 
   private async withWorkspaceGenerateTextSignal<T>(
-    request: ZCodeProtocolRequest,
+    request: YCodeProtocolRequest,
     run: (signal?: AbortSignal) => Promise<T>,
   ): Promise<T> {
     const operationId = getOperationId(request.params);
@@ -781,7 +781,7 @@ export class ZCodeProtocolAgentServer {
   }
 
   private cancelWorkspaceGenerateText(rawParams: unknown) {
-    const params = parseParams(zcodeWorkspaceCancelGenerateTextParamsSchema, rawParams);
+    const params = parseParams(ycodeWorkspaceCancelGenerateTextParamsSchema, rawParams);
     const controller = this.workspaceGenerateTextControllers.get(params.operationId);
     if (!controller) return { operationId: params.operationId, cancelled: false };
     controller.abort(new DOMException("Workspace model request cancelled", "AbortError"));
@@ -789,24 +789,24 @@ export class ZCodeProtocolAgentServer {
     return { operationId: params.operationId, cancelled: true };
   }
 
-  private ok(id: ZCodeProtocolRequestId, result: unknown): ZCodeProtocolResponse {
+  private ok(id: YCodeProtocolRequestId, result: unknown): YCodeProtocolResponse {
     return { id, result };
   }
 
   private fail(
-    id: ZCodeProtocolRequestId,
+    id: YCodeProtocolRequestId,
     code: number,
     message: string,
     data?: unknown,
-  ): ZCodeProtocolError {
+  ): YCodeProtocolError {
     return { error: { code, data, message }, id };
   }
 
   private requestClient<T>(
-    method: ZCodeProtocolMethod,
+    method: YCodeProtocolMethod,
     params: unknown,
     resultSchema: ParamsSchema<T>,
-    options?: ZCodeProtocolClientRequestOptions,
+    options?: YCodeProtocolClientRequestOptions,
   ): Promise<T> {
     if (this.clientDisconnectError) {
       throw this.clientDisconnectError;
@@ -890,7 +890,7 @@ export class ZCodeProtocolAgentServer {
     });
   }
 
-  private resolveClientRequest(id: ZCodeProtocolRequestId, result: unknown): void {
+  private resolveClientRequest(id: YCodeProtocolRequestId, result: unknown): void {
     const key = String(id);
     const pending = this.pendingClientRequests.get(key);
     if (!pending) {
@@ -906,7 +906,7 @@ export class ZCodeProtocolAgentServer {
     }
   }
 
-  private rejectClientRequest(id: ZCodeProtocolRequestId, error: Error): void {
+  private rejectClientRequest(id: YCodeProtocolRequestId, error: Error): void {
     const key = String(id);
     const pending = this.pendingClientRequests.get(key);
     if (!pending) {

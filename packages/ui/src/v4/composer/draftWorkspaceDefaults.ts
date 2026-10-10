@@ -1,5 +1,5 @@
 // 工具条只展示 Composer 的下一次提交选择；Session 不是存活编辑器的补值来源。
-import type { ZCodeConfigOption } from "@ycode/shared";
+import type { YCodeConfigOption } from "@ycode/shared";
 import type { ModelSelectionView } from "@ycode/services";
 import type { SessionConfigState } from "@ycode/shared/ycode-protocol-v4";
 import { resolveModelThoughtOption } from "@/lib/modelThoughtOption.js";
@@ -24,7 +24,7 @@ export function resolveDraftModelThoughtOption(
   providerId: string,
   modelId: string,
   modelSelectionView: ModelSelectionView | null,
-): ZCodeConfigOption | null {
+): YCodeConfigOption | null {
   if (!modelSelectionView) return null;
   return resolveModelThoughtOption({
     modelSelectionView,

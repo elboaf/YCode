@@ -16,9 +16,9 @@ import {
 import { MessageLedger } from "./message-ledger.js";
 import { startOpenAiProviderProxy } from "./openai-provider-proxy.js";
 
-interface ZCodeBootstrapModule {
+interface YCodeBootstrapModule {
   createModelAdapter(input: unknown): unknown;
-  createZCodeApp(input: unknown): Promise<{
+  createYCodeApp(input: unknown): Promise<{
     close?: () => Promise<void>;
     submitPrompt(prompt: RecorderPromptInput): Promise<unknown>;
   }>;
@@ -31,7 +31,7 @@ type RecorderPromptInput =
       text: string;
     };
 
-interface ZCodeContractsModule {
+interface YCodeContractsModule {
   parseModelSelection(input: string): unknown;
 }
 
@@ -43,7 +43,7 @@ interface ProviderRegistryConstructor {
   new (providers?: readonly unknown[]): unknown;
 }
 
-interface ZCodeProviderModule {
+interface YCodeProviderModule {
   ApiKeyAccessConfig: ConfigConstructor;
   ModelConfig: ConfigConstructor;
   ModelOptionSpecsConfig: ConfigConstructor;
@@ -89,7 +89,7 @@ export async function recordPromptTrajectoryFromFixture(input: {
   let closeApp: (() => Promise<void>) | undefined;
 
   try {
-    const { bootstrap, contracts, provider } = await loadZCodeModules();
+    const { bootstrap, contracts, provider } = await loadYCodeModules();
     const proxy = await startOpenAiProviderProxy({
       ledger,
       mockResponses: fixture.mockResponses,
@@ -112,7 +112,7 @@ export async function recordPromptTrajectoryFromFixture(input: {
     const modelSelection = contracts.parseModelSelection(resolveModelSelection(fixture));
     const eventObserver = createRuntimeEventObserver();
     const providerRegistry = createRecorderProviderRegistry(provider, modelConfig, fixture);
-    const app = await bootstrap.createZCodeApp({
+    const app = await bootstrap.createYCodeApp({
       eventSink: eventObserver.sink,
       env: process.env,
       modelAdapter: recorderModelAdapter,
@@ -256,10 +256,10 @@ function assertNever(value: never): never {
   throw new Error(`Unsupported fixture step: ${JSON.stringify(value)}`);
 }
 
-async function loadZCodeModules(): Promise<{
-  bootstrap: ZCodeBootstrapModule;
-  contracts: ZCodeContractsModule;
-  provider: ZCodeProviderModule;
+async function loadYCodeModules(): Promise<{
+  bootstrap: YCodeBootstrapModule;
+  contracts: YCodeContractsModule;
+  provider: YCodeProviderModule;
 }> {
   const bootstrapPath = pathToFileURL(
     join(import.meta.dirname, "../../../packages/bootstrap/dist/index.js"),
@@ -275,10 +275,10 @@ async function loadZCodeModules(): Promise<{
   ).href;
   try {
     const [bootstrap, contracts, providerConfig, providerRegistry] = await Promise.all([
-      import(bootstrapPath) as Promise<ZCodeBootstrapModule>,
-      import(contractsPath) as Promise<ZCodeContractsModule>,
-      import(providerConfigPath) as Promise<Omit<ZCodeProviderModule, "ProviderRegistry">>,
-      import(providerRegistryPath) as Promise<Pick<ZCodeProviderModule, "ProviderRegistry">>,
+      import(bootstrapPath) as Promise<YCodeBootstrapModule>,
+      import(contractsPath) as Promise<YCodeContractsModule>,
+      import(providerConfigPath) as Promise<Omit<YCodeProviderModule, "ProviderRegistry">>,
+      import(providerRegistryPath) as Promise<Pick<YCodeProviderModule, "ProviderRegistry">>,
     ]);
     return {
       bootstrap,
@@ -294,7 +294,7 @@ async function loadZCodeModules(): Promise<{
 }
 
 function createRecorderProviderRegistry(
-  provider: ZCodeProviderModule,
+  provider: YCodeProviderModule,
   modelConfig: RuntimeModelConfig,
   fixture: PromptTrajectoryFixture,
 ): unknown {

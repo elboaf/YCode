@@ -14,7 +14,7 @@ import {
   resolveProviderFamilyDomainFromOAuthProvider,
   type OAuthProviderId,
 } from "@ycode/shared";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import {
   CODING_PLAN_PROVIDER_SPECS,
   type CodingPlanEntitlementState,
@@ -60,7 +60,7 @@ interface UseModelProviderNavigationOptions {
   showPurchasedTeamPlanFallback?: boolean;
   selectedNodeKey: string | null;
   setSelectedNodeKey: (key: string | null) => void;
-  intl: ReturnType<typeof useZCodeIntl>["intl"];
+  intl: ReturnType<typeof useYCodeIntl>["intl"];
 }
 
 export function useModelProviderNavigation({

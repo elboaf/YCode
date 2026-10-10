@@ -53,7 +53,7 @@ const embeddedBrowserJavaScriptDialogPreloadPath = join(
   import.meta.dirname,
   "../preload/embeddedBrowserJavaScriptDialog.cjs",
 );
-// Coding Plan 官网页专用 preload：挂 window.zcodeBridge 供官网回传购买完成信号。
+// Coding Plan 官网页专用 preload：挂 window.ycodeBridge 供官网回传购买完成信号。
 const codingPlanWebviewPreloadPath = join(import.meta.dirname, "../preload/codingPlanWebview.cjs");
 
 /**
@@ -68,7 +68,7 @@ function isCodingPlanEmbeddedWebviewSrc(src: string | undefined): boolean {
     if (url.protocol !== "http:" && url.protocol !== "https:") return false;
     if (
       !isTrustedCodingPlanWebviewOrigin(url.origin, {
-        e2eStoreBridgeEnabled: process.env.VITE_ZCODE_E2E_STORE_BRIDGE === "1",
+        e2eStoreBridgeEnabled: process.env.VITE_YCODE_E2E_STORE_BRIDGE === "1",
       })
     ) {
       return false;
@@ -95,7 +95,7 @@ function isCodingPlanWebviewUrl(src: string | undefined): boolean {
     if (url.protocol !== "http:" && url.protocol !== "https:") return false;
     if (
       !isTrustedCodingPlanWebviewOrigin(url.origin, {
-        e2eStoreBridgeEnabled: process.env.VITE_ZCODE_E2E_STORE_BRIDGE === "1",
+        e2eStoreBridgeEnabled: process.env.VITE_YCODE_E2E_STORE_BRIDGE === "1",
       })
     ) {
       return false;
@@ -114,7 +114,7 @@ function isCodingPlanPaymentCallbackUrl(src: string | undefined): boolean {
     if (url.protocol !== "http:" && url.protocol !== "https:") return false;
     if (
       !isTrustedCodingPlanWebviewOrigin(url.origin, {
-        e2eStoreBridgeEnabled: process.env.VITE_ZCODE_E2E_STORE_BRIDGE === "1",
+        e2eStoreBridgeEnabled: process.env.VITE_YCODE_E2E_STORE_BRIDGE === "1",
       })
     ) {
       return false;
@@ -470,7 +470,7 @@ function attachEmbeddedBrowserWindowOpenHandler(options: {
     }
 
     // Coding Plan 专用 preload 会在后续主 frame 导航中继续存在。
-    // 离开可信购买页时必须阻断 guest 导航并交给系统浏览器，避免第三方页面继承 zcodeBridge。
+    // 离开可信购买页时必须阻断 guest 导航并交给系统浏览器，避免第三方页面继承 ycodeBridge。
     event.preventDefault();
     void shell.openExternal(url).catch((error: unknown) => {
       options.logger.warn("[browser-pane] failed to open coding-plan navigation externally", {
@@ -642,7 +642,7 @@ export function createBrowserWindow(options: {
     // Chromium NSAlert。固定 preload 在每个 frame 调用原生 API 前拦截，且隔离世界只
     // 暴露 alert/confirm 同步桥；网页主世界仍没有 Node 或任意 IPC 能力。
     //
-    // Coding Plan 官网页例外：它需要 window.zcodeBridge 回传购买完成信号，
+    // Coding Plan 官网页例外：它需要 window.ycodeBridge 回传购买完成信号，
     // 改用专用 preload（codingPlanWebview.ts），其余 webview 保持原生 Dialog 桥。
     const targetUrl = params.src ?? "about:blank";
     const isCodingPlanWebview = isCodingPlanEmbeddedWebviewSrc(targetUrl);

@@ -2,29 +2,29 @@ import type { Logger } from "@ycode/contracts";
 import {
   createMemorySampleWriteGate,
   memoryUsageToSampleFields,
-  zcodeProtocolNotifications,
+  ycodeProtocolNotifications,
   type MemorySample,
-  type ZCodeProtocolNotification,
+  type YCodeProtocolNotification,
 } from "@ycode/shared";
 import {
-  createZCodeProcessResourceSampler,
-  type ZCodeProcessResourceSampler,
+  createYCodeProcessResourceSampler,
+  type YCodeProcessResourceSampler,
 } from "../process-resource-sampler.js";
-import type { ZCodeProtocolAgentServer } from "./server.js";
+import type { YCodeProtocolAgentServer } from "./server.js";
 
 export function startProtocolResourceSampler(
-  server: ZCodeProtocolAgentServer,
-  send: (message: ZCodeProtocolNotification) => void,
+  server: YCodeProtocolAgentServer,
+  send: (message: YCodeProtocolNotification) => void,
   logger: Logger,
-): ZCodeProcessResourceSampler | undefined {
+): YCodeProcessResourceSampler | undefined {
   try {
     // 本地内存诊断日志：复用同一 60s 节拍，
     // 变化/心跳门控后才写一行，避免与消息流同频刷盘。
     const memoryDiagnosticsGate = createMemorySampleWriteGate();
-    const sampler = createZCodeProcessResourceSampler({
+    const sampler = createYCodeProcessResourceSampler({
       onSample: (sample, memoryUsage) => {
         send({
-          method: zcodeProtocolNotifications.processResourceSample,
+          method: ycodeProtocolNotifications.processResourceSample,
           params: sample,
         });
         // resident session TTL / 水位收敛借用资源采样节拍（60s）作兜底，不新增定时器；

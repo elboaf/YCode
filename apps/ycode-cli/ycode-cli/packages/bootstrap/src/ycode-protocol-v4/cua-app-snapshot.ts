@@ -2,7 +2,7 @@ import type { CuaAppIdentity } from "@ycode/shared/ycode-protocol-v4";
 
 const OFFICIAL_CUA_PREFIXES = [
   "mcp__computer-use__",
-  "mcp__plugin_zcode-cua_computer-use__",
+  "mcp__plugin_ycode-cua_computer-use__",
 ] as const;
 
 export function readOfficialCuaAction(toolName: string): string | null {

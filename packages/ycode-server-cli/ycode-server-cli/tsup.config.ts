@@ -7,10 +7,10 @@ const { loadBuiltinProviderConfig } = await import(
   pathToFileURL(resolve(import.meta.dirname, "../../scripts/builtin-provider-config.mjs")).href
 );
 
-const { content: zcodeBuiltinProviderConfigJson } = await loadBuiltinProviderConfig();
+const { content: ycodeBuiltinProviderConfigJson } = await loadBuiltinProviderConfig();
 
 export const SERVER_CLI_DEFINES = {
-  __ZCODE_BUILTIN_PROVIDER_CONFIG_JSON__: JSON.stringify(zcodeBuiltinProviderConfigJson),
+  __YCODE_BUILTIN_PROVIDER_CONFIG_JSON__: JSON.stringify(ycodeBuiltinProviderConfigJson),
 };
 
 export default defineConfig({
@@ -25,7 +25,7 @@ export default defineConfig({
   sourcemap: true,
   splitting: false,
   banner: {
-    js: 'import { fileURLToPath as __zcodeFileURLToPath } from "node:url"; import { dirname as __zcodeDirname } from "node:path"; const __filename = __zcodeFileURLToPath(import.meta.url); const __dirname = __zcodeDirname(__filename);',
+    js: 'import { fileURLToPath as __ycodeFileURLToPath } from "node:url"; import { dirname as __ycodeDirname } from "node:path"; const __filename = __ycodeFileURLToPath(import.meta.url); const __dirname = __ycodeDirname(__filename);',
   },
   noExternal: ["@ycode/shared", "@ycode/rpc", "@ycode/services"],
   define: SERVER_CLI_DEFINES,

@@ -205,7 +205,7 @@ nodes:
     codeSeeds:
       - file: packages/ui/src/lib/remoteWorkspaceHistory.ts
         symbol: buildRemoteWorkspaceIdentity
-      - file: packages/services/src/ycode-agent/zcodeAgentConnectionScope.ts
+      - file: packages/services/src/ycode-agent/ycodeAgentConnectionScope.ts
         symbol: workspaceKey
   - id: service.workspace-identity-builder
     kind: service
@@ -234,24 +234,24 @@ nodes:
     kind: service
     label: Host-trusted YCode Agent attachment connection scope
     codeSeeds:
-      - symbol: createZCodeAgentConnectionScope
-        file: packages/services/src/ycode-agent/zcodeAgentConnectionScope.ts
+      - symbol: createYCodeAgentConnectionScope
+        file: packages/services/src/ycode-agent/ycodeAgentConnectionScope.ts
   - id: boundary.desktop-continuous
     kind: delivery-boundary
     label: Desktop continuous delivery
     codeSeeds:
       - file: packages/shared/src/ycode-protocol-v4/core.ts
         symbol: DELIVERY_PROFILES
-      - file: packages/services/src/ycode-agent/zcodeAgentConnectionScope.ts
-        symbol: ZCodeAgentV4ClientMode
+      - file: packages/services/src/ycode-agent/ycodeAgentConnectionScope.ts
+        symbol: YCodeAgentV4ClientMode
   - id: boundary.web-remote-replayable
     kind: delivery-boundary
     label: Web remote replayable delivery
     codeSeeds:
       - file: packages/shared/src/ycode-protocol-v4/core.ts
         symbol: DELIVERY_PROFILES
-      - file: packages/services/src/ycode-agent/zcodeAgentConnectionScope.ts
-        symbol: ZCodeAgentV4ClientMode
+      - file: packages/services/src/ycode-agent/ycodeAgentConnectionScope.ts
+        symbol: YCodeAgentV4ClientMode
   - id: capability.composer-trigger-routing
     kind: capability
     label: Composer primary and compatibility trigger routing

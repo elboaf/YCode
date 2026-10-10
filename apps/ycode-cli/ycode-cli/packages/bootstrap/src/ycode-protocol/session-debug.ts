@@ -7,10 +7,10 @@ import {
   SESSION_DEBUG_LIMITS,
   calculateOutputTps,
   sessionDebugParamsSchema,
-  zcodeTaskNetworkDebugStatusFromPayload,
+  ycodeTaskNetworkDebugStatusFromPayload,
   type SessionDebugSnapshot,
 } from "@ycode/shared";
-import { requireSession, type ZCodeProtocolAgentServerContext } from "./server-types.js";
+import { requireSession, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
 type SessionRecord = { app: { sessionId: string } };
 interface Observation {
@@ -56,7 +56,7 @@ export function observeSessionDebug(record: SessionRecord, event: SessionEvent):
   )
     return;
   const payload = event.payload as ModelNetworkStatusPayload;
-  const mapped = zcodeTaskNetworkDebugStatusFromPayload({
+  const mapped = ycodeTaskNetworkDebugStatusFromPayload({
     taskId: record.app.sessionId,
     traceId: event.traceId,
     eventId: String(event.id),
@@ -152,7 +152,7 @@ export function readSessionDebug(record: SessionRecord): SessionDebugSnapshot {
 }
 
 export function querySessionDebug(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): SessionDebugSnapshot {
   const params = sessionDebugParamsSchema.parse(rawParams);

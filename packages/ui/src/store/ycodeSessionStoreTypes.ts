@@ -2,30 +2,30 @@
 /**
  * YCode Session Store 类型定义、接口、常量与默认值工厂
  *
- * 从 zcodeSessionStore.ts 拆分出来，供 store 本体和 selectors / navigation 等子模块共享。
+ * 从 ycodeSessionStore.ts 拆分出来，供 store 本体和 selectors / navigation 等子模块共享。
  */
 import {
   buildNativeSupplierKey,
   YCODE_AGENT_PROVIDER,
-  type ZCodeApiRetryStatus,
+  type YCodeApiRetryStatus,
   type ModelSelectionGhostReason,
   type ModelSelectionResolution,
-  type ZCodeWorkspaceInitStatus,
-  type ZCodeTaskRuntimeStatus,
-  type ZCodeProvider,
-  type ZCodeTaskMeta,
-  type ZCodeContextCacheUsage,
-  type ZCodeConfigOption,
-  type ZCodeSlashCommand,
-  type ZCodePermissionRequest,
-  type ZCodeElicitationRequest,
-  type ZCodeBackgroundTaskControlItem,
-  type ZCodeSessionActiveTurnKind,
-  type ZCodeContextUsageBreakdownItem,
+  type YCodeWorkspaceInitStatus,
+  type YCodeTaskRuntimeStatus,
+  type YCodeProvider,
+  type YCodeTaskMeta,
+  type YCodeContextCacheUsage,
+  type YCodeConfigOption,
+  type YCodeSlashCommand,
+  type YCodePermissionRequest,
+  type YCodeElicitationRequest,
+  type YCodeBackgroundTaskControlItem,
+  type YCodeSessionActiveTurnKind,
+  type YCodeContextUsageBreakdownItem,
   type InputId,
   type SessionCreateSource,
 } from "@ycode/shared";
-import type { ZCodeUiError } from "@/lib/zcodeUiError.js";
+import type { YCodeUiError } from "@/lib/ycodeUiError.js";
 import type {
   AutomationsNavigationTab,
   TaskNavigationHistory,
@@ -38,7 +38,7 @@ import type { MentionCategory, MentionItemData } from "@/mentions/mentionTypes.j
 // ────────────────────────────────────────────
 
 export interface WorkspaceInitState {
-  status: ZCodeWorkspaceInitStatus;
+  status: YCodeWorkspaceInitStatus;
   error: string | null;
   attempts: number;
 }
@@ -54,24 +54,24 @@ export interface GroupedDraftTaskState {
 }
 
 export interface TaskRuntimeState {
-  status: ZCodeTaskRuntimeStatus;
+  status: YCodeTaskRuntimeStatus;
   error: string | null;
   /** 该 task 当前运行态绑定的 YCode Agent 进程 provider，用于 workspace 级进程重建 busy lock。 */
-  provider?: ZCodeProvider;
+  provider?: YCodeProvider;
   /** 当前模型上下文窗口容量；模型状态事件只更新这里，不覆盖真实 usage.used。 */
   contextWindow: number | null;
   usage: TaskUsageState | null;
-  apiRetry: ZCodeApiRetryStatus | null;
+  apiRetry: YCodeApiRetryStatus | null;
   /** Agent 明确上报的后台任务控制项；host 运行期状态，不落盘持久化。 */
-  backgroundTaskControls: ZCodeBackgroundTaskControlItem[];
+  backgroundTaskControls: YCodeBackgroundTaskControlItem[];
   /** 当前 session active turn 的类型；用于区分普通生成和 compact 维护态。 */
-  activeTurnKind?: ZCodeSessionActiveTurnKind;
+  activeTurnKind?: YCodeSessionActiveTurnKind;
   activeInputId?: InputId;
   activeInputOwnerClientId?: string;
 }
 
 export interface DraftRuntimeState {
-  status: ZCodeTaskRuntimeStatus;
+  status: YCodeTaskRuntimeStatus;
   error: string | null;
 }
 
@@ -83,9 +83,9 @@ export interface TaskUsageState {
   /** Agent 上报的累计费用 */
   cost?: { amount: number; currency: string } | null;
   /** Agent/app 协议返回的当前主轮缓存命中信息。 */
-  cache?: ZCodeContextCacheUsage;
+  cache?: YCodeContextCacheUsage;
   /** Agent 按来源估算的上下文字符量，只用于 context usage 弹窗比例展示。 */
-  breakdown?: ZCodeContextUsageBreakdownItem[];
+  breakdown?: YCodeContextUsageBreakdownItem[];
 }
 
 export interface ElicitationAnswerDraft {
@@ -104,12 +104,12 @@ export interface ElicitationFormDraft {
  * 展示态的写入方已随旧协议链路删除，读侧由 v4 conversation 投影承接。
  */
 export interface TaskUiState {
-  permissionRequest: ZCodePermissionRequest | null;
-  pendingPermissionRequests: ZCodePermissionRequest[];
-  elicitationRequest: ZCodeElicitationRequest | null;
-  pendingElicitationRequests: ZCodeElicitationRequest[];
+  permissionRequest: YCodePermissionRequest | null;
+  pendingPermissionRequests: YCodePermissionRequest[];
+  elicitationRequest: YCodeElicitationRequest | null;
+  pendingElicitationRequests: YCodeElicitationRequest[];
   elicitationFormDraftsByRequestId: Record<string, ElicitationFormDraft>;
-  error: ZCodeUiError | null;
+  error: YCodeUiError | null;
 }
 
 export type ModelSwitchStage =
@@ -145,7 +145,7 @@ export interface TimelineBottomRequest {
   taskId: string;
 }
 
-export interface WorkspaceZCodeUIState {
+export interface WorkspaceYCodeUIState {
   /** 当前 workspace 激活中的 task */
   activeTaskId: string | null;
   /**
@@ -170,7 +170,7 @@ export interface WorkspaceZCodeUIState {
   timelineBottomRequestVersion: number;
   timelineBottomRequest: TimelineBottomRequest | null;
   /** 草稿态错误需要跨页面保留，避免切走再回来后提示被本地 state 一起卸载 */
-  draftError: ZCodeUiError | null;
+  draftError: YCodeUiError | null;
   /** 模型切换中的并发保护 requestId；只允许最新请求落库 */
   modelSwitchRequestId: string | null;
   /** 模型切换是否进行中（用于禁发和工具栏 loading） */
@@ -181,12 +181,12 @@ export interface WorkspaceZCodeUIState {
   taskRuntimeByTaskId: Record<string, TaskRuntimeState>;
   /** 每个 task 自己的临时 UI 态，避免切换任务后丢失计划面板和权限弹窗 */
   taskUiByTaskId: Record<string, TaskUiState>;
-  taskConfigOptionsByTaskId: Record<string, ZCodeConfigOption[]>;
+  taskConfigOptionsByTaskId: Record<string, YCodeConfigOption[]>;
   taskConfigOptionsStatusByTaskId: Record<string, ConfigOptionsStatus>;
   /** task 未读状态的兼容缓存；真实未读状态以 task meta.unreadAt 为准 */
   taskUnreadByTaskId: Record<string, boolean>;
   /** 任务列表的乐观元数据，解决新 task 落盘前左侧列表显示慢半拍的问题 */
-  optimisticTaskListByTaskId: Record<string, ZCodeTaskMeta>;
+  optimisticTaskListByTaskId: Record<string, YCodeTaskMeta>;
   /** grouped mode 下点击 New task 后的 UI-only 草稿锚点，不进入真实 task index。 */
   groupedDraftTask: GroupedDraftTaskState | null;
   /** 用户发起当前草稿的入口；预热不改变来源。 */
@@ -194,7 +194,7 @@ export interface WorkspaceZCodeUIState {
   /** 首发创建后、grouped sqlite order 落地前，真实 task 继承草稿锚点的本地定位。 */
   promotedGroupedDraftTaskByTaskId: Record<string, GroupedDraftTaskState>;
   /** 当前 workspace 选中的 YCode Agent provider */
-  selectedProvider: ZCodeProvider;
+  selectedProvider: YCodeProvider;
   /** 当前模型供应商选中键（native/custom/ghost） */
   selectedSupplierKey: string;
   /** 当前供应商是否为 ghost 态 */
@@ -202,23 +202,23 @@ export interface WorkspaceZCodeUIState {
   /** 当前 ghost 态来源 */
   supplierMismatchReason: ModelSelectionGhostReason | null;
   /** YCode Agent configOptions（模型、模式、思考级别等） */
-  configOptions: ZCodeConfigOption[] | null;
+  configOptions: YCodeConfigOption[] | null;
   /** configOptions 加载状态 */
   configOptionsStatus: ConfigOptionsStatus;
   /** 可用的 slash commands */
-  slashCommands: ZCodeSlashCommand[];
+  slashCommands: YCodeSlashCommand[];
   /** 任务列表版本号，每次创建/删除任务时自增，驱动 TaskList 刷新 */
   taskListVersion: number;
   /** 缓存已拉取的任务列表，避免组件 remount 时闪烁 */
-  taskListCache: ZCodeTaskMeta[] | null;
+  taskListCache: YCodeTaskMeta[] | null;
   /** 新建草稿时递增，驱动输入框在切到草稿态后主动聚焦 */
   draftFocusVersion: number;
 }
 
-export interface ZCodeSessionStoreState {
+export interface YCodeSessionStoreState {
   /** 按 workspace 维护聊天相关 UI 状态 */
-  workspaces: Record<string, WorkspaceZCodeUIState>;
-  getWorkspaceState: (workspacePath: string, workspaceIdentity?: string) => WorkspaceZCodeUIState;
+  workspaces: Record<string, WorkspaceYCodeUIState>;
+  getWorkspaceState: (workspacePath: string, workspaceIdentity?: string) => WorkspaceYCodeUIState;
 
   setActiveTaskId: (workspacePath: string, id: string | null, workspaceIdentity?: string) => void;
   promoteGroupedDraftTask: (
@@ -262,7 +262,7 @@ export interface ZCodeSessionStoreState {
   ) => void;
   startDraft: (
     workspacePath: string,
-    provider?: ZCodeProvider,
+    provider?: YCodeProvider,
     workspaceIdentity?: string,
     options?: {
       groupedDraftPlacement?: GroupedDraftTaskPlacement;
@@ -272,7 +272,7 @@ export interface ZCodeSessionStoreState {
   clearGroupedDraftTask: (workspacePath: string, workspaceIdentity?: string) => void;
   bindRuntimeProvider: (
     workspacePath: string,
-    provider: ZCodeProvider,
+    provider: YCodeProvider,
     workspaceIdentity?: string,
   ) => void;
   setModelSelectionResolution: (
@@ -285,7 +285,7 @@ export interface ZCodeSessionStoreState {
   ) => void;
   setWorkspaceInitState: (
     workspacePath: string,
-    status: ZCodeWorkspaceInitStatus,
+    status: YCodeWorkspaceInitStatus,
     error?: string | null,
     workspaceIdentity?: string,
   ) => void;
@@ -296,17 +296,17 @@ export interface ZCodeSessionStoreState {
   ) => void;
   setTaskState: (
     workspacePath: string,
-    status: ZCodeTaskRuntimeStatus,
+    status: YCodeTaskRuntimeStatus,
     error?: string | null,
     workspaceIdentity?: string,
   ) => void;
   setTaskRuntimeState: (
     workspacePath: string,
     taskId: string,
-    status: ZCodeTaskRuntimeStatus,
+    status: YCodeTaskRuntimeStatus,
     error?: string | null,
     workspaceIdentity?: string,
-    provider?: ZCodeProvider,
+    provider?: YCodeProvider,
   ) => void;
   setTaskUsage: (
     workspacePath: string,
@@ -323,13 +323,13 @@ export interface ZCodeSessionStoreState {
   setTaskApiRetryStatus: (
     workspacePath: string,
     taskId: string,
-    apiRetry: ZCodeApiRetryStatus | null,
+    apiRetry: YCodeApiRetryStatus | null,
     workspaceIdentity?: string,
   ) => void;
   setTaskPermissionRequest: (
     workspacePath: string,
     taskId: string,
-    request: ZCodePermissionRequest | null,
+    request: YCodePermissionRequest | null,
     workspaceIdentity?: string,
   ) => void;
   removeTaskPermissionRequest: (
@@ -341,7 +341,7 @@ export interface ZCodeSessionStoreState {
   setTaskElicitationRequest: (
     workspacePath: string,
     taskId: string,
-    request: ZCodeElicitationRequest | null,
+    request: YCodeElicitationRequest | null,
     workspaceIdentity?: string,
   ) => void;
   removeTaskElicitationRequest: (
@@ -366,12 +366,12 @@ export interface ZCodeSessionStoreState {
   setTaskError: (
     workspacePath: string,
     taskId: string,
-    error: ZCodeUiError | null,
+    error: YCodeUiError | null,
     workspaceIdentity?: string,
   ) => void;
   setDraftError: (
     workspacePath: string,
-    error: ZCodeUiError | null,
+    error: YCodeUiError | null,
     workspaceIdentity?: string,
   ) => void;
   startModelSwitch: (
@@ -391,22 +391,22 @@ export interface ZCodeSessionStoreState {
   setTaskConfigOptions: (
     workspacePath: string,
     taskId: string,
-    options: ZCodeConfigOption[],
+    options: YCodeConfigOption[],
     workspaceIdentity?: string,
     status?: ConfigOptionsStatus,
   ) => void;
   initializeBackgroundTaskRuntime: (
     workspacePath: string,
     params: {
-      task: ZCodeTaskMeta;
-      provider: ZCodeProvider;
+      task: YCodeTaskMeta;
+      provider: YCodeProvider;
       activeInputId: InputId;
       workspaceIdentity?: string;
     },
   ) => void;
   upsertOptimisticTaskListItem: (
     workspacePath: string,
-    task: ZCodeTaskMeta,
+    task: YCodeTaskMeta,
     workspaceIdentity?: string,
   ) => void;
   removeOptimisticTaskListItem: (
@@ -419,7 +419,7 @@ export interface ZCodeSessionStoreState {
 
   setConfigOptions: (
     workspacePath: string,
-    options: ZCodeConfigOption[],
+    options: YCodeConfigOption[],
     workspaceIdentity?: string,
   ) => void;
   setConfigOptionsStatus: (
@@ -429,7 +429,7 @@ export interface ZCodeSessionStoreState {
   ) => void;
   setSlashCommands: (
     workspacePath: string,
-    commands: ZCodeSlashCommand[],
+    commands: YCodeSlashCommand[],
     workspaceIdentity?: string,
   ) => void;
   setCurrentModeId: (
@@ -437,12 +437,12 @@ export interface ZCodeSessionStoreState {
     modeId: string | null,
     workspaceIdentity?: string,
   ) => void;
-  /** 任务列表变更时调用（创建/删除任务），驱动 zcodeTaskMetaMerge 重新拉取列表 */
+  /** 任务列表变更时调用（创建/删除任务），驱动 ycodeTaskMetaMerge 重新拉取列表 */
   bumpTaskListVersion: (workspacePath: string, workspaceIdentity?: string) => void;
   /** 更新已拉取的任务列表缓存 */
   setTaskListCache: (
     workspacePath: string,
-    tasks: ZCodeTaskMeta[],
+    tasks: YCodeTaskMeta[],
     workspaceIdentity?: string,
   ) => void;
   /** 更新 task 的未读提示，控制左侧蓝点显示 */
@@ -482,7 +482,7 @@ export const DEFAULT_WORKSPACE_INIT_STATE: WorkspaceInitState = {
   attempts: 0,
 };
 
-const FALLBACK_PROVIDER: ZCodeProvider = YCODE_AGENT_PROVIDER;
+const FALLBACK_PROVIDER: YCodeProvider = YCODE_AGENT_PROVIDER;
 
 export const DEFAULT_TASK_UI_STATE: TaskUiState = {
   permissionRequest: null,
@@ -511,8 +511,8 @@ export const DEFAULT_TASK_RUNTIME_STATE: TaskRuntimeState = {
 // ────────────────────────────────────────────
 
 export function createDefaultWorkspaceState(
-  selectedProvider: ZCodeProvider,
-): WorkspaceZCodeUIState {
+  selectedProvider: YCodeProvider,
+): WorkspaceYCodeUIState {
   return {
     activeTaskId: null,
     workspaceInit: { ...DEFAULT_WORKSPACE_INIT_STATE },
@@ -551,7 +551,7 @@ export function createDefaultWorkspaceState(
 
 const DEFAULT_WORKSPACE_STATE = createDefaultWorkspaceState(FALLBACK_PROVIDER);
 
-export function getDefaultWorkspaceState(): WorkspaceZCodeUIState {
+export function getDefaultWorkspaceState(): WorkspaceYCodeUIState {
   // 单 YCode Agent 迁移后默认 provider 必须收敛到 glm。
   // 这里返回稳定引用，避免未写入 workspace bucket 的连续 selector 读取产生不同快照。
   return DEFAULT_WORKSPACE_STATE;

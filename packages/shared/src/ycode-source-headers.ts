@@ -1,12 +1,12 @@
-import { DEFAULT_ZCODE_ENDPOINT_ORIGIN } from "./zcodeEndpoint.js";
+import { DEFAULT_YCODE_ENDPOINT_ORIGIN } from "./ycodeEndpoint.js";
 
 export const YCODE_SOURCE_HEADERS = {
   "User-Agent": "YCode/unknown",
-  "HTTP-Referer": DEFAULT_ZCODE_ENDPOINT_ORIGIN,
+  "HTTP-Referer": DEFAULT_YCODE_ENDPOINT_ORIGIN,
   "X-Title": "Z Code@electron",
 } as const;
 
-export interface BuildZCodeSourceHeadersFromContextOptions {
+export interface BuildYCodeSourceHeadersFromContextOptions {
   appVersion?: string;
   arch?: string;
   clientLanguage?: string;
@@ -19,7 +19,7 @@ export interface BuildZCodeSourceHeadersFromContextOptions {
   sourceTitle?: string;
 }
 
-export function normalizeZCodeSourceHeaderValue(value: string | undefined): string | undefined {
+export function normalizeYCodeSourceHeaderValue(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   if (!trimmed || !/^[\x20-\x7e]+$/.test(trimmed)) {
     return undefined;
@@ -27,20 +27,20 @@ export function normalizeZCodeSourceHeaderValue(value: string | undefined): stri
   return trimmed;
 }
 
-export function buildZCodeSourceHeadersFromContext(
-  options: BuildZCodeSourceHeadersFromContextOptions = {},
+export function buildYCodeSourceHeadersFromContext(
+  options: BuildYCodeSourceHeadersFromContextOptions = {},
 ): Record<string, string> {
-  const appVersion = normalizeZCodeSourceHeaderValue(options.appVersion);
-  const arch = normalizeZCodeSourceHeaderValue(options.arch);
-  const clientLanguage = normalizeZCodeSourceHeaderValue(options.clientLanguage) ?? "unknown";
-  const clientTimezone = normalizeZCodeSourceHeaderValue(options.clientTimezone) ?? "unknown";
-  const deviceMid = normalizeZCodeSourceHeaderValue(options.deviceMid);
+  const appVersion = normalizeYCodeSourceHeaderValue(options.appVersion);
+  const arch = normalizeYCodeSourceHeaderValue(options.arch);
+  const clientLanguage = normalizeYCodeSourceHeaderValue(options.clientLanguage) ?? "unknown";
+  const clientTimezone = normalizeYCodeSourceHeaderValue(options.clientTimezone) ?? "unknown";
+  const deviceMid = normalizeYCodeSourceHeaderValue(options.deviceMid);
   const endpointOrigin =
-    normalizeZCodeSourceHeaderValue(options.endpointOrigin) ?? DEFAULT_ZCODE_ENDPOINT_ORIGIN;
-  const osVersion = normalizeZCodeSourceHeaderValue(options.osVersion);
-  const platform = normalizeZCodeSourceHeaderValue(options.platform);
-  const releaseChannel = normalizeZCodeSourceHeaderValue(options.releaseChannel);
-  const sourceTitle = normalizeZCodeSourceHeaderValue(options.sourceTitle) ?? "electron";
+    normalizeYCodeSourceHeaderValue(options.endpointOrigin) ?? DEFAULT_YCODE_ENDPOINT_ORIGIN;
+  const osVersion = normalizeYCodeSourceHeaderValue(options.osVersion);
+  const platform = normalizeYCodeSourceHeaderValue(options.platform);
+  const releaseChannel = normalizeYCodeSourceHeaderValue(options.releaseChannel);
+  const sourceTitle = normalizeYCodeSourceHeaderValue(options.sourceTitle) ?? "electron";
 
   return {
     ...YCODE_SOURCE_HEADERS,

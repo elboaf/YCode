@@ -1,5 +1,5 @@
 export interface E2ETestBridgeEnvironment {
-  VITE_ZCODE_E2E_STORE_BRIDGE?: string;
+  VITE_YCODE_E2E_STORE_BRIDGE?: string;
   YCODE_E2E_RUN_ID?: string;
 }
 
@@ -8,5 +8,5 @@ export interface E2ETestBridgeEnvironment {
  * YCODE_ENV=test 只是产品环境，不能据此扩大 renderer 可读面。
  */
 export function shouldEnableE2ETestBridge(env: E2ETestBridgeEnvironment): boolean {
-  return env.VITE_ZCODE_E2E_STORE_BRIDGE === "1" && Boolean(env.YCODE_E2E_RUN_ID?.trim());
+  return env.VITE_YCODE_E2E_STORE_BRIDGE === "1" && Boolean(env.YCODE_E2E_RUN_ID?.trim());
 }

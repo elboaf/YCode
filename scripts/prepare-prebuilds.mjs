@@ -44,7 +44,7 @@ const mockCdnDir = join(desktopDir, "mock-cdn");
 const version = require(join(rootDir, "package.json")).version;
 const YCODE_AGENT_RUNTIME = {
   glm: {
-    version: readZCodeAgentRuntimeVersion(),
+    version: readYCodeAgentRuntimeVersion(),
   },
 };
 const releaseDir = join(mockCdnDir, "releases", version);
@@ -95,7 +95,7 @@ const remoteOfficialPluginPackages = [
   // 44b25ed46c「remove bundled plugins except browser use and cua」删掉了其余
   // 内置插件源码，但漏改这份清单，bootstrap:with-remote 在 staging 第一个 manifest 就抛
   // missing。此处与 packages/desktop/scripts/prepare-agent-node-bundle.mjs 的桌面 seed
-  // 清单、packages/server/src/remote/zcodeAgentOfficialPluginAssets.ts 的远端合同保持一致。
+  // 清单、packages/server/src/remote/ycodeAgentOfficialPluginAssets.ts 的远端合同保持一致。
   {
     // 远端 shared-host 必须部署 node_repl runtime，否则只剩 skill 而没有 mcp__node_repl__js ——
     // 该 runtime 现由 @ycode/node-repl-host 提供（见下一个条目），browser-use 只带自己的
@@ -162,7 +162,7 @@ const remoteOfficialPluginRequiredPaths = [
   "packages/node-repl-host/.ycode-plugin/plugin.json",
 ];
 
-function readZCodeAgentRuntimeVersion() {
+function readYCodeAgentRuntimeVersion() {
   const runtimeSourcePath = join(rootDir, "packages/shared/src/ycode-agent-runtime.ts");
   const runtimeSource = readFileSync(runtimeSourcePath, "utf8");
   const match = runtimeSource.match(/version:\s*["']([^"']+)["']/);

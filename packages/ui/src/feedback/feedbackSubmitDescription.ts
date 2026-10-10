@@ -7,7 +7,7 @@ import type {
 } from "@ycode/shared";
 
 const TITLE_MAX = 80;
-const FEEDBACK_ZCODE_AGENT_LABEL = "YCode Agent";
+const FEEDBACK_YCODE_AGENT_LABEL = "YCode Agent";
 
 type MessageFormatter = (descriptor: { id: string }, values?: Record<string, string>) => string;
 
@@ -43,7 +43,7 @@ export function buildDeveloperFacingDescription({
     `产品模块: ${ticketModule}`,
     `严重程度: ${ticketSeverity}`,
     "Agent 框架: ycode-agent",
-    `当前 Agent: ${FEEDBACK_ZCODE_AGENT_LABEL}`,
+    `当前 Agent: ${FEEDBACK_YCODE_AGENT_LABEL}`,
     `当前模型型号: ${redactFeedbackText(modelContext.display || modelContext.model || notReported)}`,
     "处理方式: 用户提交轻量表单，客户端自动补齐上下文，后端可异步生成 AI 分析",
     "",

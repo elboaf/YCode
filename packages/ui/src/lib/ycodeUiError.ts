@@ -1,21 +1,21 @@
-import type { ZCodeError, TraceId } from "@ycode/shared";
+import type { YCodeError, TraceId } from "@ycode/shared";
 import { errorAttributionSchema, type ErrorAttribution } from "@ycode/shared/ycode-protocol-v4";
 
-export interface ZCodeUiError extends ZCodeError {
+export interface YCodeUiError extends YCodeError {
   attribution?: ErrorAttribution;
   detail?: string;
   underlyingErrorMessage?: string;
   underlyingErrorDetail?: string;
 }
 
-interface NormalizeZCodeUiErrorOptions {
+interface NormalizeYCodeUiErrorOptions {
   fallbackCode?: string;
   fallbackMessage?: string;
   traceId?: TraceId;
   taskId?: string;
 }
 
-const GENERIC_ZCODE_UI_ERROR_MESSAGES = new Set([
+const GENERIC_YCODE_UI_ERROR_MESSAGES = new Set([
   "Internal error",
   "Turn execution failed",
   "Compact failed",
@@ -188,20 +188,20 @@ function readFirstAttributionFromPaths(error: unknown): ErrorAttribution | undef
   return undefined;
 }
 
-export function normalizeZCodeUiError(
+export function normalizeYCodeUiError(
   error: unknown,
-  options: NormalizeZCodeUiErrorOptions = {},
-): ZCodeUiError {
+  options: NormalizeYCodeUiErrorOptions = {},
+): YCodeUiError {
   const candidates = collectMessageCandidates(error);
   // ycode-cli 已经把 provider/network 根因放进 detail 或 data.ycode.error，
   // 外层仍可能保留 "Internal error" 这类包装文案。主提示优先选非泛化候选，避免根因被盖住。
   const primaryMessage =
-    candidates.find((candidate) => !GENERIC_ZCODE_UI_ERROR_MESSAGES.has(candidate)) ??
+    candidates.find((candidate) => !GENERIC_YCODE_UI_ERROR_MESSAGES.has(candidate)) ??
     candidates[0] ??
     options.fallbackMessage ??
     "Internal error";
   const detailMessage = candidates.find(
-    (candidate) => candidate !== primaryMessage && !GENERIC_ZCODE_UI_ERROR_MESSAGES.has(candidate),
+    (candidate) => candidate !== primaryMessage && !GENERIC_YCODE_UI_ERROR_MESSAGES.has(candidate),
   );
   const codeFromError = readFirstStringFromPaths(error, [
     ["code"],

@@ -3,23 +3,23 @@ import {
   GHOST_SUPPLIER_KEY_PREFIX,
   buildNativeSupplierKey,
   resolveSupplierKeyFromModelDisplayValue,
-  type ZCodeConfigOption,
-  type ZCodeProvider,
-  type ZCodeTaskMeta,
+  type YCodeConfigOption,
+  type YCodeProvider,
+  type YCodeTaskMeta,
 } from "@ycode/shared";
 
 interface ModelConfigSyncScope {
-  provider: ZCodeProvider;
+  provider: YCodeProvider;
   supplierKey: string;
 }
 
 interface ModelConfigSyncWorkspaceSnapshot {
   activeTaskId: string | null;
-  selectedProvider: ZCodeProvider;
+  selectedProvider: YCodeProvider;
   selectedSupplierKey: string;
-  configOptions: ZCodeConfigOption[] | null;
-  optimisticTaskListByTaskId: Record<string, Pick<ZCodeTaskMeta, "provider">>;
-  taskListCache: ZCodeTaskMeta[] | null;
+  configOptions: YCodeConfigOption[] | null;
+  optimisticTaskListByTaskId: Record<string, Pick<YCodeTaskMeta, "provider">>;
+  taskListCache: YCodeTaskMeta[] | null;
 }
 
 export function parseCustomProviderIdFromSupplierKey(supplierKey: string): string | null {
@@ -65,8 +65,8 @@ function isCustomSupplierKey(supplierKey: string): boolean {
 }
 
 function resolveModelSupplierKeyFromConfigOptions(
-  configOptions: ZCodeConfigOption[] | null,
-  provider: ZCodeProvider,
+  configOptions: YCodeConfigOption[] | null,
+  provider: YCodeProvider,
 ): string | null {
   const modelValue = resolveModelValueFromConfigOptions(configOptions);
   if (!modelValue) {
@@ -78,7 +78,7 @@ function resolveModelSupplierKeyFromConfigOptions(
 
 function resolveActiveTaskProvider(
   snapshot: ModelConfigSyncWorkspaceSnapshot,
-): ZCodeProvider | null {
+): YCodeProvider | null {
   const activeTaskId = snapshot.activeTaskId?.trim();
   if (!activeTaskId) {
     return null;
@@ -138,7 +138,7 @@ export function resolveWorkspaceModelConfigSyncScope(
 }
 
 function resolveModelValueFromConfigOptions(
-  configOptions: ZCodeConfigOption[] | null,
+  configOptions: YCodeConfigOption[] | null,
 ): string | null {
   const modelOption = configOptions?.find(
     (option) => option.category === "model" && option.type === "select",

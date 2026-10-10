@@ -1,16 +1,16 @@
-import { zcodeProtocolMethods, zcodeRuntimeCapabilitiesSchema } from "@ycode/shared";
-import type { ZCodeProtocolClient } from "./zcodeProtocolClient.js";
+import { ycodeProtocolMethods, ycodeRuntimeCapabilitiesSchema } from "@ycode/shared";
+import type { YCodeProtocolClient } from "./ycodeProtocolClient.js";
 
 const checks = new WeakMap<object, Promise<void>>();
 
 /** Host 更新不代表远端 CLI 已更新；旧 CLI 会剥掉 Plan 字段，必须在发送前确认执行端。 */
 export function ensureIndependentPlanSupport(
-  client: Pick<ZCodeProtocolClient, "request">,
+  client: Pick<YCodeProtocolClient, "request">,
 ): Promise<void> {
   const cached = checks.get(client);
   if (cached) return cached;
   const check = client
-    .request(zcodeProtocolMethods.runtimeCapabilities, {}, zcodeRuntimeCapabilitiesSchema)
+    .request(ycodeProtocolMethods.runtimeCapabilities, {}, ycodeRuntimeCapabilitiesSchema)
     .then((result) => {
       if (result.independentPlanState !== true) throw new Error("proto.independentPlanUnsupported");
     })

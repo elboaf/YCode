@@ -34,10 +34,10 @@ import {
   type ExecutionShellSelection,
   type MessageId,
 } from "@ycode/contracts";
-import { isRemoteWorkspaceIdentity, resolveZCodeRuntimeEnv } from "@ycode/shared";
+import { isRemoteWorkspaceIdentity, resolveYCodeRuntimeEnv } from "@ycode/shared";
 import {
   YCODE_ATTACHMENT_FAULT_CODES,
-  ZCodeAttachmentFaultError,
+  YCodeAttachmentFaultError,
 } from "@ycode/shared/ycode-protocol-v4";
 
 import { createModelAdapter } from "../model-factory.js";
@@ -46,8 +46,8 @@ import { scheduleStartupLogRetentionCleanup } from "../log-retention.js";
 import type {
   PrepareUserExecutionBoundary,
   ResumeOptions,
-  ZCodeApp,
-  ZCodeAppOptions,
+  YCodeApp,
+  YCodeAppOptions,
 } from "./types.js";
 import {
   createConfigCliOverrides,
@@ -91,10 +91,10 @@ import {
   type NodeReplBrowserBroker,
 } from "./node-repl-browser-broker.js";
 import { resolveBuiltInNodeReplMcpServers } from "./built-in-node-repl.js";
-import { resolveZCodeCustomCommandPrompt } from "../custom-command-prompt.js";
-import { resolveZCodeBuiltinPromptCommand } from "../builtin-prompt-command.js";
+import { resolveYCodeCustomCommandPrompt } from "../custom-command-prompt.js";
+import { resolveYCodeBuiltinPromptCommand } from "../builtin-prompt-command.js";
 import { collectDisabledPaths } from "../skill-command-overrides.js";
-import { loadPluginAgentProfiles, loadZCodeAgentProfiles } from "../subagents.js";
+import { loadPluginAgentProfiles, loadYCodeAgentProfiles } from "../subagents.js";
 import { createRuntimeAiSdkModelExecutionConfig } from "../model-config.js";
 import { ApiProviderModelRuntime } from "./provider-registry-model-runtime.js";
 import {
@@ -141,9 +141,9 @@ function decodePromptAttachmentDataUrl(
   return { bytes, mediaType };
 }
 
-export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp> {
+export async function createYCodeApp(options: YCodeAppOptions): Promise<YCodeApp> {
   if (!options?.providerRegistry) {
-    throw new Error("createZCodeApp requires a Provider Registry");
+    throw new Error("createYCodeApp requires a Provider Registry");
   }
   const startupStartedAt = startupNow();
   const appVersion = options.version ?? "0.0.0";
@@ -201,14 +201,14 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
     const cliStorageRoot = getCliStorageRoot(storageRoot);
     const modelIoDir = getModelIoDir(
       cliStorageRoot,
-      resolveZCodeRuntimeEnv(options.env ?? process.env) === "development",
+      resolveYCodeRuntimeEnv(options.env ?? process.env) === "development",
     );
-    const zcodeSubagentProfileOutcome = await loadZCodeAgentProfiles({
+    const ycodeSubagentProfileOutcome = await loadYCodeAgentProfiles({
       logger,
       storageRoot,
       workingDirectory,
     });
-    const zcodeSubagentProfiles = zcodeSubagentProfileOutcome.profiles;
+    const ycodeSubagentProfiles = ycodeSubagentProfileOutcome.profiles;
     const pluginOutcome = resolveStartupPlugins({
       cliStorageRoot,
       configResult,
@@ -223,8 +223,8 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
     const pluginSubagentProfiles = loadPluginAgentProfiles({
       logger,
       plugins: pluginOutcome.plugins,
-      reservedProfileNames: zcodeSubagentProfiles.map((profile) => profile.name),
-      modelSelectionOverrides: zcodeSubagentProfileOutcome.pluginAgentModelSelectionOverrides,
+      reservedProfileNames: ycodeSubagentProfiles.map((profile) => profile.name),
+      modelSelectionOverrides: ycodeSubagentProfileOutcome.pluginAgentModelSelectionOverrides,
     }).profiles;
     const pluginRuntimeFeatures = resolvePluginRuntimeFeatures(pluginOutcome);
     const builtInMcpServers = resolveBuiltInNodeReplMcpServers({
@@ -232,7 +232,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
       workingDirectory,
     });
     // 用户目录已在 loader 前完成原地迁移；不能给项目/插件旧身份加内存兼容旁路。
-    const subagentProfiles = [...zcodeSubagentProfiles, ...pluginSubagentProfiles];
+    const subagentProfiles = [...ycodeSubagentProfiles, ...pluginSubagentProfiles];
     const ownsSessionStore = options.sessionStore === undefined;
     const sessionStore =
       options.sessionStore ?? (await openStartupSessionStore(configResult, startupTimer));
@@ -252,7 +252,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         builtInMcpServers,
         pluginRuntimeFeatures,
         builtInSubagentModelSelectionOverrides:
-          zcodeSubagentProfileOutcome.builtInModelSelectionOverrides,
+          ycodeSubagentProfileOutcome.builtInModelSelectionOverrides,
         subagentOutputRootDir: join(cliStorageRoot, "agents"),
         subagentProfiles,
         storageRoot,
@@ -791,7 +791,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
     const inputFacade = createInputFacade({
       artifactStore,
       customCommandPromptResolver: async (text, resolverOptions) => {
-        const builtinPrompt = resolveZCodeBuiltinPromptCommand(text, {
+        const builtinPrompt = resolveYCodeBuiltinPromptCommand(text, {
           // 动态工作流关闭时内置 `/workflow` 不得展开。目录侧已经把它从 `/` 面板
           // 剔除，但用户仍可手打命令名，两条路径必须给出同一个结论。TUI 缺席时不设门禁；
           // headless 按 --enable-workflow 显式取值，见 runtimeConfig 字段注释。
@@ -801,7 +801,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         if (builtinPrompt !== undefined) {
           return builtinPrompt;
         }
-        return await resolveZCodeCustomCommandPrompt(text, {
+        return await resolveYCodeCustomCommandPrompt(text, {
           env: options.env,
           executionPort,
           logger,
@@ -1050,7 +1050,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         const { ref, mediaType, artifactUri } = await resolvePromptAttachment(input);
         if (artifactUri) {
           if (!artifactStore.statToolResultArtifact) {
-            throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.statUnsupported);
+            throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.statUnsupported);
           }
           const result = await artifactStore.statToolResultArtifact({
             uri: artifactUri,
@@ -1066,7 +1066,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         if (result.kind !== "file") {
           // 目录/符号链接/已消失都意味着「这个附件不再是可分享的文件」，用稳定码上抛，
           // 让 share 预检按确定分类处理，而不是靠错误文本猜。
-          throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.statNotFile);
+          throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.statNotFile);
         }
         return {
           totalBytes: result.sizeBytes,

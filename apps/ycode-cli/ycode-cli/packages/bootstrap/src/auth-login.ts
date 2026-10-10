@@ -1,12 +1,12 @@
 import {
   createCodingPlanApiKeyResolver,
-  createSharedZCodeCredentialStore,
+  createSharedYCodeCredentialStore,
   createCliOAuthClient,
   createCliOAuthPollToken,
   openUrlInBrowser,
-  SHARED_ZCODE_CREDENTIAL_KEYS,
+  SHARED_YCODE_CREDENTIAL_KEYS,
   type BrowserOpenResult,
-  type SharedZCodeCredentialStore,
+  type SharedYCodeCredentialStore,
   type CliOAuthClient,
   type CliOAuthInitData,
   type CliOAuthPollData,
@@ -15,7 +15,7 @@ import {
 import { createConfig } from "@ycode/adapters/config";
 import { createNodeHttpClientAdapter } from "@ycode/adapters/http";
 import type { EnvRecord } from "@ycode/adapters/model";
-import { buildZCodeEndpointUrls, resolveRuntimeZCodeEndpointOrigin } from "@ycode/shared";
+import { buildYCodeEndpointUrls, resolveRuntimeYCodeEndpointOrigin } from "@ycode/shared";
 import {
   NodeModelSelectionConfigRepository,
   NodePersonalProviderConfigRepository,
@@ -40,12 +40,12 @@ const DEFAULT_LOGIN_TIMEOUT_MS = 5 * 60 * 1_000;
 
 export type CodingPlanProviderId = "bigmodel" | "zai";
 
-export interface LoginZCodeCliOptions {
+export interface LoginYCodeCliOptions {
   providerId?: CodingPlanProviderId;
   abortSignal?: AbortSignal;
   apiKeyResolver?: ReturnType<typeof createCodingPlanApiKeyResolver>;
   baseUrl?: string;
-  credentialStore?: SharedZCodeCredentialStore;
+  credentialStore?: SharedYCodeCredentialStore;
   env?: EnvRecord;
   httpClient?: Parameters<typeof createCliOAuthClient>[0]["httpClient"];
   noBrowser?: boolean;
@@ -60,7 +60,7 @@ export interface LoginZCodeCliOptions {
   personalProviderConfigPath?: string;
 }
 
-export interface LoginZCodeCliResult {
+export interface LoginYCodeCliResult {
   browser?: BrowserOpenResult;
   configPath: string;
   credentialsPath: string;
@@ -69,12 +69,12 @@ export interface LoginZCodeCliResult {
   user: CliOAuthUser;
 }
 
-export type LoginBigmodelCodingPlanOptions = Omit<LoginZCodeCliOptions, "providerId">;
-export type LoginBigmodelCodingPlanResult = LoginZCodeCliResult & { providerId: "bigmodel" };
+export type LoginBigmodelCodingPlanOptions = Omit<LoginYCodeCliOptions, "providerId">;
+export type LoginBigmodelCodingPlanResult = LoginYCodeCliResult & { providerId: "bigmodel" };
 
 export interface ConfigureCodingPlanApiKeyOptions {
   apiKey: string;
-  credentialStore?: SharedZCodeCredentialStore;
+  credentialStore?: SharedYCodeCredentialStore;
   env?: EnvRecord;
   personalProviderConfigPath?: string;
   providerId: CodingPlanProviderId;
@@ -86,27 +86,27 @@ export interface ConfigureCodingPlanApiKeyResult {
   providerId: CodingPlanProviderId;
 }
 
-export interface LogoutZCodeCliOptions {
-  credentialStore?: SharedZCodeCredentialStore;
+export interface LogoutYCodeCliOptions {
+  credentialStore?: SharedYCodeCredentialStore;
   env?: EnvRecord;
 }
 
-export interface LogoutZCodeCliResult {
+export interface LogoutYCodeCliResult {
   credentialsPath: string;
 }
 
 export async function hasConfiguredStandaloneCodingPlan(
   options: {
-    credentialStore?: SharedZCodeCredentialStore;
+    credentialStore?: SharedYCodeCredentialStore;
     env?: EnvRecord;
   } = {},
 ): Promise<boolean> {
   const credentialStore =
-    options.credentialStore ?? createSharedZCodeCredentialStore({ env: options.env });
+    options.credentialStore ?? createSharedYCodeCredentialStore({ env: options.env });
   return hasStandaloneCodingPlanAccess(credentialStore, options.env ?? process.env);
 }
 
-export class ZCodeCliLoginError extends Error {
+export class YCodeCliLoginError extends Error {
   readonly code:
     | "auth_failed"
     | "auth_timeout"
@@ -114,19 +114,19 @@ export class ZCodeCliLoginError extends Error {
     | "credential_write_failed";
 
   constructor(
-    code: ZCodeCliLoginError["code"],
+    code: YCodeCliLoginError["code"],
     message: string,
     options: { cause?: unknown } = {},
   ) {
     super(message, options);
-    this.name = "ZCodeCliLoginError";
+    this.name = "YCodeCliLoginError";
     this.code = code;
   }
 }
 
-export async function loginZCodeCli(
-  options: LoginZCodeCliOptions = {},
-): Promise<LoginZCodeCliResult> {
+export async function loginYCodeCli(
+  options: LoginYCodeCliOptions = {},
+): Promise<LoginYCodeCliResult> {
   const env = options.env ?? process.env;
   const providerId = options.providerId ?? "zai";
   const now = options.now ?? Date.now;
@@ -137,12 +137,12 @@ export async function loginZCodeCli(
     ? AbortSignal.any([options.abortSignal, timeoutController.signal])
     : timeoutController.signal;
   const timeoutError = () =>
-    new ZCodeCliLoginError("auth_timeout", "Authorization timed out. Please retry login.");
+    new YCodeCliLoginError("auth_timeout", "Authorization timed out. Please retry login.");
   let timer = setTimeout(() => timeoutController.abort(timeoutError()), timeoutMs);
   try {
     throwIfAborted(signal);
     const pollToken = options.pollToken ?? createCliOAuthPollToken();
-    const credentialStore = options.credentialStore ?? createSharedZCodeCredentialStore({ env });
+    const credentialStore = options.credentialStore ?? createSharedYCodeCredentialStore({ env });
     const oauthClient = createOAuthClient(options, env);
     const initData = await waitWithAbort(oauthClient.init({ pollToken }, { signal }), signal);
     const remainingMs = Math.min(deadlineMs, initData.expires_at * 1_000) - now();
@@ -170,7 +170,7 @@ export async function loginZCodeCli(
       createError: (code) =>
         code === "auth_timeout"
           ? timeoutError()
-          : new ZCodeCliLoginError(code, "Authorization failed. Please retry login."),
+          : new YCodeCliLoginError(code, "Authorization failed. Please retry login."),
     });
     const apiKey = await waitWithAbort(
       resolveCodingPlanApiKey({
@@ -194,13 +194,13 @@ export async function loginZCodeCli(
         });
       } else {
         await credentialStore.saveMany({
-          [SHARED_ZCODE_CREDENTIAL_KEYS.activeProvider]: providerId,
-          [SHARED_ZCODE_CREDENTIAL_KEYS.zcodeJwtToken]: readyData.token,
-          [SHARED_ZCODE_CREDENTIAL_KEYS.bigmodelAccessToken]: readyData.accessToken,
+          [SHARED_YCODE_CREDENTIAL_KEYS.activeProvider]: providerId,
+          [SHARED_YCODE_CREDENTIAL_KEYS.ycodeJwtToken]: readyData.token,
+          [SHARED_YCODE_CREDENTIAL_KEYS.bigmodelAccessToken]: readyData.accessToken,
           ...(readyData.refreshToken
-            ? { [SHARED_ZCODE_CREDENTIAL_KEYS.bigmodelRefreshToken]: readyData.refreshToken }
+            ? { [SHARED_YCODE_CREDENTIAL_KEYS.bigmodelRefreshToken]: readyData.refreshToken }
             : {}),
-          [SHARED_ZCODE_CREDENTIAL_KEYS.bigmodelUserInfo]: JSON.stringify({
+          [SHARED_YCODE_CREDENTIAL_KEYS.bigmodelUserInfo]: JSON.stringify({
             id: readyData.user.user_id,
             username: readyData.user.name || readyData.user.email || readyData.user.user_id,
             displayName: readyData.user.name || readyData.user.email || readyData.user.user_id,
@@ -209,7 +209,7 @@ export async function loginZCodeCli(
         });
       }
     } catch (error) {
-      throw new ZCodeCliLoginError(
+      throw new YCodeCliLoginError(
         "credential_write_failed",
         "Login succeeded but writing credentials failed.",
         { cause: error },
@@ -227,7 +227,7 @@ export async function loginZCodeCli(
         providerId,
       });
     } catch (error) {
-      throw new ZCodeCliLoginError(
+      throw new YCodeCliLoginError(
         "config_update_failed",
         "Login succeeded but updating YCode config failed.",
         { cause: error },
@@ -250,7 +250,7 @@ export async function loginBigmodelCodingPlan(
   options: LoginBigmodelCodingPlanOptions = {},
 ): Promise<LoginBigmodelCodingPlanResult> {
   return {
-    ...(await loginZCodeCli({ ...options, providerId: "bigmodel" })),
+    ...(await loginYCodeCli({ ...options, providerId: "bigmodel" })),
     providerId: "bigmodel",
   };
 }
@@ -260,10 +260,10 @@ export async function configureCodingPlanApiKey(
 ): Promise<ConfigureCodingPlanApiKeyResult> {
   const apiKey = options.apiKey.trim();
   if (!apiKey) {
-    throw new ZCodeCliLoginError("config_update_failed", "API key must not be empty.");
+    throw new YCodeCliLoginError("config_update_failed", "API key must not be empty.");
   }
   const credentialStore =
-    options.credentialStore ?? createSharedZCodeCredentialStore({ env: options.env });
+    options.credentialStore ?? createSharedYCodeCredentialStore({ env: options.env });
   const configPatch = await persistStandaloneCodingPlanConnection({
     accountIdentity: createStandaloneAccountIdentityFromSecret(apiKey),
     apiKey,
@@ -279,11 +279,11 @@ export async function configureCodingPlanApiKey(
   };
 }
 
-export async function logoutZCodeCli(
-  options: LogoutZCodeCliOptions = {},
-): Promise<LogoutZCodeCliResult> {
+export async function logoutYCodeCli(
+  options: LogoutYCodeCliOptions = {},
+): Promise<LogoutYCodeCliResult> {
   const credentialStore =
-    options.credentialStore ?? createSharedZCodeCredentialStore({ env: options.env });
+    options.credentialStore ?? createSharedYCodeCredentialStore({ env: options.env });
   const providerIds = (await readStandaloneCodingPlanProviders(options.env ?? process.env)).map(
     ({ providerId }) => providerId,
   );
@@ -301,7 +301,7 @@ export async function logoutZCodeCli(
       : [];
   });
   const keys = [
-    ...Object.values(SHARED_ZCODE_CREDENTIAL_KEYS),
+    ...Object.values(SHARED_YCODE_CREDENTIAL_KEYS),
     ...identityKeys,
     ...dynamicApiKeyKeys,
   ];
@@ -324,7 +324,7 @@ interface StandaloneCodingPlanPersistenceResult {
 async function persistStandaloneCodingPlanConnection(input: {
   readonly accountIdentity: string;
   readonly apiKey: string;
-  readonly credentialStore: SharedZCodeCredentialStore;
+  readonly credentialStore: SharedYCodeCredentialStore;
   readonly env: EnvRecord;
   readonly personalProviderConfigPath?: string;
   readonly providerId: CodingPlanProviderId;
@@ -363,17 +363,17 @@ async function persistStandaloneCodingPlanConnection(input: {
   };
 }
 
-function createOAuthClient(options: LoginZCodeCliOptions, env: EnvRecord): CliOAuthClient {
+function createOAuthClient(options: LoginYCodeCliOptions, env: EnvRecord): CliOAuthClient {
   return createCliOAuthClient({
     baseUrl:
-      options.baseUrl ?? buildZCodeEndpointUrls(resolveCliZCodeEndpointOrigin(env)).apiBaseUrl,
+      options.baseUrl ?? buildYCodeEndpointUrls(resolveCliYCodeEndpointOrigin(env)).apiBaseUrl,
     providerId: options.providerId ?? "zai",
     httpClient: options.httpClient ?? createDefaultHttpClient(env),
   });
 }
 
-function resolveCliZCodeEndpointOrigin(env: EnvRecord): string {
-  return resolveRuntimeZCodeEndpointOrigin(env);
+function resolveCliYCodeEndpointOrigin(env: EnvRecord): string {
+  return resolveRuntimeYCodeEndpointOrigin(env);
 }
 
 function createDefaultHttpClient(env: EnvRecord) {

@@ -1,14 +1,14 @@
 // ── 旧协议兼容面（过渡期）──────────────────────────────
-// 剩余 1 个导出：deriveZCodeTaskStatusFromSessionSnapshot。
-// 消费者：zcodeTaskServiceAdapter/zcodeTaskIndexSyncer/zcodeSessionProjection（旧投影栈）。
-import type { ZCodeSessionStateSnapshot } from "./ycode-protocol/index.js";
-import { getZCodeUserVisibleMessages } from "./ycode-session-visible-content.js";
-import type { ZCodeTaskMeta } from "./ycode-task-types-core.js";
-type ZCodeTaskStatus = ZCodeTaskMeta["status"];
+// 剩余 1 个导出：deriveYCodeTaskStatusFromSessionSnapshot。
+// 消费者：ycodeTaskServiceAdapter/ycodeTaskIndexSyncer/ycodeSessionProjection（旧投影栈）。
+import type { YCodeSessionStateSnapshot } from "./ycode-protocol/index.js";
+import { getYCodeUserVisibleMessages } from "./ycode-session-visible-content.js";
+import type { YCodeTaskMeta } from "./ycode-task-types-core.js";
+type YCodeTaskStatus = YCodeTaskMeta["status"];
 
-function statusFromZCodeSession(
-  status: ZCodeSessionStateSnapshot["session"]["status"],
-): ZCodeTaskStatus {
+function statusFromYCodeSession(
+  status: YCodeSessionStateSnapshot["session"]["status"],
+): YCodeTaskStatus {
   if (status === "running" || status === "waiting" || status === "paused") {
     return "running";
   }
@@ -17,7 +17,7 @@ function statusFromZCodeSession(
   return undefined;
 }
 
-function hasBlockingActiveSnapshotRuntime(snapshot: ZCodeSessionStateSnapshot): boolean {
+function hasBlockingActiveSnapshotRuntime(snapshot: YCodeSessionStateSnapshot): boolean {
   if (snapshot.runtime.activeTurnId || snapshot.runtime.activeTurnKind) {
     return true;
   }
@@ -31,7 +31,7 @@ function hasBlockingActiveSnapshotRuntime(snapshot: ZCodeSessionStateSnapshot): 
   );
 }
 
-function hasActiveSnapshotRuntime(snapshot: ZCodeSessionStateSnapshot): boolean {
+function hasActiveSnapshotRuntime(snapshot: YCodeSessionStateSnapshot): boolean {
   return hasBlockingActiveSnapshotRuntime(snapshot);
 }
 
@@ -40,8 +40,8 @@ function isToolCallContinuationFinish(finish: string | undefined): boolean {
   return normalized === "tool-calls";
 }
 
-function hasCompletedVisibleAssistantTurn(snapshot: ZCodeSessionStateSnapshot): boolean {
-  const visibleMessages = getZCodeUserVisibleMessages(snapshot.messages, {
+function hasCompletedVisibleAssistantTurn(snapshot: YCodeSessionStateSnapshot): boolean {
+  const visibleMessages = getYCodeUserVisibleMessages(snapshot.messages, {
     target: snapshot.projection.target,
   });
   const latestVisibleMessage = visibleMessages.at(-1);
@@ -54,14 +54,14 @@ function hasCompletedVisibleAssistantTurn(snapshot: ZCodeSessionStateSnapshot): 
   return typeof latestVisibleMessage.info.time.completed === "number";
 }
 
-export function deriveZCodeTaskStatusFromSessionSnapshot(
-  snapshot: ZCodeSessionStateSnapshot,
-): ZCodeTaskStatus {
+export function deriveYCodeTaskStatusFromSessionSnapshot(
+  snapshot: YCodeSessionStateSnapshot,
+): YCodeTaskStatus {
   if (snapshot.projection.lastError) {
     return "error";
   }
 
-  const status = statusFromZCodeSession(snapshot.session.status);
+  const status = statusFromYCodeSession(snapshot.session.status);
   if (status === "error" || status === "completed") {
     return status;
   }

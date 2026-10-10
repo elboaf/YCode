@@ -1,13 +1,13 @@
 import {
   YCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID,
-  type ZCodePluginsResolveSuggestedReferenceResult,
+  type YCodePluginsResolveSuggestedReferenceResult,
 } from "@ycode/shared";
 
 export interface DraftSuggestedPluginFlow {
   anchorItemId: string;
   operationId: string;
   plugin: { stableId: string; label: string };
-  result?: ZCodePluginsResolveSuggestedReferenceResult;
+  result?: YCodePluginsResolveSuggestedReferenceResult;
   stage: "checking" | "missing" | "disabled" | "unavailable";
 }
 
@@ -39,7 +39,7 @@ export async function trackDraftSuggestedPluginOperation<T>(
 }
 
 export function resolveDraftSuggestedPluginFlowStage(
-  result: ZCodePluginsResolveSuggestedReferenceResult,
+  result: YCodePluginsResolveSuggestedReferenceResult,
 ): DraftSuggestedPluginFlow["stage"] {
   const { status } = result;
   if (

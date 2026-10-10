@@ -23,7 +23,7 @@ export function createReleaseAgentWiring(
 }
 
 /**
- * 发行包内 Core 既不在 monorepo、也没有 Electron runtime，`zcodeAgentProcessManager`
+ * 发行包内 Core 既不在 monorepo、也没有 Electron runtime，`ycodeAgentProcessManager`
  * 的默认解析链（monorepo dev → Electron → 远端已部署 binary）会全部落空。这里把随包
  * `ycode.cjs` 注入为 agent 启动命令；env 覆盖是该解析链的最高优先级，因此显式配置的
  * `YCODE_AGENT_SERVER_COMMAND` 永远优先，开发态（入口同目录无 ycode.cjs）不受影响。

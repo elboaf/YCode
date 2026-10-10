@@ -1,7 +1,7 @@
 import { copyFile, mkdir, readdir, rename, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, dirname, join, normalize, resolve, sep } from "node:path";
-import type { ZCodeImportableSessionCandidate } from "@ycode/shared";
+import type { YCodeImportableSessionCandidate } from "@ycode/shared";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 import { getAppConfigDir, getDataBaseDir, getWorkspaceHash } from "#src/paths.js";
 import {
@@ -129,7 +129,7 @@ class ClaudeNativeSessionImportRepo {
     workspacePath?: string;
     modifiedSince?: number;
     limit?: number;
-  }): Promise<ZCodeImportableSessionCandidate[]> {
+  }): Promise<YCodeImportableSessionCandidate[]> {
     const workspaceKey = params.workspacePath
       ? normalizePathForComparison(params.workspacePath)
       : null;
@@ -142,7 +142,7 @@ class ClaudeNativeSessionImportRepo {
         ).flat(),
       ),
     ];
-    const candidates: ZCodeImportableSessionCandidate[] = [];
+    const candidates: YCodeImportableSessionCandidate[] = [];
 
     for (const filePath of sessionFiles) {
       let fileStat;
@@ -209,7 +209,7 @@ class ClaudeNativeSessionImportRepo {
   async findImportableSession(params: {
     workspacePath?: string;
     sessionId: string;
-  }): Promise<ZCodeImportableSessionCandidate | null> {
+  }): Promise<YCodeImportableSessionCandidate | null> {
     const workspaceKey = params.workspacePath
       ? normalizePathForComparison(params.workspacePath)
       : null;

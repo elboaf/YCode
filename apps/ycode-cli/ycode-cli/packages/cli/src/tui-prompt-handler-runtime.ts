@@ -25,7 +25,7 @@ export const createTuiProcessRuntimeState = (): TuiProcessRuntimeState => ({
 });
 
 // 返回值类型交给推断：原地 createApp 里这几个都是推断出来的局部变量，手写接口反而会把
-// 品牌类型（SessionId）和 createZCodeApp 的联合签名收窄错。
+// 品牌类型（SessionId）和 createYCodeApp 的联合签名收窄错。
 export async function prepareTuiAppRuntime(
   deps: RunDependencies,
   version: string,
@@ -46,14 +46,14 @@ export async function prepareTuiAppRuntime(
   }
 
   const sessionId = await resolveResumeSession(request, workingDirectory, env, deps);
-  const bootstrapModule = deps.createZCodeApp ? undefined : await loadBootstrapModule();
-  const createAppFactory = deps.createZCodeApp ?? bootstrapModule?.createZCodeApp;
+  const bootstrapModule = deps.createYCodeApp ? undefined : await loadBootstrapModule();
+  const createAppFactory = deps.createYCodeApp ?? bootstrapModule?.createYCodeApp;
   if (!createAppFactory) throw new Error("YCode app factory is unavailable.");
   const prepareTelemetry =
-    deps.prepareZCodeTelemetryEnv ?? bootstrapModule?.prepareZCodeTelemetryEnv;
+    deps.prepareYCodeTelemetryEnv ?? bootstrapModule?.prepareYCodeTelemetryEnv;
   if (prepareTelemetry) {
     state.shutdownTelemetry =
-      deps.shutdownZCodeTelemetry ?? bootstrapModule?.shutdownZCodeTelemetry;
+      deps.shutdownYCodeTelemetry ?? bootstrapModule?.shutdownYCodeTelemetry;
   }
   const appEnv = prepareTelemetry
     ? await prepareTelemetry(env, {

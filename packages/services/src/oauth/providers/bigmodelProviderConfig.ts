@@ -2,7 +2,7 @@ import { BIGMODEL_PROVIDER_ID, buildBigModelApiUrl } from "@ycode/shared";
 import type { OAuthProviderRuntimeConfig } from "../runtimeConfig.js";
 import {
   buildDesktopOAuthRedirectUriFromEnv,
-  buildZCodeApiUrlFromEnv,
+  buildYCodeApiUrlFromEnv,
   readBoolean,
   readEnv,
 } from "./configUtils.js";
@@ -33,7 +33,7 @@ export function createBigModelProviderRuntimeConfig(
       buildBigModelApiUrl(env, BIGMODEL_AUTHORIZE_PATH),
     tokenUrl:
       readEnv(env, "BIGMODEL_OAUTH_TOKEN_URL") ??
-      buildZCodeApiUrlFromEnv(env, "/api/v1/oauth/token"),
+      buildYCodeApiUrlFromEnv(env, "/api/v1/oauth/token"),
     userinfoUrl: resolveBigModelUserinfoUrl(env),
     appId: readEnv(env, "BIGMODEL_OAUTH_APP_ID") ?? BIGMODEL_OAUTH_PROVIDER_CONFIG.appId,
     redirectUri: buildDesktopOAuthRedirectUriFromEnv(env),

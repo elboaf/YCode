@@ -1,7 +1,7 @@
 import {
-  DEFAULT_ZCODE_ENDPOINT_ORIGIN,
+  DEFAULT_YCODE_ENDPOINT_ORIGIN,
   YCODE_VERSION,
-  buildZCodeEndpointUrls,
+  buildYCodeEndpointUrls,
   getForceUpdateMinimalVersionFromConfig,
   resolveForceUpdateRequirement,
   type ForceUpdateRequirement,
@@ -44,9 +44,9 @@ interface ForceUpdateGuardOptions {
   onBlocked?: (requirement: ForceUpdateRequirement) => void;
 }
 
-function resolveForceUpdateClientConfigUrl(endpointOrigin = DEFAULT_ZCODE_ENDPOINT_ORIGIN): string {
+function resolveForceUpdateClientConfigUrl(endpointOrigin = DEFAULT_YCODE_ENDPOINT_ORIGIN): string {
   const url = new URL(
-    `${buildZCodeEndpointUrls(endpointOrigin).origin}${YCODE_CLIENT_CONFIG_API_PATH}`,
+    `${buildYCodeEndpointUrls(endpointOrigin).origin}${YCODE_CLIENT_CONFIG_API_PATH}`,
   );
   url.searchParams.set("app_version", YCODE_VERSION);
   url.searchParams.set("platform", `${process.platform}-${process.arch}`);
@@ -183,9 +183,9 @@ async function resolveDesktopForceUpdateRequirement(options: {
 
 function resolveForceUpdateDownloadUrl(
   locale: Locale,
-  endpointOrigin = DEFAULT_ZCODE_ENDPOINT_ORIGIN,
+  endpointOrigin = DEFAULT_YCODE_ENDPOINT_ORIGIN,
 ): string {
-  const origin = buildZCodeEndpointUrls(endpointOrigin).origin;
+  const origin = buildYCodeEndpointUrls(endpointOrigin).origin;
   return locale === "zh-CN" ? `${origin}/cn` : `${origin}/en`;
 }
 

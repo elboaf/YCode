@@ -40,7 +40,7 @@ interface NormalizedStorageFsFaultRule {
 }
 
 interface InjectedStorageFsFaultError extends NodeJS.ErrnoException {
-  zcodeFsFaultId: string;
+  ycodeFsFaultId: string;
 }
 
 const SUPPORTED_OPERATIONS = new Set<StorageFsFaultOperation>([
@@ -168,7 +168,7 @@ function createInjectedError(input: {
   error.code = input.code;
   error.path = input.path;
   error.syscall = input.operation;
-  error.zcodeFsFaultId = input.id;
+  error.ycodeFsFaultId = input.id;
   return error;
 }
 

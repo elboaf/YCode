@@ -18,10 +18,10 @@ import type {
 import {
   PROTOCOL_V4_LIMITS,
   YCODE_ATTACHMENT_FAULT_CODES,
-  readZCodeAttachmentFaultCode,
+  readYCodeAttachmentFaultCode,
 } from "@ycode/shared/ycode-protocol-v4";
 
-import type { IZCodeAgentService } from "../ycode-agent/zcodeAgent.js";
+import type { IYCodeAgentService } from "../ycode-agent/ycodeAgent.js";
 import type {
   ConversationShareFailureIssue,
   PublishTextConversationInput,
@@ -139,8 +139,8 @@ async function materializeRegisteredArtifacts(options: {
 }
 
 async function discoverPreviewArtifacts(options: {
-  zcodeAgentService: Pick<
-    IZCodeAgentService,
+  ycodeAgentService: Pick<
+    IYCodeAgentService,
     "conversationFileChangesV4" | "conversationAttachmentReadV4"
   >;
   artifactSource: ConversationShareArtifactSource;
@@ -206,9 +206,9 @@ async function discoverPreviewArtifacts(options: {
       if (!header.entityId || !header.productTurnId) {
         throwDiscoveryError("Conversation file changes are missing a stable turn identity");
       }
-      let result: Awaited<ReturnType<IZCodeAgentService["conversationFileChangesV4"]>>;
+      let result: Awaited<ReturnType<IYCodeAgentService["conversationFileChangesV4"]>>;
       try {
-        result = await options.zcodeAgentService.conversationFileChangesV4({
+        result = await options.ycodeAgentService.conversationFileChangesV4({
           workspacePath: options.input.workspacePath,
           ...(options.input.workspaceIdentity
             ? { workspaceIdentity: options.input.workspaceIdentity }
@@ -398,7 +398,7 @@ async function discoverPreviewArtifacts(options: {
 }
 
 async function readInputAttachment(options: {
-  zcodeAgentService: Pick<IZCodeAgentService, "conversationAttachmentReadV4">;
+  ycodeAgentService: Pick<IYCodeAgentService, "conversationAttachmentReadV4">;
   input: PublishTextConversationInput;
   row: Extract<ConversationRow, { kind: "userInput" }>;
   attachmentIndex: number;
@@ -416,7 +416,7 @@ async function readInputAttachment(options: {
   let totalBytes: number | undefined;
   let mediaType = attachment.mime;
   while (true) {
-    const result = await options.zcodeAgentService.conversationAttachmentReadV4({
+    const result = await options.ycodeAgentService.conversationAttachmentReadV4({
       workspacePath: options.input.workspacePath,
       ...(options.input.workspaceIdentity
         ? { workspaceIdentity: options.input.workspaceIdentity }
@@ -473,7 +473,7 @@ async function readInputAttachment(options: {
 }
 
 async function discoverInputAttachments(options: {
-  zcodeAgentService: Pick<IZCodeAgentService, "conversationAttachmentReadV4">;
+  ycodeAgentService: Pick<IYCodeAgentService, "conversationAttachmentReadV4">;
   input: PublishTextConversationInput;
   selectedRows: ConversationRow[];
   capabilities: ConversationShareCapabilities;
@@ -527,7 +527,7 @@ async function discoverInputAttachments(options: {
       }
       try {
         const materialized = await readInputAttachment({
-          zcodeAgentService: options.zcodeAgentService,
+          ycodeAgentService: options.ycodeAgentService,
           input: options.input,
           row,
           attachmentIndex,
@@ -562,7 +562,7 @@ async function discoverInputAttachments(options: {
           bytes: materialized.bytes.byteLength,
         });
       } catch (error) {
-        const faultCode = readZCodeAttachmentFaultCode(error);
+        const faultCode = readYCodeAttachmentFaultCode(error);
         if (
           faultCode === YCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized ||
           faultCode === YCODE_ATTACHMENT_FAULT_CODES.shareReadConnectionUntrusted
@@ -655,8 +655,8 @@ function insertDiscoveredArtifacts(
 }
 
 export async function buildConversationShareArtifactSnapshot(options: {
-  zcodeAgentService: Pick<
-    IZCodeAgentService,
+  ycodeAgentService: Pick<
+    IYCodeAgentService,
     "conversationFileChangesV4" | "conversationAttachmentReadV4"
   >;
   artifactSource: ConversationShareArtifactSource;
@@ -673,7 +673,7 @@ export async function buildConversationShareArtifactSnapshot(options: {
   const issues: ConversationShareFailureIssue[] = [];
   const warnings: ConversationShareFailureIssue[] = [];
   const inputAttachments = await discoverInputAttachments({
-    zcodeAgentService: options.zcodeAgentService,
+    ycodeAgentService: options.ycodeAgentService,
     input: options.input,
     selectedRows: options.selectedRows,
     capabilities: options.capabilities,

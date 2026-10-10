@@ -4,7 +4,7 @@ import {
   TID_V4_WORKSPACE_HOOK_PENDING_DISMISS,
   TID_V4_WORKSPACE_HOOK_PENDING_REVIEW,
 } from "@ycode/shared";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import { setPendingSettingsSectionIntent } from "@/lib/settingsNavigation.js";
 import { logger } from "@/logger.js";
 import { runUserAction } from "@/lib/userActionTelemetry.js";
@@ -73,7 +73,7 @@ export const WorkspaceHookPendingBanner = memo(function WorkspaceHookPendingBann
   workspaceIdentity,
   admission,
 }: WorkspaceHookPendingBannerProps) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const openSettingsTab = useOptionalTabStore((state) => state.openSettingsTab);
   const commandBindings = useWorkspaceHookReviewStore((state) => state.commandBindings);
   const [, setDismissRevision] = useState(0);

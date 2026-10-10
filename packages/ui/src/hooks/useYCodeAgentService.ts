@@ -1,14 +1,14 @@
-import type { IZCodeAgentService } from "@ycode/services";
+import type { IYCodeAgentService } from "@ycode/services";
 import { useServices } from "@/hooks/useServices.js";
 import { useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 
-export function useZCodeAgentService(
+export function useYCodeAgentService(
   workspacePath?: string,
   preferredRemoteSessionId?: string | null,
   workspaceIdentity?: string | null,
-): IZCodeAgentService {
+): IYCodeAgentService {
   const services = workspacePath
     ? useWorkspaceServices(workspacePath, preferredRemoteSessionId, workspaceIdentity)
     : useServices();
-  return services.zcodeAgentService;
+  return services.ycodeAgentService;
 }

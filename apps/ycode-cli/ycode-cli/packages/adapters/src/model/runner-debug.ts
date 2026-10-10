@@ -10,7 +10,7 @@ import {
 import { homedir } from "node:os";
 import { join } from "node:path";
 import type { ModelTextResult } from "@ycode/contracts";
-import { YCODE_RUNTIME_ENV_KEY, normalizeZCodeRuntimeEnv } from "@ycode/shared";
+import { YCODE_RUNTIME_ENV_KEY, normalizeYCodeRuntimeEnv } from "@ycode/shared";
 import { redactAnthropicRequestMetadata } from "./anthropic-request-metadata.js";
 import type { EnvRecord } from "./model-execution.js";
 import { sanitizeModelIODebugRecord } from "./runner-debug-redaction.js";
@@ -462,7 +462,7 @@ async function settleModelIOValueWithTimeout<T>(
 
 // 归一化 YCODE_RUNTIME_ENV；未设置时返回 undefined,由调用方按生产处理。
 function normalizeRuntimeEnv(env: EnvRecord): string | undefined {
-  return normalizeZCodeRuntimeEnv(env[YCODE_RUNTIME_ENV_KEY]);
+  return normalizeYCodeRuntimeEnv(env[YCODE_RUNTIME_ENV_KEY]);
 }
 
 function writeModelIODebugRecord(

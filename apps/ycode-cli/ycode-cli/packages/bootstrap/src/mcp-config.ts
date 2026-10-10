@@ -5,9 +5,9 @@ import type {
   McpStdioServerConfig,
 } from "@ycode/contracts";
 import {
-  getCapturedZCodeCuaBrokerCredentials,
-  isZCodeCuaMcpCommand,
-  isZCodeCuaMcpPackageArg,
+  getCapturedYCodeCuaBrokerCredentials,
+  isYCodeCuaMcpCommand,
+  isYCodeCuaMcpPackageArg,
   YCODE_CUA_BROKER_SOCKET_ENV_KEY,
   YCODE_CUA_NODE_REPL_HOST_ENV_KEY,
   YCODE_CUA_OFFICIAL_PLUGIN_ID,
@@ -17,15 +17,15 @@ import {
 
 export { YCODE_CUA_BROKER_SOCKET_ENV_KEY as YCODE_CUA_BROKER_SOCKET_ENV } from "@ycode/shared";
 // CLI 入口会先清理 broker 凭据；shared node_repl 的可信配置随后从进程内捕获快照恢复它们。
-function resolveZCodeCuaBrokerSocket(): string | undefined {
+function resolveYCodeCuaBrokerSocket(): string | undefined {
   // captured 优先；运行时残留的 stale socket 不能覆盖可信快照。
   return (
-    getCapturedZCodeCuaBrokerCredentials().socket ||
+    getCapturedYCodeCuaBrokerCredentials().socket ||
     process.env[YCODE_CUA_BROKER_SOCKET_ENV_KEY]?.trim()
   );
 }
 
-function resolveZCodeCuaBrokerToken(): string | undefined {
+function resolveYCodeCuaBrokerToken(): string | undefined {
   return undefined;
 }
 
@@ -97,15 +97,15 @@ export function omitMcpServers(
     ),
   );
 
-  return injectZCodeCuaBrokerMcpServers(
+  return injectYCodeCuaBrokerMcpServers(
     kept,
-    resolveZCodeCuaBrokerSocket(),
-    resolveZCodeCuaBrokerToken(),
+    resolveYCodeCuaBrokerSocket(),
+    resolveYCodeCuaBrokerToken(),
     trustedOfficialCuaServerNames,
   );
 }
 
-function injectZCodeCuaBrokerMcpServers(
+function injectYCodeCuaBrokerMcpServers(
   servers: Record<string, McpServerConfig>,
   socketPath: string | undefined,
   token: string | undefined = undefined,
@@ -147,7 +147,7 @@ function injectCuaCredentialsIntoNodeRepl(
   token: string | undefined,
 ): McpServerConfig {
   if (config.type !== "stdio") return config;
-  const captured = getCapturedZCodeCuaBrokerCredentials();
+  const captured = getCapturedYCodeCuaBrokerCredentials();
   const pluginAuthority = captured.pluginAuthority;
   // CLI runtime env 会在 bootstrap 前被清理。marker 必须和 socket/token 一样取自私有凭据快照，
   // 否则 SDK 迁移后 broker 虽然存活，权限刷新仍会静默停止。
@@ -165,14 +165,14 @@ function injectCuaCredentialsIntoNodeRepl(
   };
 }
 
-function isZCodeCuaStdioServer(
+function isYCodeCuaStdioServer(
   name: string,
   config: McpServerConfig,
 ): config is McpStdioServerConfig {
   if (config.type !== "stdio") return false;
   if (name === "computer-use") return true;
-  // 内置 official ycode-cua plugin 的 MCP server 走 __zcode-plugin-host，command 是 Helper
-  // (非 ycode-cua)、args 是 [ycode.cjs, __zcode-plugin-host, server.js]（非 ycode-cua package arg），
+  // 内置 official ycode-cua plugin 的 MCP server 走 __ycode-plugin-host，command 是 Helper
+  // (非 ycode-cua)、args 是 [ycode.cjs, __ycode-plugin-host, server.js]（非 ycode-cua package arg），
   // 上面的 name/command/args 三条都匹配不到。_plugin id 由 adapters resolver 权威写入 env
   // （manifest/user env 不可覆盖），用它识别 official plugin server。
   if (
@@ -181,15 +181,15 @@ function isZCodeCuaStdioServer(
     return true;
   }
   // 判定与 desktop/services 共用 @ycode/shared 的单一事实源，避免两条注入入口漂移。
-  if (isZCodeCuaMcpCommand(config.command)) return true;
-  return (config.args ?? []).some(isZCodeCuaMcpPackageArg);
+  if (isYCodeCuaMcpCommand(config.command)) return true;
+  return (config.args ?? []).some(isYCodeCuaMcpPackageArg);
 }
 
 function isRetiredCuaMcpServer(name: string, config: McpServerConfig | undefined): boolean {
   // node_repl is the single supported CUA host and may share the CUA plugin's
   // authority marker; all other CUA-shaped MCP entries are retired.
   return (
-    name !== NODE_REPL_SERVER_NAME && config !== undefined && isZCodeCuaStdioServer(name, config)
+    name !== NODE_REPL_SERVER_NAME && config !== undefined && isYCodeCuaStdioServer(name, config)
   );
 }
 

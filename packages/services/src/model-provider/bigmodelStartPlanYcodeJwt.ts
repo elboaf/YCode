@@ -1,19 +1,19 @@
 import { BIGMODEL_PROVIDER_ID } from "@ycode/shared";
 
 const ACTIVE_PROVIDER_KEY = "oauth:active_provider";
-const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "ycodejwttoken";
 
-interface BigModelStartPlanZcodeJwtCredentialService {
+interface BigModelStartPlanYcodeJwtCredentialService {
   load(key: string): Promise<string | null>;
 }
 
-export async function resolveBigModelStartPlanZcodeJwt(params: {
-  credentialService?: BigModelStartPlanZcodeJwtCredentialService;
+export async function resolveBigModelStartPlanYcodeJwt(params: {
+  credentialService?: BigModelStartPlanYcodeJwtCredentialService;
   provider?: { readonly apiKey?: string | null } | null;
-  trustCachedZcodeJwt?: boolean;
+  trustCachedYcodeJwt?: boolean;
 }): Promise<string> {
   const activeProvider = (await params.credentialService?.load(ACTIVE_PROVIDER_KEY))?.trim() || "";
-  if (params.trustCachedZcodeJwt === true || activeProvider === BIGMODEL_PROVIDER_ID) {
+  if (params.trustCachedYcodeJwt === true || activeProvider === BIGMODEL_PROVIDER_ID) {
     const credentialJwt = (await params.credentialService?.load(YCODE_JWT_TOKEN_KEY))?.trim() || "";
     if (credentialJwt) {
       return credentialJwt;

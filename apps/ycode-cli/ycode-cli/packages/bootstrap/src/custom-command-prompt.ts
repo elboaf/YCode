@@ -6,33 +6,33 @@ import {
   type SessionId,
   type TraceContext,
 } from "@ycode/contracts";
-import { loadZCodeCustomCommand, type ListZCodeCustomCommandsOptions } from "./custom-commands.js";
+import { loadYCodeCustomCommand, type ListYCodeCustomCommandsOptions } from "./custom-commands.js";
 import { expandCustomCommandShellSyntax } from "./custom-command-shell-expansion.js";
-import { isReservedZCodeSlashCommandName } from "./slash-command-surface.js";
+import { isReservedYCodeSlashCommandName } from "./slash-command-surface.js";
 
 const CUSTOM_COMMAND_NOT_FOUND_PATTERN = /not found/i;
 const PROMPT_CUSTOM_COMMAND_PATTERN = /^\/([^\s]+)(?:\s+([\s\S]*))?$/;
 
-interface ResolveZCodeCustomCommandPromptOptions extends ListZCodeCustomCommandsOptions {
+interface ResolveYCodeCustomCommandPromptOptions extends ListYCodeCustomCommandsOptions {
   executionPort?: ExecutionPort;
   sessionId?: SessionId;
   signal?: AbortSignal;
   traceContext?: TraceContext;
 }
 
-export async function resolveZCodeCustomCommandPrompt(
+export async function resolveYCodeCustomCommandPrompt(
   input: string,
-  options: ResolveZCodeCustomCommandPromptOptions = {},
+  options: ResolveYCodeCustomCommandPromptOptions = {},
 ): Promise<string | undefined> {
   const invocation = parsePromptCustomCommandInvocation(input);
   // 保留名（含内置 `workflow`）在这里直接返回 undefined，与「命令不存在」同形：内置命令由
   // builtin-prompt-command.ts 先行展开，这里拒绝的是借同名自定义命令绕过内置语义（或功能开关）的路径。
-  if (!invocation || isReservedZCodeSlashCommandName(invocation.name)) {
+  if (!invocation || isReservedYCodeSlashCommandName(invocation.name)) {
     return undefined;
   }
 
   try {
-    const command = await loadZCodeCustomCommand({
+    const command = await loadYCodeCustomCommand({
       ...options,
       name: invocation.name,
     });

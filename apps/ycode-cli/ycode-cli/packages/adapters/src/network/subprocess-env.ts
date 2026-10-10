@@ -3,7 +3,7 @@ import {
   YCODE_HTTP_PROXY_ENV_KEY,
   YCODE_NO_PROXY_ENV_KEY,
   YCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY,
-  readZCodeToolEnvPassthroughEnv,
+  readYCodeToolEnvPassthroughEnv,
 } from "@ycode/shared";
 
 export interface NetworkEgressEnvPolicy {
@@ -62,7 +62,7 @@ function applyToolEnvPassthroughEnv(
   sourceEnv: Record<string, string | undefined>,
   platform: NodeJS.Platform,
 ): void {
-  const passthroughEnv = readZCodeToolEnvPassthroughEnv(sourceEnv);
+  const passthroughEnv = readYCodeToolEnvPassthroughEnv(sourceEnv);
   for (const [key, value] of Object.entries(passthroughEnv)) {
     setEnvKey(env, key, value, platform);
   }
@@ -82,12 +82,12 @@ function applyProxyEnv(
     return;
   }
 
-  const zcodeProxy = normalizeProxyValue(
+  const ycodeProxy = normalizeProxyValue(
     getFirstEnvValue(sourceEnv, [YCODE_HTTP_PROXY_ENV_KEY], platform),
   );
-  if (zcodeProxy) {
+  if (ycodeProxy) {
     for (const key of ALL_PROXY_KEYS) {
-      setEnvKey(env, key, zcodeProxy, platform);
+      setEnvKey(env, key, ycodeProxy, platform);
     }
     return;
   }

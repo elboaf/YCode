@@ -14,19 +14,19 @@ import {
 } from "@ycode/contracts";
 import {
   WORKFLOW_REFINE_PERMISSION_OPTION_ID,
-  zcodePermissionResponseSchema,
-  zcodeProtocolMethods,
-  zcodeUserInputResponseSchema,
-  type ZCodePermissionOption,
-  type ZCodePermissionResponse,
-  type ZCodeUserInputQuestion,
-  type ZCodeUserInputResponse,
+  ycodePermissionResponseSchema,
+  ycodeProtocolMethods,
+  ycodeUserInputResponseSchema,
+  type YCodePermissionOption,
+  type YCodePermissionResponse,
+  type YCodeUserInputQuestion,
+  type YCodeUserInputResponse,
 } from "@ycode/shared";
 import type {
   V4InteractionAnswer,
   V4InteractionRegistrationOptions,
 } from "../ycode-protocol-v4/interaction-registry.js";
-import type { ZCodeProtocolAgentServerContext } from "./server-types.js";
+import type { YCodeProtocolAgentServerContext } from "./server-types.js";
 import {
   buildProtocolPermissionOptions,
   buildSessionPermissionUpdates,
@@ -41,7 +41,7 @@ const EXIT_PLAN_MODE_APPROVAL_APPROVE = "approve";
 const INTERACTION_REQUEST_REANNOUNCE_INTERVAL_MS = 1_000;
 
 export function createProtocolInteractionBroker(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
 ): PermissionBrokerPort {
   return {
     requestPermission(request, options) {
@@ -57,7 +57,7 @@ export function createProtocolInteractionBroker(
 }
 
 async function requestPermission(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   request: PermissionBrokerRequest,
   options?: PermissionBrokerRequestOptions,
 ): Promise<PermissionBrokerResult> {
@@ -73,7 +73,7 @@ async function requestPermission(
     options?.signal,
     (signal) =>
       context.requestClient(
-        zcodeProtocolMethods.interactionRequestPermission,
+        ycodeProtocolMethods.interactionRequestPermission,
         {
           input: request.input,
           reason: request.reason,
@@ -86,10 +86,10 @@ async function requestPermission(
           toolName: request.toolName,
           turnId: request.turnId,
         },
-        zcodePermissionResponseSchema,
+        ycodePermissionResponseSchema,
         withInteractionRequestRecovery(options, signal),
       ),
-    // v4 answer → ZCodePermissionResponse：optionId 语义来自 v4 reducer 合成的
+    // v4 answer → YCodePermissionResponse：optionId 语义来自 v4 reducer 合成的
     // allowOnce/allowAlways/deny（见 product-projection onPermissionRequested）。
     (answer) => {
       const response = v4AnswerToPermissionResponse(answer, permissionOptions, request.toolName);
@@ -146,9 +146,9 @@ async function requestPermission(
  */
 function v4AnswerToPermissionResponse(
   answer: V4InteractionAnswer,
-  permissionOptions: ZCodePermissionOption[],
+  permissionOptions: YCodePermissionOption[],
   toolName: string,
-): ZCodePermissionResponse & {
+): YCodePermissionResponse & {
   reasonSource?: PermissionBrokerResult["reasonSource"];
   sessionPermissionUpdates?: PermissionBrokerResult["sessionPermissionUpdates"];
 } {
@@ -170,7 +170,7 @@ function v4AnswerToPermissionResponse(
       return { decision: "deny", reason: buildPermissionDeniedContent(answer.freeText) };
     }
     // 会话免确认：会话语义在这里合成，而不是放进
-    // option.response——wire 上 zcodePermissionUpdateSchema 是 strict，旧桌面多一个字段就丢事件。
+    // option.response——wire 上 ycodePermissionUpdateSchema 是 strict，旧桌面多一个字段就丢事件。
     if (exact.kind === SESSION_ALLOW_PERMISSION_OPTION_KIND) {
       return {
         ...exact.response,
@@ -193,7 +193,7 @@ function v4AnswerToPermissionResponse(
 }
 
 async function requestUserInput(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   request: PermissionBrokerRequest,
   options?: PermissionBrokerRequestOptions,
 ): Promise<PermissionBrokerResult> {
@@ -216,7 +216,7 @@ async function requestUserInput(
     options?.signal,
     (signal) =>
       context.requestClient(
-        zcodeProtocolMethods.interactionRequestUserInput,
+        ycodeProtocolMethods.interactionRequestUserInput,
         {
           input: request.input,
           prompt: request.reason,
@@ -229,7 +229,7 @@ async function requestUserInput(
           toolName: request.toolName,
           turnId: request.turnId,
         },
-        zcodeUserInputResponseSchema,
+        ycodeUserInputResponseSchema,
         withInteractionRequestRecovery(options, signal),
       ),
     // v4 答 AskUserQuestion：freeText/optionId 落到单题 answer 槽位
@@ -247,7 +247,7 @@ async function requestUserInput(
   return userInputResponseToBrokerResult(request, response);
 }
 
-function v4AnswerToUserInputResponse(answer: V4InteractionAnswer): ZCodeUserInputResponse {
+function v4AnswerToUserInputResponse(answer: V4InteractionAnswer): YCodeUserInputResponse {
   // answer.action 存在（host adapter respondElicitation 收敛路径）
   // 时按旧 respondUserInput 语义精确直传——content 携带多题 answers/annotations，
   // normalizeAskUserQuestionResponseContent 继续负责 schema 收敛。
@@ -267,7 +267,7 @@ function v4AnswerToUserInputResponse(answer: V4InteractionAnswer): ZCodeUserInpu
 }
 
 async function requestExitPlanModeApproval(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   request: PermissionBrokerRequest,
   options?: PermissionBrokerRequestOptions,
 ): Promise<PermissionBrokerResult> {
@@ -277,7 +277,7 @@ async function requestExitPlanModeApproval(
     options?.signal,
     (signal) =>
       context.requestClient(
-        zcodeProtocolMethods.interactionRequestUserInput,
+        ycodeProtocolMethods.interactionRequestUserInput,
         {
           input: request.input,
           prompt: request.reason,
@@ -290,7 +290,7 @@ async function requestExitPlanModeApproval(
           toolName: request.toolName,
           turnId: request.turnId,
         },
-        zcodeUserInputResponseSchema,
+        ycodeUserInputResponseSchema,
         withInteractionRequestRecovery(options, signal),
       ),
     // v4 答 plan approval：allow 类 optionId = 批准；freeText = 计划反馈
@@ -302,7 +302,7 @@ async function requestExitPlanModeApproval(
   return planApprovalResponseToBrokerResult(response);
 }
 
-function v4AnswerToPlanApprovalResponse(answer: V4InteractionAnswer): ZCodeUserInputResponse {
+function v4AnswerToPlanApprovalResponse(answer: V4InteractionAnswer): YCodeUserInputResponse {
   // 同 v4AnswerToUserInputResponse——host adapter 收敛路径直传
   // action/content，planApprovalResponseToBrokerResult 继续做 approve/feedback 归一。
   if (answer.action) {
@@ -323,7 +323,7 @@ function v4AnswerToPlanApprovalResponse(answer: V4InteractionAnswer): ZCodeUserI
   return { action: "decline" };
 }
 
-function createExitPlanModeApprovalQuestion(): ZCodeUserInputQuestion {
+function createExitPlanModeApprovalQuestion(): YCodeUserInputQuestion {
   return {
     header: "Plan",
     options: [
@@ -353,7 +353,7 @@ function withInteractionRequestRecovery(
   };
 }
 
-function mapAskUserQuestion(question: AskUserQuestion): ZCodeUserInputQuestion {
+function mapAskUserQuestion(question: AskUserQuestion): YCodeUserInputQuestion {
   return {
     header: question.header,
     multiSelect: question.multiSelect,
@@ -369,7 +369,7 @@ function mapAskUserQuestion(question: AskUserQuestion): ZCodeUserInputQuestion {
 
 function userInputResponseToBrokerResult(
   request: PermissionBrokerRequest,
-  response: ZCodeUserInputResponse,
+  response: YCodeUserInputResponse,
 ): PermissionBrokerResult {
   if (response.action !== "accept") {
     return {
@@ -397,7 +397,7 @@ function userInputResponseToBrokerResult(
 }
 
 function planApprovalResponseToBrokerResult(
-  response: ZCodeUserInputResponse,
+  response: YCodeUserInputResponse,
 ): PermissionBrokerResult {
   if (response.action !== "accept") {
     return {
@@ -503,7 +503,7 @@ function normalizeAskUserQuestionAnswers(
 function createInteractionRegistrationOptions(
   request: PermissionBrokerRequest,
   kind: V4InteractionRegistrationOptions["kind"],
-  context?: ZCodeProtocolAgentServerContext,
+  context?: YCodeProtocolAgentServerContext,
   initialAutoResolution?: V4InteractionRegistrationOptions["initialAutoResolution"],
 ): V4InteractionRegistrationOptions {
   return {
@@ -543,7 +543,7 @@ function createInteractionRegistrationOptions(
 }
 
 async function readPersistedAutoResolution(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   request: PermissionBrokerRequest,
 ): Promise<V4InteractionRegistrationOptions["initialAutoResolution"]> {
   const sessionStore = context.deps?.sessionStore;

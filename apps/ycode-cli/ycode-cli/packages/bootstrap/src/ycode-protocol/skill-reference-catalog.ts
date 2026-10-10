@@ -1,23 +1,23 @@
 // Composer Skill 只读 catalog。
 // 与 Skills Settings 管理接口分离：这里的 sessionId 决定 authority，不提供启停/删除能力。
 import {
-  zcodeSkillsReferenceCatalogParamsSchema,
-  type ZCodeSkillReferenceCatalogEntry,
-  type ZCodeSkillsReferenceCatalogResult,
+  ycodeSkillsReferenceCatalogParamsSchema,
+  type YCodeSkillReferenceCatalogEntry,
+  type YCodeSkillsReferenceCatalogResult,
 } from "@ycode/shared";
 import type { SkillLoadOutcome, SkillMetadata } from "@ycode/contracts";
-import { listZCodeSkills } from "../skills.js";
+import { listYCodeSkills } from "../skills.js";
 import {
   parseParams,
   requireSession,
-  type ZCodeProtocolAgentServerContext,
+  type YCodeProtocolAgentServerContext,
 } from "./server-types.js";
 
 export async function getSkillReferenceCatalog(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodeSkillsReferenceCatalogResult> {
-  const params = parseParams(zcodeSkillsReferenceCatalogParamsSchema, rawParams);
+): Promise<YCodeSkillsReferenceCatalogResult> {
+  const params = parseParams(ycodeSkillsReferenceCatalogParamsSchema, rawParams);
   if (params.sessionId) {
     const record = requireSession(context, params.sessionId);
     const outcome = await record.app.getSkillCatalog();
@@ -27,7 +27,7 @@ export async function getSkillReferenceCatalog(
   // 旧 UI cache 只在 workspace 首次挂载时扫描，用户从文件系统手动新增
   // Skill 后，新建对话仍停在旧快照。草稿请求在 Agent 侧复用 CLI 正式发现配置，
   // 每次新打开引用面板都读取当前 workspace catalog。
-  const outcome = await listZCodeSkills({
+  const outcome = await listYCodeSkills({
     env: context.deps.env,
     logger: context.logger,
     workingDirectory: params.workspace.workspacePath,
@@ -36,9 +36,9 @@ export async function getSkillReferenceCatalog(
 }
 
 function toResult(
-  authority: ZCodeSkillsReferenceCatalogResult["authority"],
+  authority: YCodeSkillsReferenceCatalogResult["authority"],
   outcome: SkillLoadOutcome,
-): ZCodeSkillsReferenceCatalogResult {
+): YCodeSkillsReferenceCatalogResult {
   return {
     authority,
     // 内置技能包（bundled-skills.ts）不进引用面板：它由内置命令（`/workflow`）加载，不是用户
@@ -49,7 +49,7 @@ function toResult(
   };
 }
 
-function toReferenceCatalogEntry(skill: SkillMetadata): ZCodeSkillReferenceCatalogEntry {
+function toReferenceCatalogEntry(skill: SkillMetadata): YCodeSkillReferenceCatalogEntry {
   const scope =
     skill.source === "plugin" ? "plugin" : skill.scope === "project" ? "workspace" : "user";
   return {

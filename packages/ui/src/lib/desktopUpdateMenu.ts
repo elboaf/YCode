@@ -1,12 +1,12 @@
 import {
   YCODE_PRODUCT_FLAVOR,
-  type ZCodeProductFlavor,
+  type YCodeProductFlavor,
   type UpdateStatePayload,
 } from "@ycode/shared";
 
 // 更新入口跟随产品身份而不是后端环境：Preview 身份（含生产后端的 Preview）禁用更新器。
 export function shouldShowDesktopUpdateEntry(
-  flavor: ZCodeProductFlavor = YCODE_PRODUCT_FLAVOR,
+  flavor: YCodeProductFlavor = YCODE_PRODUCT_FLAVOR,
 ): boolean {
   return flavor === "production";
 }

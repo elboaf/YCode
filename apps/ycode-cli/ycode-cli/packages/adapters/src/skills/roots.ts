@@ -14,7 +14,7 @@ export interface SkillRootResolutionOptions {
   homeDirectory?: string;
   extraRoots?: string[];
   extraResolvedRoots?: SkillRoot[];
-  includeZcodeSkills?: boolean;
+  includeYcodeSkills?: boolean;
 }
 
 export async function resolveDefaultSkillRoots(
@@ -23,7 +23,7 @@ export async function resolveDefaultSkillRoots(
 ): Promise<SkillRoot[]> {
   const resolvedWorkingDirectory = resolve(workingDirectory);
   const roots: SkillRoot[] = [];
-  const includeZcode = options.includeZcodeSkills ?? true;
+  const includeYcode = options.includeYcodeSkills ?? true;
   const home = options.homeDirectory ?? homedir();
   let priority = 0;
   const nextPriority = () => {
@@ -42,13 +42,13 @@ export async function resolveDefaultSkillRoots(
     );
   }
 
-  if (includeZcode) {
+  if (includeYcode) {
     roots.push(...skillRootsForBase(home, "user", nextPriority));
   }
 
   const projectDirectories = await resolveProjectSkillDirectories(resolvedWorkingDirectory);
   for (const directory of projectDirectories) {
-    if (includeZcode) {
+    if (includeYcode) {
       roots.push(...skillRootsForBase(directory, "project", nextPriority));
     }
   }

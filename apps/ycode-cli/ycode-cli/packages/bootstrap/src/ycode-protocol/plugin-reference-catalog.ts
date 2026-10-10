@@ -3,36 +3,36 @@
 // 且 plugins.ts 已接近 max-lines 门禁。
 import {
   YCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID,
-  zcodeProtocolNotifications,
-  zcodePluginsReferenceCatalogParamsSchema,
-  zcodePluginsResolveSuggestedReferenceParamsSchema,
-  type ZCodePluginReferenceCatalogEntry,
-  type ZCodePluginDiagnostic as SharedPluginDiagnostic,
-  type ZCodePluginsReferenceCatalogResult,
-  type ZCodePluginsResolveSuggestedReferenceResult,
+  ycodeProtocolNotifications,
+  ycodePluginsReferenceCatalogParamsSchema,
+  ycodePluginsResolveSuggestedReferenceParamsSchema,
+  type YCodePluginReferenceCatalogEntry,
+  type YCodePluginDiagnostic as SharedPluginDiagnostic,
+  type YCodePluginsReferenceCatalogResult,
+  type YCodePluginsResolveSuggestedReferenceResult,
 } from "@ycode/shared";
 import type { PluginReferenceCatalogEntry } from "@ycode/contracts";
 import { buildPluginReferenceCatalog } from "@ycode/core";
 import {
-  getZCodePluginsOverview,
-  resolveZCodePlugins,
-  updateZCodePluginMarketplace,
+  getYCodePluginsOverview,
+  resolveYCodePlugins,
+  updateYCodePluginMarketplace,
 } from "../plugins.js";
 import {
   parseParams,
   requireSession,
-  type ZCodeProtocolAgentServerContext,
+  type YCodeProtocolAgentServerContext,
 } from "./server-types.js";
 
 // Picker 权威：带 sessionId → 该 Session 创建时冻结的 identity catalog（session-owned）；
 // 不带 → workspace 当前 catalog（新建草稿）。session 不存在时按协议错误 fail closed，
 // 禁止静默回退 workspace authority——否则草稿/会话两种权威会被混淆。
 export async function getPluginReferenceCatalog(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   includeCategory = false,
-): Promise<ZCodePluginsReferenceCatalogResult> {
-  const params = parseParams(zcodePluginsReferenceCatalogParamsSchema, rawParams);
+): Promise<YCodePluginsReferenceCatalogResult> {
+  const params = parseParams(ycodePluginsReferenceCatalogParamsSchema, rawParams);
   if (params.sessionId) {
     const record = requireSession(context, params.sessionId);
     const displayByPluginId = resolveReferenceListingDisplayByPluginId(
@@ -45,7 +45,7 @@ export async function getPluginReferenceCatalog(
         .plugins.map((entry) => toReferenceCatalogEntry(entry, displayByPluginId, includeCategory)),
     };
   }
-  const outcome = resolveZCodePlugins({
+  const outcome = resolveYCodePlugins({
     workingDirectory: params.workspace.workspacePath,
   });
   const displayByPluginId = resolveReferenceListingDisplayByPluginId(
@@ -64,11 +64,11 @@ const SUGGESTED_PLUGIN_MARKETPLACE_REFRESH_TIMEOUT_MS = 10_000;
 
 /** 推荐 Prompt 的安装前可信解析；missing 必须先刷新官方目录，失败时禁止旧快照安装。 */
 export async function resolveSuggestedPluginReference(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   signal?: AbortSignal,
-): Promise<ZCodePluginsResolveSuggestedReferenceResult> {
-  const params = parseParams(zcodePluginsResolveSuggestedReferenceParamsSchema, rawParams);
+): Promise<YCodePluginsResolveSuggestedReferenceResult> {
+  const params = parseParams(ycodePluginsResolveSuggestedReferenceParamsSchema, rawParams);
   const stableId = params.stableId.trim();
   const at = stableId.lastIndexOf("@");
   const pluginName = at > 0 ? stableId.slice(0, at) : "";
@@ -98,7 +98,7 @@ export async function resolveSuggestedPluginReference(
 
   const workingDirectory = params.workspace.workspacePath;
   const readState = () => {
-    const outcome = resolveZCodePlugins({ logger: context.logger, workingDirectory });
+    const outcome = resolveYCodePlugins({ logger: context.logger, workingDirectory });
     const entry = buildPluginReferenceCatalog(outcome.plugins).plugins.find(
       (candidate) => candidate.pluginId === stableId,
     );
@@ -142,7 +142,7 @@ export async function resolveSuggestedPluginReference(
   // 旧流程只有官方 Marketplace 刷新完成后才把 missing 结果返回 UI，网络等待期间
   // 没有任何反馈，用户会误以为点击未生效。首次本地检查缺失后先通知同一 operation 进入 loading。
   context.notify({
-    method: zcodeProtocolNotifications.pluginOperationProgress,
+    method: ycodeProtocolNotifications.pluginOperationProgress,
     params: { operationId: params.operationId, state: "refreshing" },
   });
 
@@ -153,7 +153,7 @@ export async function resolveSuggestedPluginReference(
   let refreshTimedOut = false;
   let refreshTimeout: ReturnType<typeof setTimeout> | undefined;
   try {
-    const refreshRequest = updateZCodePluginMarketplace({
+    const refreshRequest = updateYCodePluginMarketplace({
       abortSignal: refreshController.signal,
       logger: context.logger,
       marketplace: SUGGESTED_PLUGIN_MARKETPLACE,
@@ -196,7 +196,7 @@ export async function resolveSuggestedPluginReference(
 
   const afterRefresh = readState();
   if (afterRefresh.entry) return toResult(afterRefresh.entry);
-  const overview = getZCodePluginsOverview({ logger: context.logger, workingDirectory });
+  const overview = getYCodePluginsOverview({ logger: context.logger, workingDirectory });
   const candidate = overview.availablePlugins.find((item) => item.id === stableId);
   if (
     !candidate ||
@@ -237,7 +237,7 @@ interface PluginReferenceListingDisplay {
 function resolveReferenceListingDisplayByPluginId(
   workspacePath: string,
 ): Map<string, PluginReferenceListingDisplay> {
-  const overview = getZCodePluginsOverview({ workingDirectory: workspacePath });
+  const overview = getYCodePluginsOverview({ workingDirectory: workspacePath });
   const displayByPluginId = new Map<string, PluginReferenceListingDisplay>();
   for (const plugin of [
     ...overview.availablePlugins,
@@ -271,7 +271,7 @@ function toReferenceCatalogEntry(
   entry: PluginReferenceCatalogEntry,
   displayByPluginId: ReadonlyMap<string, PluginReferenceListingDisplay>,
   includeCategory = false,
-): ZCodePluginReferenceCatalogEntry {
+): YCodePluginReferenceCatalogEntry {
   const display = displayByPluginId.get(entry.pluginId);
   return {
     ...(includeCategory ? { category: display?.category ?? "other" } : {}),

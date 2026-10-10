@@ -1,14 +1,14 @@
 import { resolveWorkspaceKey, YCODE_AGENT_PROVIDER } from "@ycode/shared";
 import type { TaskIndexRepo } from "#src/session/taskIndexRepo.js";
-import type { IZCodeAgentService, ZCodeAgentWorkspaceTarget } from "#src/ycode-agent/zcodeAgent.js";
+import type { IYCodeAgentService, YCodeAgentWorkspaceTarget } from "#src/ycode-agent/ycodeAgent.js";
 
 const IDENTITY_QUERY_BATCH_SIZE = 64;
 
 /** 旧版本曾把冷恢复 child 写入主列表；只清理权威身份确认的派生索引，不删除 Agent 转录。 */
 export async function repairSubagentTaskIndex(params: {
-  target: ZCodeAgentWorkspaceTarget;
+  target: YCodeAgentWorkspaceTarget;
   visibleSessionIds: ReadonlySet<string>;
-  agentService: Pick<IZCodeAgentService, "listSessions">;
+  agentService: Pick<IYCodeAgentService, "listSessions">;
   taskIndexRepo: Pick<TaskIndexRepo, "listTaskMetas" | "updateTaskState">;
   isCurrent: () => boolean;
   onRemoved: () => void;

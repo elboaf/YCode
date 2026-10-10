@@ -49,7 +49,7 @@ import type {
   PluginStoreListing,
 } from "@ycode/contracts";
 import { YCODE_OFFICIAL_PLUGIN_MARKETPLACE, isOfficialMarketplaceId } from "@ycode/contracts";
-import { YCODE_CUA_OFFICIAL_PLUGIN_ID, isZCodeCuaInternalFeatureEnabled } from "@ycode/shared";
+import { YCODE_CUA_OFFICIAL_PLUGIN_ID, isYCodeCuaInternalFeatureEnabled } from "@ycode/shared";
 import { resolveOfficialPluginRoots } from "./app/bundled-plugins.js";
 import {
   DEFAULT_ENABLED_OFFICIAL_PLUGIN_IDS,
@@ -59,7 +59,7 @@ import {
 import { getCliStorageRoot, getPluginStorageRoot } from "./app/paths.js";
 import { withPluginStorageLock } from "./lib/plugin-storage-lock.js";
 
-export interface ResolveZCodePluginsOptions {
+export interface ResolveYCodePluginsOptions {
   configResult?: ConfigResult;
   env?: NodeJS.ProcessEnv;
   logger?: Logger;
@@ -71,21 +71,21 @@ export interface ResolveZCodePluginsOptions {
   workingDirectory?: string;
 }
 
-export interface ListZCodePluginsOptions extends ResolveZCodePluginsOptions {}
+export interface ListYCodePluginsOptions extends ResolveYCodePluginsOptions {}
 
-export interface SetZCodePluginEnabledOptions extends ResolveZCodePluginsOptions {
+export interface SetYCodePluginEnabledOptions extends ResolveYCodePluginsOptions {
   enabled: boolean;
   plugin: string;
   scope?: "user" | "workspace";
 }
 
-export interface SetZCodePluginEnabledResult {
+export interface SetYCodePluginEnabledResult {
   enabled: boolean;
   path: string;
   plugin: PluginMetadata;
 }
 
-export interface ZCodeMarketplaceSummaryData {
+export interface YCodeMarketplaceSummaryData {
   id: string;
   name: string;
   source: Record<string, unknown>;
@@ -102,7 +102,7 @@ export interface ZCodeMarketplaceSummaryData {
   featured?: string[];
 }
 
-export interface ZCodeAvailablePluginData {
+export interface YCodeAvailablePluginData {
   id: string;
   name: string;
   marketplace: string;
@@ -115,7 +115,7 @@ export interface ZCodeAvailablePluginData {
   listing?: PluginStoreListing;
 }
 
-export interface ZCodeInstalledPluginData {
+export interface YCodeInstalledPluginData {
   id: string;
   name: string;
   marketplace: string;
@@ -133,20 +133,20 @@ export interface ZCodeInstalledPluginData {
   listing?: PluginStoreListing;
 }
 
-export interface ZCodePluginsOverviewData {
-  marketplaces: ZCodeMarketplaceSummaryData[];
-  availablePlugins: ZCodeAvailablePluginData[];
-  installedPlugins: ZCodeInstalledPluginData[];
-  restorableBuiltins: ZCodeAvailablePluginData[];
+export interface YCodePluginsOverviewData {
+  marketplaces: YCodeMarketplaceSummaryData[];
+  availablePlugins: YCodeAvailablePluginData[];
+  installedPlugins: YCodeInstalledPluginData[];
+  restorableBuiltins: YCodeAvailablePluginData[];
   diagnostics: PluginLoadOutcome["diagnostics"];
 }
 
-export interface ZCodeMarketplaceUpdateData {
+export interface YCodeMarketplaceUpdateData {
   diagnostics: PluginLoadOutcome["diagnostics"];
-  marketplaces: ZCodeMarketplaceSummaryData[];
+  marketplaces: YCodeMarketplaceSummaryData[];
 }
 
-export interface AddZCodeMarketplaceOptions extends ResolveZCodePluginsOptions {
+export interface AddYCodeMarketplaceOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   dryRun?: boolean;
   source: string;
@@ -154,16 +154,16 @@ export interface AddZCodeMarketplaceOptions extends ResolveZCodePluginsOptions {
   sparsePaths?: string[];
 }
 
-export interface RemoveZCodeMarketplaceOptions extends ResolveZCodePluginsOptions {
+export interface RemoveYCodeMarketplaceOptions extends ResolveYCodePluginsOptions {
   marketplace: string;
 }
 
-export interface UpdateZCodeMarketplaceOptions extends ResolveZCodePluginsOptions {
+export interface UpdateYCodeMarketplaceOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   marketplace?: string;
 }
 
-export interface InstallZCodeMarketplacePluginOptions extends ResolveZCodePluginsOptions {
+export interface InstallYCodeMarketplacePluginOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   dryRun?: boolean;
   marketplace: string;
@@ -171,7 +171,7 @@ export interface InstallZCodeMarketplacePluginOptions extends ResolveZCodePlugin
   scope?: "user" | "workspace";
 }
 
-export interface UninstallZCodeMarketplacePluginOptions extends ResolveZCodePluginsOptions {
+export interface UninstallYCodeMarketplacePluginOptions extends ResolveYCodePluginsOptions {
   pluginId?: string;
   pluginName?: string;
   marketplace?: string;
@@ -180,25 +180,25 @@ export interface UninstallZCodeMarketplacePluginOptions extends ResolveZCodePlug
   keepData?: boolean;
 }
 
-export interface UpdateZCodeMarketplacePluginOptions extends ResolveZCodePluginsOptions {
+export interface UpdateYCodeMarketplacePluginOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   pluginId: string;
 }
 
-export interface ValidateZCodePluginPathOptions extends ResolveZCodePluginsOptions {
+export interface ValidateYCodePluginPathOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   path: string;
 }
 
-export interface ZCodePluginUpdateData extends ZCodePluginInstallData {
+export interface YCodePluginUpdateData extends YCodePluginInstallData {
   previousVersion: string;
 }
 
-interface RestoreBuiltinPluginOptions extends ResolveZCodePluginsOptions {
+interface RestoreBuiltinPluginOptions extends ResolveYCodePluginsOptions {
   pluginId: string;
 }
 
-interface ConfigureZCodePluginOptions extends ResolveZCodePluginsOptions {
+interface ConfigureYCodePluginOptions extends ResolveYCodePluginsOptions {
   clearOptionKeys?: string[];
   dryRun?: boolean;
   options: Record<string, unknown>;
@@ -206,25 +206,25 @@ interface ConfigureZCodePluginOptions extends ResolveZCodePluginsOptions {
   scope?: "user" | "workspace";
 }
 
-interface ResetZCodePluginConfigOptions extends ResolveZCodePluginsOptions {
+interface ResetYCodePluginConfigOptions extends ResolveYCodePluginsOptions {
   pluginId: string;
   scope?: "user" | "workspace";
 }
 
-interface ValidateZCodePluginOptions extends ResolveZCodePluginsOptions {
+interface ValidateYCodePluginOptions extends ResolveYCodePluginsOptions {
   marketplace?: string;
   pluginName?: string;
   source?: string;
 }
 
-interface DescribeZCodePluginOptions extends ResolveZCodePluginsOptions {
+interface DescribeYCodePluginOptions extends ResolveYCodePluginsOptions {
   marketplace: string;
   pluginName: string;
 }
 
-export interface ZCodePluginInstallData {
+export interface YCodePluginInstallData {
   dependencyClosure: string[];
-  installedPlugins: ZCodeInstalledPluginData[];
+  installedPlugins: YCodeInstalledPluginData[];
   diagnostics: PluginLoadOutcome["diagnostics"];
 }
 
@@ -247,7 +247,7 @@ function countVisibleMarketplacePlugins(
   return plugins.filter((entry) => entry.name !== OFFICIAL_NODE_REPL_HOST_PLUGIN_NAME).length;
 }
 
-export function resolveZCodePlugins(options: ResolveZCodePluginsOptions = {}): PluginLoadOutcome {
+export function resolveYCodePlugins(options: ResolveYCodePluginsOptions = {}): PluginLoadOutcome {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
 
   return discoverNodePluginsSync({
@@ -266,12 +266,12 @@ export function resolveZCodePlugins(options: ResolveZCodePluginsOptions = {}): P
   });
 }
 
-export function getZCodePluginsOverview(
-  options: ResolveZCodePluginsOptions = {},
-): ZCodePluginsOverviewData {
+export function getYCodePluginsOverview(
+  options: ResolveYCodePluginsOptions = {},
+): YCodePluginsOverviewData {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
-  const outcome = resolveZCodePlugins({
+  const outcome = resolveYCodePlugins({
     ...options,
     configResult,
     pluginStorageRoot,
@@ -293,7 +293,7 @@ export function getZCodePluginsOverview(
   // 每个市场的 manifest 只读一次：同时取 entries（目录条目）与 featured（策展名单）。
   // ycode-plugins-official 的内置与 CDN 分片已在 adapter 层合并为唯一 canonical manifest。
   const catalogs: Array<{
-    summary: ZCodeMarketplaceSummaryData;
+    summary: YCodeMarketplaceSummaryData;
     entries: PluginMarketplaceEntry[];
   }> = [];
   for (const { record, useCachedManifest } of effectiveMarketplaces) {
@@ -339,11 +339,11 @@ export function getZCodePluginsOverview(
   // 里挑出 id 落在 suppressedBuiltins 集合内的，映射成 available 形态供 UI 的「恢复」入口使用。
   // 完整 Catalog/cache 仍然保留，restorable 只是 Runtime 抑制态的投影，商店信息直接取定义里的 listing seed。
   const suppressed = new Set(configResult.config.plugins.suppressedBuiltins);
-  const restorableBuiltins: ZCodeAvailablePluginData[] = OFFICIAL_PLUGIN_DEFINITIONS.filter(
+  const restorableBuiltins: YCodeAvailablePluginData[] = OFFICIAL_PLUGIN_DEFINITIONS.filter(
     (def) =>
       suppressed.has(`${def.name}@${YCODE_OFFICIAL_PLUGIN_MARKETPLACE}`) &&
       // computer-use 的恢复入口需要 internal 特性开启（与 restoreBuiltinPluginCore 同口径）。
-      (def.name !== "computer-use" || isZCodeCuaInternalFeatureEnabled(options.env ?? process.env)),
+      (def.name !== "computer-use" || isYCodeCuaInternalFeatureEnabled(options.env ?? process.env)),
   ).map((def) => {
     const listing = def.listing
       ? parseEntryStoreListing({ name: def.name, ...def.listing })
@@ -402,8 +402,8 @@ export function getZCodePluginsOverview(
   };
 }
 
-export function listZCodePlugins(options: ListZCodePluginsOptions = {}): PluginLoadOutcome {
-  const outcome = resolveZCodePlugins(options);
+export function listYCodePlugins(options: ListYCodePluginsOptions = {}): PluginLoadOutcome {
+  const outcome = resolveYCodePlugins(options);
   const { pluginStorageRoot } = resolvePluginContext(options);
   return {
     ...outcome,
@@ -436,9 +436,9 @@ function loadPluginListingsById(storageRoot: string): Record<string, PluginStore
   return Object.fromEntries(listings);
 }
 
-export async function setZCodePluginEnabled(
-  options: SetZCodePluginEnabledOptions,
-): Promise<SetZCodePluginEnabledResult> {
+export async function setYCodePluginEnabled(
+  options: SetYCodePluginEnabledOptions,
+): Promise<SetYCodePluginEnabledResult> {
   const workingDirectory = resolve(options.workingDirectory ?? process.cwd());
   const configResult =
     options.configResult ??
@@ -449,7 +449,7 @@ export async function setZCodePluginEnabled(
       skipUserConfig: options.skipUserConfig,
       userConfigPath: options.userConfigPath,
     });
-  const outcome = resolveZCodePlugins({
+  const outcome = resolveYCodePlugins({
     ...options,
     configResult,
     workingDirectory,
@@ -471,9 +471,9 @@ export async function setZCodePluginEnabled(
   };
 }
 
-export async function addZCodePluginMarketplace(
-  options: AddZCodeMarketplaceOptions,
-): Promise<ZCodeMarketplaceSummaryData> {
+export async function addYCodePluginMarketplace(
+  options: AddYCodeMarketplaceOptions,
+): Promise<YCodeMarketplaceSummaryData> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   const source = applySparsePaths(
     await parseMarketplaceSourceInput(options.source),
@@ -496,8 +496,8 @@ export async function addZCodePluginMarketplace(
   return toMarketplaceSummaryData(record);
 }
 
-export async function removeZCodePluginMarketplace(
-  options: RemoveZCodeMarketplaceOptions,
+export async function removeYCodePluginMarketplace(
+  options: RemoveYCodeMarketplaceOptions,
 ): Promise<void> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   await removeMarketplace({
@@ -506,9 +506,9 @@ export async function removeZCodePluginMarketplace(
   });
 }
 
-export async function updateZCodePluginMarketplace(
-  options: UpdateZCodeMarketplaceOptions,
-): Promise<ZCodeMarketplaceUpdateData> {
+export async function updateYCodePluginMarketplace(
+  options: UpdateYCodeMarketplaceOptions,
+): Promise<YCodeMarketplaceUpdateData> {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
   const declared = resolveDeclaredMarketplaceSources({
@@ -587,9 +587,9 @@ export async function updateZCodePluginMarketplace(
   };
 }
 
-export async function installZCodeMarketplacePlugin(
-  options: InstallZCodeMarketplacePluginOptions,
-): Promise<ZCodePluginInstallData> {
+export async function installYCodeMarketplacePlugin(
+  options: InstallYCodeMarketplacePluginOptions,
+): Promise<YCodePluginInstallData> {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
   if (options.dryRun === true) {
@@ -653,7 +653,7 @@ export async function installZCodeMarketplacePlugin(
     // 否则同一 storageRoot 的 promise-chain lock 会等待自身而永久阻塞。
     await restoreBuiltinPluginCore({ ...options, configResult, pluginId });
     const fresh = resolvePluginContext({ ...options, configResult: undefined });
-    const outcome = resolveZCodePlugins({
+    const outcome = resolveYCodePlugins({
       ...options,
       configResult: fresh.configResult,
       pluginStorageRoot: fresh.pluginStorageRoot,
@@ -750,9 +750,9 @@ export async function installZCodeMarketplacePlugin(
   };
 }
 
-export async function uninstallZCodeMarketplacePlugin(
-  options: UninstallZCodeMarketplacePluginOptions,
-): Promise<ZCodeInstalledPluginData | null> {
+export async function uninstallYCodeMarketplacePlugin(
+  options: UninstallYCodeMarketplacePluginOptions,
+): Promise<YCodeInstalledPluginData | null> {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
   return withPluginStorageLock(pluginStorageRoot, async () => {
     const pluginId = resolvePluginIdForMutation(options);
@@ -782,7 +782,7 @@ export async function uninstallZCodeMarketplacePlugin(
     // 内置（官方）插件不在 installed_plugins.json 里，无法走 marketplace 卸载路径。
     // 卸载只改变 Runtime 抑制态并清理用户数据/config；Catalog 与不可变 cache 必须保留，
     // 这样详情页仍能离线读取组件，且恢复动作不依赖重新下载或重新构造目录。
-    const outcome = resolveZCodePlugins({
+    const outcome = resolveYCodePlugins({
       ...options,
       configResult,
       pluginStorageRoot,
@@ -826,15 +826,15 @@ export async function uninstallZCodeMarketplacePlugin(
  * cacheMarketplacePlugin 对已存在的安装记录做原地覆盖并保留 installedAt；启用态只会给
  * 用户配置里尚未显式声明的 id 补默认值，因此更新不会改变用户已经做过的开关选择。
  */
-export async function updateZCodeMarketplacePlugin(
-  options: UpdateZCodeMarketplacePluginOptions,
-): Promise<ZCodePluginUpdateData> {
+export async function updateYCodeMarketplacePlugin(
+  options: UpdateYCodeMarketplacePluginOptions,
+): Promise<YCodePluginUpdateData> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   const record = listInstalledPluginRecords(pluginStorageRoot).find(
     (installed) => installed.id === options.pluginId,
   );
   if (!record) throw new Error(`Plugin not installed: ${options.pluginId}`);
-  const refreshed = await updateZCodePluginMarketplace({
+  const refreshed = await updateYCodePluginMarketplace({
     ...options,
     marketplace: record.marketplace,
   });
@@ -847,7 +847,7 @@ export async function updateZCodeMarketplacePlugin(
       previousVersion: record.version,
     };
   }
-  const installed = await installZCodeMarketplacePlugin({
+  const installed = await installYCodeMarketplacePlugin({
     ...options,
     marketplace: record.marketplace,
     pluginName: record.name,
@@ -857,8 +857,8 @@ export async function updateZCodeMarketplacePlugin(
 }
 
 /** `ycode plugins validate <path>`：只读校验本地插件目录或 marketplace 目录。 */
-export async function validateZCodePluginPath(
-  options: ValidateZCodePluginPathOptions,
+export async function validateYCodePluginPath(
+  options: ValidateYCodePluginPathOptions,
 ): Promise<PluginLoadOutcome["diagnostics"]> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   return (
@@ -889,10 +889,10 @@ function applySparsePaths(
  * 因此核心不能再次获取 promise-chain lock；公开入口再负责提供锁保护。
  */
 async function restoreBuiltinPluginCore(options: RestoreBuiltinPluginOptions): Promise<void> {
-  const zcodeCuaPluginId = YCODE_CUA_OFFICIAL_PLUGIN_ID;
+  const ycodeCuaPluginId = YCODE_CUA_OFFICIAL_PLUGIN_ID;
   if (
-    options.pluginId === zcodeCuaPluginId &&
-    !isZCodeCuaInternalFeatureEnabled(options.env ?? process.env)
+    options.pluginId === ycodeCuaPluginId &&
+    !isYCodeCuaInternalFeatureEnabled(options.env ?? process.env)
   ) {
     // overview 虽然隐藏了恢复入口，但协议调用仍可绕过 UI 写用户配置。
     // 功能开关关闭时在写盘前失败，确保用户配置与插件缓存都保持零痕迹。
@@ -915,11 +915,11 @@ export async function restoreBuiltinPlugin(options: RestoreBuiltinPluginOptions)
   await withPluginStorageLock(pluginStorageRoot, () => restoreBuiltinPluginCore(options));
 }
 
-export async function configureZCodePlugin(options: ConfigureZCodePluginOptions): Promise<void> {
+export async function configureYCodePlugin(options: ConfigureYCodePluginOptions): Promise<void> {
   const normalizedOptions = normalizePluginOptions(options.options);
   const clearOptionKeys = normalizePluginOptionKeys(options.clearOptionKeys);
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
-  const outcome = resolveZCodePlugins({
+  const outcome = resolveYCodePlugins({
     ...options,
     configResult,
     pluginStorageRoot,
@@ -936,8 +936,8 @@ export async function configureZCodePlugin(options: ConfigureZCodePluginOptions)
 }
 
 /** 删除指定 scope 的 Plugin 配置键，使 Workspace scope 回退到 User。 */
-export async function resetZCodePluginConfig(
-  options: ResetZCodePluginConfigOptions,
+export async function resetYCodePluginConfig(
+  options: ResetYCodePluginConfigOptions,
 ): Promise<{ path: string; pluginId: string }> {
   const { configResult, workingDirectory } = resolvePluginContext(options);
   const path = resolvePluginConfigPath(options, configResult, workingDirectory);
@@ -951,8 +951,8 @@ export async function resetZCodePluginConfig(
   return { path, pluginId: options.pluginId };
 }
 
-export async function validateZCodePlugin(
-  options: ValidateZCodePluginOptions,
+export async function validateYCodePlugin(
+  options: ValidateYCodePluginOptions,
 ): Promise<PluginLoadOutcome["diagnostics"]> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
@@ -1002,8 +1002,8 @@ export async function validateZCodePlugin(
   return [];
 }
 
-export async function describeZCodePlugin(
-  options: DescribeZCodePluginOptions,
+export async function describeYCodePlugin(
+  options: DescribeYCodePluginOptions,
 ): Promise<DescribeMarketplacePluginResult> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
@@ -1014,7 +1014,7 @@ export async function describeZCodePlugin(
   });
 }
 
-function resolvePluginContext(options: ResolveZCodePluginsOptions): {
+function resolvePluginContext(options: ResolveYCodePluginsOptions): {
   configResult: ConfigResult;
   pluginStorageRoot: string;
   workingDirectory: string;
@@ -1173,7 +1173,7 @@ function toMarketplaceSummaryData(
   record: KnownMarketplaceRecord,
   featured?: string[],
   pluginCount?: number,
-): ZCodeMarketplaceSummaryData {
+): YCodeMarketplaceSummaryData {
   return {
     id: record.id,
     name: record.name,
@@ -1199,7 +1199,7 @@ function toAvailablePluginData(
   entry: PluginMarketplaceEntry,
   marketplace: string,
   installedIds: ReadonlySet<string>,
-): ZCodeAvailablePluginData {
+): YCodeAvailablePluginData {
   const id = `${entry.name}@${marketplace}`;
   return {
     id,
@@ -1217,7 +1217,7 @@ function toInstalledPluginData(
   record: InstalledPluginRecord,
   enabled: boolean,
   loaded?: PluginMetadata,
-): ZCodeInstalledPluginData {
+): YCodeInstalledPluginData {
   return {
     id: record.id,
     name: record.name,
@@ -1259,7 +1259,7 @@ function inferComponentTypesFromMetadata(plugin: PluginMetadata): string[] {
   return types;
 }
 
-function resolvePluginIdForMutation(options: UninstallZCodeMarketplacePluginOptions): string {
+function resolvePluginIdForMutation(options: UninstallYCodeMarketplacePluginOptions): string {
   if (options.pluginId) return options.pluginId;
   if (options.pluginName && options.marketplace) {
     return `${options.pluginName}@${options.marketplace}`;
@@ -1284,7 +1284,7 @@ function normalizePluginOptionKeys(keys: string[] | undefined): string[] {
 }
 
 function resolvePluginConfigPath(
-  options: ResolveZCodePluginsOptions & { scope?: "user" | "workspace" },
+  options: ResolveYCodePluginsOptions & { scope?: "user" | "workspace" },
   configResult: ConfigResult,
   workingDirectory: string,
 ): string {

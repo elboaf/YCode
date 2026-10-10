@@ -154,7 +154,7 @@ async function buildOutputs(skipBuild) {
   run("pnpm", ["--filter", "@ycode/web", "build"]);
 }
 
-async function stageZCodePackage({ packageRoot, version }) {
+async function stageYCodePackage({ packageRoot, version }) {
   const webDist = resolve(root, "packages", "web", "dist");
   const serverDist = resolve(root, "packages", "server", "dist");
   const agentBundle = resolve(root, "apps", "ycode-cli", "packages", "cli", "dist", "ycode.cjs");
@@ -258,7 +258,7 @@ async function main() {
     force: true,
     recursive: true,
   });
-  await stageZCodePackage({
+  await stageYCodePackage({
     packageRoot,
     version,
   });

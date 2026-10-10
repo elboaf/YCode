@@ -26,14 +26,14 @@ const EXTERNAL_TURN_FAULT_MARKER = "ycode.externalTurnFault";
 
 interface ExternalTurnFaultError extends Error {
   code: string;
-  zcodeTurnFault: typeof EXTERNAL_TURN_FAULT_MARKER;
+  ycodeTurnFault: typeof EXTERNAL_TURN_FAULT_MARKER;
 }
 
 /** 宿主用此窄入口中止 turn，同时要求 core 持久化 TurnError 而不是用户取消。 */
 export function createExternalTurnFaultError(code: string, message = code): Error {
   return Object.assign(new Error(message), {
     code,
-    zcodeTurnFault: EXTERNAL_TURN_FAULT_MARKER as typeof EXTERNAL_TURN_FAULT_MARKER,
+    ycodeTurnFault: EXTERNAL_TURN_FAULT_MARKER as typeof EXTERNAL_TURN_FAULT_MARKER,
   }) satisfies ExternalTurnFaultError;
 }
 
@@ -45,7 +45,7 @@ function findExternalTurnFault(error: unknown): ExternalTurnFaultError | null {
     seen.add(current);
     const record = current as Record<string, unknown>;
     if (
-      record.zcodeTurnFault === EXTERNAL_TURN_FAULT_MARKER &&
+      record.ycodeTurnFault === EXTERNAL_TURN_FAULT_MARKER &&
       typeof record.code === "string" &&
       current instanceof Error
     ) {

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { cpus, totalmem } from "node:os";
-import { YCODE_MCP_RESOURCE_SAMPLE_INTERVAL_MS, type ZCodeMcpResourceSample } from "@ycode/shared";
+import { YCODE_MCP_RESOURCE_SAMPLE_INTERVAL_MS, type YCodeMcpResourceSample } from "@ycode/shared";
 import {
   createProcessProbe,
   type ProcessProbe,
@@ -31,11 +31,11 @@ export interface McpResourceProcess {
 }
 
 export interface McpResourceTelemetryOptions {
-  arch: ZCodeMcpResourceSample["arch"];
-  platform: ZCodeMcpResourceSample["platform"];
+  arch: YCodeMcpResourceSample["arch"];
+  platform: YCodeMcpResourceSample["platform"];
   now(): number;
   getProcesses(): McpResourceProcess[];
-  onResourceSamples?(samples: ZCodeMcpResourceSample[]): void;
+  onResourceSamples?(samples: YCodeMcpResourceSample[]): void;
   processProbe?: ProcessProbe;
   logicalCpuCount?: number;
   totalMemoryGb?: number;
@@ -83,7 +83,7 @@ export function createMcpResourceTelemetry(options: McpResourceTelemetryOptions)
           ? YCODE_MCP_RESOURCE_SAMPLE_INTERVAL_MS
           : Math.max(1, sampledAt - previousAt);
       const next = new Map<string, Map<number, number>>();
-      const groups = new Map<string, ZCodeMcpResourceSample>();
+      const groups = new Map<string, YCodeMcpResourceSample>();
       const seenPids = new Set<number>();
       for (const entry of processes) {
         if (!entry.isCurrent()) continue;

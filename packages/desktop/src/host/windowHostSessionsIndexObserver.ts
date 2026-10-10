@@ -1,5 +1,5 @@
 import type { IDisposable } from "@ycode/rpc";
-import { YCODE_AGENT_RUNTIME_UNAVAILABLE_CODE, type IZCodeAgentService } from "@ycode/services";
+import { YCODE_AGENT_RUNTIME_UNAVAILABLE_CODE, type IYCodeAgentService } from "@ycode/services";
 import {
   PROTOCOL_V4_LIMITS,
   sessionsIndexTopic,
@@ -15,14 +15,14 @@ const MAX_STAGED_WIRES = 1_024;
 const MAX_STAGED_BYTES = 32 * 1024 * 1024;
 
 type SessionsIndexAgentService = Pick<
-  IZCodeAgentService,
+  IYCodeAgentService,
   | "subscribeSessionsIndexV4"
   | "resyncSessionsIndexV4"
   | "unsubscribeSessionsIndexV4"
   | "onDynamicSessionsIndexFrame"
   | "onAgentRuntimeRestarted"
 > &
-  Partial<Pick<IZCodeAgentService, "onAgentRuntimeLifecycle">>;
+  Partial<Pick<IYCodeAgentService, "onAgentRuntimeLifecycle">>;
 
 export interface WindowHostSessionsIndexObserver {
   start(): Promise<void>;

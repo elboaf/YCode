@@ -1,18 +1,18 @@
 import {
   createLocalServices,
   disposeServiceResourcesAndWait,
-  materializeZCodeBuiltinProviderConfig,
+  materializeYCodeBuiltinProviderConfig,
   getAppConfigDir,
   YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
 } from "@ycode/services/node";
-import { IZCodeAgentService } from "@ycode/services";
+import { IYCodeAgentService } from "@ycode/services";
 import { YCODE_VERSION } from "@ycode/shared";
 import { createCoreHttpServer } from "./http.js";
 import { installParentDisconnectHandler } from "./parentDisconnect.js";
 import { resolveCoreServerId } from "./serverIdentity.js";
 import { createTaskActivityTracker } from "./taskActivityTracker.js";
 
-declare const __ZCODE_BUILTIN_PROVIDER_CONFIG_JSON__: string | undefined;
+declare const __YCODE_BUILTIN_PROVIDER_CONFIG_JSON__: string | undefined;
 
 export async function runServerCore(generation: number): Promise<void> {
   let shutdown: ((reason: string) => Promise<void>) | undefined;
@@ -22,26 +22,26 @@ export async function runServerCore(generation: number): Promise<void> {
     if (shutdown) void shutdown("parent-disconnected");
     else parentDisconnected = true;
   });
-  const explicitZCodeBuiltinProviderConfigFilePath =
+  const explicitYCodeBuiltinProviderConfigFilePath =
     process.env[YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
-  const zcodeBuiltinProviderConfigFilePath = explicitZCodeBuiltinProviderConfigFilePath
-    ? explicitZCodeBuiltinProviderConfigFilePath
-    : typeof __ZCODE_BUILTIN_PROVIDER_CONFIG_JSON__ === "string"
-      ? await materializeZCodeBuiltinProviderConfig({
+  const ycodeBuiltinProviderConfigFilePath = explicitYCodeBuiltinProviderConfigFilePath
+    ? explicitYCodeBuiltinProviderConfigFilePath
+    : typeof __YCODE_BUILTIN_PROVIDER_CONFIG_JSON__ === "string"
+      ? await materializeYCodeBuiltinProviderConfig({
           environmentConfigRoot: getAppConfigDir(),
-          content: __ZCODE_BUILTIN_PROVIDER_CONFIG_JSON__,
+          content: __YCODE_BUILTIN_PROVIDER_CONFIG_JSON__,
         })
       : undefined;
-  if (!zcodeBuiltinProviderConfigFilePath) {
+  if (!ycodeBuiltinProviderConfigFilePath) {
     throw new Error(
       `当前构建未嵌入 YCode Built-in Provider Config，且未设置 ${YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV}`,
     );
   }
   const services = createLocalServices({
-    zcodeBuiltinProviderConfigFilePath,
+    ycodeBuiltinProviderConfigFilePath,
     serviceAuthorityMode: "standalone-server",
   });
-  const taskActivityTracker = createTaskActivityTracker(services.getOptional(IZCodeAgentService));
+  const taskActivityTracker = createTaskActivityTracker(services.getOptional(IYCodeAgentService));
   const http = await createCoreHttpServer(services, { serverId: await resolveCoreServerId() });
   const send = (message: unknown): Promise<void> => {
     if (typeof process.send !== "function" || process.connected === false) return Promise.resolve();

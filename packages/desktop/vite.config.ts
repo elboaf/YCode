@@ -4,7 +4,7 @@ import { dirname, extname, isAbsolute, resolve } from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { resolveZCodeEndpointOrigin, pickProductEndpointEnv } from "@ycode/shared/zcodeEndpoint";
+import { resolveYCodeEndpointOrigin, pickProductEndpointEnv } from "@ycode/shared/ycodeEndpoint";
 import { pdfJsCMapsPlugin } from "../ui/vite/pdfJsCMapsPlugin.js";
 import { getBuildMetadata } from "./scripts/build-metadata.mjs";
 import { resolveDesktopProductFlavor } from "./scripts/desktop-product-identity.mjs";
@@ -46,7 +46,7 @@ export const desktopRendererDependencyAliases = {
   "lucide-react": resolveInstalledPackageRoot("lucide-react"),
 } as const;
 
-function resolveZCodeEnv(value: string | undefined): "test" | "production" {
+function resolveYCodeEnv(value: string | undefined): "test" | "production" {
   return value?.trim().toLowerCase() === "production" ? "production" : "test";
 }
 
@@ -144,19 +144,19 @@ export default defineConfig(({ mode }) => {
   // `.env*` 只提供链接常量；当前产品环境由启动脚本或 CI 注入 YCODE_ENV。
   const env = { ...loadEnv(mode, "../..", ""), ...process.env };
   const repoRoot = resolve(__dirname, "../..");
-  const zcodeEnv = resolveZCodeEnv(env.YCODE_ENV);
+  const ycodeEnv = resolveYCodeEnv(env.YCODE_ENV);
   // 安装包身份与后端环境分轴；renderer 用它决定是否展示更新入口。
-  const zcodeProductFlavor = resolveDesktopProductFlavor({
+  const ycodeProductFlavor = resolveDesktopProductFlavor({
     ...process.env,
     ...env,
-    YCODE_ENV: zcodeEnv,
+    YCODE_ENV: ycodeEnv,
   });
   const e2eCoverageEnabled =
     env.YCODE_E2E_COVERAGE === "1" || process.env.YCODE_E2E_COVERAGE === "1";
   const e2eStoreBridgeEnabled =
-    env.VITE_ZCODE_E2E_STORE_BRIDGE === "1" || process.env.VITE_ZCODE_E2E_STORE_BRIDGE === "1";
-  const zcodeEndpointOrigin = resolveZCodeEndpointOrigin({
-    env: zcodeEnv,
+    env.VITE_YCODE_E2E_STORE_BRIDGE === "1" || process.env.VITE_YCODE_E2E_STORE_BRIDGE === "1";
+  const ycodeEndpointOrigin = resolveYCodeEndpointOrigin({
+    env: ycodeEnv,
     envBaseOrigin: env.YCODE_BASE_URL ?? env.YCODE_ENDPOINT_ORIGIN,
   });
   const codingPlanWebviewOrigin =
@@ -188,22 +188,22 @@ export default defineConfig(({ mode }) => {
     },
     server: { port: 5174, strictPort: true },
     define: {
-      __ZCODE_ENDPOINT_ENV__: JSON.stringify(pickProductEndpointEnv(env)),
-      __ZCODE_VERSION__: JSON.stringify(buildMetadata.appVersion),
-      __ZCODE_COMMIT__: JSON.stringify(buildMetadata.buildCommitId),
-      __ZCODE_BUILD_TIME__: JSON.stringify(buildMetadata.buildTime),
-      __ZCODE_ENV__: JSON.stringify(zcodeEnv),
-      __ZCODE_PRODUCT_FLAVOR__: JSON.stringify(zcodeProductFlavor),
-      __ZCODE_LOCAL_DEVELOPMENT_RUNTIME__: JSON.stringify(mode !== "production"),
-      "import.meta.env.VITE_ZCODE_BASE_URL": JSON.stringify(zcodeEndpointOrigin),
-      // 兼容旧 renderer 读取名；新代码统一读 VITE_ZCODE_BASE_URL。
-      "import.meta.env.VITE_ZCODE_ENDPOINT_ORIGIN": JSON.stringify(zcodeEndpointOrigin),
+      __YCODE_ENDPOINT_ENV__: JSON.stringify(pickProductEndpointEnv(env)),
+      __YCODE_VERSION__: JSON.stringify(buildMetadata.appVersion),
+      __YCODE_COMMIT__: JSON.stringify(buildMetadata.buildCommitId),
+      __YCODE_BUILD_TIME__: JSON.stringify(buildMetadata.buildTime),
+      __YCODE_ENV__: JSON.stringify(ycodeEnv),
+      __YCODE_PRODUCT_FLAVOR__: JSON.stringify(ycodeProductFlavor),
+      __YCODE_LOCAL_DEVELOPMENT_RUNTIME__: JSON.stringify(mode !== "production"),
+      "import.meta.env.VITE_YCODE_BASE_URL": JSON.stringify(ycodeEndpointOrigin),
+      // 兼容旧 renderer 读取名；新代码统一读 VITE_YCODE_BASE_URL。
+      "import.meta.env.VITE_YCODE_ENDPOINT_ORIGIN": JSON.stringify(ycodeEndpointOrigin),
       "import.meta.env.VITE_CODING_PLAN_WEBVIEW_ORIGIN": JSON.stringify(codingPlanWebviewOrigin),
       "import.meta.env.VITE_REWARDS_WEBVIEW_ORIGIN": JSON.stringify(
         env.VITE_REWARDS_WEBVIEW_ORIGIN ?? process.env.VITE_REWARDS_WEBVIEW_ORIGIN ?? "",
       ),
       // E2E store bridge 只能由 WDIO 专用变量打开，避免把 YCODE_ENV=test 产品环境误当成测试运行态。
-      "import.meta.env.VITE_ZCODE_E2E_STORE_BRIDGE": JSON.stringify(
+      "import.meta.env.VITE_YCODE_E2E_STORE_BRIDGE": JSON.stringify(
         e2eStoreBridgeEnabled ? "1" : "",
       ),
     },

@@ -54,7 +54,7 @@ export function writeOfficialPluginRuntimeManifest(input: OfficialRuntimeManifes
   const manifest = JSON.parse(currentContents) as Record<string, unknown>;
   // skill-only / command-only 类型的 official plugin 不带 mcpServers，直接跳过 rewrite。
   // 之前这里无脑 asRecord(manifest.mcpServers) 会对 undefined 抛错，
-  // 把 seed 流程整个阻断，连带 listZCodeSkills 拉不出 plugin skill。
+  // 把 seed 流程整个阻断，连带 listYCodeSkills 拉不出 plugin skill。
   if (manifest.mcpServers === undefined) return;
   const mcpServers = asRecord(manifest.mcpServers);
   const hostPrefixArgs = officialPluginHostPrefixArgs();

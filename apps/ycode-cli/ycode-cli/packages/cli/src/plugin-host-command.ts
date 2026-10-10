@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { YCODE_PLUGIN_HOST_COMMAND } from "@ycode/contracts/plugins";
 import {
-  getCapturedZCodeCuaBrokerCredentials,
+  getCapturedYCodeCuaBrokerCredentials,
   YCODE_CUA_BROKER_SOCKET_ENV_KEY,
   YCODE_CUA_NODE_REPL_HOST_ENV_KEY,
 } from "@ycode/shared/runtime-env";
@@ -20,7 +20,7 @@ export function isPluginHostInvocation(argv: readonly string[]): boolean {
   return argv[0] === YCODE_PLUGIN_HOST_COMMAND;
 }
 
-// __zcode-plugin-host 在 agent 子进程里运行 official plugin 的 MCP server（server.js）。
+// __ycode-plugin-host 在 agent 子进程里运行 official plugin 的 MCP server（server.js）。
 // CLI 入口 main.ts 的 applyCliRuntimeEnvSanitization 会先把 broker token 从 process.env 剔除进
 // 进程内 capture；因此这里是恢复 bearer token 的最后一道宿主边界。capture 本身只证明某个
 // Agent 进程曾收到过 Helper 凭据，不能证明当前传入的 server 就是官方 ycode-cua：
@@ -44,7 +44,7 @@ export async function runPluginHostCommand(ctx: RunContext, argv: string[]): Pro
     if (!existsSync(serverPath)) {
       throw new Error("Plugin server file does not exist.");
     }
-    const capturedBrokerCredentials = getCapturedZCodeCuaBrokerCredentials();
+    const capturedBrokerCredentials = getCapturedYCodeCuaBrokerCredentials();
     assertCapturedBrokerLaunchIsAuthorized(capturedBrokerCredentials);
     const module = (await import(pathToFileURL(serverPath).href)) as HostedPluginModule;
     if (typeof module.main !== "function") {
@@ -78,7 +78,7 @@ export async function runPluginHostCommand(ctx: RunContext, argv: string[]): Pro
   }
 }
 
-type CapturedBrokerCredentials = ReturnType<typeof getCapturedZCodeCuaBrokerCredentials>;
+type CapturedBrokerCredentials = ReturnType<typeof getCapturedYCodeCuaBrokerCredentials>;
 
 function assertCapturedBrokerLaunchIsAuthorized(credentials: CapturedBrokerCredentials): void {
   const hasCapturedCredentials = Boolean(credentials.socket || credentials.pluginAuthority);

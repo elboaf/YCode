@@ -1,9 +1,9 @@
 import type { ExpertWorkflowRuntime } from "@ycode/core";
 import type { SessionId, TraceContext, WorkflowDefinition } from "@ycode/contracts";
-import type { PrepareUserExecutionBoundary, ZCodeApp } from "./types.js";
+import type { PrepareUserExecutionBoundary, YCodeApp } from "./types.js";
 
 export type WorkflowFacade = Pick<
-  ZCodeApp,
+  YCodeApp,
   | "expertWorkflowStatus"
   | "workflowStatus"
   | "retryWorkflow"

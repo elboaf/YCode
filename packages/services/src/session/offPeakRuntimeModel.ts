@@ -3,11 +3,11 @@
 import {
   BUILTIN_MODEL_PROVIDER_IDS,
   resolveOffPeakProviderId,
-  buildRuntimeZCodeApiUrl,
+  buildRuntimeYCodeApiUrl,
   type OffPeakCodingPlanKind,
   type OffPeakCodingPlanSupport,
   type OffPeakCodingPlanUnsupportedReason,
-  type ZCodeAccountAccess,
+  type YCodeAccountAccess,
 } from "@ycode/shared";
 import { isOffPeakMockEnabled, startOffPeakMockGateway } from "./offPeakMockGateway.js";
 import type { ServiceLogger } from "../logger/serviceLogger.js";
@@ -56,7 +56,7 @@ export class OffPeakModelUnavailableError extends OffPeakPermanentDispatchError 
   }
 }
 
-const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "ycodejwttoken";
 const ACTIVE_OAUTH_PROVIDER_KEY = "oauth:active_provider";
 
 export interface OffPeakCredentialSnapshot {
@@ -77,7 +77,7 @@ interface OffPeakCredentialResolverDeps {
   accountRequestAuthService: IAccountRequestAuthService;
   resolveAccountProvider(): Promise<{
     readonly providerId: string;
-    readonly access: ZCodeAccountAccess;
+    readonly access: YCodeAccountAccess;
     readonly baseURL?: string;
   } | null>;
   env?: NodeJS.ProcessEnv;
@@ -329,7 +329,7 @@ export function createOffPeakOriginResolver(deps: {
       if (!originPromise) {
         originPromise = (async () => {
           if (!isOffPeakMockEnabled(env)) {
-            return new URL(buildRuntimeZCodeApiUrl(env, "/")).origin;
+            return new URL(buildRuntimeYCodeApiUrl(env, "/")).origin;
           }
           const gateway = await startOffPeakMockGateway({
             logger: deps.logger,

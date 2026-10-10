@@ -7,7 +7,7 @@ import {
   YCODE_ARMS_RUM_ENDPOINT,
   YCODE_VERSION,
   YCODE_TELEMETRY_ENABLED,
-  mapZCodeEnvToArmsRumEnv,
+  mapYCodeEnvToArmsRumEnv,
 } from "@ycode/shared";
 import { ARMS_BROWSER_COLLECTORS, parseArmsViewName } from "../shared/armsRumShared.js";
 import { redactArmsEventBatch } from "./armsEventRedaction.js";
@@ -142,7 +142,7 @@ export function filterAndEnrichNativeCrashEvents(
 
 // Bugfix: 产品后端可使用 production，但源码启动的 Desktop 仍是本地开发运行态；
 // ARMS 环境必须优先按运行形态标记为 local，避免开发数据污染 prod。
-const armsRumEnv = mapZCodeEnvToArmsRumEnv(desktopRuntimeEnv);
+const armsRumEnv = mapYCodeEnvToArmsRumEnv(desktopRuntimeEnv);
 
 // ARMS user.id 字段被 SDK 强制改写为内部随机值（config.user.id 在事件合并时被显式跳过，
 // 无法注入），而 user.name 不受屏蔽。这里把 device_mid 写入 user.name，使 RUM 日志可按

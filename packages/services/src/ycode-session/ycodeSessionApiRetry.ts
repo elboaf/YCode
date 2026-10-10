@@ -1,27 +1,27 @@
 import {
-  normalizeZCodeApiRetryStatus,
-  isZCodeModelRetryRecoveryProgressPayload,
+  normalizeYCodeApiRetryStatus,
+  isYCodeModelRetryRecoveryProgressPayload,
   resolveWorkspaceKey,
-  type ZCodeSessionApiRetryStatus,
-  type ZCodeSessionStateSnapshot,
-  zcodeApiRetryFromModelNetworkStatusPayload,
-  zcodeApiRetryFromStreamRecoveryPayload,
+  type YCodeSessionApiRetryStatus,
+  type YCodeSessionStateSnapshot,
+  ycodeApiRetryFromModelNetworkStatusPayload,
+  ycodeApiRetryFromStreamRecoveryPayload,
 } from "@ycode/shared";
-import type { ZCodeSessionServiceEvent, ZCodeTaskTarget } from "#src/ycode-session/zcodeSession.js";
+import type { YCodeSessionServiceEvent, YCodeTaskTarget } from "#src/ycode-session/ycodeSession.js";
 
-export function createZCodeSessionApiRetryRuntimeTracker(): {
+export function createYCodeSessionApiRetryRuntimeTracker(): {
   trackApiRetryFromSessionEvent: (
-    params: ZCodeTaskTarget,
-    event: ZCodeSessionServiceEvent,
-  ) => ZCodeSessionServiceEvent;
-  withApiRetryRuntime: (snapshot: ZCodeSessionStateSnapshot) => ZCodeSessionStateSnapshot;
+    params: YCodeTaskTarget,
+    event: YCodeSessionServiceEvent,
+  ) => YCodeSessionServiceEvent;
+  withApiRetryRuntime: (snapshot: YCodeSessionStateSnapshot) => YCodeSessionStateSnapshot;
 } {
-  const apiRetryBySessionKey = new Map<string, ZCodeSessionApiRetryStatus | null>();
+  const apiRetryBySessionKey = new Map<string, YCodeSessionApiRetryStatus | null>();
 
   function trackApiRetryFromSessionEvent(
-    params: ZCodeTaskTarget,
-    event: ZCodeSessionServiceEvent,
-  ): ZCodeSessionServiceEvent {
+    params: YCodeTaskTarget,
+    event: YCodeSessionServiceEvent,
+  ): YCodeSessionServiceEvent {
     if (
       event.type === "session.event" &&
       (event.event.type === "session.updated" || event.event.type === "streamRecovery.updated")
@@ -38,7 +38,7 @@ export function createZCodeSessionApiRetryRuntimeTracker(): {
         apiRetryBySessionKey.set(key, apiRetry);
       } else if (
         apiRetryBySessionKey.get(key) != null &&
-        isZCodeModelRetryRecoveryProgressPayload(asRecord(event.event.payload))
+        isYCodeModelRetryRecoveryProgressPayload(asRecord(event.event.payload))
       ) {
         // snapshot runtime 和 live UI 要使用同一个恢复成功边界；
         // retry attempt 开始不清，等首个模型进展到达才清，避免重连时状态闪烁或切回 task 后残留。
@@ -55,7 +55,7 @@ export function createZCodeSessionApiRetryRuntimeTracker(): {
     return event;
   }
 
-  function withApiRetryRuntime(snapshot: ZCodeSessionStateSnapshot): ZCodeSessionStateSnapshot {
+  function withApiRetryRuntime(snapshot: YCodeSessionStateSnapshot): YCodeSessionStateSnapshot {
     const sessionId = snapshot.session?.sessionId;
     const workspacePath = snapshot.session?.workspace?.workspacePath;
     if (!sessionId || !workspacePath) {
@@ -94,7 +94,7 @@ export function createZCodeSessionApiRetryRuntimeTracker(): {
     };
   }
 
-  function sessionKey(params: ZCodeTaskTarget): string {
+  function sessionKey(params: YCodeTaskTarget): string {
     return `${resolveWorkspaceKey(params)}\u0000${params.sessionId}`;
   }
 
@@ -106,21 +106,21 @@ export function createZCodeSessionApiRetryRuntimeTracker(): {
 
 function apiRetryFromSessionPayload(
   payload: Record<string, unknown>,
-): ZCodeSessionApiRetryStatus | null | undefined {
+): YCodeSessionApiRetryStatus | null | undefined {
   if ("apiRetry" in payload) {
-    return normalizeZCodeApiRetryStatus(payload.apiRetry);
+    return normalizeYCodeApiRetryStatus(payload.apiRetry);
   }
-  const runtimeRetry = normalizeZCodeApiRetryStatus(asRecord(payload.runtime).apiRetry);
+  const runtimeRetry = normalizeYCodeApiRetryStatus(asRecord(payload.runtime).apiRetry);
   if (runtimeRetry !== undefined) {
     return runtimeRetry;
   }
-  const metaRetry = normalizeZCodeApiRetryStatus(asRecord(asRecord(payload._meta).ycode).apiRetry);
+  const metaRetry = normalizeYCodeApiRetryStatus(asRecord(asRecord(payload._meta).ycode).apiRetry);
   if (metaRetry !== undefined) {
     return metaRetry;
   }
   return (
-    zcodeApiRetryFromStreamRecoveryPayload(payload) ??
-    zcodeApiRetryFromModelNetworkStatusPayload(payload)
+    ycodeApiRetryFromStreamRecoveryPayload(payload) ??
+    ycodeApiRetryFromModelNetworkStatusPayload(payload)
   );
 }
 

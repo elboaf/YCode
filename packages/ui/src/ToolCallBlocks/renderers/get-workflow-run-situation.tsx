@@ -14,7 +14,7 @@
 
 import type { ToolCallGetWorkflowRunDisplay } from "@ycode/shared/ycode-protocol-v4";
 import { throttleReasonLabel } from "@/app-shell/workflowRunThrottle.js";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import { formatWorkflowAge, formatWorkflowDuration } from "@/lib/workflowObservationFormat.js";
 
 type WorkflowRunPhaseView = NonNullable<ToolCallGetWorkflowRunDisplay["phases"]>[number];
@@ -53,7 +53,7 @@ export function WorkflowRunPhaseTrack({
   generatedAt: number | undefined;
   terminal: boolean;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   if (phases.length === 0) return null;
   return (
     <div className={SITUATION_BLOCK_CLASS} data-testid="workflow-run-phases">
@@ -108,7 +108,7 @@ export function WorkflowRunPhaseTrack({
   );
 }
 
-type FormatMessage = ReturnType<typeof useZCodeIntl>["intl"]["formatMessage"];
+type FormatMessage = ReturnType<typeof useYCodeIntl>["intl"]["formatMessage"];
 
 function phaseDuration(
   phase: WorkflowRunPhaseView,
@@ -146,7 +146,7 @@ export function WorkflowRunHealthLine({
   generatedAt: number | undefined;
   terminal: boolean;
 }) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const cells: string[] = [];
 
   const lastProgress = formatWorkflowAge(generatedAt, health.lastProgressAt);

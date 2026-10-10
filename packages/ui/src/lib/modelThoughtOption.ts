@@ -1,4 +1,4 @@
-import type { ZCodeConfigOption } from "@ycode/shared";
+import type { YCodeConfigOption } from "@ycode/shared";
 import type { ModelSelectionView } from "@ycode/services";
 
 /** 从 Registry 的 ModelConfig Option Specs 读取思考档位。 */
@@ -8,7 +8,7 @@ export function resolveModelThoughtOption(params: {
   modelId: string;
   currentValue?: string;
   formatLevelName?: (level: string) => string;
-}): ZCodeConfigOption | null {
+}): YCodeConfigOption | null {
   const provider = params.modelSelectionView.providers.find(
     (candidate) => candidate.providerId === params.providerId,
   );

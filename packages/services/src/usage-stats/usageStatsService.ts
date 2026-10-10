@@ -18,14 +18,14 @@ import type {
 import { isCodingPlanModelProviderId } from "@ycode/shared";
 import type { ICredentialService } from "../credential/credential.js";
 import type { IAccountRequestAuthService } from "../model-provider/accountRequestAuthService.js";
-import type { IZCodeAgentService } from "../ycode-agent/zcodeAgent.js";
+import type { IYCodeAgentService } from "../ycode-agent/ycodeAgent.js";
 import type { IUsageStatsService } from "./usageStats.js";
 import {
   BigModelUsageQuotaProvider,
   type UsageApiAuthorizationRequest,
   type UsageApiAuthorization,
 } from "./providers/bigmodelUsageQuotaProvider.js";
-import type { OfficialMcpCredentialSource } from "./providers/zcodeMcpQuotaProvider.js";
+import type { OfficialMcpCredentialSource } from "./providers/ycodeMcpQuotaProvider.js";
 
 interface UsageStatsServiceDependencies {
   apiClient: ApiClient;
@@ -39,7 +39,7 @@ interface UsageStatsServiceDependencies {
   credentialService?: Pick<ICredentialService, "load">;
   env?: NodeJS.ProcessEnv;
   /** App Usage 经 YCode Protocol 读取 agent 数据库真实统计。 */
-  zcodeAgentService: Pick<IZCodeAgentService, "getAppUsageStats">;
+  ycodeAgentService: Pick<IYCodeAgentService, "getAppUsageStats">;
   /**
    * 官方 Server MCP 额度的凭证来源（与 server MCP 调用同一套 5 个身份头）。
    * 缺省时 entitlement 快照不含 MCP 额度。
@@ -69,7 +69,7 @@ export function createUsageStatsService(
     async getAppUsageSnapshot(request: AppUsageRequest): Promise<AppUsageSnapshot> {
       // App Usage 现读取 agent 数据库真实统计（model_usage/turn_usage/tool_usage），
       // 经 YCode Protocol usage/stats 取回。不再读本地 session JSON 估算。
-      return dependencies.zcodeAgentService.getAppUsageStats({
+      return dependencies.ycodeAgentService.getAppUsageStats({
         range: request.range,
         timeZone: request.timeZone,
       });

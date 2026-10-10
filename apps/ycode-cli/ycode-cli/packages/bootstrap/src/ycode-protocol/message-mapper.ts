@@ -1,8 +1,8 @@
-import type { ZCodeMessagePart, ZCodeMessageWithParts, ZCodeToolState } from "@ycode/shared";
+import type { YCodeMessagePart, YCodeMessageWithParts, YCodeToolState } from "@ycode/shared";
 import type { MessagePart, MessageWithParts, ToolState } from "@ycode/contracts";
 import { shouldHideInvalidToolCallFromProduct } from "../tool-call-product-visibility.js";
 
-export function mapMessageWithParts(message: MessageWithParts): ZCodeMessageWithParts {
+export function mapMessageWithParts(message: MessageWithParts): YCodeMessageWithParts {
   return {
     info:
       message.info.role === "user"
@@ -60,7 +60,7 @@ export function mapMessageWithParts(message: MessageWithParts): ZCodeMessageWith
   };
 }
 
-function mapMessagePart(part: MessagePart): ZCodeMessagePart {
+function mapMessagePart(part: MessagePart): YCodeMessagePart {
   const base = {
     messageId: String(part.messageID),
     partId: String(part.id),
@@ -215,7 +215,7 @@ function mapToolPartMetadata(
   return Object.keys(visibleMetadata).length > 0 ? visibleMetadata : undefined;
 }
 
-function mapToolState(state: ToolState): ZCodeToolState {
+function mapToolState(state: ToolState): YCodeToolState {
   switch (state.status) {
     case "pending":
       return { input: state.input, raw: state.raw, status: "pending" };

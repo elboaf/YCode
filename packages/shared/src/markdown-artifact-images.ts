@@ -1,4 +1,4 @@
-const ARTIFACT_IMAGE_RENDER_PREFIX = "/__zcode_artifact_image__/";
+const ARTIFACT_IMAGE_RENDER_PREFIX = "/__ycode_artifact_image__/";
 const FENCE_PATTERN = /^( {0,3})(`{3,}|~{3,})(.*)$/u;
 const ARTIFACT_IMAGE_PATTERN =
   /!\[[^\]\n]*\]\(\s*(?:<)?(ycode-artifact:\/\/[^\s)>]+)(?:>)?(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/gu;

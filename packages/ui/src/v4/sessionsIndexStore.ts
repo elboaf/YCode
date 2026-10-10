@@ -10,7 +10,7 @@ import {
   type SessionsIndexTopicFrame,
   type TopicFrameDeliveryKind,
 } from "@ycode/shared/ycode-protocol-v4";
-import { isZCodeFileLockTimeoutError } from "@ycode/shared";
+import { isYCodeFileLockTimeoutError } from "@ycode/shared";
 import { YCODE_AGENT_RUNTIME_UNAVAILABLE_CODE } from "@ycode/services";
 import { logger } from "@/logger.js";
 import type { SessionsIndexTransport } from "@/v4/agentSessionsIndexTransport.js";
@@ -41,7 +41,7 @@ const TRANSIENT_SUBSCRIBE_RETRY_DELAYS_MS = [250, 1_000, 3_000] as const;
 const ERROR_RECOVERY_RETRY_DELAYS_MS = [5_000, 15_000, 60_000] as const;
 
 function isTransientSubscribeError(error: unknown): boolean {
-  if (isZCodeFileLockTimeoutError(error)) {
+  if (isYCodeFileLockTimeoutError(error)) {
     return true;
   }
   const code =

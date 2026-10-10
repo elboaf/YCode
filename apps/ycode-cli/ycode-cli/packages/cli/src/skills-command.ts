@@ -2,23 +2,23 @@ import { formatJson } from "@ycode/core";
 import type { Logger } from "@ycode/contracts";
 import type { RunContext, GlobalOptions } from "@ycode/shared-types";
 import type {
-  inspectZCodeSkill,
-  InspectZCodeSkillOptions,
-  listZCodeSkills,
-  ListZCodeSkillsOptions,
-  ZCodeSkillInspection,
+  inspectYCodeSkill,
+  InspectYCodeSkillOptions,
+  listYCodeSkills,
+  ListYCodeSkillsOptions,
+  YCodeSkillInspection,
 } from "@ycode/bootstrap";
 import type { CliEnv } from "./env.js";
 
 type BootstrapModule = typeof import("@ycode/bootstrap");
-type CliSkillListOutcome = Awaited<ReturnType<typeof listZCodeSkills>>;
+type CliSkillListOutcome = Awaited<ReturnType<typeof listYCodeSkills>>;
 type CliSkillListItem = CliSkillListOutcome["skills"][number];
 
 interface SkillsCommandDependencies {
   cwd?: () => string;
   env?: CliEnv;
-  inspectSkill?: (options: InspectZCodeSkillOptions) => ReturnType<typeof inspectZCodeSkill>;
-  listSkills?: (options: ListZCodeSkillsOptions) => ReturnType<typeof listZCodeSkills>;
+  inspectSkill?: (options: InspectYCodeSkillOptions) => ReturnType<typeof inspectYCodeSkill>;
+  listSkills?: (options: ListYCodeSkillsOptions) => ReturnType<typeof listYCodeSkills>;
   logger?: Logger;
   loadBootstrapModule?: () => Promise<BootstrapModule>;
 }
@@ -60,7 +60,7 @@ async function runSkillsListCommand(
     const env = deps.env ?? process.env;
     const workingDirectory = (deps.cwd ?? process.cwd)();
     const bootstrap = deps.loadBootstrapModule ?? (() => import("@ycode/bootstrap"));
-    const listSkills = deps.listSkills ?? (await bootstrap()).listZCodeSkills;
+    const listSkills = deps.listSkills ?? (await bootstrap()).listYCodeSkills;
     const outcome = await listSkills({
       env,
       logger: deps.logger,
@@ -88,7 +88,7 @@ async function runSkillsInspectCommand(
     const env = deps.env ?? process.env;
     const workingDirectory = (deps.cwd ?? process.cwd)();
     const bootstrap = deps.loadBootstrapModule ?? (() => import("@ycode/bootstrap"));
-    const inspectSkill = deps.inspectSkill ?? (await bootstrap()).inspectZCodeSkill;
+    const inspectSkill = deps.inspectSkill ?? (await bootstrap()).inspectYCodeSkill;
     const inspection = await inspectSkill({
       env,
       logger: deps.logger,
@@ -142,7 +142,7 @@ function formatHumanSkillList(outcome: CliSkillListOutcome, options: GlobalOptio
 }
 
 function formatHumanSkillInspection(
-  inspection: ZCodeSkillInspection,
+  inspection: YCodeSkillInspection,
   options: GlobalOptions,
 ): string {
   const { metadata } = inspection.skill;
@@ -204,7 +204,7 @@ const formatSkillJson = (outcome: CliSkillListOutcome, cwd: string): string =>
     totalDiscovered: outcome.totalDiscovered,
   });
 
-const formatSkillInspectionJson = (inspection: ZCodeSkillInspection, cwd: string): string =>
+const formatSkillInspectionJson = (inspection: YCodeSkillInspection, cwd: string): string =>
   formatJson({
     cwd,
     diagnostics: inspection.diagnostics.map(formatDiagnosticJson),

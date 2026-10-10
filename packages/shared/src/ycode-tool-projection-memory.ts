@@ -1,39 +1,39 @@
-import type { ZCodeStreamingToolInputState } from "./streaming-tool-input-preview.js";
+import type { YCodeStreamingToolInputState } from "./streaming-tool-input-preview.js";
 
-export interface ZCodeToolProjectionMemory {
+export interface YCodeToolProjectionMemory {
   completeToolInputById?: Map<string, unknown>;
-  streamingToolInputById?: Map<string, ZCodeStreamingToolInputState>;
+  streamingToolInputById?: Map<string, YCodeStreamingToolInputState>;
   toolNameById?: Map<string, string>;
 }
 
-export interface ZCodeToolProjectionMetadata {
+export interface YCodeToolProjectionMetadata {
   hasInput: boolean;
   input?: unknown;
   toolName?: string;
 }
 
-export function createZCodeToolProjectionMemory(): ZCodeToolProjectionMemory {
+export function createYCodeToolProjectionMemory(): YCodeToolProjectionMemory {
   return {
     completeToolInputById: new Map<string, unknown>(),
-    streamingToolInputById: new Map<string, ZCodeStreamingToolInputState>(),
+    streamingToolInputById: new Map<string, YCodeStreamingToolInputState>(),
     toolNameById: new Map<string, string>(),
   };
 }
 
-export function ensureZCodeToolProjectionMemory(
-  memory: ZCodeToolProjectionMemory,
-): ZCodeToolProjectionMemory {
+export function ensureYCodeToolProjectionMemory(
+  memory: YCodeToolProjectionMemory,
+): YCodeToolProjectionMemory {
   memory.completeToolInputById ??= new Map<string, unknown>();
-  memory.streamingToolInputById ??= new Map<string, ZCodeStreamingToolInputState>();
+  memory.streamingToolInputById ??= new Map<string, YCodeStreamingToolInputState>();
   memory.toolNameById ??= new Map<string, string>();
   return memory;
 }
 
-export function resolveZCodeToolProjectionMetadata(
+export function resolveYCodeToolProjectionMetadata(
   payload: Record<string, unknown>,
   toolId: string,
-  memory: ZCodeToolProjectionMemory,
-): ZCodeToolProjectionMetadata {
+  memory: YCodeToolProjectionMemory,
+): YCodeToolProjectionMetadata {
   const toolName = readNonEmptyString(payload.toolName) ?? memory.toolNameById?.get(toolId);
   if (toolName) {
     memory.toolNameById?.set(toolId, toolName);
@@ -61,10 +61,10 @@ export function resolveZCodeToolProjectionMetadata(
   };
 }
 
-export function finalizeZCodeToolProjectionInput(
+export function finalizeYCodeToolProjectionInput(
   toolId: string,
   input: unknown,
-  memory: ZCodeToolProjectionMemory,
+  memory: YCodeToolProjectionMemory,
 ): void {
   memory.completeToolInputById ??= new Map<string, unknown>();
   memory.completeToolInputById.set(toolId, input);
@@ -75,9 +75,9 @@ export function finalizeZCodeToolProjectionInput(
   }
 }
 
-export function forgetZCodeToolProjectionMetadata(
+export function forgetYCodeToolProjectionMetadata(
   toolId: string,
-  memory: ZCodeToolProjectionMemory,
+  memory: YCodeToolProjectionMemory,
 ): void {
   memory.completeToolInputById?.delete(toolId);
   memory.streamingToolInputById?.delete(toolId);

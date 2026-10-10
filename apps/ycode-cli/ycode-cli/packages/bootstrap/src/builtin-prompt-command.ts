@@ -7,7 +7,7 @@ import {
 const BUILTIN_PROMPT_COMMAND_PATTERN = /^\/([^\s]+)(?:\s+([\s\S]*))?$/;
 const INIT_COMMAND_NAME = "init";
 
-interface ResolveZCodeBuiltinPromptCommandOptions {
+interface ResolveYCodeBuiltinPromptCommandOptions {
   /**
    * 动态工作流开关：只有显式 false 才禁止展开 `/workflow`。
    * TUI 使用默认开启策略；headless 按本次 `--enable-workflow` 显式传入 true/false，默认 false。
@@ -18,9 +18,9 @@ interface ResolveZCodeBuiltinPromptCommandOptions {
   workingDirectory?: string;
 }
 
-export function resolveZCodeBuiltinPromptCommand(
+export function resolveYCodeBuiltinPromptCommand(
   input: string,
-  options: ResolveZCodeBuiltinPromptCommandOptions = {},
+  options: ResolveYCodeBuiltinPromptCommandOptions = {},
 ): string | undefined {
   const invocation = parseBuiltinPromptCommandInvocation(input);
   if (!invocation) {

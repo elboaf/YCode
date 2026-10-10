@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { WorkflowNotificationMeta } from "@ycode/shared/ycode-protocol-v4";
 import { CodeBlock, CodeBlockHeader } from "@/components/ai-elements/code-block.js";
 import { ToolLayout } from "@/ToolCallBlocks/ToolLayout.js";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import type { Theme } from "@/useTheme.js";
 import { workflowRunQuestionWaitedLabel } from "@/app-shell/workflowRunQuestions.js";
 import { WorkflowNotificationArtifactChips } from "@/v4/WorkflowNotificationArtifactChips.js";
@@ -111,7 +111,7 @@ export function WorkflowNotificationToolRow({
   pendingQids,
   forceOpen = false,
 }: WorkflowNotificationToolRowProps) {
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
 
   // 等待时长要在没有事件流时也照走（停驻的 run 恰恰不发事件），按固定间隔喂新的"现在"。
   const [now, setNow] = useState(() => Date.now());

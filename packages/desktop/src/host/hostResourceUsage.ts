@@ -1,4 +1,4 @@
-import type { IZCodeAgentService } from "@ycode/services";
+import type { IYCodeAgentService } from "@ycode/services";
 import {
   attributeHostProcessTree,
   createProcessResourceSampler,
@@ -12,7 +12,7 @@ import {
 } from "@ycode/shared";
 
 interface CreateHostResourceUsageResponderOptions {
-  getAgentService: () => Pick<IZCodeAgentService, "collectLocalRuntimeChildProcesses"> | undefined;
+  getAgentService: () => Pick<IYCodeAgentService, "collectLocalRuntimeChildProcesses"> | undefined;
   postMessage: (message: HostResourceUsageSnapshotResultResponse) => void;
   hostPid?: number;
   sampler?: ProcessResourceSampler;

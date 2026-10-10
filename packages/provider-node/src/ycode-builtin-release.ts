@@ -1,7 +1,7 @@
 import { z } from "zod";
 import {
-  parseZCodeBuiltinModelConfigRules,
-  parseZCodeBuiltinProviderConfigRules,
+  parseYCodeBuiltinModelConfigRules,
+  parseYCodeBuiltinProviderConfigRules,
   type ModelConfigRules,
   type ProviderConfigMap,
   type ProviderTemplateMap,
@@ -10,16 +10,16 @@ import {
 export const YCODE_BUILTIN_RELEASE_SCHEMA_VERSION = 1 as const;
 const RETIRED_ZAPI_PROVIDER_ID = "builtin:zapi";
 
-export interface ZCodeBuiltinConfigContent {
+export interface YCodeBuiltinConfigContent {
   readonly providers: ProviderConfigMap;
   readonly providerTemplates: ProviderTemplateMap;
   readonly modelConfigRules: ModelConfigRules;
 }
 
-export interface ZCodeBuiltinRelease {
+export interface YCodeBuiltinRelease {
   readonly schemaVersion: typeof YCODE_BUILTIN_RELEASE_SCHEMA_VERSION;
   readonly revision: number;
-  readonly config: ZCodeBuiltinConfigContent;
+  readonly config: YCodeBuiltinConfigContent;
 }
 
 const releaseSchema = z
@@ -35,9 +35,9 @@ const releaseSchema = z
   })
   .strict();
 
-export function decodeZCodeBuiltinRelease(input: unknown): ZCodeBuiltinRelease {
+export function decodeYCodeBuiltinRelease(input: unknown): YCodeBuiltinRelease {
   const parsed = releaseSchema.parse(input);
-  const { providers, providerTemplates } = parseZCodeBuiltinProviderConfigRules(
+  const { providers, providerTemplates } = parseYCodeBuiltinProviderConfigRules(
     parsed.config.providerConfigRules,
   );
   // ZAPI 已退出产品，旧 Remote Release 或 LKG 不能在 Renderer 静态入口删除后
@@ -51,12 +51,12 @@ export function decodeZCodeBuiltinRelease(input: unknown): ZCodeBuiltinRelease {
     config: Object.freeze({
       providers,
       providerTemplates,
-      modelConfigRules: parseZCodeBuiltinModelConfigRules(parsed.config.modelConfigRules),
+      modelConfigRules: parseYCodeBuiltinModelConfigRules(parsed.config.modelConfigRules),
     }),
   });
 }
 
-export function encodeZCodeBuiltinRelease(release: ZCodeBuiltinRelease): object {
+export function encodeYCodeBuiltinRelease(release: YCodeBuiltinRelease): object {
   return {
     schemaVersion: YCODE_BUILTIN_RELEASE_SCHEMA_VERSION,
     revision: release.revision,
@@ -65,11 +65,11 @@ export function encodeZCodeBuiltinRelease(release: ZCodeBuiltinRelease): object 
         templateRules: release.config.providerTemplates.toJSON(),
         providerRules: release.config.providers.toJSON(),
       },
-      modelConfigRules: release.config.modelConfigRules.toZCodeBuiltinJSON(),
+      modelConfigRules: release.config.modelConfigRules.toYCodeBuiltinJSON(),
     },
   };
 }
 
-export function serializeZCodeBuiltinRelease(release: ZCodeBuiltinRelease): string {
-  return JSON.stringify(encodeZCodeBuiltinRelease(release));
+export function serializeYCodeBuiltinRelease(release: YCodeBuiltinRelease): string {
+  return JSON.stringify(encodeYCodeBuiltinRelease(release));
 }

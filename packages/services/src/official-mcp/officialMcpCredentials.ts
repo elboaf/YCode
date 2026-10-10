@@ -18,17 +18,17 @@
 import {
   OFFICIAL_MCP_AUTH_HEADER_NAMES,
   getModelProviderFamilySpec,
-  zcodeProviderAccountAccessSchema,
+  ycodeProviderAccountAccessSchema,
   type OfficialMcpAuthFailureReason,
-  type ZCodeAccountAccess,
-  type ZCodeProviderAccountAccess,
+  type YCodeAccountAccess,
+  type YCodeProviderAccountAccess,
 } from "@ycode/shared";
 import type { ModelSelectionView } from "@ycode/provider";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 
 const log = createServiceLogger("official-mcp");
 
-const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "ycodejwttoken";
 const ACTIVE_OAUTH_PROVIDER_KEY = "oauth:active_provider";
 
 /**
@@ -93,7 +93,7 @@ let lastCredentialResolvedLogKey: string | undefined;
 
 interface OfficialMcpCredentialResolverDeps {
   accountRequestAuthService: {
-    resolveAccessCurrent(access: ZCodeProviderAccountAccess): Promise<ZCodeAccountAccess | null>;
+    resolveAccessCurrent(access: YCodeProviderAccountAccess): Promise<YCodeAccountAccess | null>;
   };
   credentialService: { load(key: string): Promise<string | null | undefined> };
   modelSelectionService: {
@@ -135,7 +135,7 @@ type SelectedPlan = {
 
 type SelectedProvider = {
   providerId: string;
-  access: ZCodeProviderAccountAccess;
+  access: YCodeProviderAccountAccess;
 };
 
 function fail(reason: OfficialMcpAuthFailureReason): {
@@ -153,7 +153,7 @@ function resolveSelectedProvider(
   registry: ModelSelectionView,
 ): { ok: true; provider: SelectedProvider } | { ok: false; reason: OfficialMcpAuthFailureReason } {
   const candidates = registry.providers.flatMap((provider) => {
-    const parsed = zcodeProviderAccountAccessSchema.safeParse(provider.config.access);
+    const parsed = ycodeProviderAccountAccessSchema.safeParse(provider.config.access);
     return parsed.success &&
       (parsed.data.mode === "individual-coding-plan" || parsed.data.mode === "team-coding-plan")
       ? [{ providerId: provider.providerId, access: parsed.data }]
@@ -167,7 +167,7 @@ function resolveSelectedProvider(
 
 function resolveSelectedPlan(
   selectedProvider: SelectedProvider,
-  access: ZCodeAccountAccess | null,
+  access: YCodeAccountAccess | null,
 ): { ok: true; plan: SelectedPlan } | { ok: false; reason: OfficialMcpAuthFailureReason } {
   if (
     !access ||
@@ -443,7 +443,7 @@ export function createOfficialMcpAuthHeadersResolver(deps: OfficialMcpCredential
   let pending: Promise<OfficialMcpAuthHeadersOutcome> | null = null;
 
   return {
-    // request 仅为契约对齐（host handler 已在此之前完成可信校验，见 zcodeAgentService）；
+    // request 仅为契约对齐（host handler 已在此之前完成可信校验，见 ycodeAgentService）；
     // 凭据是 host 全局状态，**不**按 plugin/mcpKey/workspace 分桶——分桶只会削弱 in-flight
     // 去重而不增加隔离。参数保留是为了将来审计需要时不必再改接口。
     resolveHeaders(_request?: OfficialMcpAuthHeadersRequestContext) {

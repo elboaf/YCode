@@ -4,7 +4,7 @@ import {
   appSettingsSchema,
   appSettingsPatchSchema,
 } from "../../shared/src/validationAppSettings.js";
-import { zcodeTaskMetaSchema } from "../../shared/src/validation.js";
+import { ycodeTaskMetaSchema } from "../../shared/src/validation.js";
 import { readAskUserQuestionAnswers } from "../src/lib/askUserQuestion.js";
 import {
   getAgentPrimaryText,
@@ -26,9 +26,9 @@ const meta = {
 };
 
 test("current task metadata is accepted without upgrading third-party Agent identities", () => {
-  assert.equal(zcodeTaskMetaSchema.parse(meta).provider, "glm");
+  assert.equal(ycodeTaskMetaSchema.parse(meta).provider, "glm");
   for (const provider of ["claude", "codex", "gemini", "opencode"]) {
-    assert.equal(zcodeTaskMetaSchema.safeParse({ ...meta, provider }).success, false, provider);
+    assert.equal(ycodeTaskMetaSchema.safeParse({ ...meta, provider }).success, false, provider);
   }
 });
 

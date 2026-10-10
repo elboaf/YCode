@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import type { ZCodeTaskPendingInteraction } from "@ycode/shared";
+import type { YCodeTaskPendingInteraction } from "@ycode/shared";
 import { cn } from "@/components/lib/utils.js";
 
 interface TaskInteractionBadgeProps {
-  interaction?: ZCodeTaskPendingInteraction;
+  interaction?: YCodeTaskPendingInteraction;
   legacyPending?: boolean;
   className?: string;
   /** fake-clock / SSR 注入；生产缺省使用当前绝对时间。 */
@@ -19,7 +19,7 @@ interface TaskInteractionBadgePresentation {
 }
 
 function isAskUserQuestionInteraction(
-  interaction: ZCodeTaskPendingInteraction | undefined,
+  interaction: YCodeTaskPendingInteraction | undefined,
 ): boolean {
   if (!interaction || interaction.kind !== "userInput") return false;
   // 旧 sessions-index 摘要没有 toolName；autoResolution 只属于普通 AskUserQuestion，
@@ -31,7 +31,7 @@ function isAskUserQuestionInteraction(
 }
 
 function getTaskInteractionBadgePresentation(
-  interaction: ZCodeTaskPendingInteraction | undefined,
+  interaction: YCodeTaskPendingInteraction | undefined,
   legacyPending: boolean,
   now: number,
 ): TaskInteractionBadgePresentation | null {

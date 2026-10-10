@@ -30,7 +30,7 @@ import type {
 } from "@ycode/contracts";
 import type { ConversationSnapshot } from "@ycode/shared/ycode-protocol-v4";
 import { SessionEventType, isFileSystemPortError } from "@ycode/contracts";
-import type { ZCodeWorkspaceRef } from "@ycode/shared";
+import type { YCodeWorkspaceRef } from "@ycode/shared";
 import { extractMarkdownArtifactImageRefs } from "@ycode/shared";
 import type {
   CommandAck,
@@ -76,8 +76,8 @@ import {
   DELIVERY_PROFILES,
   PROTOCOL_V4_LIMITS,
   YCODE_ATTACHMENT_FAULT_CODES,
-  ZCodeAttachmentFaultError,
-  readZCodeAttachmentFaultCode,
+  YCodeAttachmentFaultError,
+  readYCodeAttachmentFaultCode,
   encodeTopicWireFrames,
   commandsQueryParamsSchema,
   commandsQueryResultSchema,
@@ -216,7 +216,7 @@ export interface V4GatewayHost {
   resumePersistedSession?(
     sessionId: string,
     resumeThoughtLevel?: string,
-    workspace?: ZCodeWorkspaceRef,
+    workspace?: YCodeWorkspaceRef,
   ): Promise<ColdSessionResumeOutcome>;
   /**
    * 下行物理帧出口（宿主负责投递：stdio notification / MessagePort / ws）。
@@ -547,9 +547,9 @@ const MISSING_ATTACHMENT_FS_CODES = new Set<FileSystemErrorCode>([
  * 都不匹配则保持原错误，让上层按「未知」处理，而不是猜成确定分类。
  */
 function toShareStatFault(error: unknown): unknown {
-  if (readZCodeAttachmentFaultCode(error)) return error;
+  if (readYCodeAttachmentFaultCode(error)) return error;
   if (isFileSystemPortError(error) && MISSING_ATTACHMENT_FS_CODES.has(error.code)) {
-    return new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareStatNotFound, {
+    return new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareStatNotFound, {
       cause: error,
     });
   }
@@ -2040,7 +2040,7 @@ export class ConversationV4Gateway {
   ): Promise<V4ConversationAttachmentReadResult> {
     const params = v4ConversationAttachmentReadParamsSchema.parse(rawParams);
     if (!this.host.readSessionAttachment) {
-      throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.readUnsupported);
+      throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.readUnsupported);
     }
     const existingReady = this.readyFlights.get(params.sessionId);
     const publisher = existingReady
@@ -2055,11 +2055,11 @@ export class ConversationV4Gateway {
           candidate.rowId === params.target.rowId && candidate.entityId === params.target.entityId,
       );
     if (row?.kind !== "userInput") {
-      throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized);
+      throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized);
     }
     const attachment = row.attachments?.[params.attachmentIndex];
     if (!attachment || (attachment.ref !== params.ref && attachment.previewRef !== params.ref)) {
-      throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized);
+      throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized);
     }
     const messageId = publisher.getMessageIdForRow(row.rowId) ?? undefined;
     let payload: { bytes: Uint8Array; mediaType: string };
@@ -2093,7 +2093,7 @@ export class ConversationV4Gateway {
   ): Promise<V4ConversationAttachmentStatResult> {
     const params = v4ConversationAttachmentStatParamsSchema.parse(rawParams);
     if (!this.host.statSessionAttachment) {
-      throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.statUnsupported);
+      throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.statUnsupported);
     }
     const existingReady = this.readyFlights.get(params.sessionId);
     const publisher = existingReady
@@ -2108,11 +2108,11 @@ export class ConversationV4Gateway {
           candidate.rowId === params.target.rowId && candidate.entityId === params.target.entityId,
       );
     if (row?.kind !== "userInput") {
-      throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareStatNotAuthorized);
+      throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareStatNotAuthorized);
     }
     const attachment = row.attachments?.[params.attachmentIndex];
     if (!attachment || (attachment.ref !== params.ref && attachment.previewRef !== params.ref)) {
-      throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareStatNotAuthorized);
+      throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareStatNotAuthorized);
     }
     const messageId = publisher.getMessageIdForRow(row.rowId) ?? undefined;
     let result: { totalBytes: number; mediaType: string; mtimeMs?: number };
@@ -2132,7 +2132,7 @@ export class ConversationV4Gateway {
     // 于是 share 预检把「已知容量超限」这个确定阻断降级成 deferred 并静默丢内容。
     // 上限放宽后仍需要一个显式出口：真的超过协议可表达范围时给出稳定码。
     if (result.totalBytes > PROTOCOL_V4_LIMITS.attachmentStatMaxBytes) {
-      throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareStatTooLarge);
+      throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareStatTooLarge);
     }
     return v4ConversationAttachmentStatResultSchema.parse(result);
   }
@@ -2289,10 +2289,10 @@ export class ConversationV4Gateway {
           !resultMime.startsWith("video/") &&
           resultMime !== "application/pdf"
         ) {
-          throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.previewNotMedia);
+          throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.previewNotMedia);
         }
         if (result.bytes.byteLength > maxBytes) {
-          throw new ZCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.previewTooLarge);
+          throw new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.previewTooLarge);
         }
         const current = this.binaryReadCache.get(key);
         if (current) {
@@ -2899,7 +2899,7 @@ export class ConversationV4Gateway {
   private ensureColdReadyPublisher(
     sessionId: string,
     resumeThoughtLevel?: string,
-    workspace?: ZCodeWorkspaceRef,
+    workspace?: YCodeWorkspaceRef,
   ): Promise<ConversationTopicPublisher> {
     const existingFlight = this.readyFlights.get(sessionId);
     if (existingFlight) return existingFlight;

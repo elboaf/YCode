@@ -10,7 +10,7 @@
 //   message 附带 reasonCode——renderer 订阅错误块直显 lastError，无需 UI 改动即透出。
 
 import type { MessageWithParts } from "@ycode/contracts";
-import type { ZCodeWorkspaceRef } from "@ycode/shared";
+import type { YCodeWorkspaceRef } from "@ycode/shared";
 
 export type ColdSessionResumeOutcome =
   | { status: "resumed"; persistedMessages?: MessageWithParts[] }
@@ -21,7 +21,7 @@ interface ColdSessionResumeHost {
   resumePersistedSession?(
     sessionId: string,
     resumeThoughtLevel?: string,
-    workspace?: ZCodeWorkspaceRef,
+    workspace?: YCodeWorkspaceRef,
   ): Promise<ColdSessionResumeOutcome>;
   onDebug?(message: string): void;
   onError?(scope: string, error: unknown, context?: Record<string, unknown>): void;
@@ -49,7 +49,7 @@ export class ColdSessionResumeCoordinator {
   ensureResumed(
     sessionId: string,
     resumeThoughtLevel?: string,
-    workspace?: ZCodeWorkspaceRef,
+    workspace?: YCodeWorkspaceRef,
   ): Promise<MessageWithParts[] | undefined> {
     const inFlight = this.flights.get(sessionId);
     if (inFlight) {
@@ -72,7 +72,7 @@ export class ColdSessionResumeCoordinator {
   private async resume(
     sessionId: string,
     resumeThoughtLevel?: string,
-    workspace?: ZCodeWorkspaceRef,
+    workspace?: YCodeWorkspaceRef,
   ): Promise<MessageWithParts[] | undefined> {
     const resume = this.host.resumePersistedSession;
     if (!resume) {

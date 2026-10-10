@@ -15,7 +15,7 @@ export const YCODE_CUA_OFFICIAL_MCP_NAMESPACE_NAME = "plugin:computer-use:comput
 // bootstrap + cli/plugin-host-command.ts 复用此常量识别 official ycode-cua plugin server，避免字面量漂移。
 export const YCODE_PLUGIN_ID_ENV_KEY = "YCODE_PLUGIN_ID";
 
-export type McpSource = "mcp" | "zcodeagentmcp";
+export type McpSource = "mcp" | "ycodeagentmcp";
 export type CliMcpSource = Exclude<McpSource, "mcp">;
 export type McpScope = "common" | "user" | "workspace";
 export type McpFileFormat = "json";
@@ -107,10 +107,10 @@ export interface McpConfig {
   mcp: {
     mcpServers: Record<string, McpServerConfig>;
   };
-  zcodeagentmcp: CliMcpConfig;
+  ycodeagentmcp: CliMcpConfig;
 }
 
-export interface ZCodeMcpServer {
+export interface YCodeMcpServer {
   id: string;
   name: string;
   config: McpServerConfig;
@@ -163,7 +163,7 @@ export interface McpTestResult {
   response_time?: number;
 }
 
-export type ZCodeAgentMcpServer =
+export type YCodeAgentMcpServer =
   | {
       name: string;
       command: string;
@@ -213,7 +213,7 @@ export function getMcpServerRequestHeaders(
 // mcpBrokerInjection）与 CLI bootstrap（apps/ycode-cli 的 mcp-config）两条注入入口必须用
 // 完全一致的判定；否则同一 MCP 配置在不同入口行为不同，可能漏注入 product broker，让
 // Python/uvx 自己持有 macOS TCC 权限（违反 fail-closed 边界）。改这里即同时改两条链路。
-function zcodeCuaArgLeaf(value: string): string {
+function ycodeCuaArgLeaf(value: string): string {
   // 先去掉结尾的路径分隔符再取叶子：`.../ycode-cua/` 直接 split 会得到空串叶子 → 漏判 → fail-open。
   return (
     value
@@ -227,7 +227,7 @@ function zcodeCuaArgLeaf(value: string): string {
 // ycode-cua）；覆盖 uv/npm 的 `@version`、pip 的 `==version`、extras `[...]`、git 的 `.git`/`.git@`，
 // 以及 `python -m ycode_cua.server` 这种点号子模块（`ycode-cua.<submodule>`）。fail-closed 边界宁可
 // 过判也不漏判；仍不会误判 `ycode-cua-proxy`（短横续接，不以 `.`/`@`/`[`/`==` 边界续接）。
-function matchesZCodeCuaSpec(candidate: string): boolean {
+function matchesYCodeCuaSpec(candidate: string): boolean {
   const c = candidate.replace(/_/g, "-");
   return (
     c === "ycode-cua" ||
@@ -244,8 +244,8 @@ function matchesZCodeCuaSpec(candidate: string): boolean {
  * 覆盖 `command: "ycode-cua"`、`/opt/bin/ycode-cua`，以及把包规格直接当 command 的写法
  * （`ycode-cua@1.2.3` 等）。对 fail-closed 边界宁可过判也不漏判。
  */
-export function isZCodeCuaMcpCommand(command: string): boolean {
-  return matchesZCodeCuaSpec(command) || matchesZCodeCuaSpec(zcodeCuaArgLeaf(command));
+export function isYCodeCuaMcpCommand(command: string): boolean {
+  return matchesYCodeCuaSpec(command) || matchesYCodeCuaSpec(ycodeCuaArgLeaf(command));
 }
 
 /**
@@ -253,14 +253,14 @@ export function isZCodeCuaMcpCommand(command: string): boolean {
  * `ycode-cua==1.2.3`、`ycode_cua`，以及 git / 本地路径形态（`.../ycode-cua`、`ycode-cua.git`、
  * `git+https://.../ycode-cua.git@v1`）。同时比对原始值与路径叶子，覆盖 `--from <path>`、`--from <git-url>`。
  */
-export function isZCodeCuaMcpPackageArg(value: string): boolean {
-  return matchesZCodeCuaSpec(value) || matchesZCodeCuaSpec(zcodeCuaArgLeaf(value));
+export function isYCodeCuaMcpPackageArg(value: string): boolean {
+  return matchesYCodeCuaSpec(value) || matchesYCodeCuaSpec(ycodeCuaArgLeaf(value));
 }
 
-export function convertToZCodeAgentMcpServer(
+export function convertToYCodeAgentMcpServer(
   name: string,
   config: McpServerConfig,
-): ZCodeAgentMcpServer | null {
+): YCodeAgentMcpServer | null {
   let inferredType = config.type;
   if (!inferredType) {
     if (config.command) inferredType = "stdio";

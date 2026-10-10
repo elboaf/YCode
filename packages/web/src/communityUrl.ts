@@ -1,5 +1,5 @@
 import {
-  DEFAULT_ZCODE_ENDPOINT_ORIGIN,
+  DEFAULT_YCODE_ENDPOINT_ORIGIN,
   YCODE_VERSION,
   buildHelpAppConfigUrl,
   createHelpAppConfigReader,
@@ -22,9 +22,9 @@ export async function resolveWebHelpConfig(options: ResolveWebCommunityUrlOption
   const env = import.meta.env;
   const endpoint =
     options.endpointOrigin ??
-    (env?.VITE_ZCODE_BASE_URL?.trim() ||
-      env?.VITE_ZCODE_ENDPOINT_ORIGIN?.trim() ||
-      DEFAULT_ZCODE_ENDPOINT_ORIGIN);
+    (env?.VITE_YCODE_BASE_URL?.trim() ||
+      env?.VITE_YCODE_ENDPOINT_ORIGIN?.trim() ||
+      DEFAULT_YCODE_ENDPOINT_ORIGIN);
   // 服务端拒绝 platform=web；浏览器省略可选平台参数，避免伪装桌面系统。
   const url = buildHelpAppConfigUrl(endpoint, YCODE_VERSION);
   let remote: unknown;

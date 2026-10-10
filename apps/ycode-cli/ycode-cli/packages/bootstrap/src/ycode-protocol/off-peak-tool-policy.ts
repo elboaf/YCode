@@ -1,5 +1,5 @@
-import { zcodeWorkspaceUpdateOffPeakToolPolicyParamsSchema } from "@ycode/shared";
-import { parseParams, type ZCodeProtocolAgentServerContext } from "./server-types.js";
+import { ycodeWorkspaceUpdateOffPeakToolPolicyParamsSchema } from "@ycode/shared";
+import { parseParams, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
 /**
  * Off-Peak 工具面门禁（灰度有效 && 本地 workspace）是 workspace 级事实。CLI 进程按 workspace
@@ -8,10 +8,10 @@ import { parseParams, type ZCodeProtocolAgentServerContext } from "./server-type
  * 只影响之后创建/恢复的 record；已活跃 record 的工具面不回收（与灰度中途翻转策略一致）。
  */
 export async function updateOffPeakToolPolicy(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ) {
-  const params = parseParams(zcodeWorkspaceUpdateOffPeakToolPolicyParamsSchema, rawParams);
+  const params = parseParams(ycodeWorkspaceUpdateOffPeakToolPolicyParamsSchema, rawParams);
   context.appRuntimePreferences.offPeakToolEnabled = params.enabled;
   return { workspace: params.workspace, enabled: params.enabled };
 }

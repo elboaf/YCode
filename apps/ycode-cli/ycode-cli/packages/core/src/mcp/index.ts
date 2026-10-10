@@ -92,7 +92,7 @@ function toRegisteredMcpToolName(
     descriptor.serverName === YCODE_CUA_OFFICIAL_MCP_SERVER_NAME
   ) {
     // adapter 会把官方插件 serverName 命名空间化，descriptor.name 因而是
-    // mcp__plugin_zcode-cua_computer-use__*；直接沿用它会让 provider 约定的 computer-use
+    // mcp__plugin_ycode-cua_computer-use__*；直接沿用它会让 provider 约定的 computer-use
     // 工具永远不存在。可信门成立后仅投影模型可见名称，handler 仍用 descriptor 的原路由。
     return `${YCODE_CUA_CANONICAL_MODEL_PREFIX}${toModelVisibleMcpNamePart(descriptor.toolName)}`;
   }
@@ -109,7 +109,7 @@ function createMcpToolEntry(
   const destructive = descriptor.annotations?.destructiveHint === true;
   const isHostNodeReplExecution =
     descriptor.serverName === "node_repl" && descriptor.toolName === "js";
-  const isCuaAppObservation = isZCodeCuaGetAppState(descriptor);
+  const isCuaAppObservation = isYCodeCuaGetAppState(descriptor);
   // 宿主 node_repl 的 js 能执行本机 Node 代码，不能沿用普通未知 MCP 的 medium/network
   // 默认值；否则权限 UI 会把文件/进程级能力错误描述成普通网络调用。
   const sideEffectScope: ModelToolSideEffectScope = isHostNodeReplExecution ? "system" : "network";
@@ -343,7 +343,7 @@ function createModelFacingMcpInputSchema(
   };
 }
 
-function isZCodeCuaGetAppState(
+function isYCodeCuaGetAppState(
   descriptor: Pick<McpToolDescriptor, "serverName" | "toolName">,
 ): boolean {
   if (descriptor.toolName.trim().toLowerCase().replace(/-/g, "_") !== "get_app_state") {

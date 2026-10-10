@@ -62,7 +62,7 @@ function elementInfoRuntime(options: { x: number; y: number; includeNonInteracta
 }
 
 function overlayRuntime(options: { x: number; y: number; remove?: boolean }): void {
-  const id = "__zcode-playwright-element-screenshot-overlay";
+  const id = "__ycode-playwright-element-screenshot-overlay";
   document.getElementById(id)?.remove();
   if (options.remove) return;
   const root = document.createElement("div");

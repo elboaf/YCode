@@ -25,7 +25,7 @@ function parseDeviceIdFromArgs(): string {
 }
 
 // 在 contextBridge 建立之前就暴露同步值，让 renderer 在 React 渲染前就能读到
-contextBridge.exposeInMainWorld("__ZCODE_DEVICE_ID__", parseDeviceIdFromArgs());
+contextBridge.exposeInMainWorld("__YCODE_DEVICE_ID__", parseDeviceIdFromArgs());
 
 import type {
   AppSettings,
@@ -62,7 +62,7 @@ import type {
   BotRemoteWorkspaceReconnectedEvent,
   UpdateCheckResultPayload,
   UpdateStatePayload,
-  ZCodeStdioTapDevState,
+  YCodeStdioTapDevState,
   LoadCliMcpFromUserDirectoryRequest,
   MigrateLegacyCommonMcpRequest,
   SaveCliMcpToUserDirectoryRequest,
@@ -81,13 +81,13 @@ import type {
 import {
   InternalChannels,
   PlatformChannels,
-  formatZCodeRendererProcessName,
+  formatYCodeRendererProcessName,
   shouldEnableE2ETestBridge,
 } from "@ycode/shared";
 import { createOAuthCallbackHandler } from "./oauthCallbackBridge.js";
 
 if (shouldEnableE2ETestBridge(process.env)) {
-  contextBridge.exposeInMainWorld("__zcodeFinalArmsCustomEventsE2E", {
+  contextBridge.exposeInMainWorld("__ycodeFinalArmsCustomEventsE2E", {
     read: (): Promise<FinalArmsCustomEventE2EEntry[]> =>
       ipcRenderer.invoke(PlatformChannels.ReadFinalArmsCustomEventsE2E),
     clear: (): Promise<void> => ipcRenderer.invoke(PlatformChannels.ClearFinalArmsCustomEventsE2E),
@@ -203,7 +203,7 @@ ipcRenderer.on(PlatformChannels.ShareImport, (_event: unknown, payload: { shareC
 });
 
 function updateRendererProcessTitle(): void {
-  process.title = formatZCodeRendererProcessName(document.title);
+  process.title = formatYCodeRendererProcessName(document.title);
 }
 
 function notifyUpdateReadyCallbacks(version: string): void {
@@ -720,8 +720,8 @@ contextBridge.exposeInMainWorld("ycode", {
   clearEmbeddedBrowserData: (mode: "cache" | "all") =>
     ipcRenderer.invoke(PlatformChannels.ClearEmbeddedBrowserData, mode),
   /** 读取开发态 stdio tap proxy 开关状态 */
-  getZCodeStdioTapDevState: (): Promise<ZCodeStdioTapDevState> =>
-    ipcRenderer.invoke(PlatformChannels.GetZCodeStdioTapDevState),
+  getYCodeStdioTapDevState: (): Promise<YCodeStdioTapDevState> =>
+    ipcRenderer.invoke(PlatformChannels.GetYCodeStdioTapDevState),
   /** 注册 main 进程修改 settings 后的通知，返回 disposer */
   onSettingsChanged: (callback: () => void): (() => void) => {
     const handler = () => callback();

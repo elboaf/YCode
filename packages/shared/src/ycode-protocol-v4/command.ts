@@ -9,7 +9,7 @@ import { v4ConversationFileRewindPreviewResultSchema } from "./transport.js";
 import { modelSelectionSchema } from "../model-selection.js";
 import { modelExecutionSchema } from "../model-execution.js";
 import { submissionModeSchema } from "./submission.js";
-import { zcodeAutomationBotDeliveryTargetSchema } from "../bots.js";
+import { ycodeAutomationBotDeliveryTargetSchema } from "../bots.js";
 import {
   amendWorkflowRunSettingsPayloadSchema,
   amendWorkflowRunSettingsResultSchema,
@@ -21,8 +21,8 @@ import {
   requestWorkspaceHookReviewTargetSchema,
 } from "./workspace-hook-review.js";
 import {
-  zcodeBrowserAmbientContextSchema,
-  zcodeProtocolMcpServerSchema,
+  ycodeBrowserAmbientContextSchema,
+  ycodeProtocolMcpServerSchema,
 } from "../ycode-protocol/index.js";
 import { sharedContextRefSchema } from "./shared-context-ref.js";
 export type { SharedContextRef } from "./shared-context-ref.js";
@@ -56,7 +56,7 @@ export const commandPayloadSchemas = {
       .optional(),
     config: createSessionRequestedConfigSchema.optional(),
     // MCP 是 runtime 启动期配置，必须随 create 一次性进入 record，不能在首发后补写。
-    mcpServers: z.array(zcodeProtocolMcpServerSchema).optional(),
+    mcpServers: z.array(ycodeProtocolMcpServerSchema).optional(),
     // Off-Peak 工具面 flag，与 legacy session/create 等价——V4 createSession 是桌面
     // 新会话的实际创建路径，不透传则 OffPeakCreate/OffPeakList 永不注册。additive，
     // 旧 CLI 的 z.object 会静默丢弃该键（fail-closed）。
@@ -85,7 +85,7 @@ export const commandPayloadSchemas = {
       // Desktop Cmd/Ctrl+Enter 只覆盖本次 busy input，不改 session followupMode。
       // startNow 由 CLI 原子抢占当前 turn，不经过 queue admission。
       requestedDelivery: z.enum(["startNow", "queue", "guide"]).optional(),
-      browserAmbientContext: zcodeBrowserAmbientContextSchema.optional(),
+      browserAmbientContext: ycodeBrowserAmbientContextSchema.optional(),
       // Share handover 只允许当前 session 的一个已导入上下文；完整正文由 runtime 从
       // 持久化 provenance 解析，不能随 command 从 renderer 传入。
       context_refs: z.array(sharedContextRefSchema).max(1).optional(),
@@ -105,7 +105,7 @@ export const commandPayloadSchemas = {
       offPeakTaskId: z.string().min(1).optional(),
       offPeakRunType: z.enum(["init", "resume"]).optional(),
       // Bot 来源只由 Host 注入，用于 CronCreate 在当前 turn 内读取并持久化回推地址。
-      botDeliveryTarget: zcodeAutomationBotDeliveryTargetSchema.optional(),
+      botDeliveryTarget: ycodeAutomationBotDeliveryTargetSchema.optional(),
       // 定时任务会话的后续用户输入也必须保持 turn-scoped 工具面隔离；不能借用
       // automationId，否则会把普通用户输入误标成一次 automation 派发。
       toolDisallowlist: z.array(z.string().min(1)).optional(),
@@ -250,7 +250,7 @@ export type CommandType = keyof typeof commandPayloadSchemas;
 export type CommandPayloadMap = {
   [T in CommandType]: T extends "sendText"
     ? z.infer<(typeof commandPayloadSchemas)[T]> &
-        import("../ycode-task-types-core.js").ZCodeBackgroundTurnAttribution
+        import("../ycode-task-types-core.js").YCodeBackgroundTurnAttribution
     : z.infer<(typeof commandPayloadSchemas)[T]>;
 };
 

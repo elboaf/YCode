@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { zcodeSyntheticUserMessageSourceSchema } from "../ycode-protocol-legacy-types.js";
+import { ycodeSyntheticUserMessageSourceSchema } from "../ycode-protocol-legacy-types.js";
 import { timestampSchema } from "./core.js";
 
 const factBaseFields = {
@@ -64,7 +64,7 @@ const turnStartedFactSchema = z
     ...factBaseFields,
     kind: z.literal("turn.started"),
     executionKind: z.enum(["agent", "controlOnly"]).optional(),
-    inputSource: zcodeSyntheticUserMessageSourceSchema.optional(),
+    inputSource: ycodeSyntheticUserMessageSourceSchema.optional(),
     // `workflow`：dynamic-workflow run 的完成 / 提问通知唤起的独立轮。
     backgroundSource: z.enum(["bash", "subagent", "workflow"]).optional(),
     automationId: z.string().min(1).optional(),
@@ -312,7 +312,7 @@ type TurnStartedConversationTelemetryFact = Extract<
   ConversationTelemetryFactBase,
   { kind: "turn.started" }
 > &
-  import("../ycode-task-types-core.js").ZCodeBackgroundTurnAttribution;
+  import("../ycode-task-types-core.js").YCodeBackgroundTurnAttribution;
 
 export type ConversationTelemetryFact =
   | Exclude<ConversationTelemetryFactBase, { kind: "turn.started" }>

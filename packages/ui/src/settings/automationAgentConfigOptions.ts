@@ -1,11 +1,11 @@
-import type { ZCodeConfigOption, ZCodeProvider } from "@ycode/shared";
+import type { YCodeConfigOption, YCodeProvider } from "@ycode/shared";
 import type { ModelSelectionView } from "@ycode/services";
 import type { ModelSelectGroup, ModelSelectGroupItem } from "@/ModelConfigSelect.js";
 import {
   buildRegistryModelSelectGroups,
   type ModelProviderGroupLabelOptions,
 } from "@/lib/modelSelectionGroups.js";
-import { decodeCustomModelValue, encodeCustomModelValue } from "@/lib/zcodeCustomModelValue.js";
+import { decodeCustomModelValue, encodeCustomModelValue } from "@/lib/ycodeCustomModelValue.js";
 import { resolveV4ModelTriggerLabel } from "@/v4/composer/modelTriggerDisplay.js";
 
 // 定时任务表单必须是纯本地草稿，不能借用 workspace 默认配置写接口来获取选项；
@@ -25,7 +25,7 @@ export function resolveAutomationPreferredModelValue(
 const AUTOMATION_MODE_VALUES = ["build", "edit", "plan", "yolo"] as const;
 
 export function buildAutomationModelSelectGroups(params: {
-  selectedProvider: ZCodeProvider;
+  selectedProvider: YCodeProvider;
   labels: ModelProviderGroupLabelOptions;
   registrySelectionView: ModelSelectionView;
 }): ModelSelectGroup[] {
@@ -36,7 +36,7 @@ export function buildAutomationModelSelectGroups(params: {
   );
 }
 
-export function buildAutomationModeOption(currentValue: string): ZCodeConfigOption {
+export function buildAutomationModeOption(currentValue: string): YCodeConfigOption {
   return {
     id: "mode",
     name: "Mode",
@@ -125,9 +125,9 @@ export function resolveAutomationModelTriggerLabel(params: {
 }
 
 export function buildAutomationThoughtLevelOption(
-  runtimeOption: ZCodeConfigOption | undefined,
+  runtimeOption: YCodeConfigOption | undefined,
   currentValue: string,
-): ZCodeConfigOption | null {
+): YCodeConfigOption | null {
   const options = runtimeOption?.options ?? [];
   if (options.length === 0) return null;
   const validCurrentValue = options.some((option) => option.value === currentValue);

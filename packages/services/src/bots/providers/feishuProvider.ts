@@ -270,7 +270,7 @@ function buildFeishuElicitationForm(
         type: "callback",
         value: {
           command: buildFeishuElicitationFormCommand(selection.token),
-          zcodeCardText: message.text,
+          ycodeCardText: message.text,
         },
       },
     ],
@@ -466,7 +466,7 @@ function getFeishuDomainProvider(bot: Pick<BotConfig, "provider">): "feishu" | "
 }
 
 function readFeishuPayloadProvider(payload: Record<string, unknown>): BotProvider {
-  return readString(payload, "zcodeProvider") === "lark" ? "lark" : "feishu";
+  return readString(payload, "ycodeProvider") === "lark" ? "lark" : "feishu";
 }
 
 function getFeishuBaseUrl(bot: Pick<BotConfig, "provider">): string {
@@ -789,9 +789,9 @@ function readFeishuCardOriginalText(payload: unknown): string | null {
   const behavior = Array.isArray(action?.behaviors) ? action.behaviors.find(isRecord) : null;
   const behaviorValue = isRecord(behavior?.value) ? behavior.value : null;
   return (
-    readString(value, "zcodeCardText") ||
+    readString(value, "ycodeCardText") ||
     readString(value, "cardText") ||
-    readString(behaviorValue, "zcodeCardText") ||
+    readString(behaviorValue, "ycodeCardText") ||
     readString(behaviorValue, "cardText") ||
     null
   );
@@ -845,7 +845,7 @@ function buildFeishuButtonElement(params: {
         type: "callback",
         value: {
           command: params.command,
-          zcodeCardText: params.originalText,
+          ycodeCardText: params.originalText,
         },
       },
     ],
@@ -1433,7 +1433,7 @@ export function createFeishuWebSocketEventHandlers(params: {
     "im.message.receive_v1": async (payload: unknown) => {
       await onPayload({
         botId: bot.id,
-        zcodeProvider: bot.provider,
+        ycodeProvider: bot.provider,
         ...(isRecord(payload) ? payload : { payload }),
       });
     },
@@ -1443,12 +1443,12 @@ export function createFeishuWebSocketEventHandlers(params: {
     "card.action.trigger": async (payload: unknown) => {
       const callbackPayload = {
         botId: bot.id,
-        zcodeProvider: bot.provider,
-        zcodeFeishuSynchronousCardAction: true,
+        ycodeProvider: bot.provider,
+        ycodeFeishuSynchronousCardAction: true,
         ...(isRecord(payload) ? payload : { payload }),
       };
       // 修复原因：飞书点击后的同步响应才是客户端可靠采用的卡片状态。传输层不能再从
-      // zcodeCardText 拼简化卡，也不能返回 undefined 后依赖旁路 PATCH；它必须消费业务层
+      // ycodeCardText 拼简化卡，也不能返回 undefined 后依赖旁路 PATCH；它必须消费业务层
       // 已推进完成的完整 outbound，并用同一份 elicitation 状态生成下一题卡片。
       const message = await onPayload(callbackPayload);
       if (!message) {

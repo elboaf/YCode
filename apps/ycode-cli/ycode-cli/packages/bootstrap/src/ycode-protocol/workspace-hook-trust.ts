@@ -2,11 +2,11 @@ import { resolve } from "node:path";
 import { workspaceHookPolicySchema } from "@ycode/contracts";
 import type { WorkspaceHookPolicyProvider } from "@ycode/core";
 import {
-  zcodeWorkspaceHookTrustGrantParamsSchema,
-  zcodeWorkspaceHookTrustGrantReasonCodeSchema,
-  zcodeWorkspaceHookTrustGrantResultSchema,
-  type ZCodeWorkspaceHookTrustGrantReasonCode,
-  type ZCodeWorkspaceHookTrustGrantResult,
+  ycodeWorkspaceHookTrustGrantParamsSchema,
+  ycodeWorkspaceHookTrustGrantReasonCodeSchema,
+  ycodeWorkspaceHookTrustGrantResultSchema,
+  type YCodeWorkspaceHookTrustGrantReasonCode,
+  type YCodeWorkspaceHookTrustGrantResult,
 } from "@ycode/shared";
 import {
   grantWorkspaceHookTrust,
@@ -28,8 +28,8 @@ export async function grantWorkspaceHookTrustForProtocol(
     grant?: GrantWorkspaceHookTrust;
     policyProvider: WorkspaceHookPolicyProvider;
   },
-): Promise<ZCodeWorkspaceHookTrustGrantResult> {
-  const params = zcodeWorkspaceHookTrustGrantParamsSchema.parse(rawParams);
+): Promise<YCodeWorkspaceHookTrustGrantResult> {
+  const params = ycodeWorkspaceHookTrustGrantParamsSchema.parse(rawParams);
   const grant = dependencies.grant ?? grantWorkspaceHookTrust;
   const workspaceIdentity =
     params.workspace.workspaceIdentity?.trim() || resolve(params.workspace.workspacePath);
@@ -38,7 +38,7 @@ export async function grantWorkspaceHookTrustForProtocol(
     workspaceIdentity,
   );
   if (policyRejection) {
-    return zcodeWorkspaceHookTrustGrantResultSchema.parse({
+    return ycodeWorkspaceHookTrustGrantResultSchema.parse({
       accepted: false,
       reasonCode: policyRejection,
     });
@@ -53,13 +53,13 @@ export async function grantWorkspaceHookTrustForProtocol(
       hookDeclarationDigests: [params.hookDeclarationDigest],
       ...(dependencies.appVersion ? { appVersion: dependencies.appVersion } : {}),
     });
-    return zcodeWorkspaceHookTrustGrantResultSchema.parse(
+    return ycodeWorkspaceHookTrustGrantResultSchema.parse(
       didGrantExactDeclaration(status, params.hookDeclarationDigest)
         ? { accepted: true }
         : { accepted: false, reasonCode: toPublicReasonCode(status.reasonCode) },
     );
   } catch (error) {
-    return zcodeWorkspaceHookTrustGrantResultSchema.parse({
+    return ycodeWorkspaceHookTrustGrantResultSchema.parse({
       accepted: false,
       reasonCode: toPublicReasonCode(error),
     });
@@ -69,7 +69,7 @@ export async function grantWorkspaceHookTrustForProtocol(
 function getPolicyRejectionReason(
   policyProvider: WorkspaceHookPolicyProvider,
   workspaceIdentity: string,
-): ZCodeWorkspaceHookTrustGrantReasonCode | undefined {
+): YCodeWorkspaceHookTrustGrantReasonCode | undefined {
   try {
     const policy = workspaceHookPolicySchema.parse(
       policyProvider.getPolicy(workspaceIdentity),
@@ -85,9 +85,9 @@ function getPolicyRejectionReason(
   }
 }
 
-function toPublicReasonCode(error: unknown): ZCodeWorkspaceHookTrustGrantReasonCode {
+function toPublicReasonCode(error: unknown): YCodeWorkspaceHookTrustGrantReasonCode {
   const candidate = error instanceof Error ? error.message : error;
-  const parsed = zcodeWorkspaceHookTrustGrantReasonCodeSchema.safeParse(candidate);
+  const parsed = ycodeWorkspaceHookTrustGrantReasonCodeSchema.safeParse(candidate);
   if (parsed.success) return parsed.data;
 
   // 这里曾把底层 Error.message 直接放进 reasonCode，导致配置绝对路径和

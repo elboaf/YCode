@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { ZCodeTaskMeta } from "@ycode/shared";
+import type { YCodeTaskMeta } from "@ycode/shared";
 import { generateTraceId } from "@ycode/shared";
 import { deriveSessionTitle } from "#src/session/sessionTitle.js";
 import type { ClaudeNativeImportedSessionSource } from "#src/session/claude-native/claudeNativeImportedSessionTypes.js";
@@ -47,7 +47,7 @@ export function buildImportedClaudeTaskFile(
   const createdAt = Number.isFinite(source.createdAt) ? source.createdAt : source.updatedAt;
   const updatedAt = Number.isFinite(source.updatedAt) ? source.updatedAt : createdAt;
 
-  const meta: ZCodeTaskMeta = {
+  const meta: YCodeTaskMeta = {
     taskId,
     traceId,
     title: deriveImportedTaskTitle(source.title, source.messages),

@@ -6,14 +6,14 @@
  */
 import { create } from "zustand";
 import { shouldExposeE2EStoreBridge } from "@/lib/e2eStoreBridge.js";
-import { type ZCodeSessionStoreState } from "./zcodeSessionStoreTypes.js";
-import { getWorkspaceState } from "./zcodeSessionStoreSelectors.js";
-import { createNavigationSlice } from "./zcodeSessionStoreNavigation.js";
-import { createTaskSlice } from "./zcodeSessionStoreTaskSlice.js";
-import { createWorkspaceSlice } from "./zcodeSessionStoreWorkspaceSlice.js";
+import { type YCodeSessionStoreState } from "./ycodeSessionStoreTypes.js";
+import { getWorkspaceState } from "./ycodeSessionStoreSelectors.js";
+import { createNavigationSlice } from "./ycodeSessionStoreNavigation.js";
+import { createTaskSlice } from "./ycodeSessionStoreTaskSlice.js";
+import { createWorkspaceSlice } from "./ycodeSessionStoreWorkspaceSlice.js";
 import { uiMemoryDiagnosticsRegistry } from "@/lib/memoryDiagnostics.js";
 
-export const useZCodeSessionStore = create<ZCodeSessionStoreState>()((set, get) => ({
+export const useYCodeSessionStore = create<YCodeSessionStoreState>()((set, get) => ({
   workspaces: {},
   ...createNavigationSlice(set, get),
   ...createWorkspaceSlice(set),
@@ -22,24 +22,24 @@ export const useZCodeSessionStore = create<ZCodeSessionStoreState>()((set, get) 
     getWorkspaceState(get(), workspacePath, workspaceIdentity),
 }));
 
-type ZCodeSessionStoreE2EBridge = typeof useZCodeSessionStore;
+type YCodeSessionStoreE2EBridge = typeof useYCodeSessionStore;
 
 declare global {
   interface Window {
-    __zcodeSessionStoreE2E?: ZCodeSessionStoreE2EBridge;
+    __ycodeSessionStoreE2E?: YCodeSessionStoreE2EBridge;
   }
 }
 
 if (shouldExposeE2EStoreBridge()) {
   // E2E 诊断入口必须由 WDIO 显式打开，不能复用 YCODE_ENV=test，避免产品测试环境暴露可变全局 store。
-  window.__zcodeSessionStoreE2E = useZCodeSessionStore;
+  window.__ycodeSessionStoreE2E = useYCodeSessionStore;
 }
 
 // ────────────────────────────────────────────
-// Re-exports: 保持外部 `from '@/store/zcodeSessionStore'` 的导入路径继续工作
+// Re-exports: 保持外部 `from '@/store/ycodeSessionStore'` 的导入路径继续工作
 // ────────────────────────────────────────────
-export * from "./zcodeSessionStoreTypes.js";
-export * from "./zcodeSessionStoreSelectors.js";
+export * from "./ycodeSessionStoreTypes.js";
+export * from "./ycodeSessionStoreSelectors.js";
 // Re-export navigation types used externally:
 export type {
   TaskNavigationHistory,
@@ -49,5 +49,5 @@ export type {
 
 // 内存诊断计数器：workspace 桶全仓无删除路径，先落日志。
 uiMemoryDiagnosticsRegistry.register("sessionStore", () => ({
-  workspaces: Object.keys(useZCodeSessionStore.getState().workspaces).length,
+  workspaces: Object.keys(useYCodeSessionStore.getState().workspaces).length,
 }));

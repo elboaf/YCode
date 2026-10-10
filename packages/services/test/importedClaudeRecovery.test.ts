@@ -6,13 +6,13 @@ import test from "node:test";
 import {
   YCODE_PROTOCOL_NAME,
   YCODE_PROTOCOL_VERSION,
-  zcodeSessionStateSnapshotSchema,
-  type ZCodeSessionStateSnapshot,
+  ycodeSessionStateSnapshotSchema,
+  type YCodeSessionStateSnapshot,
 } from "@ycode/shared";
 import { getLegacyTaskSessionSnapshotPath, setDataBaseDir } from "../src/paths.js";
 import { parseLegacyTaskSessionFile } from "../src/session/legacyTaskSessionFile.js";
 import { TaskIndexRepo } from "../src/session/taskIndexRepo.js";
-import { createZCodeTaskServiceAdapter } from "../src/ycode-agent/zcodeTaskServiceAdapter.js";
+import { createYCodeTaskServiceAdapter } from "../src/ycode-agent/ycodeTaskServiceAdapter.js";
 
 for (const clientMode of ["desktop-continuous", "web-remote-replayable"] as const) {
   test(`previously imported Claude history becomes a real session for ${clientMode}`, async () => {
@@ -48,21 +48,21 @@ for (const clientMode of ["desktop-continuous", "web-remote-replayable"] as cons
     await writeFile(path, content);
     const taskIndexRepo = new TaskIndexRepo(join(dir, "tasks.sqlite"));
     await taskIndexRepo.syncTaskMeta({ meta });
-    type Options = Parameters<typeof createZCodeTaskServiceAdapter>[0];
-    type CreateInput = Parameters<Options["zcodeAgentService"]["createSession"]>[0];
+    type Options = Parameters<typeof createYCodeTaskServiceAdapter>[0];
+    type CreateInput = Parameters<Options["ycodeAgentService"]["createSession"]>[0];
     const created: CreateInput[] = [];
-    let session: ZCodeSessionStateSnapshot | undefined;
+    let session: YCodeSessionStateSnapshot | undefined;
     const disposable = () => ({ dispose() {} });
-    const service = createZCodeTaskServiceAdapter({
+    const service = createYCodeTaskServiceAdapter({
       taskIndexRepo,
-      zcodeAgentService: {
+      ycodeAgentService: {
         async resumeSession() {
           if (!session) throw new Error(`Session not found: ${meta.taskId}`);
           return session;
         },
         async createSession(input: CreateInput) {
           created.push(input);
-          session = zcodeSessionStateSnapshotSchema.parse({
+          session = ycodeSessionStateSnapshotSchema.parse({
             protocol: { name: YCODE_PROTOCOL_NAME, version: YCODE_PROTOCOL_VERSION },
             session: {
               sessionId: input.sessionId,
@@ -101,7 +101,7 @@ for (const clientMode of ["desktop-continuous", "web-remote-replayable"] as cons
           return session;
         },
         disposeAll() {},
-      } as unknown as Options["zcodeAgentService"],
+      } as unknown as Options["ycodeAgentService"],
       taskIndexSyncer: {
         onSessionTerminalEvent: disposable,
         onSessionReadyEvent: disposable,

@@ -13,17 +13,17 @@ import {
   YCODE_PRODUCT_FLAVOR,
   YCODE_RUNTIME_ENV_KEY,
   YCODE_VERSION,
-  buildZCodeToolEnvPassthroughEnv,
-  resolveRuntimeZCodeEndpointOrigin,
+  buildYCodeToolEnvPassthroughEnv,
+  resolveRuntimeYCodeEndpointOrigin,
   readProductEndpointEnv,
   pickProductEndpointEnv,
   resolveZaiBusinessBaseUrl,
   resolveZaiOAuthClientId,
   resolveZaiOAuthOrigin,
   normalizeDynamicWorkflowMode,
-  readZCodeAgentTelemetryEnv,
-  sanitizeZCodeRuntimeEnv,
-  type ZCodeRuntimeEnv,
+  readYCodeAgentTelemetryEnv,
+  sanitizeYCodeRuntimeEnv,
+  type YCodeRuntimeEnv,
 } from "@ycode/shared";
 import { resolvePlatformKeyForPackagedApp } from "../../scripts/target-platform.mjs";
 import {
@@ -39,7 +39,7 @@ import {
 import { getElectronAppPath, isElectronAppPackaged } from "./desktopElectronApp.js";
 
 const isLocalDevelopmentRuntime = !isElectronAppPackaged();
-export const desktopRuntimeEnv: ZCodeRuntimeEnv = isLocalDevelopmentRuntime
+export const desktopRuntimeEnv: YCodeRuntimeEnv = isLocalDevelopmentRuntime
   ? "development"
   : "production";
 // 身份看编译期 flavor 而不是 YCODE_ENV：YCODE_PREVIEW_IDENTITY=1 的生产后端构建同样是 Preview，
@@ -62,7 +62,7 @@ export const runtimeApplicationName =
   readRuntimeEnvOverride("YCODE_DESKTOP_APPLICATION_NAME") ??
   (isLocalDevelopmentRuntime ? "YCode Dev" : isPreviewPackagedRuntime ? "YCode Preview" : "YCode");
 // Electron 的 app.getPath("home") 不一定跟随测试进程里的 HOME 覆盖。
-// e2e 默认工作区依赖 home 路径，因此提供显式覆盖，避免测试写到开发者真实 ~/ZCodeProject。
+// e2e 默认工作区依赖 home 路径，因此提供显式覆盖，避免测试写到开发者真实 ~/YCodeProject。
 export const runtimeHomePath = readRuntimeEnvOverride("YCODE_DESKTOP_HOME_DIR");
 // Chromedriver 管理 Electron 时会注入临时 userData；e2e 默认路径模式下导入期不能提前读取 appData。
 export const shouldUseElectronDefaultUserDataPath = isTruthyRuntimeEnvOverride(
@@ -197,7 +197,7 @@ export function loadHostProcessEnvFromLocalFiles(): Record<string, string> {
     Object.assign(merged, parsed);
   }
 
-  return applySelectedZCodeEnvLinks(merged);
+  return applySelectedYCodeEnvLinks(merged);
 }
 
 function resolveDevelopmentMockCdnDir(): string {
@@ -242,7 +242,7 @@ function resolveEnvValue(envName: string, localEnv: LocalRuntimeEnv = {}): strin
   return process.env[envName]?.trim() || localEnv[envName]?.trim() || undefined;
 }
 
-export function resolveZCodeEndpointEnvBaseOrigin(
+export function resolveYCodeEndpointEnvBaseOrigin(
   localEnv: LocalRuntimeEnv = {},
 ): string | undefined {
   const buildEnv = readProductEndpointEnv();
@@ -268,7 +268,7 @@ function readDefinedProcessEnv(): Record<string, string> {
   return values;
 }
 
-function applySelectedZCodeEnvLinks(env: Record<string, string>): Record<string, string> {
+function applySelectedYCodeEnvLinks(env: Record<string, string>): Record<string, string> {
   const endpointEnv = {
     ...readProductEndpointEnv(),
     ...env,
@@ -278,14 +278,14 @@ function applySelectedZCodeEnvLinks(env: Record<string, string>): Record<string,
   return {
     ...pickProductEndpointEnv(endpointEnv),
     ...env,
-    YCODE_BASE_URL: env.YCODE_BASE_URL ?? resolveRuntimeZCodeEndpointOrigin(endpointEnv),
+    YCODE_BASE_URL: env.YCODE_BASE_URL ?? resolveRuntimeYCodeEndpointOrigin(endpointEnv),
     ZAI_OAUTH_ORIGIN: env.ZAI_OAUTH_ORIGIN ?? resolveZaiOAuthOrigin(endpointEnv),
     ZAI_BUSINESS_BASE_URL: env.ZAI_BUSINESS_BASE_URL ?? resolveZaiBusinessBaseUrl(endpointEnv),
     ZAI_OAUTH_CLIENT_ID: env.ZAI_OAUTH_CLIENT_ID ?? resolveZaiOAuthClientId(endpointEnv),
   };
 }
 
-function resolveHostProcessNodeEnv(): ZCodeRuntimeEnv {
+function resolveHostProcessNodeEnv(): YCodeRuntimeEnv {
   return desktopRuntimeEnv;
 }
 
@@ -330,7 +330,7 @@ export function resolveRemoteAssetDirs(
   };
 }
 
-function resolveBundledZCodeAgentBinaryPath(): string | undefined {
+function resolveBundledYCodeAgentBinaryPath(): string | undefined {
   const runtime = YCODE_AGENT_RUNTIME;
   const entrySegments = runtime.resolveEntrySegments(process.platform);
   const platformKey = resolvePlatformKeyForPackagedApp();
@@ -395,7 +395,7 @@ function resolveBundledLarkCliBinaryPath(): string | undefined {
 }
 
 export function resolveBundledGlmBinaryPath(): string | undefined {
-  return resolveBundledZCodeAgentBinaryPath();
+  return resolveBundledYCodeAgentBinaryPath();
 }
 
 function resolveHostProcessBinaryEnv(
@@ -502,7 +502,7 @@ export function buildHostProcessEnv(hostProcessLocalEnv: Record<string, string>)
             )
           : undefined;
   const windowsAppInstallDir = resolveWindowsAppInstallDirForDataBaseDirGuard();
-  const agentTelemetryEnv = readZCodeAgentTelemetryEnv(rawInheritedEnv);
+  const agentTelemetryEnv = readYCodeAgentTelemetryEnv(rawInheritedEnv);
   // Desktop 身份由 host 从凭据仓库和本机状态读取后可信注入；外部环境只能配置 OTLP 连接，
   // 不能伪造 uid/device/runtime surface 或绕过本地 identity state 的隔离边界。
   for (const key of [
@@ -515,9 +515,9 @@ export function buildHostProcessEnv(hostProcessLocalEnv: Record<string, string>)
   ]) {
     delete agentTelemetryEnv[key];
   }
-  const inheritedEnv = applySelectedZCodeEnvLinks({
-    ...sanitizeZCodeRuntimeEnv(rawInheritedEnv),
-    ...buildZCodeToolEnvPassthroughEnv(rawInheritedEnv),
+  const inheritedEnv = applySelectedYCodeEnvLinks({
+    ...sanitizeYCodeRuntimeEnv(rawInheritedEnv),
+    ...buildYCodeToolEnvPassthroughEnv(rawInheritedEnv),
   });
   // A release app must never inherit the local unsigned-Helper escape hatch.
   // Otherwise a developer shell/launchctl variable can make the signed app

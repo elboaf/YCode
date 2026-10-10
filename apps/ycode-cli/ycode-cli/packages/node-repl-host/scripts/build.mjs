@@ -9,8 +9,8 @@ const packageRoot = resolve(import.meta.dirname, "..");
 // __require shim 在 ESM 作用域没有 require 可用，@ycode/core 拖进来的 CJS 依赖（yaml →
 // require("process")）会在**模块求值阶段**抛错，plugin host 的 await import() 直接失败，
 // 表现为注册 0 个工具、模型侧完全看不到 mcp__node_repl__js。注入真实 createRequire。
-const nodeRequireBanner = `import { createRequire as __zcodeCreateRequire } from "node:module";
-const require = __zcodeCreateRequire(import.meta.url);`;
+const nodeRequireBanner = `import { createRequire as __ycodeCreateRequire } from "node:module";
+const require = __ycodeCreateRequire(import.meta.url);`;
 
 // 正式包上 Computer Use 曾完全
 // 不可用 —— 每个 CUA 调用要么等到 MCP 客户端超时（实测 60/110/120s），要么等满 ~64s 后返回
@@ -18,7 +18,7 @@ const require = __zcodeCreateRequire(import.meta.url);`;
 //
 // 链路：懒启动（services/src/node.ts 的 `懒启动` 注释处）把 darwin 上 Helper 的
 // 安装/拉起从宿主搬到了「SDK 首次 CUA 调用时自拉」，而那条路径跑在**本包**里 ——
-// `helperInstaller` 因此随本 bundle 进入正式包。但 `__ZCODE_CUA_HELPER_BUILD_ID__` 此前
+// `helperInstaller` 因此随本 bundle 进入正式包。但 `__YCODE_CUA_HELPER_BUILD_ID__` 此前
 // **只有** packages/desktop/tsup.config.ts 注入（Electron main / app.asar），本文件的
 // esbuild 调用一个 define 都没有。于是正式包里 producer 的 `YCODE_CUA_HELPER_BUILD_ID`
 // 折叠成空串（见 ycode-cua/src/broker/shared/cua-version.ts 的兜底），
@@ -47,7 +47,7 @@ export const buildNodeReplHostBundle = async ({
     banner: { js: nodeRequireBanner },
     bundle: true,
     define: {
-      __ZCODE_CUA_HELPER_BUILD_ID__: JSON.stringify(cuaHelperBuildId),
+      __YCODE_CUA_HELPER_BUILD_ID__: JSON.stringify(cuaHelperBuildId),
     },
     entryPoints: [resolve(packageRoot, "src", "server.ts")],
     format: "esm",
@@ -63,7 +63,7 @@ export const buildNodeReplHostBundle = async ({
     if (!bundled.includes(cuaHelperBuildId)) {
       throw new Error(
         `[node-repl-host] YCODE_CUA_HELPER_BUILD_ID=${cuaHelperBuildId} 未折叠进 ${outfile}：` +
-          "__ZCODE_CUA_HELPER_BUILD_ID__ define 没有生效，正式包的 Helper 安装会被 fail-closed 拒绝。",
+          "__YCODE_CUA_HELPER_BUILD_ID__ define 没有生效，正式包的 Helper 安装会被 fail-closed 拒绝。",
       );
     }
   }

@@ -14,7 +14,7 @@ export type {
   IntegratedTerminalShellSelection,
   Locale,
   LocalePreference,
-  ZCodeInteractionBehavior,
+  YCodeInteractionBehavior,
   TabId,
   TabState,
   ResourceUsageCategory,
@@ -30,7 +30,7 @@ export type { WorkspacePurpose } from "./workspacePurpose.js";
 export { DEFAULT_LOCALE } from "./protocol.js";
 export { YCODE_VERSION, YCODE_COMMIT, YCODE_BUILD_TIME } from "./version.js";
 export type { HelloMessage, HelloAckMessage } from "./handshake.js";
-export type { ArmsRumEnv, ZCodeEnv, ZCodeProductFlavor } from "./env.js";
+export type { ArmsRumEnv, YCodeEnv, YCodeProductFlavor } from "./env.js";
 export type { RemoteAssetInstallMode } from "./remoteAssetInstallMode.js";
 export type {
   RemoteResourcePackageId,
@@ -64,13 +64,13 @@ export {
   YCODE_PRODUCT_FLAVOR,
   YCODE_APP_VERSION_ENV,
   YCODE_BUILD_COMMIT_ID_ENV,
-  RUNTIME_ZCODE_DEBUG,
+  RUNTIME_YCODE_DEBUG,
   YCODE_TELEMETRY_REPORT_ENDPOINT,
   YCODE_ARMS_RUM_ENDPOINT,
   YCODE_TELEMETRY_ENABLED,
-  mapZCodeEnvToArmsRumEnv,
-  normalizeZCodeEnv,
-  normalizeZCodeProductFlavor,
+  mapYCodeEnvToArmsRumEnv,
+  normalizeYCodeEnv,
+  normalizeYCodeProductFlavor,
 } from "./env.js";
 export * from "./errors.js";
 export type { SessionCreateSource } from "./sessionCreateSource.js";
@@ -96,7 +96,7 @@ export * from "./conversation-preview-artifacts.js";
 export * from "./ycode-session-task-status.js";
 export * from "./ycode-tool-projection-memory.js";
 export * from "./ycode-slash-command-help.js";
-export * from "./zcodeEndpoint.js";
+export * from "./ycodeEndpoint.js";
 export * from "./ycode-source-headers.js";
 export * from "./ycode-agent-policy.js";
 export * from "./ycode-media-policy.js";
@@ -220,7 +220,7 @@ export type {
   UpdateCheckResultPayload,
   UpdateStatePayload,
   WSLDistro,
-  ZCodeStdioTapDevState,
+  YCodeStdioTapDevState,
 } from "./platform.js";
 export type {
   CuaAccessibilitySettingsResult,
@@ -228,7 +228,7 @@ export type {
   OpenCuaPermissionOnboardingOptions,
   PrepareCuaHelperPermissionDragResult,
 } from "./cuaAccessibilitySettings.js";
-export type { ZCodeTaskCreateResult } from "./ycode-task-types.js";
+export type { YCodeTaskCreateResult } from "./ycode-task-types.js";
 export * from "./ycode-task-types.js";
 export * from "./automation-types.js";
 export * from "./off-peak-types.js";
@@ -268,7 +268,7 @@ export * from "./runtime-tool-runtime.js";
 export * from "./git.js";
 export * from "./bots.js";
 export * from "./assistant-message-parts.js";
-export * from "./zcodePersistedMessageMerge.js";
+export * from "./ycodePersistedMessageMerge.js";
 export * from "./assistant-presentation.js";
 export * from "./tool-call-summary.js";
 export * from "./tool-identity.js";

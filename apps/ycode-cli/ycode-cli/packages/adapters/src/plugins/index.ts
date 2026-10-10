@@ -928,9 +928,9 @@ function loadPlugin(
 }
 
 function findManifest(rootPath: string): string | null {
-  const zcodePath = join(rootPath, YCODE_MANIFEST_PATH);
-  if (fileExists(zcodePath)) {
-    return zcodePath;
+  const ycodePath = join(rootPath, YCODE_MANIFEST_PATH);
+  if (fileExists(ycodePath)) {
+    return ycodePath;
   }
 
   // 兼容不同 manifest 目录约定，发现阶段按稳定优先级回退。

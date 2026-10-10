@@ -10,11 +10,11 @@ import { getAppConfigDir } from "../paths.js";
 import { importLegacyPersonalProviderConfig } from "./legacyPersonalProviderConfigImporter.js";
 
 export interface ProviderConfigRuntimeOptions {
-  readonly zcodeBuiltinFilePath: string;
-  readonly zcodeBuiltinActiveFilePath?: string;
-  readonly zcodeBuiltinRemote?: NodeProviderConfigRuntimeOptions["zcodeBuiltinRemote"];
-  readonly zcodeBuiltinEnvironment?: NodeProviderConfigRuntimeOptions["zcodeBuiltinEnvironment"];
-  readonly onZCodeBuiltinRefreshError?: (error: unknown) => void;
+  readonly ycodeBuiltinFilePath: string;
+  readonly ycodeBuiltinActiveFilePath?: string;
+  readonly ycodeBuiltinRemote?: NodeProviderConfigRuntimeOptions["ycodeBuiltinRemote"];
+  readonly ycodeBuiltinEnvironment?: NodeProviderConfigRuntimeOptions["ycodeBuiltinEnvironment"];
+  readonly onYCodeBuiltinRefreshError?: (error: unknown) => void;
   readonly onPersonalConfigRecovery?: (event: PersonalProviderConfigRecoveryEvent) => void;
   readonly onPersonalConfigPollingError?: (error: unknown) => void;
   readonly personalFilePath?: string;
@@ -33,11 +33,11 @@ export class ProviderConfigRuntime {
 
   constructor(options: ProviderConfigRuntimeOptions) {
     const runtimeOptions: NodeProviderConfigRuntimeOptions = {
-      zcodeBuiltinFilePath: options.zcodeBuiltinFilePath,
-      zcodeBuiltinActiveFilePath: options.zcodeBuiltinActiveFilePath,
-      zcodeBuiltinRemote: options.zcodeBuiltinRemote,
-      zcodeBuiltinEnvironment: options.zcodeBuiltinEnvironment,
-      onZCodeBuiltinRefreshError: options.onZCodeBuiltinRefreshError,
+      ycodeBuiltinFilePath: options.ycodeBuiltinFilePath,
+      ycodeBuiltinActiveFilePath: options.ycodeBuiltinActiveFilePath,
+      ycodeBuiltinRemote: options.ycodeBuiltinRemote,
+      ycodeBuiltinEnvironment: options.ycodeBuiltinEnvironment,
+      onYCodeBuiltinRefreshError: options.onYCodeBuiltinRefreshError,
       onPersonalConfigRecovery: options.onPersonalConfigRecovery,
       onPersonalConfigPollingError: options.onPersonalConfigPollingError,
       personalFilePath:
@@ -65,16 +65,16 @@ export class ProviderConfigRuntime {
     return this.#runtime.personalRepository;
   }
 
-  resolveZCodeBuiltinActiveFilePath(): Promise<string> {
-    return this.#runtime.resolveZCodeBuiltinActiveFilePath();
+  resolveYCodeBuiltinActiveFilePath(): Promise<string> {
+    return this.#runtime.resolveYCodeBuiltinActiveFilePath();
   }
 
-  refreshZCodeBuiltin(options?: { readonly force?: boolean }) {
-    return this.#runtime.refreshZCodeBuiltin(options);
+  refreshYCodeBuiltin(options?: { readonly force?: boolean }) {
+    return this.#runtime.refreshYCodeBuiltin(options);
   }
 
-  onDidCheckZCodeBuiltin(listener: () => Promise<void>): () => void {
-    return this.#runtime.onDidCheckZCodeBuiltin(listener);
+  onDidCheckYCodeBuiltin(listener: () => Promise<void>): () => void {
+    return this.#runtime.onDidCheckYCodeBuiltin(listener);
   }
 
   dispose(): void {

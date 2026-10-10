@@ -4,7 +4,7 @@ import {
   type AssistantFilePathResolveOptions,
 } from "@/lib/assistantFileReferences.js";
 import { getPathLeaf } from "@/lib/path.js";
-import { extractZCodeFileCitations } from "@/lib/zcodeFileCitation.js";
+import { extractYCodeFileCitations } from "@/lib/ycodeFileCitation.js";
 
 interface CitationMarkdownNode {
   children?: CitationMarkdownNode[];
@@ -21,7 +21,7 @@ function projectCitationTextNode(
   options: AssistantFilePathResolveOptions,
 ): CitationMarkdownNode[] | null {
   const value = node.value ?? "";
-  const citations = extractZCodeFileCitations(value);
+  const citations = extractYCodeFileCitations(value);
   if (citations.length === 0) return null;
 
   const nextNodes: CitationMarkdownNode[] = [];
@@ -67,11 +67,11 @@ function transformCitationChildren(
   }
 }
 
-export function createZCodeFileCitationRemarkPlugin(
+export function createYCodeFileCitationRemarkPlugin(
   workspacePath: string,
   homePath?: string,
 ): Plugin {
-  return function zcodeFileCitationRemarkPlugin() {
+  return function ycodeFileCitationRemarkPlugin() {
     return (tree: unknown) => {
       transformCitationChildren(tree as CitationMarkdownNode, workspacePath, { homePath });
     };

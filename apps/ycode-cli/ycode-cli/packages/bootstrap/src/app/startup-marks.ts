@@ -6,14 +6,14 @@ import type { StartupTimer } from "../startup-logging.js";
 import { resolveOfficialPluginRoots } from "./bundled-plugins.js";
 import { DEFAULT_ENABLED_OFFICIAL_PLUGIN_IDS } from "./official-plugin-definitions.js";
 import { getPluginStorageRoot } from "./paths.js";
-import type { ZCodeAppOptions } from "./types.js";
+import type { YCodeAppOptions } from "./types.js";
 
 export function resolveStartupPlugins(input: {
   cliStorageRoot: string;
   configResult: ConfigResult;
   env?: NodeJS.ProcessEnv;
   logger?: Logger;
-  options: Pick<ZCodeAppOptions, "officialPluginRoots" | "pluginStorageRoot">;
+  options: Pick<YCodeAppOptions, "officialPluginRoots" | "pluginStorageRoot">;
   startupTimer: StartupTimer;
   workingDirectory: string;
 }): PluginLoadOutcome {
@@ -30,7 +30,7 @@ export function resolveStartupPlugins(input: {
     }),
     // defaultEnabled 的 official plugin (如 skill-creator) 只有在这里
     // 把名单传给 discoverNodePluginsSync 才会真正默认开启。CLI 子命令路径
-    // (resolveZCodePlugins) 和应用启动路径都要传，否则 `/skill skill-creator` 在会话里
+    // (resolveYCodePlugins) 和应用启动路径都要传，否则 `/skill skill-creator` 在会话里
     // 报 "Skill not found: skill-creator"，但 `ycode plugins list` 却显示它是 enabled。
     officialPluginsEnabledByDefault: DEFAULT_ENABLED_OFFICIAL_PLUGIN_IDS,
     storageRoot: pluginStorageRoot,

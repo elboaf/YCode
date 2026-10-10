@@ -5,7 +5,7 @@ import {
   type ProviderFamilyDomain,
 } from "@ycode/shared";
 import type { ModelSelectionView } from "@ycode/services";
-import { encodeCustomModelValue } from "@/lib/zcodeCustomModelValue.js";
+import { encodeCustomModelValue } from "@/lib/ycodeCustomModelValue.js";
 
 export type ApiKeyProviderChoice = "zai" | "bigmodel";
 

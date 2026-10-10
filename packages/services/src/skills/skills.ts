@@ -1,4 +1,4 @@
-import type { ZCodeProvider, SkillsPromptContext, SkillsListResult } from "@ycode/shared";
+import type { YCodeProvider, SkillsPromptContext, SkillsListResult } from "@ycode/shared";
 import { ServiceChannels } from "@ycode/shared";
 import { createServiceDescriptor } from "../descriptors.js";
 
@@ -6,12 +6,12 @@ export interface ISkillsService {
   list(params: {
     workspacePath: string;
     workspaceIdentity?: string;
-    provider?: ZCodeProvider;
+    provider?: YCodeProvider;
   }): Promise<SkillsListResult>;
   setEnabled(params: {
     workspacePath: string;
     workspaceIdentity?: string;
-    provider?: ZCodeProvider;
+    provider?: YCodeProvider;
     scope?: "workspace" | "user" | "plugin";
     skillId: string;
     enabled: boolean;
@@ -19,7 +19,7 @@ export interface ISkillsService {
   buildPromptContext(params: {
     workspacePath: string;
     workspaceIdentity?: string;
-    provider?: ZCodeProvider;
+    provider?: YCodeProvider;
     prompt: string;
   }): Promise<SkillsPromptContext>;
   /** 将指定 skill 复制到通用目录（.ycode/skills），成功后返回新 skill 的路径。 */

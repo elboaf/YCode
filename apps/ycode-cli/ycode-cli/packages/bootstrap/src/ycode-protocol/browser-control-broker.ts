@@ -1,15 +1,15 @@
 import { randomUUID } from "node:crypto";
 import type { BrowserControlPort, TraceContext } from "@ycode/contracts";
 import {
-  zcodeBrowserExecuteResultSchema,
-  zcodeBrowserListResultSchema,
-  zcodeProtocolMethods,
+  ycodeBrowserExecuteResultSchema,
+  ycodeBrowserListResultSchema,
+  ycodeProtocolMethods,
 } from "@ycode/shared";
 import {
   protocolTraceFromTraceContext,
   requireSession,
-  type ZCodeProtocolAgentServerContext,
-  type ZCodeProtocolClientRequestOptions,
+  type YCodeProtocolAgentServerContext,
+  type YCodeProtocolClientRequestOptions,
 } from "./server-types.js";
 
 /**
@@ -17,10 +17,10 @@ import {
  *
  * browser-client 的 agent.browsers.* 每个调用经此把一条 BrowserCommand 变成
  * YCode Protocol 的 interaction/browserExecute 反向请求，由 app（host→main WebContentsView/CDP）
- * 执行并返回结果。与 permission broker 并列注入（server-operations 的 createWorkspaceZCodeApp options）。
+ * 执行并返回结果。与 permission broker 并列注入（server-operations 的 createWorkspaceYCodeApp options）。
  */
 export function createProtocolBrowserControlBroker(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
 ): BrowserControlPort {
   const connectionsBySession = new Map<
     string,
@@ -42,14 +42,14 @@ export function createProtocolBrowserControlBroker(
     await Promise.allSettled(
       connections.map(({ browserId, browserGeneration }) =>
         context.requestClient(
-          zcodeProtocolMethods.interactionBrowserExecute,
+          ycodeProtocolMethods.interactionBrowserExecute,
           {
             ...buildBrowserRequestContext(context, { sessionId, turnId }),
             browserId,
             browserGeneration,
             command,
           },
-          zcodeBrowserExecuteResultSchema,
+          ycodeBrowserExecuteResultSchema,
         ),
       ),
     );
@@ -58,9 +58,9 @@ export function createProtocolBrowserControlBroker(
   return {
     async list({ sessionId, turnId, traceContext, signal }) {
       const result = await context.requestClient(
-        zcodeProtocolMethods.interactionBrowserList,
+        ycodeProtocolMethods.interactionBrowserList,
         buildBrowserRequestContext(context, { sessionId, turnId, traceContext }),
-        zcodeBrowserListResultSchema,
+        ycodeBrowserListResultSchema,
         buildRequestOptions(traceContext, signal),
       );
       return result.browsers;
@@ -87,14 +87,14 @@ export function createProtocolBrowserControlBroker(
         // 已下发动作无法证明无副作用时由 manager 返回 uncertain 标记。
         void context
           .requestClient(
-            zcodeProtocolMethods.interactionBrowserExecute,
+            ycodeProtocolMethods.interactionBrowserExecute,
             {
               ...buildBrowserRequestContext(context, { sessionId, turnId, traceContext }),
               browserId,
               browserGeneration,
               command: { method: "cancelRequest", requestId: requestContext.requestId },
             },
-            zcodeBrowserExecuteResultSchema,
+            ycodeBrowserExecuteResultSchema,
             buildRequestOptions(traceContext, undefined),
           )
           .catch(() => undefined);
@@ -103,14 +103,14 @@ export function createProtocolBrowserControlBroker(
       else signal?.addEventListener("abort", cancelBackendRequest, { once: true });
       try {
         return await context.requestClient(
-          zcodeProtocolMethods.interactionBrowserExecute,
+          ycodeProtocolMethods.interactionBrowserExecute,
           {
             ...requestContext,
             browserId,
             browserGeneration,
             command,
           },
-          zcodeBrowserExecuteResultSchema,
+          ycodeBrowserExecuteResultSchema,
           buildRequestOptions(traceContext, signal),
         );
       } finally {
@@ -130,7 +130,7 @@ export function createProtocolBrowserControlBroker(
 }
 
 function buildBrowserRequestContext(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   input: {
     sessionId: string;
     turnId?: string;
@@ -162,7 +162,7 @@ function buildBrowserRequestContext(
 function buildRequestOptions(
   traceContext: TraceContext | undefined,
   signal: AbortSignal | undefined,
-): ZCodeProtocolClientRequestOptions {
+): YCodeProtocolClientRequestOptions {
   return {
     ...(signal ? { signal } : {}),
     ...(traceContext ? { trace: protocolTraceFromTraceContext(traceContext) } : {}),

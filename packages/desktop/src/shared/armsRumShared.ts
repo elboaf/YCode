@@ -1,6 +1,6 @@
 import {
-  mapZCodeEnvToArmsRumEnv,
-  type ZCodeRuntimeEnv,
+  mapYCodeEnvToArmsRumEnv,
+  type YCodeRuntimeEnv,
   YCODE_ARMS_RUM_ENDPOINT,
   YCODE_VERSION,
 } from "@ycode/shared";
@@ -34,12 +34,12 @@ export function parseArmsViewName(url: string): string {
 }
 
 /** Renderer Browser SDK init 配置（与主进程 endpoint/env/version 对齐） */
-export function buildArmsBrowserInitConfig(runtimeEnv: ZCodeRuntimeEnv) {
+export function buildArmsBrowserInitConfig(runtimeEnv: YCodeRuntimeEnv) {
   return {
     enable: true,
     version: YCODE_VERSION,
     endpoint: YCODE_ARMS_RUM_ENDPOINT,
-    env: mapZCodeEnvToArmsRumEnv(runtimeEnv),
+    env: mapYCodeEnvToArmsRumEnv(runtimeEnv),
     sessionConfig: {
       sampleRate: 1,
     },

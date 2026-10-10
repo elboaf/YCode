@@ -3,7 +3,7 @@ import {
   type ApiClient,
   resolveBigModelApiOrigin,
   resolveZaiBusinessBaseUrl,
-  type ZCodeAccountAccess,
+  type YCodeAccountAccess,
   ZAI_PROVIDER_ID,
 } from "@ycode/shared";
 import type { ICredentialService } from "#src/credential/credential.js";
@@ -18,13 +18,13 @@ import { readApiJson } from "#src/providers/api/apiJson.js";
 import type { RemoteCustomerInfo } from "./accountProviderApiTypes.js";
 
 const log = createServiceLogger("account-provider-team-plan-request-key");
-const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "ycodejwttoken";
 const TEAM_PLAN_RUNTIME_KEY_REQUEST_TIMEOUT_MS = 15_000;
 
 interface TeamPlanRequestKeyDependencies {
   readonly apiClient: ApiClient;
   readonly credentialService?: Pick<ICredentialService, "load">;
-  readonly access: Extract<ZCodeAccountAccess, { planKind: "team-coding-plan" }>;
+  readonly access: Extract<YCodeAccountAccess, { planKind: "team-coding-plan" }>;
 }
 
 export async function resolveAccountTeamPlanRuntimeApiKey(
@@ -41,8 +41,8 @@ export async function resolveAccountTeamPlanRuntimeApiKey(
     });
     return null;
   }
-  const zcodeJwtToken = (await params.credentialService?.load(YCODE_JWT_TOKEN_KEY))?.trim() ?? "";
-  if (family === "bigmodel" && zcodeJwtToken && token === zcodeJwtToken) {
+  const ycodeJwtToken = (await params.credentialService?.load(YCODE_JWT_TOKEN_KEY))?.trim() ?? "";
+  if (family === "bigmodel" && ycodeJwtToken && token === ycodeJwtToken) {
     // BigModel /api/biz 只接受登录 access token，不能使用旧版本误存的 YCode JWT。
     log.warn(undefined, "Team Plan runtime key projection skipped: stale ycode JWT token", {
       family,

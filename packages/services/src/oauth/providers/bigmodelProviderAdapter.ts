@@ -13,7 +13,7 @@ import { parseOAuthLoginAttribution } from "../callbackAttribution.js";
 import type { OAuthProviderRuntimeConfig } from "../runtimeConfig.js";
 import type { OAuthProviderAdapter, OAuthProviderContext } from "./providerAdapter.js";
 
-interface BigModelZcodeTokenEnvelope {
+interface BigModelYcodeTokenEnvelope {
   code?: number;
   msg?: string;
   data?: {
@@ -119,14 +119,14 @@ export class BigModelProviderAdapter implements OAuthProviderAdapter {
     params: OAuthCallbackParams,
     _context: OAuthProviderContext,
   ): Promise<OAuthTokenSet> {
-    const tokenSet = await this.exchangeZcodeJwtToken(params, _context);
+    const tokenSet = await this.exchangeYcodeJwtToken(params, _context);
 
     return {
       ...tokenSet,
     };
   }
 
-  private async exchangeZcodeJwtToken(
+  private async exchangeYcodeJwtToken(
     params: OAuthCallbackParams,
     context: OAuthProviderContext,
   ): Promise<OAuthTokenSet> {
@@ -144,7 +144,7 @@ export class BigModelProviderAdapter implements OAuthProviderAdapter {
     });
 
     try {
-      const payload = await readApiJson<BigModelZcodeTokenEnvelope>(
+      const payload = await readApiJson<BigModelYcodeTokenEnvelope>(
         this.apiClient,
         this.config.tokenUrl,
         {
@@ -173,8 +173,8 @@ export class BigModelProviderAdapter implements OAuthProviderAdapter {
           payload.msg?.trim() || `BigModel ycode token 交换失败（code: ${payload.code}）`,
         );
       }
-      const zcodeJwtToken = payload.data?.token?.trim() || "";
-      if (!zcodeJwtToken) {
+      const ycodeJwtToken = payload.data?.token?.trim() || "";
+      if (!ycodeJwtToken) {
         log.warn(undefined, "ycode token response missing data.token", {
           code: payload.code,
           msg: payload.msg,
@@ -184,7 +184,7 @@ export class BigModelProviderAdapter implements OAuthProviderAdapter {
       const accessToken = resolveBigModelBusinessAccessToken(payload);
       if (!accessToken) {
         // Coding Plan 付费套餐仍调用 bigmodel.cn 业务接口，只能使用
-        // BigModel 业务 access token；ycode JWT 只能写入 zcodejwttoken 给 Start Plan 使用。
+        // BigModel 业务 access token；ycode JWT 只能写入 ycodejwttoken 给 Start Plan 使用。
         // 如果继续把 ycode JWT 写进 oauth:bigmodel:access_token，套餐预览会稳定报“令牌已过期”。
         log.warn(undefined, "ycode token response missing bigmodel access token", {
           code: payload.code,
@@ -200,7 +200,7 @@ export class BigModelProviderAdapter implements OAuthProviderAdapter {
       return {
         accessToken,
         ...(refreshToken ? { refreshToken } : {}),
-        zcodeJwtToken,
+        ycodeJwtToken,
       };
     } catch (error) {
       // BigModel callback code 是一次性的，客户端不能再先调用
@@ -224,7 +224,7 @@ export class BigModelProviderAdapter implements OAuthProviderAdapter {
     tokenSet: OAuthTokenSet,
     _context: OAuthProviderContext,
   ): Promise<OAuthUserProfile> {
-    if (tokenSet.zcodeJwtToken && tokenSet.accessToken === tokenSet.zcodeJwtToken) {
+    if (tokenSet.ycodeJwtToken && tokenSet.accessToken === tokenSet.ycodeJwtToken) {
       // 移除 tokenByAuthCode 后 callback 阶段没有 BigModel access token。
       // ycode JWT 不能调用 bigmodel.cn 的 customer 接口，避免无意义的鉴权失败请求。
       return {
@@ -298,7 +298,7 @@ export class BigModelProviderAdapter implements OAuthProviderAdapter {
   }
 }
 
-function resolveBigModelBusinessAccessToken(payload: BigModelZcodeTokenEnvelope): string {
+function resolveBigModelBusinessAccessToken(payload: BigModelYcodeTokenEnvelope): string {
   return (
     payload.data?.bigmodel?.access_token?.trim() ??
     payload.data?.bigmodel?.accessToken?.trim() ??

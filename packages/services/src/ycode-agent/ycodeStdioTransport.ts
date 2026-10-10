@@ -1,13 +1,13 @@
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { StringDecoder } from "node:string_decoder";
 import { Emitter } from "@ycode/rpc";
-import type { ZCodeProtocolMessage } from "@ycode/shared";
-import { zcodeProtocolMessageSchema } from "@ycode/shared";
+import type { YCodeProtocolMessage } from "@ycode/shared";
+import { ycodeProtocolMessageSchema } from "@ycode/shared";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 import type {
-  ZCodeProtocolTransport,
-  ZCodeProtocolTransportClosedEvent,
-} from "./zcodeProtocolTransport.js";
+  YCodeProtocolTransport,
+  YCodeProtocolTransportClosedEvent,
+} from "./ycodeProtocolTransport.js";
 import {
   captureProcessGroupSnapshot,
   captureExitedRootDescendantsSnapshotAsync,
@@ -18,7 +18,7 @@ import {
 import type { ProcessTreeSnapshot } from "#src/process/processTreeTerminator.js";
 import { AgentStderrCollector, EXIT_STDERR_DRAIN_MS } from "./agentStderrCollector.js";
 
-interface ZCodeStdioTransportOptions {
+interface YCodeStdioTransportOptions {
   onStderrLine?: (line: string) => void;
   ownedProcessGroupId?: number;
   ownedProcessStartedAtMs?: number;
@@ -32,11 +32,11 @@ const PROCESS_TREE_WINDOWS_TASKKILL_TIMEOUT_MS = 1_000;
 const PROCESS_TREE_WINDOWS_EXIT_OBSERVATION_GRACE_MS = 250;
 const processTreeLogger = createServiceLogger("ycode-agent-process-tree");
 
-export class ZCodeStdioTransport implements ZCodeProtocolTransport {
+export class YCodeStdioTransport implements YCodeProtocolTransport {
   readonly kind = "stdio" as const;
 
-  private readonly messageEmitter = new Emitter<ZCodeProtocolMessage>();
-  private readonly closeEmitter = new Emitter<ZCodeProtocolTransportClosedEvent>();
+  private readonly messageEmitter = new Emitter<YCodeProtocolMessage>();
+  private readonly closeEmitter = new Emitter<YCodeProtocolTransportClosedEvent>();
   private readonly stderrCollector: AgentStderrCollector;
   private readonly stdoutDecoder = new StringDecoder("utf8");
   private stdoutBuffer = "";
@@ -54,7 +54,7 @@ export class ZCodeStdioTransport implements ZCodeProtocolTransport {
 
   constructor(
     private readonly child: ChildProcessWithoutNullStreams,
-    private readonly options?: ZCodeStdioTransportOptions,
+    private readonly options?: YCodeStdioTransportOptions,
   ) {
     this.stderrCollector = new AgentStderrCollector(child.stderr, options?.onStderrLine);
 
@@ -78,7 +78,7 @@ export class ZCodeStdioTransport implements ZCodeProtocolTransport {
     });
   }
 
-  async send(message: ZCodeProtocolMessage): Promise<void> {
+  async send(message: YCodeProtocolMessage): Promise<void> {
     if (this.disposed || this.closed || this.child.killed || !this.child.stdin.writable) {
       throw new Error("YCode agent stdio transport is closed");
     }
@@ -247,7 +247,7 @@ export class ZCodeStdioTransport implements ZCodeProtocolTransport {
       return;
     }
     try {
-      const parsed = zcodeProtocolMessageSchema.parse(JSON.parse(line));
+      const parsed = ycodeProtocolMessageSchema.parse(JSON.parse(line));
       // 协议帧分发曾同步查询系统进程表，telemetry/streaming 高峰会阻塞
       // Host event loop 并让 subagent 面板无输出。运行期 data plane 只做解析和转发；
       // 完整进程树查询严格留在 dispose cleanup 边界。
@@ -266,7 +266,7 @@ export class ZCodeStdioTransport implements ZCodeProtocolTransport {
     this.fireClose({ reason: `${stream}_error: ${error.message}` });
   }
 
-  private fireClose(event: ZCodeProtocolTransportClosedEvent): void {
+  private fireClose(event: YCodeProtocolTransportClosedEvent): void {
     if (this.closed) {
       return;
     }

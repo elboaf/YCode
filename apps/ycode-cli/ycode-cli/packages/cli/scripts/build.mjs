@@ -80,12 +80,12 @@ export function createZodDedupePlugin({ expectedV4Version }) {
       // hoisted 安装可能给多个消费者留下字节相同、路径不同的 Zod。
       // 必须先按原消费者解析版本和 exports，再归并安装根，不能把 v3 alias 成 v4。
       builder.onResolve({ filter: /^zod(?:\/|$)/ }, async (args) => {
-        if (args.pluginData?.zcodeZodResolving) return;
+        if (args.pluginData?.ycodeZodResolving) return;
         const resolved = await builder.resolve(args.path, {
           importer: args.importer,
           resolveDir: args.resolveDir,
           kind: args.kind,
-          pluginData: { zcodeZodResolving: true },
+          pluginData: { ycodeZodResolving: true },
         });
         if (resolved.errors.length || resolved.external) return resolved;
         const pkg = await readZodPackage(resolved.path, cache);
@@ -192,9 +192,9 @@ export const resolveBuildAliases = ({
     rootDirectory,
     "../../packages/shared/src/workspace-hook-trust-store-file.ts",
   ),
-  "@ycode/shared/zcodeEndpoint": resolve(
+  "@ycode/shared/ycodeEndpoint": resolve(
     rootDirectory,
-    "../../packages/shared/src/zcodeEndpoint.ts",
+    "../../packages/shared/src/ycodeEndpoint.ts",
   ),
   "@ycode/shared/node": resolve(rootDirectory, "../../packages/shared/src/node.ts"),
   "@ycode/shared": resolve(rootDirectory, "../../packages/shared/src/index.ts"),

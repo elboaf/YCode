@@ -3,16 +3,16 @@
 export const YCODE_AGENT_MCP_STATUS_MODE_UNSUPPORTED_ERROR_CODE =
   "YCODE_AGENT_MCP_STATUS_MODE_UNSUPPORTED";
 
-export class ZCodeAgentMcpStatusModeUnsupportedError extends Error {
+export class YCodeAgentMcpStatusModeUnsupportedError extends Error {
   readonly code = YCODE_AGENT_MCP_STATUS_MODE_UNSUPPORTED_ERROR_CODE;
 
   constructor() {
     super("The connected YCode Agent does not support MCP status-only refresh");
-    this.name = "ZCodeAgentMcpStatusModeUnsupportedError";
+    this.name = "YCodeAgentMcpStatusModeUnsupportedError";
   }
 }
 
-export function isZCodeAgentMcpStatusModeUnsupportedError(error: unknown): boolean {
+export function isYCodeAgentMcpStatusModeUnsupportedError(error: unknown): boolean {
   if (!error || typeof error !== "object") {
     return false;
   }

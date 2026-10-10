@@ -28,16 +28,16 @@ import {
 import { createAboutSnapshot, formatAboutDetail, readBuildMetadata } from "./about.js";
 import { logger } from "./logger.js";
 
-function getZCodeDataDir() {
+function getYCodeDataDir() {
   return getAppConfigDir();
 }
 
-function getZCodeCliDir() {
+function getYCodeCliDir() {
   return join(homedir(), ".ycode", "cli");
 }
 
-function getZCodeCliLogDir() {
-  return join(getZCodeCliDir(), "log");
+function getYCodeCliLogDir() {
+  return join(getYCodeCliDir(), "log");
 }
 
 /**
@@ -76,7 +76,7 @@ interface LogArchiveSkippedFileEntry {
 
 interface ExportLogsDependencies {
   now?: () => Date;
-  getZCodeDataDir?: () => string;
+  getYCodeDataDir?: () => string;
   getExportLogStageDir?: () => string;
   getExportLogDir?: () => string;
   createLogArchiveArtifacts?: (
@@ -957,27 +957,27 @@ async function createLogArchiveArtifacts(
 
   await collectLogArchiveFilesFromDirectory(sourceDir, "", visitedDirs, files);
 
-  const zcodeCliLogDir = getZCodeCliLogDir();
+  const ycodeCliLogDir = getYCodeCliLogDir();
   // GLM / ycode-cli 的运行日志写在 ~/.ycode/cli/log，不在应用主数据目录 ~/.ycode/v2 下。
   // 如果导出日志只扫描 v2，定位 agent CLI 启动、协议或崩溃问题时会缺少最关键的原生侧日志。
   await collectLogArchiveFilesFromDirectory(
-    zcodeCliLogDir,
+    ycodeCliLogDir,
     posix.join(".ycode", "cli", "log"),
     visitedDirs,
     files,
   );
 
-  const zcodeCliDir = getZCodeCliDir();
+  const ycodeCliDir = getYCodeCliDir();
   // 排查 agent CLI 问题还需要它的运行配置与模型 IO 轨迹。
   // config.json 是当前生效配置；rollout 是 model-io 调用轨迹，
   // 二者都不在 ~/.ycode/cli/log 下，需要额外收集才能完整还原现场。
   await collectLogArchiveFile(
-    join(zcodeCliDir, "config.json"),
+    join(ycodeCliDir, "config.json"),
     posix.join(".ycode", "cli", "config.json"),
     files,
   );
   await collectLogArchiveFilesFromDirectory(
-    join(zcodeCliDir, "rollout"),
+    join(ycodeCliDir, "rollout"),
     posix.join(".ycode", "cli", "rollout"),
     visitedDirs,
     files,
@@ -1141,7 +1141,7 @@ export async function createFeedbackLogArchiveFromExportLogs(
   return createFeedbackDiagnosticArchive({
     sources: [
       { directory: join(sourceDir, "logs"), archivePrefix: "logs" },
-      { directory: getZCodeCliLogDir(), archivePrefix: ".ycode/cli/log" },
+      { directory: getYCodeCliLogDir(), archivePrefix: ".ycode/cli/log" },
       {
         directory: getCuaHelperRunDir(),
         archivePrefix: ".ycode/computer-use/run",
@@ -1159,7 +1159,7 @@ export async function exportLogs(
 ): Promise<{ success: boolean; path?: string; error?: string }> {
   try {
     const now = dependencies.now ?? (() => new Date());
-    const getSourceDir = dependencies.getZCodeDataDir ?? getZCodeDataDir;
+    const getSourceDir = dependencies.getYCodeDataDir ?? getYCodeDataDir;
     const buildArtifacts = dependencies.createLogArchiveArtifacts ?? createLogArchiveArtifacts;
     const writeZip = dependencies.writeLogArchiveZip ?? writeLogArchiveZip;
     const writeDirectory = dependencies.writeLogArchiveDirectory ?? writeLogArchiveDirectory;

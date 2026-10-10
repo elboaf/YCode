@@ -38,7 +38,7 @@ const DEFAULT_OPTIONS: WebElementPickerScriptOptions = {
 };
 
 function webElementPickerScript(options: WebElementPickerScriptOptions) {
-  const stateKey = "__zcodeWebElementPicker";
+  const stateKey = "__ycodeWebElementPicker";
   const existing = (window as unknown as Record<string, { cancel?: () => void }>)[stateKey];
   existing?.cancel?.();
 
@@ -657,7 +657,7 @@ export function buildWebElementPickerScript(options: WebElementPickerScriptBuild
 export function buildCancelWebElementPickerScript() {
   return [
     "(() => {",
-    "const picker = window.__zcodeWebElementPicker;",
+    "const picker = window.__ycodeWebElementPicker;",
     "if (picker && typeof picker.cancel === 'function') picker.cancel();",
     "})()",
   ].join("\n");

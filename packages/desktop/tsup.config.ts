@@ -1,4 +1,4 @@
-import { pickProductEndpointEnv } from "@ycode/shared/zcodeEndpoint";
+import { pickProductEndpointEnv } from "@ycode/shared/ycodeEndpoint";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -32,7 +32,7 @@ function loadEnvFiles(): Record<string, string> {
   // 真实环境变量优先级最高
   if (process.env.YCODE_ENV) vars.YCODE_ENV = process.env.YCODE_ENV;
   if (process.env.YCODE_BASE_URL) vars.YCODE_BASE_URL = process.env.YCODE_BASE_URL;
-  if (process.env.VITE_ZCODE_BASE_URL) vars.VITE_ZCODE_BASE_URL = process.env.VITE_ZCODE_BASE_URL;
+  if (process.env.VITE_YCODE_BASE_URL) vars.VITE_YCODE_BASE_URL = process.env.VITE_YCODE_BASE_URL;
   // OAuth origin/client_id 由 host runtime 读取；这里保留覆盖入口，方便开发构建时观察统一 env 来源。
   if (process.env.ZAI_OAUTH_CLIENT_ID) vars.ZAI_OAUTH_CLIENT_ID = process.env.ZAI_OAUTH_CLIENT_ID;
   if (process.env.ZAI_OAUTH_ORIGIN) vars.ZAI_OAUTH_ORIGIN = process.env.ZAI_OAUTH_ORIGIN;
@@ -59,10 +59,10 @@ function loadEnvFiles(): Record<string, string> {
 }
 
 const env = loadEnvFiles();
-const { environment: zcodeEnv } = await loadBuiltinProviderConfig();
+const { environment: ycodeEnv } = await loadBuiltinProviderConfig();
 // 安装包身份与后端环境分轴：YCODE_PREVIEW_IDENTITY=1 让生产后端的构建仍以 YCode Preview 身份打包运行。
-const zcodeProductFlavor = resolveDesktopProductFlavor({ ...process.env, YCODE_ENV: zcodeEnv });
-console.log(`[tsup] YCODE_ENV=${zcodeEnv} YCODE_PRODUCT_FLAVOR=${zcodeProductFlavor}`);
+const ycodeProductFlavor = resolveDesktopProductFlavor({ ...process.env, YCODE_ENV: ycodeEnv });
+console.log(`[tsup] YCODE_ENV=${ycodeEnv} YCODE_PRODUCT_FLAVOR=${ycodeProductFlavor}`);
 
 export function resolveDesktopTsupBundleSecurityOptions(
   runtimeEnv: Record<string, string | undefined> = process.env,
@@ -96,20 +96,20 @@ const desktopTsupBundleSecurityOptions = resolveDesktopTsupBundleSecurityOptions
 
 function createSharedDefines() {
   return {
-    __ZCODE_VERSION__: JSON.stringify(buildMetadata.appVersion),
-    __ZCODE_COMMIT__: JSON.stringify(buildMetadata.buildCommitId),
-    __ZCODE_BUILD_TIME__: JSON.stringify(buildMetadata.buildTime),
-    __ZCODE_ENV__: JSON.stringify(zcodeEnv),
-    __ZCODE_ENDPOINT_ENV__: JSON.stringify(pickProductEndpointEnv(env)),
-    __ZCODE_PRODUCT_FLAVOR__: JSON.stringify(zcodeProductFlavor),
+    __YCODE_VERSION__: JSON.stringify(buildMetadata.appVersion),
+    __YCODE_COMMIT__: JSON.stringify(buildMetadata.buildCommitId),
+    __YCODE_BUILD_TIME__: JSON.stringify(buildMetadata.buildTime),
+    __YCODE_ENV__: JSON.stringify(ycodeEnv),
+    __YCODE_ENDPOINT_ENV__: JSON.stringify(pickProductEndpointEnv(env)),
+    __YCODE_PRODUCT_FLAVOR__: JSON.stringify(ycodeProductFlavor),
     // Computer Use Helper build identity — helperInstaller 读它决定下载哪个 Helper bundle。
     // 缺失时 installer 抛 "Packaged YCode is missing its embedded Computer Use Helper build identity"。
     // CI 构建时通过 YCODE_CUA_HELPER_BUILD_ID env 注入；dev 为空串走兜底（dev helper 不走下载）。
-    __ZCODE_CUA_HELPER_BUILD_ID__: JSON.stringify(
+    __YCODE_CUA_HELPER_BUILD_ID__: JSON.stringify(
       process.env.YCODE_CUA_HELPER_BUILD_ID?.trim() ?? "",
     ),
     // 客户端只有一个 CDN 配置，与发布端 OSS 目标列表分离。
-    __ZCODE_CDN_BASE_URL__: JSON.stringify(env.YCODE_CDN_BASE_URL?.trim() || ""),
+    __YCODE_CDN_BASE_URL__: JSON.stringify(env.YCODE_CDN_BASE_URL?.trim() || ""),
   };
 }
 
@@ -140,7 +140,7 @@ export default defineConfig([
     entry: {
       "main/index": "src/main/index.ts",
       "main/browserWebmRecorder": "src/main/browserView/electronBrowserWebmRecorder.ts",
-      "main/zcodeDataSizeWorker": "src/main/zcodeDataSizeWorker.ts",
+      "main/ycodeDataSizeWorker": "src/main/ycodeDataSizeWorker.ts",
       // 资源管理器「存储」tab 的扫描 Worker：main 持有 StorageService，遍历放独立线程，供 new Worker(new URL()) 解析。
       "main/storageScanWorker": "src/main/storageScanWorker.ts",
     },

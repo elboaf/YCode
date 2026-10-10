@@ -6,7 +6,7 @@ import {
   type SessionStorePort,
 } from "@ycode/contracts";
 import type { AgentRuntime } from "@ycode/core";
-import type { ZCodeSessionSubagentsResult } from "@ycode/shared";
+import type { YCodeSessionSubagentsResult } from "@ycode/shared";
 import { projectSessionTranscript, type SessionTranscriptMessage } from "../session-transcript.js";
 import {
   collectSubagentChildSessionIds,
@@ -33,7 +33,7 @@ export function createSubagentObservation(deps: ObservationDeps) {
   return {
     async readSubagents(
       input: { endedCursor?: string; endedLimit?: number } = {},
-    ): Promise<ZCodeSessionSubagentsResult> {
+    ): Promise<YCodeSessionSubagentsResult> {
       const eventStore = deps.runtime.getSessionEventStore();
       const parentSession = await deps.sessionStore.getSession(deps.sessionId);
       if (!parentSession)

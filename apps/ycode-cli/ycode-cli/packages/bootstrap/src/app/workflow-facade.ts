@@ -39,12 +39,12 @@ import {
   type WorkflowDefinition,
 } from "@ycode/contracts";
 import { collectDisabledPaths } from "../skill-command-overrides.js";
-import type { PrepareUserExecutionBoundary, ZCodeAppOptions } from "./types.js";
+import type { PrepareUserExecutionBoundary, YCodeAppOptions } from "./types.js";
 import { createWorkflowMethods, type WorkflowFacade } from "./workflow-methods.js";
 
 interface CreateWorkflowFacadeDeps {
   agentTelemetry: AgentExecutionTelemetryPort;
-  appOptions: ZCodeAppOptions;
+  appOptions: YCodeAppOptions;
   appVersion: string;
   artifactStore?: ToolArtifactStorePort;
   cliStorageRoot: string;

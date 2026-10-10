@@ -1,14 +1,14 @@
 import {
   normalizeUnknownError,
   YCODE_AGENT_PROVIDER_NOT_READY_CODE,
-  type ZCodeProvider,
-  type ZCodeError,
+  type YCodeProvider,
+  type YCodeError,
 } from "@ycode/shared";
-import { normalizeZCodeUiError } from "@/lib/zcodeUiError.js";
+import { normalizeYCodeUiError } from "@/lib/ycodeUiError.js";
 
 export const MODEL_CONFIG_MISSING_UI_ERROR_CODE = "model_config_missing";
 
-export type ModelConfigMissingUiError = ZCodeError & {
+export type ModelConfigMissingUiError = YCodeError & {
   code: typeof MODEL_CONFIG_MISSING_UI_ERROR_CODE;
 };
 
@@ -27,7 +27,7 @@ export function isProviderNotReadyError(error: unknown): boolean {
 
 interface WorkspacePrepareErrorContext {
   workspacePath: string;
-  provider: ZCodeProvider;
+  provider: YCodeProvider;
   reason:
     | "mount"
     | "retry"
@@ -128,8 +128,8 @@ function buildDisplayErrorInput(err: unknown, displayMessage: string | undefined
 export function buildWorkspacePrepareUiError(
   err: unknown,
   context: WorkspacePrepareErrorContext,
-): ZCodeError & { detail?: string } {
-  const normalizedError = normalizeZCodeUiError(
+): YCodeError & { detail?: string } {
+  const normalizedError = normalizeYCodeUiError(
     buildDisplayErrorInput(err, context.displayMessage),
     {
       fallbackCode: "WORKSPACE_PREPARE_FAILED",

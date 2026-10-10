@@ -10,7 +10,7 @@ import {
 import { toUserInfo } from "./zaiWebOAuthProvider.js";
 
 const ACTIVE_PROVIDER_KEY = "oauth:active_provider";
-const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "ycodejwttoken";
 const ZAI_ACCESS_TOKEN_KEY = "oauth:zai:access_token";
 const ZAI_USER_INFO_KEY = "oauth:zai:user_info";
 const BIGMODEL_ACCESS_TOKEN_KEY = "oauth:bigmodel:access_token";
@@ -47,7 +47,7 @@ interface BrowserOAuthCredentialRepoOptions {
 }
 
 interface WebZaiTokenSet {
-  zcodeJwtToken: string;
+  ycodeJwtToken: string;
   zaiAccessToken: string;
   expiresAt?: number;
 }
@@ -81,11 +81,11 @@ export class BrowserOAuthCredentialRepo {
   saveTokenSet(tokenSet: WebZaiTokenSet | OAuthTokenSet, provider: WebOAuthProviderId): void {
     const accessToken =
       "zaiAccessToken" in tokenSet ? tokenSet.zaiAccessToken : tokenSet.accessToken;
-    const zcodeJwtToken = tokenSet.zcodeJwtToken;
+    const ycodeJwtToken = tokenSet.ycodeJwtToken;
 
     this.localStorage.setItem(providerKeys(provider).accessToken, accessToken);
-    if (zcodeJwtToken) {
-      this.localStorage.setItem(YCODE_JWT_TOKEN_KEY, zcodeJwtToken);
+    if (ycodeJwtToken) {
+      this.localStorage.setItem(YCODE_JWT_TOKEN_KEY, ycodeJwtToken);
     } else {
       this.localStorage.removeItem(YCODE_JWT_TOKEN_KEY);
     }
@@ -116,20 +116,20 @@ export class BrowserOAuthCredentialRepo {
 
   loadCachedSessionState(): OAuthCachedSessionRestoreResult {
     const activeProvider = this.localStorage.getItem(ACTIVE_PROVIDER_KEY);
-    const zcodeJwtToken = this.localStorage.getItem(YCODE_JWT_TOKEN_KEY);
+    const ycodeJwtToken = this.localStorage.getItem(YCODE_JWT_TOKEN_KEY);
     // 一次只有一个 activeProvider（切换 provider = 重新登录并覆盖），所以按它选 key 段读。
     const keys = isWebOAuthProviderId(activeProvider) ? providerKeys(activeProvider) : null;
     const accessToken = keys ? this.localStorage.getItem(keys.accessToken) : null;
     const rawUserInfo = keys ? this.localStorage.getItem(keys.userInfo) : null;
 
-    if (!keys || !hasText(zcodeJwtToken) || !hasText(accessToken) || !hasText(rawUserInfo)) {
+    if (!keys || !hasText(ycodeJwtToken) || !hasText(accessToken) || !hasText(rawUserInfo)) {
       if (this.hasAnyStoredCredential()) {
         this.clearAll();
       }
       return { status: "signed-out" };
     }
 
-    if (resolveJwtExpiration(zcodeJwtToken, this.now()).kind === "expired") {
+    if (resolveJwtExpiration(ycodeJwtToken, this.now()).kind === "expired") {
       // Web localStorage 之前只检查 JWT 是否存在，过期后仍会恢复伪登录态。
       this.clearAll();
       return { status: "reauthentication-required", reason: "jwt-expired" };
@@ -149,7 +149,7 @@ export class BrowserOAuthCredentialRepo {
     return { status: "signed-out" };
   }
 
-  loadZCodeJwtToken(): string | null {
+  loadYCodeJwtToken(): string | null {
     const session = this.loadCachedSessionState();
     if (session.status !== "authenticated") return null;
     return this.localStorage.getItem(YCODE_JWT_TOKEN_KEY)?.trim() || null;

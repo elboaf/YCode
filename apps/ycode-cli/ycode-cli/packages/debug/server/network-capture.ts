@@ -200,7 +200,7 @@ export class NetworkCaptureService {
     };
     this.upsertRecord(record);
     if (ctx.tags) {
-      ctx.tags.zcodeCaptureId = id;
+      ctx.tags.ycodeCaptureId = id;
     }
 
     ctx.onRequestData((requestCtx, chunk, callback) => {
@@ -265,7 +265,7 @@ export class NetworkCaptureService {
   }
 
   private recordForContext(ctx: IContext): NetworkRequestRecord | undefined {
-    const id = stringValue(ctx.tags?.zcodeCaptureId) ?? ctx.uuid;
+    const id = stringValue(ctx.tags?.ycodeCaptureId) ?? ctx.uuid;
     return this.records.get(id);
   }
 

@@ -176,7 +176,7 @@ export interface IsOfficialMcpOriginTrustedInput {
    */
   pluginId: string;
   /** 当前 YCode API origin，由调用方按各自口径解析后传入。 */
-  zcodeApiOrigin: string | undefined;
+  ycodeApiOrigin: string | undefined;
 }
 
 /**
@@ -207,7 +207,7 @@ export function isOfficialMcpOriginTrusted(
     }
   }
 
-  const expected = input.zcodeApiOrigin ? normalizeHttpsOrigin(input.zcodeApiOrigin) : undefined;
+  const expected = input.ycodeApiOrigin ? normalizeHttpsOrigin(input.ycodeApiOrigin) : undefined;
   if (!expected) return { detail: "ycode_origin_unresolved", trusted: false };
   if (normalizeHttpsOrigin(origin) !== expected) {
     return { detail: "origin_mismatch", trusted: false };
@@ -246,7 +246,7 @@ export interface CreateOfficialMcpTrustedOriginRegistryOptions {
   /** 本地自测开关原始值（逗号分隔的 loopback origin），通常来自 env。 */
   devTrustedOriginsRaw?: string | undefined;
   /** 当前 YCode API origin 的解析器；两侧必须用等价口径，否则会一侧放行一侧拒绝。 */
-  resolveZCodeApiOrigin: () => string | undefined | Promise<string | undefined>;
+  resolveYCodeApiOrigin: () => string | undefined | Promise<string | undefined>;
 }
 
 export function createOfficialMcpTrustedOriginRegistry(
@@ -254,9 +254,9 @@ export function createOfficialMcpTrustedOriginRegistry(
 ): OfficialMcpTrustedOriginRegistry {
   return {
     async isTrusted({ origin, pluginId }) {
-      let zcodeApiOrigin: string | undefined;
+      let ycodeApiOrigin: string | undefined;
       try {
-        zcodeApiOrigin = await options.resolveZCodeApiOrigin();
+        ycodeApiOrigin = await options.resolveYCodeApiOrigin();
       } catch {
         // 解析失败按不可信处理，绝不因为拿不到 origin 就放行。
         return { detail: "ycode_origin_unresolved", trusted: false };
@@ -265,7 +265,7 @@ export function createOfficialMcpTrustedOriginRegistry(
         devTrustedOriginsRaw: options.devTrustedOriginsRaw,
         origin,
         pluginId,
-        zcodeApiOrigin,
+        ycodeApiOrigin,
       });
     },
   };

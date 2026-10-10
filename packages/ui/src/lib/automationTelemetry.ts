@@ -4,7 +4,7 @@ import {
   sanitizeTelemetryErrorMessage,
   type IPlatformService,
   type ModelSelection,
-  type ZCodeAutomation,
+  type YCodeAutomation,
 } from "@ycode/shared";
 import type { ProviderSettingsView } from "@ycode/services";
 import { isApiKeyAccess } from "@ycode/provider";
@@ -135,7 +135,7 @@ export function reportAutomationActionClick(
   params: {
     action: "run_now" | "delete";
     source: "list" | "editor";
-    automation: ZCodeAutomation;
+    automation: YCodeAutomation;
     providerSettingsView: ProviderSettingsView | null;
   },
 ): Promise<void> {

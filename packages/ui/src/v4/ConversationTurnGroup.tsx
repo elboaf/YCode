@@ -9,7 +9,7 @@ import {
   TID_CHAT_LOADING,
   TID_V4_ROW,
   testId,
-  type ZCodeApiRetryStatus,
+  type YCodeApiRetryStatus,
 } from "@ycode/shared";
 import type {
   ApiRetryState,
@@ -41,7 +41,7 @@ import {
   readOffPeakCreateTaskSummary,
   type OffPeakCreateTaskSummary,
 } from "@/ToolCallBlocks/renderers/offpeak-create.js";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import type { AssistantPreviewCard } from "@/lib/assistantPreviewCards.js";
 import { useAssistantCodeCommentFeatureEnabled } from "@/AssistantCodeCommentFeatureProvider.js";
 import {
@@ -124,7 +124,7 @@ interface OffPeakTurnCard {
 
 const MIN_VISIBLE_API_RETRY_ATTEMPT = 3;
 
-function toRetryStatus(apiRetry: ApiRetryState): ZCodeApiRetryStatus {
+function toRetryStatus(apiRetry: ApiRetryState): YCodeApiRetryStatus {
   const attempt = Math.max(1, Math.floor(apiRetry.attempt));
   // v4 maxAttempts 包含首次请求，而展示口径是重试次数；直接展示会把
   // 默认 10 次重试写成 1/11。
@@ -146,7 +146,7 @@ function TurnChatLoadingSlot({
   apiRetry: ApiRetryState | null;
   eligible: boolean;
 }) {
-  const { intl, locale } = useZCodeIntl();
+  const { intl, locale } = useYCodeIntl();
   const retryStatus = useMemo(() => (apiRetry ? toRetryStatus(apiRetry) : null), [apiRetry]);
   // 前两次短暂恢复对用户等价于普通加载；保留 apiRetry 运行态，但只在
   // 第三次重试开始后显示计数。必须在 retry/loading 分支前收敛，否则会留下空 slot，
@@ -569,7 +569,7 @@ function AssistantHistoryStatus({
   segment: ConversationTurnWorkSegment;
   open: boolean;
 }) {
-  const { intl, locale } = useZCodeIntl();
+  const { intl, locale } = useYCodeIntl();
   const durationLabel = formatConversationWorkDuration(
     segment.workStatus?.durationMs,
     intl,
@@ -1109,7 +1109,7 @@ function ConversationTurnGroupImpl({
   shareSelection,
 }: ConversationTurnGroupProps) {
   const isOfficeMode = useIsOfficeMode();
-  const { intl } = useZCodeIntl();
+  const { intl } = useYCodeIntl();
   const visibleUserRows = useMemo(() => unit.visibleUserInputs, [unit.visibleUserInputs]);
   const firstReasoningRowId = useMemo(
     () => unit.assistantWorkRows.find((row) => row.kind === "reasoning")?.rowId,

@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import {
   AppErrorBoundary,
   Root,
-  ZCodeIntlProvider,
+  YCodeIntlProvider,
   generateMobileDeviceFingerprint,
   playTaskNotificationSound,
   setStreamClientId,
@@ -134,7 +134,7 @@ async function renderConversationSharePage(): Promise<void> {
   }
 
   const endpointOrigin =
-    import.meta.env.VITE_ZCODE_BASE_URL?.trim().replace(/\/+$/u, "") || window.location.origin;
+    import.meta.env.VITE_YCODE_BASE_URL?.trim().replace(/\/+$/u, "") || window.location.origin;
   const mockMode =
     import.meta.env.DEV && import.meta.env.VITE_CONVERSATION_SHARE_PREVIEW_MOCK === "true";
   // Share 加载失败不能只有通用 network 文案：需要区分 mock、endpoint 配置或跨域 fetch。
@@ -166,7 +166,7 @@ async function renderConversationSharePage(): Promise<void> {
     <ConversationShareLandingLoader
       shareCode={shareCode}
       client={client}
-      getAccessToken={() => getMockToken() ?? webAuthService.getZCodeJwtToken()}
+      getAccessToken={() => getMockToken() ?? webAuthService.getYCodeJwtToken()}
       onLogin={(provider) => {
         if (mockMode) {
           window.sessionStorage.setItem("ycode:share:mock-auth", "owner");
@@ -451,7 +451,7 @@ async function bootstrapWebApp() {
 
     root.render(
       <AppErrorBoundary>
-        <ZCodeIntlProvider
+        <YCodeIntlProvider
           settingService={services.settingService}
           broadcastService={services.broadcastService}
         >
@@ -467,7 +467,7 @@ async function bootstrapWebApp() {
             supportsEmbeddedBrowser={false}
             allowRemoteWorkspace={false}
           />
-        </ZCodeIntlProvider>
+        </YCodeIntlProvider>
       </AppErrorBoundary>,
     );
   } catch (error) {

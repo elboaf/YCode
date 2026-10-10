@@ -1,5 +1,5 @@
-import type { ZCodeSavedWorkflowMeta, ZCodeSavedWorkflowScope } from "@ycode/shared";
-import type { ZCodeAgentWorkspaceTarget } from "./zcodeAgentPluginParams.js";
+import type { YCodeSavedWorkflowMeta, YCodeSavedWorkflowScope } from "@ycode/shared";
+import type { YCodeAgentWorkspaceTarget } from "./ycodeAgentPluginParams.js";
 
 // 已保存工作流的 GUI 中枢：五个 workspace 级、无会话的方法。
 // 与 Skill catalog 同一条路径（workspace agent client），不走独立插件管理进程——文件在
@@ -10,26 +10,26 @@ import type { ZCodeAgentWorkspaceTarget } from "./zcodeAgentPluginParams.js";
 // （活跃的本地 runtime → 管理面 workspace），协议处理器对全局档不读 workspace 的路径。
 // 项目组内的动作仍带自己的 workspace（既是运行目标又是载体），因此下面用一个 union：
 // 要么带 workspace（scope 可选，缺省 project），要么只给 `scope: "global"`（workspace 可省）。
-export type ZCodeAgentSavedWorkflowTarget =
-  | (ZCodeAgentWorkspaceTarget & { scope?: ZCodeSavedWorkflowScope })
-  | ({ scope: "global" } & Partial<ZCodeAgentWorkspaceTarget>);
+export type YCodeAgentSavedWorkflowTarget =
+  | (YCodeAgentWorkspaceTarget & { scope?: YCodeSavedWorkflowScope })
+  | ({ scope: "global" } & Partial<YCodeAgentWorkspaceTarget>);
 
-export type ZCodeAgentListSavedWorkflowsParams = ZCodeAgentSavedWorkflowTarget;
+export type YCodeAgentListSavedWorkflowsParams = YCodeAgentSavedWorkflowTarget;
 
-export type ZCodeAgentGetSavedWorkflowParams = ZCodeAgentSavedWorkflowTarget & {
+export type YCodeAgentGetSavedWorkflowParams = YCodeAgentSavedWorkflowTarget & {
   name: string;
 };
 
-export type ZCodeAgentUpdateSavedWorkflowMetaParams = ZCodeAgentSavedWorkflowTarget & {
+export type YCodeAgentUpdateSavedWorkflowMetaParams = YCodeAgentSavedWorkflowTarget & {
   name: string;
-  meta: ZCodeSavedWorkflowMeta;
+  meta: YCodeSavedWorkflowMeta;
 };
 
-export type ZCodeAgentDeleteSavedWorkflowParams = ZCodeAgentSavedWorkflowTarget & {
+export type YCodeAgentDeleteSavedWorkflowParams = YCodeAgentSavedWorkflowTarget & {
   name: string;
 };
 
-export type ZCodeAgentListSavedWorkflowRunsParams = ZCodeAgentSavedWorkflowTarget & {
+export type YCodeAgentListSavedWorkflowRunsParams = YCodeAgentSavedWorkflowTarget & {
   /** 只要这个工作流名下的 run；缺省即（该 scope 下）全部。 */
   name?: string;
   /** [1, 50]；服务端钳制。 */
@@ -39,6 +39,6 @@ export type ZCodeAgentListSavedWorkflowRunsParams = ZCodeAgentSavedWorkflowTarge
 // workflows/move：把全局档搬回项目档，
 // **只此一向**。`workspace`
 // 必填，既是载体也是「移到项目…」选中的目标项目；同机同用户，不覆盖已存在的目标。
-export type ZCodeAgentMoveSavedWorkflowParams = ZCodeAgentWorkspaceTarget & {
+export type YCodeAgentMoveSavedWorkflowParams = YCodeAgentWorkspaceTarget & {
   name: string;
 };

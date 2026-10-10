@@ -21,18 +21,18 @@ import {
   extractConversationPreviewFileReferences,
   type ConversationPreviewArtifactCandidate,
   localizeConversationShareUrl,
-  resolveRuntimeZCodeEndpointOrigin,
+  resolveRuntimeYCodeEndpointOrigin,
 } from "@ycode/shared";
 import type { ConversationRow } from "@ycode/shared/ycode-protocol-v4";
 import {
   PROTOCOL_V4_LIMITS,
   YCODE_ATTACHMENT_FAULT_CODES,
-  readZCodeAttachmentFaultCode,
+  readYCodeAttachmentFaultCode,
 } from "@ycode/shared/ycode-protocol-v4";
 import { Emitter } from "@ycode/rpc";
 
-import type { IZCodeAgentService } from "../ycode-agent/zcodeAgent.js";
-import type { IZCodeSessionService } from "#src/ycode-session/zcodeSession.js";
+import type { IYCodeAgentService } from "../ycode-agent/ycodeAgent.js";
+import type { IYCodeSessionService } from "#src/ycode-session/ycodeSession.js";
 import { getConversationWorkspaceDir } from "#src/paths.js";
 import { createServiceLogger, type ServiceLogger } from "#src/logger/serviceLogger.js";
 import {
@@ -160,14 +160,14 @@ function uniqueImportedFileName(
 }
 
 interface ConversationShareServiceOptions {
-  zcodeAgentService: ConversationShareAgentService;
+  ycodeAgentService: ConversationShareAgentService;
   client: ConversationShareHttpClient;
   artifactSource: ConversationShareArtifactSource;
   confirmPollIntervalMs?: number;
   confirmPollTimeoutMs?: number;
   now?: () => number;
   sleep?: (delayMs: number) => Promise<void>;
-  zcodeSessionService?: Pick<IZCodeSessionService, "createSession" | "listSessions">;
+  ycodeSessionService?: Pick<IYCodeSessionService, "createSession" | "listSessions">;
   download?: (url: string, init?: { signal?: AbortSignal }) => Promise<Response>;
   /** 单个 artifact 下载的超时（含读 body）；缺省 120s。 */
   downloadTimeoutMs?: number;
@@ -178,7 +178,7 @@ interface ConversationShareServiceOptions {
 }
 
 type ConversationShareAgentService = Pick<
-  IZCodeAgentService,
+  IYCodeAgentService,
   | "conversationRowsRangeV4"
   | "conversationFileChangesV4"
   | "conversationAttachmentReadV4"
@@ -515,7 +515,7 @@ function allowedArtifactFor(
  * 仅在 fault 码缺席时保留一条 errno 文本兜底，用于尚未带结构化码的旧 ycode-cli。
  */
 function isDefiniteMissingAttachment(error: unknown): boolean {
-  const faultCode = readZCodeAttachmentFaultCode(error);
+  const faultCode = readYCodeAttachmentFaultCode(error);
   if (faultCode) {
     return (
       faultCode === YCODE_ATTACHMENT_FAULT_CODES.shareStatNotFound ||
@@ -527,7 +527,7 @@ function isDefiniteMissingAttachment(error: unknown): boolean {
 }
 
 function isAttachmentAuthorizationError(error: unknown): boolean {
-  const faultCode = readZCodeAttachmentFaultCode(error);
+  const faultCode = readYCodeAttachmentFaultCode(error);
   if (faultCode) {
     return (
       faultCode === YCODE_ATTACHMENT_FAULT_CODES.shareStatNotAuthorized ||
@@ -542,7 +542,7 @@ function isAttachmentAuthorizationError(error: unknown): boolean {
 
 /** 附件体积超出协议/通道可承载范围：选择阶段就应作为确定阻断呈现。 */
 function isAttachmentTooLargeError(error: unknown): boolean {
-  const faultCode = readZCodeAttachmentFaultCode(error);
+  const faultCode = readYCodeAttachmentFaultCode(error);
   return (
     faultCode === YCODE_ATTACHMENT_FAULT_CODES.shareStatTooLarge ||
     faultCode === YCODE_ATTACHMENT_FAULT_CODES.previewTooLarge
@@ -662,7 +662,7 @@ function selectRows(
 }
 
 export class ConversationShareService implements IConversationShareService {
-  private readonly zcodeAgentService: ConversationShareAgentService;
+  private readonly ycodeAgentService: ConversationShareAgentService;
   private readonly client: ConversationShareHttpClient;
   private readonly artifactSource: ConversationShareArtifactSource;
   private readonly confirmPollIntervalMs: number;
@@ -674,8 +674,8 @@ export class ConversationShareService implements IConversationShareService {
     string,
     Emitter<ConversationShareImportProgress>
   >();
-  private readonly zcodeSessionService?: Pick<
-    IZCodeSessionService,
+  private readonly ycodeSessionService?: Pick<
+    IYCodeSessionService,
     "createSession" | "listSessions"
   >;
   private readonly download: (url: string, init?: { signal?: AbortSignal }) => Promise<Response>;
@@ -706,31 +706,31 @@ export class ConversationShareService implements IConversationShareService {
   private importIndexWriteChain: Promise<void> = Promise.resolve();
 
   constructor(options: ConversationShareServiceOptions) {
-    this.zcodeAgentService = options.zcodeAgentService;
+    this.ycodeAgentService = options.ycodeAgentService;
     this.client = options.client;
     this.artifactSource = options.artifactSource;
     this.confirmPollIntervalMs = options.confirmPollIntervalMs ?? DEFAULT_CONFIRM_POLL_INTERVAL_MS;
     this.confirmPollTimeoutMs = options.confirmPollTimeoutMs ?? DEFAULT_CONFIRM_POLL_TIMEOUT_MS;
     this.now = options.now ?? Date.now;
     this.sleep = options.sleep ?? wait;
-    this.zcodeSessionService = options.zcodeSessionService;
+    this.ycodeSessionService = options.ycodeSessionService;
     this.download = options.download ?? ((url, init) => fetch(url, { signal: init?.signal }));
     this.downloadTimeoutMs = options.downloadTimeoutMs ?? DOWNLOAD_TIMEOUT_MS;
     this.conversationWorkspaceRoot =
       options.conversationWorkspaceRoot ?? getConversationWorkspaceDir();
     // 兜底写死生产站 https://ycode.z.ai/cn/share，于是测试环境（API base 走
     // 配置的 YCode origin）导入后回链仍指向生产站，点分割线打开的是另一个环境的分享。
-    // 改用与 API base 同一个环境解析器（buildRuntimeZCodeApiUrl 也走它），保证同环境。
+    // 改用与 API base 同一个环境解析器（buildRuntimeYCodeApiUrl 也走它），保证同环境。
     // 优先级不变：显式 option > YCODE_CONVERSATION_SHARE_WEB_URL > 按环境推导。
     this.shareWebUrl = (
       options.shareWebUrl ??
       process.env.YCODE_CONVERSATION_SHARE_WEB_URL ??
-      `${resolveRuntimeZCodeEndpointOrigin(process.env)}/cn/share`
+      `${resolveRuntimeYCodeEndpointOrigin(process.env)}/cn/share`
     ).replace(/\/+$/u, "");
     this.importIndexPath = join(this.conversationWorkspaceRoot, ".ycode-share-imports.json");
     this.logger = options.logger ?? createServiceLogger("conversation-share");
     this.completedImportsLoaded = this.loadCompletedImportIndex();
-    if (this.zcodeSessionService) {
+    if (this.ycodeSessionService) {
       void this.cleanupAbandonedImports().catch(() => undefined);
     }
   }
@@ -771,7 +771,7 @@ export class ConversationShareService implements IConversationShareService {
     input: ConversationSharePreflightInput,
   ): Promise<ConversationSharePreflightResult> {
     try {
-      return await this.preflightWithAgent(input, this.zcodeAgentService);
+      return await this.preflightWithAgent(input, this.ycodeAgentService);
     } catch (error) {
       throw normalizeConversationShareConnectionError(error);
     }
@@ -1371,7 +1371,7 @@ export class ConversationShareService implements IConversationShareService {
     input: ImportConversationShareInput,
     operationId: string,
   ): Promise<ImportConversationShareResult> {
-    if (!this.zcodeSessionService) {
+    if (!this.ycodeSessionService) {
       throwServiceError("feature_disabled", "Conversation share import is unavailable");
     }
     // 两个摘要已在 ConversationShareHttpClient.getContinuation 里对服务端原样发来的值复核过。
@@ -1411,7 +1411,7 @@ export class ConversationShareService implements IConversationShareService {
         typeof existingMarker.sessionId === "string" &&
         existingMarker.sessionId.startsWith("share-import-")
       ) {
-        const sessions = await this.zcodeSessionService.listSessions({ workspacePath, limit: 100 });
+        const sessions = await this.ycodeSessionService.listSessions({ workspacePath, limit: 100 });
         const existingSession = sessions.find(
           (item) => item.sessionId === existingMarker.sessionId,
         );
@@ -1639,7 +1639,7 @@ export class ConversationShareService implements IConversationShareService {
         }),
         "utf8",
       );
-      const snapshot = await this.zcodeSessionService.createSession({
+      const snapshot = await this.ycodeSessionService.createSession({
         workspacePath,
         ...(workspaceIdentity ? { workspaceIdentity } : {}),
         sessionId,
@@ -1832,7 +1832,7 @@ export class ConversationShareService implements IConversationShareService {
   }
 
   async publish(input: PublishTextConversationInput, operationId: string) {
-    return this.publishWithAgent(input, operationId, this.zcodeAgentService);
+    return this.publishWithAgent(input, operationId, this.ycodeAgentService);
   }
 
   private async publishWithAgent(
@@ -1887,7 +1887,7 @@ export class ConversationShareService implements IConversationShareService {
   private async publishInternal(
     input: PublishTextConversationInput,
     operationId?: string,
-    agentService: ConversationShareAgentService = this.zcodeAgentService,
+    agentService: ConversationShareAgentService = this.ycodeAgentService,
   ): Promise<ConversationShareRecord> {
     const report = (
       phase: ConversationSharePublishProgress["phase"],
@@ -1978,7 +1978,7 @@ export class ConversationShareService implements IConversationShareService {
       if (snapshot) preflightPreviewSnapshots.set(productTurnId, snapshot);
     }
     const artifactSnapshot = await buildConversationShareArtifactSnapshot({
-      zcodeAgentService: agentService,
+      ycodeAgentService: agentService,
       artifactSource: this.artifactSource,
       input,
       selectedRows,
@@ -2164,7 +2164,7 @@ export class ConversationShareService implements IConversationShareService {
   }
 
   private async cleanupAbandonedImports(): Promise<void> {
-    if (!this.zcodeSessionService) return;
+    if (!this.ycodeSessionService) return;
     await this.completedImportsLoaded;
     // 只扫描默认 conversation workspace 的 import-owned 子目录；其它 workspace 的 marker
     // 在下一次带 target 的导入请求中处理，避免启动期枚举并触碰用户项目目录。
@@ -2190,7 +2190,7 @@ export class ConversationShareService implements IConversationShareService {
       if (typeof marker.sessionId !== "string" || !marker.sessionId.startsWith("share-import-"))
         continue;
       try {
-        const sessions = await this.zcodeSessionService.listSessions({
+        const sessions = await this.ycodeSessionService.listSessions({
           workspacePath: this.conversationWorkspaceRoot,
           limit: 100,
         });

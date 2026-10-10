@@ -1,60 +1,60 @@
 import {
-  zcodePluginsConfigureParamsSchema,
-  zcodePluginsResetConfigParamsSchema,
-  zcodePluginsInstallParamsSchema,
-  zcodePluginsMarketplaceAddParamsSchema,
-  zcodePluginsMarketplaceRemoveParamsSchema,
-  zcodePluginsMarketplaceUpdateParamsSchema,
-  zcodePluginsOverviewParamsSchema,
-  zcodePluginsListParamsSchema,
-  zcodePluginsSetEnabledParamsSchema,
-  zcodePluginsUninstallParamsSchema,
-  zcodePluginsUpdateParamsSchema,
-  zcodePluginsValidateParamsSchema,
-  zcodePluginsDescribeParamsSchema,
-  zcodePluginsRestoreBuiltinParamsSchema,
-  type ZCodeAvailablePluginSummary,
-  type ZCodeInstalledPluginSummary,
-  type ZCodePluginComponentGroup,
-  type ZCodePluginDiagnostic,
-  type ZCodePluginInfo,
-  type ZCodePluginMarketplaceSummary,
-  type ZCodePluginsConfigureResult,
-  type ZCodePluginsDescribeResult,
-  type ZCodePluginsInstallResult,
-  type ZCodePluginsListResult,
-  type ZCodePluginsMarketplaceMutationResult,
-  type ZCodePluginsOverviewResult,
-  type ZCodePluginsRestoreBuiltinResult,
-  type ZCodePluginsSetEnabledResult,
-  type ZCodePluginsUninstallResult,
-  type ZCodePluginsValidateResult,
+  ycodePluginsConfigureParamsSchema,
+  ycodePluginsResetConfigParamsSchema,
+  ycodePluginsInstallParamsSchema,
+  ycodePluginsMarketplaceAddParamsSchema,
+  ycodePluginsMarketplaceRemoveParamsSchema,
+  ycodePluginsMarketplaceUpdateParamsSchema,
+  ycodePluginsOverviewParamsSchema,
+  ycodePluginsListParamsSchema,
+  ycodePluginsSetEnabledParamsSchema,
+  ycodePluginsUninstallParamsSchema,
+  ycodePluginsUpdateParamsSchema,
+  ycodePluginsValidateParamsSchema,
+  ycodePluginsDescribeParamsSchema,
+  ycodePluginsRestoreBuiltinParamsSchema,
+  type YCodeAvailablePluginSummary,
+  type YCodeInstalledPluginSummary,
+  type YCodePluginComponentGroup,
+  type YCodePluginDiagnostic,
+  type YCodePluginInfo,
+  type YCodePluginMarketplaceSummary,
+  type YCodePluginsConfigureResult,
+  type YCodePluginsDescribeResult,
+  type YCodePluginsInstallResult,
+  type YCodePluginsListResult,
+  type YCodePluginsMarketplaceMutationResult,
+  type YCodePluginsOverviewResult,
+  type YCodePluginsRestoreBuiltinResult,
+  type YCodePluginsSetEnabledResult,
+  type YCodePluginsUninstallResult,
+  type YCodePluginsValidateResult,
 } from "@ycode/shared";
 import type { PluginDiagnostic, PluginMetadata } from "@ycode/contracts";
 import {
-  addZCodePluginMarketplace,
-  configureZCodePlugin,
-  describeZCodePlugin,
-  getZCodePluginsOverview,
-  installZCodeMarketplacePlugin,
-  removeZCodePluginMarketplace,
-  resolveZCodePlugins,
-  resetZCodePluginConfig,
+  addYCodePluginMarketplace,
+  configureYCodePlugin,
+  describeYCodePlugin,
+  getYCodePluginsOverview,
+  installYCodeMarketplacePlugin,
+  removeYCodePluginMarketplace,
+  resolveYCodePlugins,
+  resetYCodePluginConfig,
   restoreBuiltinPlugin as restoreBuiltinPluginCore,
-  setZCodePluginEnabled,
-  uninstallZCodeMarketplacePlugin,
-  updateZCodePluginMarketplace,
-  validateZCodePlugin,
+  setYCodePluginEnabled,
+  uninstallYCodeMarketplacePlugin,
+  updateYCodePluginMarketplace,
+  validateYCodePlugin,
 } from "../plugins.js";
 import { listInstalledPluginRecords } from "@ycode/adapters/plugins";
 import { withPluginStorageLock } from "../lib/plugin-storage-lock.js";
 import { getCliStorageRoot, getPluginStorageRoot } from "../app/paths.js";
 import { resolveOfficialPluginHostMcpServerNames } from "../app/official-plugin-definitions.js";
 import { createConfig, resolvePath, type ConfigResult } from "@ycode/adapters/config";
-import { parseParams, type ZCodeProtocolAgentServerContext } from "./server-types.js";
+import { parseParams, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
-// 把 CLI 的 PluginMetadata 投影成协议可序列化的 ZCodePluginInfo (只保留 UI 需要的字段)。
-function toPluginInfo(plugin: PluginMetadata, configResult?: ConfigResult): ZCodePluginInfo {
+// 把 CLI 的 PluginMetadata 投影成协议可序列化的 YCodePluginInfo (只保留 UI 需要的字段)。
+function toPluginInfo(plugin: PluginMetadata, configResult?: ConfigResult): YCodePluginInfo {
   const hostMcpServerNames = resolveOfficialPluginHostMcpServerNames(plugin.id);
   const configuredOptions = Object.fromEntries(
     Object.entries(plugin.configuredOptions ?? {}).filter(
@@ -127,7 +127,7 @@ function resolveInlinePluginRootSource(
 }
 
 function createPluginConfigView(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   workspacePath: string,
   configScope: "user" | "workspace" | undefined,
 ): ConfigResult {
@@ -144,7 +144,7 @@ function createPluginConfigView(
 function createMissingConfiguredPluginInfos(
   configResult: ConfigResult,
   discoveredPluginIds: ReadonlySet<string>,
-): ZCodePluginInfo[] {
+): YCodePluginInfo[] {
   const configuredPluginIds = new Set([
     ...Object.keys(configResult.config.plugins.enabledPlugins),
     ...Object.keys(configResult.config.plugins.options),
@@ -189,7 +189,7 @@ function normalizePluginRootForComparison(
   return platform === "win32" ? resolvedRoot.replaceAll("\\", "/").toLowerCase() : resolvedRoot;
 }
 
-function toPluginDiagnostic(diagnostic: PluginDiagnostic): ZCodePluginDiagnostic {
+function toPluginDiagnostic(diagnostic: PluginDiagnostic): YCodePluginDiagnostic {
   return {
     code: diagnostic.code,
     message: diagnostic.message,
@@ -199,16 +199,16 @@ function toPluginDiagnostic(diagnostic: PluginDiagnostic): ZCodePluginDiagnostic
 }
 
 export async function listPlugins(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsListResult> {
-  const params = parseParams(zcodePluginsListParamsSchema, rawParams);
+): Promise<YCodePluginsListResult> {
+  const params = parseParams(ycodePluginsListParamsSchema, rawParams);
   const configResult = createPluginConfigView(
     context,
     params.workspace.workspacePath,
     params.configScope,
   );
-  const outcome = resolveZCodePlugins({
+  const outcome = resolveYCodePlugins({
     configResult,
     logger: context.logger,
     workingDirectory: params.workspace.workspacePath,
@@ -227,13 +227,13 @@ export async function listPlugins(
 }
 
 export async function setPluginEnabled(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
-): Promise<ZCodePluginsSetEnabledResult> {
-  const params = parseParams(zcodePluginsSetEnabledParamsSchema, rawParams);
+): Promise<YCodePluginsSetEnabledResult> {
+  const params = parseParams(ycodePluginsSetEnabledParamsSchema, rawParams);
   abortSignal?.throwIfAborted();
-  const result = await setZCodePluginEnabled({
+  const result = await setYCodePluginEnabled({
     enabled: params.enabled,
     logger: context.logger,
     plugin: params.pluginId,
@@ -252,11 +252,11 @@ export async function setPluginEnabled(
 }
 
 export async function getPluginsOverview(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsOverviewResult> {
-  const params = parseParams(zcodePluginsOverviewParamsSchema, rawParams);
-  const overview = getZCodePluginsOverview({
+): Promise<YCodePluginsOverviewResult> {
+  const params = parseParams(ycodePluginsOverviewParamsSchema, rawParams);
+  const overview = getYCodePluginsOverview({
     configResult: createPluginConfigView(
       context,
       params.workspace.workspacePath,
@@ -276,14 +276,14 @@ export async function getPluginsOverview(
 }
 
 export async function addPluginMarketplace(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
-): Promise<ZCodePluginsMarketplaceMutationResult> {
-  const params = parseParams(zcodePluginsMarketplaceAddParamsSchema, rawParams);
+): Promise<YCodePluginsMarketplaceMutationResult> {
+  const params = parseParams(ycodePluginsMarketplaceAddParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const marketplace = await withPluginStorageLock(pluginStorageRoot, async () =>
-    addZCodePluginMarketplace({
+    addYCodePluginMarketplace({
       abortSignal,
       dryRun: params.dryRun,
       logger: context.logger,
@@ -295,13 +295,13 @@ export async function addPluginMarketplace(
 }
 
 export async function removePluginMarketplace(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsMarketplaceMutationResult> {
-  const params = parseParams(zcodePluginsMarketplaceRemoveParamsSchema, rawParams);
+): Promise<YCodePluginsMarketplaceMutationResult> {
+  const params = parseParams(ycodePluginsMarketplaceRemoveParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   await withPluginStorageLock(pluginStorageRoot, async () =>
-    removeZCodePluginMarketplace({
+    removeYCodePluginMarketplace({
       logger: context.logger,
       marketplace: params.marketplace,
       workingDirectory: params.workspace.workspacePath,
@@ -311,14 +311,14 @@ export async function removePluginMarketplace(
 }
 
 export async function updatePluginMarketplace(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
-): Promise<ZCodePluginsMarketplaceMutationResult> {
-  const params = parseParams(zcodePluginsMarketplaceUpdateParamsSchema, rawParams);
+): Promise<YCodePluginsMarketplaceMutationResult> {
+  const params = parseParams(ycodePluginsMarketplaceUpdateParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const result = await withPluginStorageLock(pluginStorageRoot, async () =>
-    updateZCodePluginMarketplace({
+    updateYCodePluginMarketplace({
       abortSignal,
       logger: context.logger,
       marketplace: params.marketplace,
@@ -332,14 +332,14 @@ export async function updatePluginMarketplace(
 }
 
 export async function installPlugin(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
-): Promise<ZCodePluginsInstallResult> {
-  const params = parseParams(zcodePluginsInstallParamsSchema, rawParams);
+): Promise<YCodePluginsInstallResult> {
+  const params = parseParams(ycodePluginsInstallParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const result = await withPluginStorageLock(pluginStorageRoot, async () =>
-    installZCodeMarketplacePlugin({
+    installYCodeMarketplacePlugin({
       abortSignal,
       dryRun: params.dryRun,
       logger: context.logger,
@@ -357,11 +357,11 @@ export async function installPlugin(
 }
 
 export async function uninstallPlugin(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsUninstallResult> {
-  const params = parseParams(zcodePluginsUninstallParamsSchema, rawParams);
-  const removed = await uninstallZCodeMarketplacePlugin({
+): Promise<YCodePluginsUninstallResult> {
+  const params = parseParams(ycodePluginsUninstallParamsSchema, rawParams);
+  const removed = await uninstallYCodeMarketplacePlugin({
     logger: context.logger,
     marketplace: params.marketplace,
     pluginId: params.pluginId,
@@ -376,10 +376,10 @@ export async function uninstallPlugin(
 }
 
 export async function updatePlugin(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsInstallResult> {
-  const params = parseParams(zcodePluginsUpdateParamsSchema, rawParams);
+): Promise<YCodePluginsInstallResult> {
+  const params = parseParams(ycodePluginsUpdateParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const installed = listInstalledPluginRecords(pluginStorageRoot).filter((record) => {
     if (params.pluginId) return record.id === params.pluginId;
@@ -389,15 +389,15 @@ export async function updatePlugin(
   // 与 uninstall 一样把整个重装循环串行化到同一 storageRoot 的 in-process 锁里，
   // 避免并发 update/install 交错读改写 installed_plugins.json / cache。
   return withPluginStorageLock(pluginStorageRoot, async () => {
-    const installedPlugins: ZCodeInstalledPluginSummary[] = [];
+    const installedPlugins: YCodeInstalledPluginSummary[] = [];
     const dependencyClosure: string[] = [];
-    // 聚合每条记录重装产生的诊断：installZCodeMarketplacePlugin 失败时不抛错，而是返回
+    // 聚合每条记录重装产生的诊断：installYCodeMarketplacePlugin 失败时不抛错，而是返回
     // CLI 形态的 PluginDiagnostic（见其错误分支的 toMarketplaceInstallDiagnostic），
-    // 这里逐条经协议侧 toPluginDiagnostic 投影成 ZCodePluginDiagnostic 回传，
+    // 这里逐条经协议侧 toPluginDiagnostic 投影成 YCodePluginDiagnostic 回传，
     // 让失败的重装显式暴露，而不是静默"成功"。
-    const diagnostics: ZCodePluginDiagnostic[] = [];
+    const diagnostics: YCodePluginDiagnostic[] = [];
     for (const record of installed) {
-      const result = await installZCodeMarketplacePlugin({
+      const result = await installYCodeMarketplacePlugin({
         logger: context.logger,
         marketplace: record.marketplace,
         pluginName: record.name,
@@ -415,10 +415,10 @@ export async function updatePlugin(
 // 恢复一个被抑制（"卸载"）的内置插件：清除 suppressedBuiltins 标记并立即重新 seed。
 // bootstrap 侧的同名函数被别名为 restoreBuiltinPluginCore，避免与本协议处理器重名。
 export async function restoreBuiltinPlugin(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsRestoreBuiltinResult> {
-  const params = parseParams(zcodePluginsRestoreBuiltinParamsSchema, rawParams);
+): Promise<YCodePluginsRestoreBuiltinResult> {
+  const params = parseParams(ycodePluginsRestoreBuiltinParamsSchema, rawParams);
   await restoreBuiltinPluginCore({
     logger: context.logger,
     pluginId: params.pluginId,
@@ -428,11 +428,11 @@ export async function restoreBuiltinPlugin(
 }
 
 export async function configurePlugin(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsConfigureResult> {
-  const params = parseParams(zcodePluginsConfigureParamsSchema, rawParams);
-  await configureZCodePlugin({
+): Promise<YCodePluginsConfigureResult> {
+  const params = parseParams(ycodePluginsConfigureParamsSchema, rawParams);
+  await configureYCodePlugin({
     clearOptionKeys: params.clearOptionKeys,
     dryRun: params.dryRun,
     logger: context.logger,
@@ -445,11 +445,11 @@ export async function configurePlugin(
 }
 
 export async function resetPluginConfig(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsConfigureResult> {
-  const params = parseParams(zcodePluginsResetConfigParamsSchema, rawParams);
-  await resetZCodePluginConfig({
+): Promise<YCodePluginsConfigureResult> {
+  const params = parseParams(ycodePluginsResetConfigParamsSchema, rawParams);
+  await resetYCodePluginConfig({
     logger: context.logger,
     pluginId: params.pluginId,
     scope: params.scope,
@@ -459,13 +459,13 @@ export async function resetPluginConfig(
 }
 
 export async function validatePlugin(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsValidateResult> {
-  const params = parseParams(zcodePluginsValidateParamsSchema, rawParams);
+): Promise<YCodePluginsValidateResult> {
+  const params = parseParams(ycodePluginsValidateParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const diagnostics = await withPluginStorageLock(pluginStorageRoot, async () =>
-    validateZCodePlugin({
+    validateYCodePlugin({
       logger: context.logger,
       marketplace: params.marketplace,
       pluginName: params.pluginName,
@@ -485,20 +485,20 @@ export async function validatePlugin(
 }
 
 export async function describePlugin(
-  context: ZCodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ZCodePluginsDescribeResult> {
-  const params = parseParams(zcodePluginsDescribeParamsSchema, rawParams);
+): Promise<YCodePluginsDescribeResult> {
+  const params = parseParams(ycodePluginsDescribeParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const result = await withPluginStorageLock(pluginStorageRoot, async () =>
-    describeZCodePlugin({
+    describeYCodePlugin({
       logger: context.logger,
       marketplace: params.marketplace,
       pluginName: params.pluginName,
       workingDirectory: params.workspace.workspacePath,
     }),
   );
-  const components: ZCodePluginComponentGroup[] = result.components.map((group) => ({
+  const components: YCodePluginComponentGroup[] = result.components.map((group) => ({
     kind: group.kind,
     items: group.items.map((item) => ({
       name: item.name,
@@ -522,8 +522,8 @@ function toMarketplaceSummary(input: {
   pluginCount: number;
   isOfficial?: boolean;
   featured?: string[];
-  refreshFailure?: ZCodePluginMarketplaceSummary["refreshFailure"];
-}): ZCodePluginMarketplaceSummary {
+  refreshFailure?: YCodePluginMarketplaceSummary["refreshFailure"];
+}): YCodePluginMarketplaceSummary {
   return {
     id: input.id,
     name: input.name,
@@ -545,8 +545,8 @@ function toAvailablePluginSummary(input: {
   version?: string;
   installed: boolean;
   componentTypes?: string[];
-  listing?: ZCodeAvailablePluginSummary["listing"];
-}): ZCodeAvailablePluginSummary {
+  listing?: YCodeAvailablePluginSummary["listing"];
+}): YCodeAvailablePluginSummary {
   return {
     id: input.id,
     name: input.name,
@@ -570,11 +570,11 @@ function toInstalledPluginSummary(input: {
   installPath?: string;
   installedAt?: string;
   componentTypes?: string[];
-  hookDetails?: ZCodeInstalledPluginSummary["hookDetails"];
+  hookDetails?: YCodeInstalledPluginSummary["hookDetails"];
   updateStatus?: "none" | "update-available" | "version-changed";
   latestVersion?: string;
-  listing?: ZCodeInstalledPluginSummary["listing"];
-}): ZCodeInstalledPluginSummary {
+  listing?: YCodeInstalledPluginSummary["listing"];
+}): YCodeInstalledPluginSummary {
   return {
     id: input.id,
     name: input.name,

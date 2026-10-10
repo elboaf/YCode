@@ -1,12 +1,12 @@
 import {
-  buildRuntimeZCodeEndpointUrls,
+  buildRuntimeYCodeEndpointUrls,
   YCODE_ENV,
-  type RuntimeZCodeEndpointEnv,
+  type RuntimeYCodeEndpointEnv,
 } from "@ycode/shared";
 
 interface RendererImportMetaEnv {
-  VITE_ZCODE_BASE_URL?: string;
-  VITE_ZCODE_ENDPOINT_ORIGIN?: string;
+  VITE_YCODE_BASE_URL?: string;
+  VITE_YCODE_ENDPOINT_ORIGIN?: string;
 }
 
 function readRendererImportMetaEnv(): RendererImportMetaEnv {
@@ -14,18 +14,18 @@ function readRendererImportMetaEnv(): RendererImportMetaEnv {
     {}) as RendererImportMetaEnv;
 }
 
-function createRendererZCodeEndpointEnv(
+function createRendererYCodeEndpointEnv(
   env: RendererImportMetaEnv = readRendererImportMetaEnv(),
-): RuntimeZCodeEndpointEnv {
+): RuntimeYCodeEndpointEnv {
   return {
     YCODE_ENV,
     // UI 侧的 ycode-plan 占位 provider 以前只看 YCODE_ENV，
     // 没有消费 Vite 注入的 base url，导致自定义测试域名时 renderer 和 host/service 可能不一致。
-    YCODE_BASE_URL: env.VITE_ZCODE_BASE_URL,
-    YCODE_ENDPOINT_ORIGIN: env.VITE_ZCODE_ENDPOINT_ORIGIN,
+    YCODE_BASE_URL: env.VITE_YCODE_BASE_URL,
+    YCODE_ENDPOINT_ORIGIN: env.VITE_YCODE_ENDPOINT_ORIGIN,
   };
 }
 
-export const RENDERER_ZCODE_ENDPOINT_URLS = buildRuntimeZCodeEndpointUrls(
-  createRendererZCodeEndpointEnv(),
+export const RENDERER_YCODE_ENDPOINT_URLS = buildRuntimeYCodeEndpointUrls(
+  createRendererYCodeEndpointEnv(),
 );

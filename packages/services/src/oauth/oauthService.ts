@@ -31,13 +31,13 @@ import { OAuthCredentialRepo } from "./repo/oauthCredentialRepo.js";
 import { createOAuthRuntimeConfig } from "./runtimeConfig.js";
 import {
   buildDesktopOAuthRedirectUriFromEnv,
-  buildZCodeApiUrlFromEnv,
+  buildYCodeApiUrlFromEnv,
 } from "./providers/configUtils.js";
 
 /** OAuth 超时时间（5 分钟） */
 const OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 const COMPLETED_POLLING_STATE_GRACE_MS = 30 * 1000;
-const YCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const YCODE_JWT_TOKEN_KEY = "ycodejwttoken";
 const log = (...args: unknown[]) =>
   console.log(formatLogPrefix("oauthService", process.pid), ...args);
 const serviceLog = createServiceLogger("oauthService");
@@ -208,8 +208,8 @@ export class OAuthService implements IOAuthService {
 
     // 启动缓存恢复只需要检查共享 ycode JWT；若通过 loadActiveTokenSet 连带读取
     // provider access token，会把原本后台执行的 BigModel profile 迁移重新阻塞到首屏恢复链路。
-    const zcodeJwtToken = (await this.credentialService.load(YCODE_JWT_TOKEN_KEY))?.trim() ?? "";
-    if (zcodeJwtToken && resolveJwtExpiration(zcodeJwtToken, this.now()).kind === "expired") {
+    const ycodeJwtToken = (await this.credentialService.load(YCODE_JWT_TOKEN_KEY))?.trim() ?? "";
+    if (ycodeJwtToken && resolveJwtExpiration(ycodeJwtToken, this.now()).kind === "expired") {
       serviceLog.info("cached session invalidated because ycode JWT expired", {
         provider: activeProvider,
       });
@@ -217,7 +217,7 @@ export class OAuthService implements IOAuthService {
         restoreGeneration,
         activeProvider,
         profile,
-        zcodeJwtToken,
+        ycodeJwtToken,
       );
       if (!invalidated) {
         return this.restoreCachedSessionState();
@@ -256,10 +256,10 @@ export class OAuthService implements IOAuthService {
     }
 
     if (activeProvider === ZAI_PROVIDER_ID) {
-      if (!zcodeJwtToken) {
-        // sidebar 登录入口之前只看缓存 user_info，会把“缺少 zcodejwttoken”的状态误判成已登录。
-        // 这里补充 zcodejwttoken 门槛，确保没有后端 JWT 时统一按未登录处理。
-        log("restoreCachedSession skipped: missing zcodejwttoken:", activeProvider);
+      if (!ycodeJwtToken) {
+        // sidebar 登录入口之前只看缓存 user_info，会把“缺少 ycodejwttoken”的状态误判成已登录。
+        // 这里补充 ycodejwttoken 门槛，确保没有后端 JWT 时统一按未登录处理。
+        log("restoreCachedSession skipped: missing ycodejwttoken:", activeProvider);
         return { status: "signed-out" };
       }
     }
@@ -418,7 +418,7 @@ export class OAuthService implements IOAuthService {
     if (inactiveProvider) {
       await assertCurrent();
       // ZAI 与 BigModel 是互斥身份域。切换 provider 时必须先清旧 provider，
-      // 再保存当前 token；反序会让 clearProvider 误删共享的 zcodejwttoken。
+      // 再保存当前 token；反序会让 clearProvider 误删共享的 ycodejwttoken。
       await this.repo.clearProvider(inactiveProvider);
     }
     await assertCurrent();
@@ -606,7 +606,7 @@ export class OAuthService implements IOAuthService {
     this.oauthFlowStartProvider = provider;
     this.clearPendingState();
     const pollToken = randomBytes(32).toString("hex");
-    const initUrl = buildZCodeApiUrlFromEnv(this.env, "/api/v1/oauth/cli/init");
+    const initUrl = buildYCodeApiUrlFromEnv(this.env, "/api/v1/oauth/cli/init");
     const envelope = await readApiJson<OAuthFlowEnvelope>(this.apiClient, initUrl, {
       method: "POST",
       headers: {
@@ -683,7 +683,7 @@ export class OAuthService implements IOAuthService {
         nextPollAt: this.now(),
         pollIntervalMs,
         pollToken,
-        pollUrl: buildZCodeApiUrlFromEnv(
+        pollUrl: buildYCodeApiUrlFromEnv(
           this.env,
           `/api/v1/oauth/cli/poll/${encodeURIComponent(flowId)}`,
         ),
@@ -781,9 +781,9 @@ export class OAuthService implements IOAuthService {
           pending.provider === ZAI_PROVIDER_ID
             ? readTrimmedString(zai?.access_token)
             : readTrimmedString(bigmodel?.access_token) || readTrimmedString(bigmodel?.accessToken);
-        const zcodeJwtToken = readTrimmedString(ready.token);
+        const ycodeJwtToken = readTrimmedString(ready.token);
         const userId = readTrimmedString(user?.user_id);
-        if (!zcodeJwtToken || !providerAccessToken || !userId) {
+        if (!ycodeJwtToken || !providerAccessToken || !userId) {
           throw new Error("OAuth flow 查询响应无效");
         }
         const username = readTrimmedString(user?.name) || readTrimmedString(user?.email) || userId;
@@ -804,12 +804,12 @@ export class OAuthService implements IOAuthService {
         const tokenSet = adapter.normalizePolledTokenSet
           ? await adapter.normalizePolledTokenSet({
               accessToken: providerAccessToken,
-              zcodeJwtToken,
+              ycodeJwtToken,
               ...(refreshToken ? { refreshToken } : {}),
             })
           : {
               accessToken: providerAccessToken,
-              zcodeJwtToken,
+              ycodeJwtToken,
               ...(refreshToken ? { refreshToken } : {}),
             };
         return { tokenSet, profile };

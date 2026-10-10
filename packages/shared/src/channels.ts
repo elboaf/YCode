@@ -91,13 +91,13 @@ export const ServiceChannels = {
   /** 跨窗口广播 */
   Broadcast: "broadcast",
   /** YCode task wrapper 服务 */
-  ZCodeTask: "ycode-task",
+  YCodeTask: "ycode-task",
   /** 窗口 Host 聚合 workspace/task 投影与列表写路由 */
   WindowController: "window-controller",
   /** YCode Protocol agent 服务 */
-  ZCodeAgent: "ycode-agent",
+  YCodeAgent: "ycode-agent",
   /** YCode session 应用服务 */
-  ZCodeSession: "ycode-session",
+  YCodeSession: "ycode-session",
   /** 会话分享发布、预览与 continuation API 编排 */
   ConversationShare: "conversation-share",
   /** 文件系统监视服务 */
@@ -127,7 +127,7 @@ export const ServiceChannels = {
   PluginSync: "plugin-sync",
   /** 插件管理服务 */
   Plugins: "plugins",
-  /** 设置页插件管理服务（UI 平台能力面收敛，不再直触 zcodeAgentService） */
+  /** 设置页插件管理服务（UI 平台能力面收敛，不再直触 ycodeAgentService） */
   PluginManagement: "plugin-management",
   /** Subagents 管理服务 */
   Subagents: "subagents",
@@ -395,7 +395,7 @@ export const PlatformChannels = {
   /** Main → Renderer：当前窗口页面缩放档位变化 */
   DesktopZoomLevelChanged: "ycode:desktop-zoom-level-changed",
   /** Renderer → Main：读取开发态 stdio tap proxy 开关状态 */
-  GetZCodeStdioTapDevState: "ycode:get-ycode-stdio-tap-dev-state",
+  GetYCodeStdioTapDevState: "ycode:get-ycode-stdio-tap-dev-state",
   /** Main → Renderer：本地 setting.json 已由 main 进程更新 */
   SettingsChanged: "ycode:settings-changed",
   /** Main → Renderer：应用语言已切换 */
@@ -451,7 +451,7 @@ export interface EmbeddedBrowserWheelBoundaryPayload {
 
 /**
  * Electron `<webview>`（partition=persist:ycode-coding-plan）的 `sendToHost` / `ipc-message` 频道。
- * 官网页通过 preload 注入的 window.zcodeBridge 调用，不经过 main process。
+ * 官网页通过 preload 注入的 window.ycodeBridge 调用，不经过 main process。
  */
 export const CodingPlanWebviewChannels = {
   /** 官网页购买成功后通知 App 刷新 entitlements 并关闭 webview。 */
@@ -466,14 +466,14 @@ export interface CodingPlanPurchaseCompletePayload {
 }
 
 /**
- * 官网页 window.__zcodeLang__ 的取值，与 App IntlProvider 的 Locale 一致。
+ * 官网页 window.__ycodeLang__ 的取值，与 App IntlProvider 的 Locale 一致。
  * App locale 变化时通过 executeJavaScript 重写此变量并派发 lang-change 事件。
  */
 export type CodingPlanWebviewLocale = "zh-CN" | "en-US";
 
 /**
  * 官网页 lang-change 事件 detail。App 用 executeJavaScript 在 main world 派发
- * `ycode-coding-plan-lang-change` CustomEvent，website 侧（zcodeBridge.onLangChange 或
+ * `ycode-coding-plan-lang-change` CustomEvent，website 侧（ycodeBridge.onLangChange 或
  * 直接 window.addEventListener）订阅后切换 copy。
  */
 export interface CodingPlanWebviewLangChangeDetail {

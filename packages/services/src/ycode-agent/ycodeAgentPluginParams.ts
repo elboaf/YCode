@@ -1,42 +1,42 @@
 import type {
-  ZCodeAgentMcpServer,
-  ZCodeAutomationScheduleRule,
-  ZCodeMcpListMode,
+  YCodeAgentMcpServer,
+  YCodeAutomationScheduleRule,
+  YCodeMcpListMode,
   ModelSelection,
 } from "@ycode/shared";
 
-export interface ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentWorkspaceTarget {
   workspacePath: string;
   workspaceIdentity?: string;
   /** 远程 workspace 的运行时会话身份；只用于隔离/路由，不能替代 workspacePath。 */
   remoteSessionId?: string;
 }
 
-export interface ZCodeAgentPluginViewParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentPluginViewParams extends YCodeAgentWorkspaceTarget {
   configScope?: "user" | "workspace";
 }
 
-export interface ZCodeAgentListMcpServerStatusesParams extends ZCodeAgentWorkspaceTarget {
-  mcpServers?: ZCodeAgentMcpServer[];
-  mode?: ZCodeMcpListMode;
+export interface YCodeAgentListMcpServerStatusesParams extends YCodeAgentWorkspaceTarget {
+  mcpServers?: YCodeAgentMcpServer[];
+  mode?: YCodeMcpListMode;
 }
 
-export interface ZCodeAgentAddPluginMarketplaceParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentAddPluginMarketplaceParams extends YCodeAgentWorkspaceTarget {
   dryRun?: boolean;
   operationId?: string;
   source: string;
 }
 
-export interface ZCodeAgentRemovePluginMarketplaceParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentRemovePluginMarketplaceParams extends YCodeAgentWorkspaceTarget {
   marketplace: string;
 }
 
-export interface ZCodeAgentUpdatePluginMarketplaceParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentUpdatePluginMarketplaceParams extends YCodeAgentWorkspaceTarget {
   marketplace?: string;
   operationId?: string;
 }
 
-export interface ZCodeAgentInstallPluginParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentInstallPluginParams extends YCodeAgentWorkspaceTarget {
   dryRun?: boolean;
   marketplace: string;
   operationId?: string;
@@ -44,27 +44,27 @@ export interface ZCodeAgentInstallPluginParams extends ZCodeAgentWorkspaceTarget
   scope?: "user" | "workspace";
 }
 
-export interface ZCodeAgentCancelPluginOperationParams {
+export interface YCodeAgentCancelPluginOperationParams {
   operationId: string;
 }
 
-export interface ZCodeAgentUninstallPluginParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentUninstallPluginParams extends YCodeAgentWorkspaceTarget {
   marketplace?: string;
   pluginId?: string;
   pluginName?: string;
   removeCache?: boolean;
 }
 
-export interface ZCodeAgentUpdatePluginParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentUpdatePluginParams extends YCodeAgentWorkspaceTarget {
   pluginId?: string;
   marketplace?: string;
 }
 
-export interface ZCodeAgentRestoreBuiltinPluginParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentRestoreBuiltinPluginParams extends YCodeAgentWorkspaceTarget {
   pluginId: string;
 }
 
-export interface ZCodeAgentConfigurePluginParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentConfigurePluginParams extends YCodeAgentWorkspaceTarget {
   clearOptionKeys?: string[];
   dryRun?: boolean;
   options: Record<string, unknown>;
@@ -72,23 +72,23 @@ export interface ZCodeAgentConfigurePluginParams extends ZCodeAgentWorkspaceTarg
   scope?: "user" | "workspace";
 }
 
-export interface ZCodeAgentResetPluginConfigParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentResetPluginConfigParams extends YCodeAgentWorkspaceTarget {
   pluginId: string;
   scope?: "user" | "workspace";
 }
 
-export interface ZCodeAgentValidatePluginParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentValidatePluginParams extends YCodeAgentWorkspaceTarget {
   marketplace?: string;
   pluginName?: string;
   source?: string;
 }
 
-export interface ZCodeAgentDescribePluginParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentDescribePluginParams extends YCodeAgentWorkspaceTarget {
   marketplace: string;
   pluginName: string;
 }
 
-export interface ZCodeAgentSetPluginEnabledParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentSetPluginEnabledParams extends YCodeAgentWorkspaceTarget {
   enabled: boolean;
   operationId?: string;
   pluginId: string;
@@ -98,16 +98,16 @@ export interface ZCodeAgentSetPluginEnabledParams extends ZCodeAgentWorkspaceTar
 // Plugin 对话引用 catalog：
 // 带 sessionId → session-owned 冻结 catalog（必须路由到持有该 session 的 workspace client）；
 // 不带 → workspace 当前 catalog（新建草稿 Picker）。
-export interface ZCodeAgentPluginReferenceCatalogParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentPluginReferenceCatalogParams extends YCodeAgentWorkspaceTarget {
   sessionId?: string;
 }
 
 // Composer Skill catalog：与 Plugin 引用相同，以 sessionId 区分 workspace 当前目录和
 // resident Session runtime 快照；不参与 Settings 管理目录。
-export interface ZCodeAgentSkillReferenceCatalogParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentSkillReferenceCatalogParams extends YCodeAgentWorkspaceTarget {
   sessionId?: string;
 }
-export interface ZCodeAgentResolveSuggestedPluginReferenceParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentResolveSuggestedPluginReferenceParams extends YCodeAgentWorkspaceTarget {
   stableId: string;
   operationId: string;
   clientMode: "desktop-continuous" | "web-remote-replayable";
@@ -116,7 +116,7 @@ export interface ZCodeAgentResolveSuggestedPluginReferenceParams extends ZCodeAg
 
 // ---- 定时任务(automation)管理参数 ----
 
-export interface ZCodeAgentCreateAutomationParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentCreateAutomationParams extends YCodeAgentWorkspaceTarget {
   title: string;
   cronExpr: string;
   relativeDelayMinutes?: number;
@@ -126,10 +126,10 @@ export interface ZCodeAgentCreateAutomationParams extends ZCodeAgentWorkspaceTar
   recurring?: boolean;
   maxRuns?: number;
   endAt?: number;
-  scheduleRule?: ZCodeAutomationScheduleRule;
+  scheduleRule?: YCodeAutomationScheduleRule;
 }
 
-export interface ZCodeAgentUpdateAutomationParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentUpdateAutomationParams extends YCodeAgentWorkspaceTarget {
   automationId: string;
   title?: string;
   cronExpr?: string;
@@ -139,19 +139,19 @@ export interface ZCodeAgentUpdateAutomationParams extends ZCodeAgentWorkspaceTar
   recurring?: boolean;
   maxRuns?: number | null;
   endAt?: number | null;
-  scheduleRule?: ZCodeAutomationScheduleRule | null;
+  scheduleRule?: YCodeAutomationScheduleRule | null;
   scheduleEditedByUser?: boolean;
 }
 
-export interface ZCodeAgentAutomationIdParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentAutomationIdParams extends YCodeAgentWorkspaceTarget {
   automationId: string;
 }
 
-export interface ZCodeAgentSetAutomationEnabledParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentSetAutomationEnabledParams extends YCodeAgentWorkspaceTarget {
   automationId: string;
   enabled: boolean;
 }
 
-export interface ZCodeAgentDeleteAutomationRunParams extends ZCodeAgentWorkspaceTarget {
+export interface YCodeAgentDeleteAutomationRunParams extends YCodeAgentWorkspaceTarget {
   runId: string;
 }
