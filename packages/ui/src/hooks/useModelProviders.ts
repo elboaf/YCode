@@ -141,6 +141,28 @@ export function useModelProviders(target: {
     [commitProviderSettingsView, providerSettingsService],
   );
 
+  const probeProviderModels = useCallback(
+    async (providerId: string): Promise<readonly string[]> => {
+      // 探测是无状态读操作；Host 以已落盘连接事实发请求，这里只透传 providerId。
+      const result = await providerSettingsService.probeProviderModels({ providerId });
+      return result.models;
+    },
+    [providerSettingsService],
+  );
+
+  const importProviderModels = useCallback(
+    async (providerId: string, modelIds: readonly string[]): Promise<number> => {
+      // 串行导入保持 Personal 层的写路径单一；单个失败立即中止，已成功的保留。
+      let imported = 0;
+      for (const modelId of modelIds) {
+        await addPersonalModel(providerId, modelId, {}, true);
+        imported += 1;
+      }
+      return imported;
+    },
+    [addPersonalModel],
+  );
+
   const deleteProvider = useCallback(
     async (id: string) => {
       const view = await persistPersonalProviderDeletion({
@@ -232,6 +254,8 @@ export function useModelProviders(target: {
     reorderProviderModels,
     saveDisplayOrder,
     testModelConnectivity,
+    probeProviderModels,
+    importProviderModels,
     providerSettingsView,
   };
 }

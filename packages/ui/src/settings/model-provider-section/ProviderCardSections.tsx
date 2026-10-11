@@ -16,13 +16,22 @@ import type { ProviderApiType } from "@ycode/provider";
 import {
   TID_MODEL_PROVIDER_ADD_MODEL_BUTTON,
   TID_MODEL_PROVIDER_BASE_URL_INPUT,
+  TID_MODEL_PROVIDER_DISCOVER_MODELS_BUTTON,
   TID_MODEL_PROVIDER_MODEL_DELETE_BUTTON,
   TID_MODEL_PROVIDER_MODEL_INPUT,
   TID_MODEL_PROVIDER_NAME_EDIT_BUTTON,
   TID_MODEL_PROVIDER_NAME_INPUT,
   testId,
 } from "@ycode/shared";
-import { InfoIcon, LockKeyholeIcon, Plus, Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import {
+  CloudDownload,
+  InfoIcon,
+  LockKeyholeIcon,
+  Plus,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+} from "lucide-react";
 import { Button } from "@/components/ui/button.js";
 import { Input } from "@/components/ui/input.js";
 import {
@@ -34,10 +43,12 @@ import {
 } from "@/components/ui/dropdown-menu.js";
 import { useYCodeIntl } from "@/i18n/IntlProvider.js";
 import { useServices } from "@/hooks/useServices.js";
+import { useProviderDetailFeedback } from "./ProviderDetailFeedback.js";
 import { TECHNICAL_INPUT_ATTRIBUTES } from "@/lib/technicalInputAttributes.js";
 import { ApiKeyInput } from "./ApiKeyInput.js";
 import { ModelRowInput } from "./ProviderFormControls.js";
 import { PresetProviderApiKeyBanner } from "./PresetProviderApiKeyBanner.js";
+import { ProviderModelDiscoveryDialog } from "./ProviderModelDiscoveryDialog.js";
 import { type ProviderModelDraftValues } from "@/settings/model-provider-section/ProviderModelMetadata.js";
 import { ProviderModelMetadataDialog } from "@/settings/model-provider-section/ProviderModelMetadataDialog.js";
 import {
@@ -279,6 +290,7 @@ export function ProviderApiKeySection({
   apiKeyValue,
   apiKeyVisible,
   readOnly,
+  apiKeyOptional = false,
   presetApiKeyUrl,
   onOpenPresetApiKey,
   onApiKeyChange,
@@ -291,6 +303,7 @@ export function ProviderApiKeySection({
   apiKeyValue: string;
   apiKeyVisible: boolean;
   readOnly?: boolean;
+  apiKeyOptional?: boolean;
   presetApiKeyUrl?: string;
   onOpenPresetApiKey?: () => void;
   onApiKeyChange: (value: string) => void;
@@ -323,6 +336,11 @@ export function ProviderApiKeySection({
         onCompositionEnd={onApiKeyCompositionEnd}
         onToggleVisibility={onToggleApiKeyVisibility}
       />
+      {apiKeyOptional ? (
+        <p className="mt-1 text-ui-sm text-foreground-subtle">
+          {intl.formatMessage({ id: "settings.modelProvider.apiKeyOptional" })}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -349,7 +367,10 @@ export function ProviderModelsSection({
   providerEnabled = true,
   providerAccess,
   models,
+  canDiscoverModels = false,
   onTestModel,
+  onProbeModels,
+  onImportModels,
   onModelCommit,
   onModelEnabledChange,
   onDeleteModel,
@@ -362,7 +383,11 @@ export function ProviderModelsSection({
   providerEnabled?: boolean;
   providerAccess?: ProviderConfigObject["access"];
   models: ProviderSettingsFormModel[];
+  canDiscoverModels?: boolean;
   onTestModel?: (model: string) => Promise<ModelConnectivityResult>;
+  /** 返回 null 表示失败已由外层反馈呈现，不打开对话框。 */
+  onProbeModels?: () => Promise<readonly string[] | null>;
+  onImportModels?: (modelIds: readonly string[]) => Promise<number>;
   onModelCommit: (
     originalModelId: string,
     model: ProviderSettingsFormModel,
@@ -376,11 +401,16 @@ export function ProviderModelsSection({
 }) {
   const { intl } = useYCodeIntl();
   const { providerSettingsService } = useServices();
+  const { showFeedback } = useProviderDetailFeedback();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addSaving, setAddSaving] = useState(false);
   const addSavingRef = useRef(false);
   const [addCommitError, setAddCommitError] = useState<string | null>(null);
   const [addModel] = useState(createEmptyModel);
+  const [discoveredModels, setDiscoveredModels] = useState<readonly string[] | null>(null);
+  const [discovering, setDiscovering] = useState(false);
+  const [importingModels, setImportingModels] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
   const [addDraftErrorField, setAddDraftErrorField] = useState<
     | "id"
     | "contextWindow"
@@ -464,24 +494,92 @@ export function ProviderModelsSection({
       })
     : null;
 
+  const handleDiscoverModels = useCallback(async () => {
+    if (!onProbeModels || discovering) return;
+    setDiscovering(true);
+    try {
+      // null 表示探测失败且外层已反馈；这里不打开对话框，避免空结果误判为无模型。
+      const discovered = await onProbeModels();
+      if (discovered !== null) {
+        setImportError(null);
+        setDiscoveredModels(discovered);
+      }
+    } finally {
+      setDiscovering(false);
+    }
+  }, [discovering, onProbeModels]);
+
+  const handleImportModels = useCallback(
+    async (modelIds: readonly string[]) => {
+      if (!onImportModels) return;
+      setImportingModels(true);
+      setImportError(null);
+      try {
+        const imported = await onImportModels(modelIds);
+        setDiscoveredModels(null);
+        showFeedback({
+          key: `models-import:${providerId}`,
+          state: "success",
+          message: intl.formatMessage(
+            { id: "settings.modelProvider.modelsImported" },
+            { count: imported },
+          ),
+        });
+      } catch (error) {
+        // 失败保留对话框与已选状态，用户可直接重试；已导入的模型不会重复提交。
+        setImportError(error instanceof Error ? error.message : String(error));
+      } finally {
+        setImportingModels(false);
+      }
+    },
+    [intl, onImportModels, providerId, showFeedback],
+  );
+
   return (
     <div>
       <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
         <span className="text-ui-base text-foreground-subtle">
           {intl.formatMessage({ id: "settings.modelProvider.models" })}
         </span>
-        <Button
-          type="button"
-          variant="secondary"
-          size="default"
-          className="rounded-lg"
-          data-testid={TID_MODEL_PROVIDER_ADD_MODEL_BUTTON}
-          onClick={openAddDialog}
-        >
-          <Plus data-icon="inline-start" aria-hidden="true" />
-          {intl.formatMessage({ id: "settings.modelProvider.addModel" })}
-        </Button>
+        <div className="flex items-center gap-2">
+          {canDiscoverModels && onProbeModels ? (
+            <Button
+              type="button"
+              variant="secondary"
+              size="default"
+              className="rounded-lg"
+              data-testid={TID_MODEL_PROVIDER_DISCOVER_MODELS_BUTTON}
+              disabled={discovering}
+              onClick={() => void handleDiscoverModels()}
+            >
+              <CloudDownload data-icon="inline-start" aria-hidden="true" />
+              {intl.formatMessage({ id: "settings.modelProvider.discoverModels" })}
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            variant="secondary"
+            size="default"
+            className="rounded-lg"
+            data-testid={TID_MODEL_PROVIDER_ADD_MODEL_BUTTON}
+            onClick={openAddDialog}
+          >
+            <Plus data-icon="inline-start" aria-hidden="true" />
+            {intl.formatMessage({ id: "settings.modelProvider.addModel" })}
+          </Button>
+        </div>
       </div>
+      <ProviderModelDiscoveryDialog
+        open={discoveredModels !== null}
+        models={discoveredModels ?? []}
+        existingModelIds={models.map((model) => model.modelId)}
+        importing={importingModels}
+        importError={importError}
+        onImport={(modelIds) => void handleImportModels(modelIds)}
+        onOpenChange={(open) => {
+          if (!open) setDiscoveredModels(null);
+        }}
+      />
       {models.length > 0 ? (
         <div className="overflow-hidden rounded-lg border border-input-border bg-input">
           <SortableProviderModelList

@@ -268,6 +268,8 @@ export function ModelProviderSection({
     saveDisplayOrder,
     reorderableProviderIds,
     testModelConnectivity,
+    probeProviderModels,
+    importProviderModels,
     providerSettingsView,
   } = useModelProviders({
     workspacePath,
@@ -986,7 +988,7 @@ export function ModelProviderSection({
   );
 
   const handleCreateProvider = useCallback(
-    async (input: { templateId?: string; providerName?: string }) => {
+    async (input: { templateId?: string; presetId?: string; providerName?: string }) => {
       setCreatingProvider(true);
       try {
         const created = await createPersonalProvider({ ...input, locale });
@@ -1094,6 +1096,9 @@ export function ModelProviderSection({
           onCreateCustom={(label) => {
             return handleCreateProvider({ providerName: label });
           }}
+          onCreateLlamaCpp={() => {
+            return handleCreateProvider({ presetId: "llama-cpp" });
+          }}
         />
       ) : (
         <ModelProviderSectionDetail
@@ -1132,6 +1137,8 @@ export function ModelProviderSection({
           // Provider 的 Effective 模型无法写入 Personal modelOrder。模型调序独立于成员来源。
           onReorderProviderModels={reorderProviderModels}
           onTestModel={handleTestModel}
+          onProbeProviderModels={probeProviderModels}
+          onImportProviderModels={importProviderModels}
           onCodingPlanLogin={handleCodingPlanLogin}
           onRetryCodingPlan={() => {
             // 取 Key 失败不等于登录失效；沿用 Host 手动刷新，不清除 OAuth 或重新登录。

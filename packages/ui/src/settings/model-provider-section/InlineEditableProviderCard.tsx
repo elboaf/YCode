@@ -144,6 +144,8 @@ export function InlineEditableProviderCard({
   onDeletePersonalModel,
   onDelete,
   onTestModel,
+  onProbeProviderModels,
+  onImportProviderModels,
   onReorderModelIds,
   readOnlyEndpoints,
   presetApiKeyUrl,
@@ -171,6 +173,8 @@ export function InlineEditableProviderCard({
   onDeletePersonalModel?: (providerId: string, modelId: string) => Promise<unknown>;
   onDelete?: () => void | Promise<void>;
   onTestModel?: (providerId: string, modelId: string) => Promise<ModelConnectivityResult>;
+  onProbeProviderModels?: (providerId: string) => Promise<readonly string[]>;
+  onImportProviderModels?: (providerId: string, modelIds: readonly string[]) => Promise<number>;
   onReorderModelIds?: (modelIds: string[]) => Promise<void>;
   readOnlyEndpoints?: boolean;
   presetApiKeyUrl?: string;
@@ -629,6 +633,52 @@ export function InlineEditableProviderCard({
     [commitPendingDraft, onTestModel, provider.providerId],
   );
 
+  const handleProbeModels = useCallback(async (): Promise<readonly string[] | null> => {
+    if (!onProbeProviderModels) return null;
+    const notification = saveNotificationRef.current;
+    const dedupeKey = `models-probe:${notification.providerId}`;
+    notification.dismissFeedback(dedupeKey);
+    notification.showFeedback({
+      key: dedupeKey,
+      message: notification.formatMessage({ id: "settings.modelProvider.discoverModelsPending" }),
+      state: "pending",
+      durationMs: 0,
+    });
+    try {
+      // 与测试连接一致：先落盘未保存的连接草稿，Host 始终按已保存的 baseUrl/key 探测。
+      await commitPendingDraft("discover-models");
+      const models = await onProbeProviderModels(notification.providerId);
+      notification.dismissFeedback(dedupeKey);
+      return models;
+    } catch (error) {
+      logger.warn("[ModelProviderSection] 获取供应商模型列表失败", {
+        providerId: notification.providerId,
+        error,
+      });
+      notification.showFeedback({
+        key: dedupeKey,
+        message: notification.formatMessage(
+          { id: "settings.modelProvider.discoverModelsFailed" },
+          { error: error instanceof Error ? error.message : String(error) },
+        ),
+        state: "failure",
+        dismissible: true,
+        dismissLabel: notification.formatMessage({ id: "common.close" }),
+      });
+      return null;
+    }
+  }, [commitPendingDraft, onProbeProviderModels]);
+
+  const handleImportDiscoveredModels = useCallback(
+    (modelIds: readonly string[]): Promise<number> => {
+      if (!onImportProviderModels) {
+        return Promise.reject(new Error("当前设置入口未装配模型导入能力"));
+      }
+      return onImportProviderModels(provider.providerId, modelIds);
+    },
+    [onImportProviderModels, provider.providerId],
+  );
+
   const handleModelCommit = useCallback(
     async (
       originalModelId: string,
@@ -748,6 +798,11 @@ export function InlineEditableProviderCard({
   const headerProviderName = providerDisplayName;
   const isAccountProvider = provider.config.access?.type === "zhipu-account";
   const isApiKeyProvider = isApiKeyAccess(provider.config.access);
+  // apiKeyRequired === false 声明端点不校验鉴权（llama.cpp 预设）；Key 仍可填写。
+  const apiKeyOptional =
+    isApiKeyAccess(provider.config.access) && provider.config.access.apiKeyRequired === false;
+  const canDiscoverModels =
+    apiFormat === "openai-chat-completions" || apiFormat === "openai-responses";
   const effectiveHeaderVisible = headerVisible && statusSection === undefined;
 
   return (
@@ -828,6 +883,7 @@ export function InlineEditableProviderCard({
           <ProviderApiKeySection
             apiKeyValue={apiKeyValue}
             apiKeyVisible={apiKeyVisible}
+            apiKeyOptional={apiKeyOptional}
             presetApiKeyUrl={presetApiKeyUrl}
             onOpenPresetApiKey={onOpenPresetApiKey}
             onApiKeyChange={handleApiKeyValueChange}
@@ -847,6 +903,9 @@ export function InlineEditableProviderCard({
           providerEnabled={provider.enabled}
           providerAccess={provider.config.access}
           models={models}
+          canDiscoverModels={canDiscoverModels}
+          onProbeModels={onProbeProviderModels ? handleProbeModels : undefined}
+          onImportModels={onImportProviderModels ? handleImportDiscoveredModels : undefined}
           onTestModel={onTestModel ? handleTestModel : undefined}
           onModelCommit={handleModelCommit}
           onModelEnabledChange={handleModelEnabledChange}

@@ -19,6 +19,11 @@ import {
 import { createServiceDescriptor } from "../descriptors.js";
 import type { ModelConnectivityResult } from "@ycode/shared";
 import { createServiceLogger } from "../logger/serviceLogger.js";
+import type {
+  ProviderModelsProbeResult,
+  ProviderSettingsModelsProber,
+} from "./providerModelsProbe.js";
+import { resolveProviderModelsProbeConnection } from "./providerModelsProbe.js";
 
 export type {
   ProviderSettingsProviderView,
@@ -68,6 +73,10 @@ export interface IProviderSettingsService {
   testModelConnectivity(
     input: ProviderSettingsConnectivityRequest,
   ): Promise<ModelConnectivityResult>;
+  /** 探测已落盘 Provider 端点的 OpenAI 兼容模型列表；无状态读操作，不写配置。 */
+  probeProviderModels(
+    input: ProviderSettingsModelsProbeRequest,
+  ): Promise<ProviderSettingsModelsProbeResult>;
 }
 
 export const IProviderSettingsService = createServiceDescriptor<IProviderSettingsService>(
@@ -87,6 +96,12 @@ export interface ProviderSettingsConnectivityRequest {
   readonly providerId: ProviderId;
   readonly modelId: ModelId;
 }
+
+export interface ProviderSettingsModelsProbeRequest {
+  readonly providerId: ProviderId;
+}
+
+export type ProviderSettingsModelsProbeResult = ProviderModelsProbeResult;
 
 export type ProviderSettingsConnectivityTester = (
   input: ProviderSettingsConnectivityTestInput,
@@ -110,6 +125,7 @@ export function createProviderSettingsService(
   facade: ProviderSettingsFacade,
   ensureReady: () => Promise<void> = async () => {},
   testConnectivity?: ProviderSettingsConnectivityTester,
+  probeModels?: ProviderSettingsModelsProber,
 ): IProviderSettingsService {
   return {
     onDidChange: toEvent((listener) => facade.onDidChange(listener)),
@@ -205,6 +221,22 @@ export function createProviderSettingsService(
         providerId: input.providerId,
         modelId: input.modelId,
       });
+    },
+    probeProviderModels: async (input) => {
+      await ensureReady();
+      if (!probeModels) {
+        throw new Error("当前 Environment 未装配模型列表探测能力");
+      }
+      await facade.waitForProviderOperations(input.providerId);
+      // 探测读取 Effective Config（模板叠加 Personal 后的连接事实），与运行时请求同源；
+      // 不要求 Provider 已进入 Registry，未填 Key 的免鉴权实例同样可探测。
+      const provider = facade
+        .getView()
+        .providers.find((item) => item.providerId === input.providerId);
+      if (!provider) {
+        throw new Error(`Provider 不存在: ${input.providerId}`);
+      }
+      return probeModels(resolveProviderModelsProbeConnection(provider.effectiveConfig));
     },
   };
 }

@@ -1,5 +1,5 @@
 import type { ProviderSettingsView } from "@ycode/services";
-import { ArrowLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-react";
+import { ArrowLeftIcon, ChevronRightIcon, PlusIcon, ServerIcon } from "lucide-react";
 import { resolveProviderTemplateName } from "@ycode/provider";
 import type { ReactNode } from "react";
 import {
@@ -17,18 +17,21 @@ import { useProviderDetailFeedback } from "./ProviderDetailFeedback.js";
 
 type ProviderTemplateCreate = (templateId: string) => Promise<void>;
 type CustomProviderCreate = (label: string) => Promise<void>;
+type PresetProviderCreate = () => Promise<void>;
 
 export function ProviderTemplatePicker({
   templates,
   onBack,
   onCreateFromTemplate,
   onCreateCustom,
+  onCreateLlamaCpp,
   creating,
 }: {
   templates: ProviderSettingsView["providerTemplates"];
   onBack: () => void;
   onCreateFromTemplate: ProviderTemplateCreate;
   onCreateCustom: CustomProviderCreate;
+  onCreateLlamaCpp: PresetProviderCreate;
   creating: boolean;
 }) {
   const { intl, locale } = useYCodeIntl();
@@ -94,17 +97,32 @@ export function ProviderTemplatePicker({
             </h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {group.id === "other" ? (
-                <ProviderTemplateCard
-                  label={intl.formatMessage({ id: "settings.modelProvider.createCustomProvider" })}
-                  disabled={creating}
-                  testId={testId(TID_MODEL_PROVIDER_TEMPLATE_ITEM, "custom")}
-                  icon={
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-hover">
-                      <PlusIcon className="size-4" aria-hidden="true" />
-                    </span>
-                  }
-                  onClick={() => void createWithFeedback(() => onCreateCustom(customLabel))}
-                />
+                <>
+                  <ProviderTemplateCard
+                    label={intl.formatMessage({
+                      id: "settings.modelProvider.createCustomProvider",
+                    })}
+                    disabled={creating}
+                    testId={testId(TID_MODEL_PROVIDER_TEMPLATE_ITEM, "custom")}
+                    icon={
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-hover">
+                        <PlusIcon className="size-4" aria-hidden="true" />
+                      </span>
+                    }
+                    onClick={() => void createWithFeedback(() => onCreateCustom(customLabel))}
+                  />
+                  <ProviderTemplateCard
+                    label={intl.formatMessage({ id: "settings.modelProvider.preset.llamaCpp" })}
+                    disabled={creating}
+                    testId={testId(TID_MODEL_PROVIDER_TEMPLATE_ITEM, "llama-cpp")}
+                    icon={
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-hover">
+                        <ServerIcon className="size-4" aria-hidden="true" />
+                      </span>
+                    }
+                    onClick={() => void createWithFeedback(() => onCreateLlamaCpp())}
+                  />
+                </>
               ) : null}
               {group.templates.map((template) => {
                 const label = resolveProviderTemplateName(template.templateId, template, locale);

@@ -244,6 +244,8 @@ export function ModelProviderSectionDetail({
   onDelete,
   onReorderProviderModels,
   onTestModel,
+  onProbeProviderModels,
+  onImportProviderModels,
   onCodingPlanLogin,
   onRetryCodingPlan,
   onCodingPlanDisconnect,
@@ -283,6 +285,8 @@ export function ModelProviderSectionDetail({
   onDelete: (provider: ProviderSettingsFormProvider) => Promise<void>;
   onReorderProviderModels?: (providerId: string, modelIds: string[]) => Promise<void>;
   onTestModel: (providerId: string, modelId: string) => Promise<ModelConnectivityResult>;
+  onProbeProviderModels?: (providerId: string) => Promise<readonly string[]>;
+  onImportProviderModels?: (providerId: string, modelIds: readonly string[]) => Promise<number>;
   onRetryCodingPlan?: () => void | Promise<void>;
   onCodingPlanLogin: (
     presetId: BuiltinModelProviderId,
@@ -853,6 +857,8 @@ export function ModelProviderSectionDetail({
           : undefined
       }
       onTestModel={onTestModel}
+      onProbeProviderModels={onProbeProviderModels}
+      onImportProviderModels={onImportProviderModels}
       presetApiKeyUrl={customApiKeyUrl}
       readOnlyEndpoints={false}
       nameEditable

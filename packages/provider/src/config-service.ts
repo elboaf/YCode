@@ -17,6 +17,10 @@ import {
   resolveProviderTemplateName,
 } from "./config/index.js";
 import { resolveOwnedOrder } from "./owned-order.js";
+import {
+  resolvePersonalProviderPreset,
+  resolvePersonalProviderPresetName,
+} from "./personal-provider-presets.js";
 import type { ModelSelection } from "@ycode/shared/model-selection";
 import type { ProviderConfigSnapshot, ProviderSource } from "./sources.js";
 
@@ -54,6 +58,8 @@ export interface PersonalProviderCreation {
 
 export interface CreatePersonalProviderInput {
   readonly templateId?: ProviderTemplateId;
+  /** 代码持有的连接预设（llama.cpp 等）；与 templateId 互斥，未知值抛错。 */
+  readonly presetId?: string;
   readonly providerName?: string;
   readonly locale?: ProviderTemplateLocale;
   readonly initialConfig?: ProviderConfig;
@@ -233,27 +239,32 @@ export class ProviderConfigService implements ProviderSource<ProviderConfigSnaps
     if (input.initialConfig?.builtinModelIds !== undefined) {
       throw new Error("initialConfig 不能包含 builtinModelIds");
     }
+    const presetId = input.presetId?.trim();
+    const preset = presetId ? resolvePersonalProviderPreset(presetId) : undefined;
+    if (presetId && !preset) throw new Error(`Personal Provider 预设不存在: ${presetId}`);
+    if (presetId && templateId) throw new Error("templateId 与 presetId 不能同时指定");
     let createdProviderId: ProviderId | undefined;
     await this.#updatePersonal((current) => {
       const occupied = new Set([...ycodeBuiltin.providers.keys(), ...current.providers.keys()]);
-      const providerId = nextPersonalProviderId(occupied, templateId);
+      const providerId = nextPersonalProviderId(occupied, presetId ?? templateId);
       createdProviderId = providerId;
       const effectiveProviders = resolvePersonalProviderBaselines(ycodeBuiltin, current.providers);
       const label = nextPersonalProviderLabel(
         input.providerName ??
+          (presetId ? resolvePersonalProviderPresetName(presetId) : undefined) ??
           (template && templateId
             ? resolveProviderTemplateName(templateId, template, input.locale ?? "en-US")
             : "new-provider"),
         effectiveProviders,
       );
-      const initial = input.initialConfig ?? new ProviderConfigValue();
+      const initial = preset ?? input.initialConfig ?? new ProviderConfigValue();
       const providers = current.providers.setRule({
         providerId,
         ...(templateId ? { templateId } : {}),
         providerName: label,
         config: new ProviderConfigValue({
           group: "standard-personal",
-          access: templateId ? undefined : new ApiKeyAccessConfig(),
+          access: templateId || presetId ? undefined : new ApiKeyAccessConfig(),
           personalModelIds: [],
           modelOrder: [],
         }).overlay(initial),

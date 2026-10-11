@@ -382,6 +382,7 @@ import {
   IProviderSettingsService,
 } from "./model-provider/providerFacadeServices.js";
 import { createProviderSettingsConnectivityTester } from "./model-provider/providerSettingsConnectivity.js";
+import { createProviderSettingsModelsProber } from "./model-provider/providerModelsProbe.js";
 import {
   createProviderProvisioningSource,
   listProviderProvisioningCredentialKeys,
@@ -1633,6 +1634,8 @@ export function createLocalServices(options: {
         return providerConnectivityAgentService.testModelConnectivity(input);
       },
     }),
+    // 探测与 Host 其他 Provider 外呼共用同一网络栈（用户代理/自定义 CA）。
+    probeModels: createProviderSettingsModelsProber({ fetchImpl: hostApiNetworkTransport.fetch }),
     disposeAccountSource: () => {
       disposeAccountProviderInvalidation();
       accountProviderRefreshErrorDispose();

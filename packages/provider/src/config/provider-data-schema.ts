@@ -31,12 +31,23 @@ export const apiKeyAccessDataSchema = z
   .object({
     type: z.enum(["api-key", "zhipu-coding-plan-api-key"]),
     apiKey: z.string().nullable().optional(),
+    apiKeyRequired: z.boolean().optional(),
     apiKeyManagementUrl: z.string().url().nullable().optional(),
   })
   .strict();
-export const completeApiKeyAccessDataSchema = apiKeyAccessDataSchema.extend({
-  apiKey: nonBlankRequiredString,
-});
+export const completeApiKeyAccessDataSchema = apiKeyAccessDataSchema.superRefine(
+  (access, context) => {
+    // apiKeyRequired === false 声明端点不校验鉴权（llama.cpp 等本地服务器）；其余形态维持 Key 必填。
+    if (access.apiKeyRequired === false) return;
+    if (typeof access.apiKey === "string" && access.apiKey.trim().length > 0) return;
+    context.addIssue({
+      code: "custom",
+      path: ["apiKey"],
+      message: "必填配置不能为空",
+      params: { configIssueCode: "required-field-missing" },
+    });
+  },
+);
 
 export const completeZhipuAccountAccessDataSchema = z
   .object({
