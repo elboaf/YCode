@@ -41,32 +41,51 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------------------
+  # Resolve which desktop OS/arch legs to run based on the chosen target.
+  # targets=win => only the Windows x64 installer (keeps release runs short).
+  # ---------------------------------------------------------------------
+  plan:
+    if: ${{ inputs.fix_formatting != true }}
+    name: Plan targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      desktop_matrix: ${{ steps.plan.outputs.desktop_matrix }}
+    steps:
+      - id: plan
+        run: |
+          TARGETS="${{ inputs.targets }}"
+          case "$TARGETS" in
+            win)
+              MATRIX='[{"os":"win","arch":"x64","runs-on":"windows-2025"}]'
+              ;;
+            cli)
+              MATRIX='[]'
+              ;;
+            *) # all, desktop
+              MATRIX='[
+                {"os":"mac","arch":"arm64","runs-on":"macos-15"},
+                {"os":"mac","arch":"x64","runs-on":"macos-15-intel"},
+                {"os":"win","arch":"x64","runs-on":"windows-2025"},
+                {"os":"linux","arch":"x64","runs-on":"ubuntu-latest"},
+                {"os":"linux","arch":"arm64","runs-on":"ubuntu-24.04-arm"}
+              ]'
+              ;;
+          esac
+          echo "desktop_matrix=$(echo "$MATRIX" | tr -d '\n')" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------
   # Desktop app installers (Electron / electron-builder, via bundle.mjs)
   # ---------------------------------------------------------------------
   desktop:
-    if: ${{ inputs.targets != 'cli' && inputs.targets != 'win' && inputs.fix_formatting != true }}
+    needs: [plan]
     name: Desktop ${{ matrix.os }}-${{ matrix.arch }}
     runs-on: ${{ matrix.runs-on }}
     timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: mac
-            arch: arm64
-            runs-on: macos-15
-          - os: mac
-            arch: x64
-            runs-on: macos-15-intel
-          - os: win
-            arch: x64
-            runs-on: windows-2025
-          - os: linux
-            arch: x64
-            runs-on: ubuntu-latest
-          - os: linux
-            arch: arm64
-            runs-on: ubuntu-24.04-arm
+        include: ${{ fromJSON(needs.plan.outputs.desktop_matrix) }}
 
     env:
       YCODE_TARGET_OS: ${{ matrix.os }}
@@ -228,10 +247,10 @@ jobs:
   # Draft GitHub release with all artifacts attached
   # ---------------------------------------------------------------------
   github-release:
-    needs: [desktop, cli]
-    # Run when at least one producer succeeded, none failed, and this
-    # dispatch isn't just a formatting fix. Skipped producers (targets=win)
-    # don't block the release.
+    needs: [plan, desktop, cli]
+    # Run when at least one producer ran and succeeded, none failed, and this
+    # dispatch isn't just a formatting fix. Skipped producers (e.g. targets=win
+    # skips the CLI job) don't block the release.
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && (needs.desktop.result == 'success' || needs.cli.result == 'success') && inputs.fix_formatting != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
