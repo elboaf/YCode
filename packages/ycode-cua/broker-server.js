@@ -151,7 +151,7 @@ export async function waitForCuaHelperStartup(startup, _deadlineMs) {
   return await startup;
 }
 
-export function isPotentialycodeCuaAgentMcpServer(_server) {
+export function isPotentialYCodeCuaAgentMcpServer(_server) {
   return false;
 }
 
