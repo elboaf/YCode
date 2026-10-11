@@ -10,13 +10,13 @@ overrides:
 
 patchedDependencies:
   '@ai-sdk/anthropic@3.0.81':
-    hash: d3a7c381eba7f5157f765a0528003af17cf84544911dfb7412c7800168e01c18
+    hash: ebf7e41c0a0246aedd91bdafc5e4fb5624205a486c8541315bc7d27e68a0f8d5
     path: patches/@ai-sdk__anthropic@3.0.81.patch
   '@ai-sdk/openai-compatible@2.0.60':
-    hash: 9632fe9d821b3dc20939ae509cc35b968d90d018bbd1d812390718898182a38b
+    hash: b20d61a5517e8fd167b7698fdfd28112de80b89c58e31d4f7dd5a332385302a0
     path: patches/@ai-sdk__openai-compatible@2.0.60.patch
   '@arms/rum-electron@0.0.3':
-    hash: 36855354851ea495bc47a03340b0484ff62836b739cad56904b8a69f18e2ae97
+    hash: a29d1099ae7f890aa41e74be6a721b7d0e6a694f0b56737fd7eb46e54fe32f41
     path: patches/@arms__rum-electron@0.0.3.patch
 
 importers:
@@ -135,13 +135,13 @@ importers:
     dependencies:
       '@ai-sdk/anthropic':
         specifier: 3.0.81
-        version: 3.0.81(patch_hash=d3a7c381eba7f5157f765a0528003af17cf84544911dfb7412c7800168e01c18)(zod@4.6.5)
+        version: 3.0.81(patch_hash=ebf7e41c0a0246aedd91bdafc5e4fb5624205a486c8541315bc7d27e68a0f8d5)(zod@4.6.5)
       '@ai-sdk/openai':
         specifier: ^3.0.58
         version: 3.0.65(zod@4.6.5)
       '@ai-sdk/openai-compatible':
         specifier: ^2.0.58
-        version: 2.0.60(patch_hash=9632fe9d821b3dc20939ae509cc35b968d90d018bbd1d812390718898182a38b)(zod@4.6.5)
+        version: 2.0.60(patch_hash=b20d61a5517e8fd167b7698fdfd28112de80b89c58e31d4f7dd5a332385302a0)(zod@4.6.5)
       '@modelcontextprotocol/client':
         specifier: 2.0.0
         version: 2.0.0
@@ -626,7 +626,7 @@ importers:
     dependencies:
       '@arms/rum-electron':
         specifier: ^0.0.3
-        version: 0.0.3(patch_hash=36855354851ea495bc47a03340b0484ff62836b739cad56904b8a69f18e2ae97)(@babel/runtime@7.29.7)(electron@41.0.3)
+        version: 0.0.3(patch_hash=a29d1099ae7f890aa41e74be6a721b7d0e6a694f0b56737fd7eb46e54fe32f41)(@babel/runtime@7.29.7)(electron@41.0.3)
       '@babel/runtime':
         specifier: ^7.24.5
         version: 7.29.7
@@ -9959,7 +9959,7 @@ snapshots:
 
   7zip-bin@5.2.0: {}
 
-  '@ai-sdk/anthropic@3.0.81(patch_hash=d3a7c381eba7f5157f765a0528003af17cf84544911dfb7412c7800168e01c18)(zod@4.6.5)':
+  '@ai-sdk/anthropic@3.0.81(patch_hash=ebf7e41c0a0246aedd91bdafc5e4fb5624205a486c8541315bc7d27e68a0f8d5)(zod@4.6.5)':
     dependencies:
       '@ai-sdk/provider': 3.0.10
       '@ai-sdk/provider-utils': 4.0.27(zod@4.6.5)
@@ -9979,7 +9979,7 @@ snapshots:
       '@vercel/oidc': 3.1.0
       zod: 4.6.5
 
-  '@ai-sdk/openai-compatible@2.0.60(patch_hash=9632fe9d821b3dc20939ae509cc35b968d90d018bbd1d812390718898182a38b)(zod@4.6.5)':
+  '@ai-sdk/openai-compatible@2.0.60(patch_hash=b20d61a5517e8fd167b7698fdfd28112de80b89c58e31d4f7dd5a332385302a0)(zod@4.6.5)':
     dependencies:
       '@ai-sdk/provider': 3.0.14
       '@ai-sdk/provider-utils': 4.0.39(zod@4.6.5)
@@ -10047,7 +10047,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.7
 
-  '@arms/rum-electron@0.0.3(patch_hash=36855354851ea495bc47a03340b0484ff62836b739cad56904b8a69f18e2ae97)(@babel/runtime@7.29.7)(electron@41.0.3)':
+  '@arms/rum-electron@0.0.3(patch_hash=a29d1099ae7f890aa41e74be6a721b7d0e6a694f0b56737fd7eb46e54fe32f41)(@babel/runtime@7.29.7)(electron@41.0.3)':
     dependencies:
       '@arms/rum-browser': 0.1.8(@babel/runtime@7.29.7)
       '@arms/rum-core': 0.1.4(@babel/runtime@7.29.7)
@@ -16172,11 +16172,11 @@ snapshots:
 
   lodash.merge@4.6.2: {}
 
+  lodash.pickby@4.6.0: {}
+
   lodash.uniqby@4.7.0: {}
 
   lodash@4.18.1: {}
-
-  lodash.pickby@4.6.0: {}
 
   log-symbols@4.1.0:
     dependencies:
