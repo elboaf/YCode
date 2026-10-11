@@ -10,7 +10,7 @@ const { loadBuiltinProviderConfig } = await import(
 const { content: YCodeBuiltinProviderConfigJson } = await loadBuiltinProviderConfig();
 
 export const SERVER_CLI_DEFINES = {
-  __ycode_BUILTIN_PROVIDER_CONFIG_JSON__: JSON.stringify(YCodeBuiltinProviderConfigJson),
+  __YCode_BUILTIN_PROVIDER_CONFIG_JSON__: JSON.stringify(YCodeBuiltinProviderConfigJson),
 };
 
 export default defineConfig({

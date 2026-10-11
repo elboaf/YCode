@@ -1,6 +1,6 @@
 // ── 旧协议兼容面（过渡期）──────────────────────────────
 // 剩余 11 个导出：goal 迭代/可见消息投影函数。
-// 消费者：ycodeTaskServiceAdapter/ycodeSessionProjection/ycodeTaskIndexSyncer、
+// 消费者：ycodeTaskServiceAdapter/YCodeSessionProjection/YCodeTaskIndexSyncer、
 // CLI bootstrap session-mapper。textFromYCodeMessageParts 已迁
 // ycode-protocol-legacy-types.ts（幸存面）。本文件与旧投影栈同生命周期。
 import type { YCodeSessionGoal } from "./ycode-protocol/index.js";

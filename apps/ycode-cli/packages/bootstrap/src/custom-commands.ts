@@ -7,10 +7,10 @@ import type {
   CustomCommandLoadOutcome,
   Logger,
 } from "@ycode/contracts";
-import { resolveycodePlugins } from "./plugins.js";
+import { resolveYCodePlugins } from "./plugins.js";
 import { collectDisabledPaths } from "./skill-command-overrides.js";
 
-export interface ListycodeCustomCommandsOptions {
+export interface ListYCodeCustomCommandsOptions {
   env?: NodeJS.ProcessEnv;
   homeDirectory?: string;
   logger?: Logger;
@@ -20,7 +20,7 @@ export interface ListycodeCustomCommandsOptions {
   workingDirectory?: string;
 }
 
-export interface InspectycodeCustomCommandOptions extends ListycodeCustomCommandsOptions {
+export interface InspectYCodeCustomCommandOptions extends ListYCodeCustomCommandsOptions {
   name: string;
 }
 
@@ -29,8 +29,8 @@ export interface ycodeCustomCommandInspection {
   diagnostics: CustomCommandDiagnostic[];
 }
 
-export async function listycodeCustomCommands(
-  options: ListycodeCustomCommandsOptions = {},
+export async function listYCodeCustomCommands(
+  options: ListYCodeCustomCommandsOptions = {},
 ): Promise<CustomCommandLoadOutcome> {
   const discovery = createCustomCommandDiscovery(options);
   return await discovery.adapter.discoverCommands({
@@ -38,8 +38,8 @@ export async function listycodeCustomCommands(
   });
 }
 
-export async function inspectycodeCustomCommand(
-  options: InspectycodeCustomCommandOptions,
+export async function inspectYCodeCustomCommand(
+  options: InspectYCodeCustomCommandOptions,
 ): Promise<ycodeCustomCommandInspection> {
   const discovery = createCustomCommandDiscovery(options);
   const workingDirectory = discovery.workingDirectory;
@@ -59,8 +59,8 @@ export async function inspectycodeCustomCommand(
   };
 }
 
-export async function loadycodeCustomCommand(
-  options: InspectycodeCustomCommandOptions,
+export async function loadYCodeCustomCommand(
+  options: InspectYCodeCustomCommandOptions,
 ): Promise<CustomCommandContent> {
   const discovery = createCustomCommandDiscovery(options);
   return await discovery.adapter.loadCommand({
@@ -69,7 +69,7 @@ export async function loadycodeCustomCommand(
   });
 }
 
-function createCustomCommandDiscovery(options: ListycodeCustomCommandsOptions) {
+function createCustomCommandDiscovery(options: ListYCodeCustomCommandsOptions) {
   const workingDirectory = resolve(options.workingDirectory ?? process.cwd());
   const configResult = createConfig({
     env: options.env,
@@ -78,7 +78,7 @@ function createCustomCommandDiscovery(options: ListycodeCustomCommandsOptions) {
     skipUserConfig: options.skipUserConfig,
     userConfigPath: options.userConfigPath,
   });
-  const pluginOutcome = resolveycodePlugins({
+  const pluginOutcome = resolveYCodePlugins({
     configResult,
     env: options.env,
     logger: options.logger,

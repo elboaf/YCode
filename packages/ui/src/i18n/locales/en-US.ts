@@ -2245,11 +2245,11 @@ const enUS: Record<string, string> = {
   "settings.toolGroupingChanges": "Group file changes",
   "settings.toolGroupingChangesDescription":
     "Group consecutive Write, Edit, and ApplyPatch calls into a Changes section.",
-  "settings.ycodeInteractionBehavior": "Interaction behavior",
+  "settings.YCodeInteractionBehavior": "Interaction behavior",
   "settings.ycodeInteractionBehaviorDescription":
     "While YCode is running, add follow-up actions to the queue or guide them to run after the next tool call.",
-  "settings.ycodeInteractionBehavior.option.queue": "Queue",
-  "settings.ycodeInteractionBehavior.option.guide": "Guide",
+  "settings.YCodeInteractionBehavior.option.queue": "Queue",
+  "settings.YCodeInteractionBehavior.option.guide": "Guide",
   "settings.askUserQuestionAutoResolution": "Automatically continue questions",
   "settings.askUserQuestionAutoResolutionDescription":
     "When enabled, Agent questions automatically continue after 5 minutes without an answer. When disabled, current and future questions wait for your response.",

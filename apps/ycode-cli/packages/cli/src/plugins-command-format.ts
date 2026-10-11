@@ -1,7 +1,7 @@
 import { formatJson } from "@ycode/core";
 import type { GlobalOptions, JsonValue, RunContext } from "@ycode/shared-types";
 import type {
-  SetycodePluginEnabledResult,
+  SetYCodePluginEnabledResult,
   ycodeAvailablePluginData,
   ycodeInstalledPluginData,
   ycodeMarketplaceSummaryData,
@@ -79,7 +79,7 @@ function formatMarketplaceSource(source: Record<string, unknown>): string {
   return locator ? `${kind} ${locator}` : kind;
 }
 
-export function formatHumanPluginSet(result: SetycodePluginEnabledResult): string {
+export function formatHumanPluginSet(result: SetYCodePluginEnabledResult): string {
   const verb = result.enabled ? "Enabled" : "Disabled";
   return `${verb} plugin ${result.plugin.id} in ${result.path}\n`;
 }
@@ -92,7 +92,7 @@ export function formatHumanPluginUninstall(
   return `Uninstalled plugin ${removed.id}\n`;
 }
 
-export const formatPluginSetJson = (result: SetycodePluginEnabledResult): string =>
+export const formatPluginSetJson = (result: SetYCodePluginEnabledResult): string =>
   formatJson({
     enabled: result.enabled,
     path: result.path,

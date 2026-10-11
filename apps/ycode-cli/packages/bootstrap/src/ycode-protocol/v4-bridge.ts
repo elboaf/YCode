@@ -12,8 +12,8 @@ import { readBackgroundBashOutputFromOwner } from "./background-work-owner.js";
 import {
   isConversationRealUserTurnStarter,
   parseRemoteWorkspaceIdentity,
-  type ycodeSessionContextUsage,
-  type ycodeWorkspaceRef,
+  type YCodeSessionContextUsage,
+  type YCodeWorkspaceRef,
 } from "@ycode/shared";
 import { createExternalTurnFaultError } from "@ycode/core";
 import {
@@ -112,7 +112,7 @@ function normalizeStoredTitleSource(
 }
 
 function sessionUsageSeedFromRuntimeContextUsage(
-  contextUsage: ycodeSessionContextUsage | undefined,
+  contextUsage: YCodeSessionContextUsage | undefined,
   contextWindowOverride?: number,
 ): SessionUsageSeed | null {
   if (!contextUsage || contextUsage.used <= 0) {
@@ -1449,7 +1449,7 @@ export function createConversationV4Gateway(
     resumePersistedSession: async (
       sessionId,
       resumeThoughtLevel,
-      workspace?: ycodeWorkspaceRef,
+      workspace?: YCodeWorkspaceRef,
     ) => {
       const persisted = await context.deps.sessionStore?.getSession(sessionId as SessionId);
       if (!persisted) {

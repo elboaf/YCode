@@ -10,9 +10,9 @@ import {
   type OAuthDiscoveryState,
 } from "@modelcontextprotocol/client";
 import type { Logger } from "@ycode/contracts";
-import { isycodeFileLockTimeoutError } from "@ycode/shared";
+import { isYCodeFileLockTimeoutError } from "@ycode/shared";
 import { withFileLock } from "@ycode/shared/node";
-import type { SharedycodeCredentialStore } from "../auth/shared-credentials.js";
+import type { SharedYCodeCredentialStore } from "../auth/shared-credentials.js";
 import {
   invalidateCanonicalCredentials,
   loadCredentialPair,
@@ -35,7 +35,7 @@ import { loadDiscoveryRecord, saveDiscoveryRecord } from "./oauth-shared.js";
 const REFRESH_LOCK_MAX_WAIT_MS = 45_000;
 
 interface RefreshMcpOAuthTokensInput {
-  credentialStore: SharedycodeCredentialStore;
+  credentialStore: SharedYCodeCredentialStore;
   fetchFn?: FetchLike;
   keyPrefix: string;
   logger?: Logger;
@@ -82,7 +82,7 @@ export async function refreshMcpOAuthTokensUnderLock(
       },
     );
   } catch (error) {
-    if (!isycodeFileLockTimeoutError(error)) throw error;
+    if (!isYCodeFileLockTimeoutError(error)) throw error;
     // 等锁超时不代表刷新失败：winner 可能已经发布结果。先重读，确认换代且有 token 就直接用。
     const current = await loadCredentialPair(input.credentialStore, input.keyPrefix);
     if (current?.tokens && current.generation !== observedGeneration) {

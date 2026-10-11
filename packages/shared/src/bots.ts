@@ -38,7 +38,7 @@ export type FeishuBotProvider = Extract<BotProvider, "feishu" | "lark">;
  * 定时任务完成后的 Bot 回推目标。只保留未来仍稳定的会话地址；当前消息 id/context token
  * 属于一次入站交互，不能持久化后复用。该字段由 Host 注入，模型工具参数不直接暴露。
  */
-export const ycodeAutomationBotDeliveryTargetSchema = z
+export const YCodeAutomationBotDeliveryTargetSchema = z
   .object({
     provider: z.enum(["feishu", "lark", "weixin"]),
     botId: z.string().trim().min(1),
@@ -48,7 +48,7 @@ export const ycodeAutomationBotDeliveryTargetSchema = z
   .strict();
 
 export type YCodeAutomationBotDeliveryTarget = z.infer<
-  typeof ycodeAutomationBotDeliveryTargetSchema
+  typeof YCodeAutomationBotDeliveryTargetSchema
 >;
 
 export function isFeishuBotProvider(provider: BotProvider): provider is FeishuBotProvider {

@@ -1,12 +1,12 @@
 import {
   createCodingPlanApiKeyResolver,
-  createSharedycodeCredentialStore,
+  createSharedYCodeCredentialStore,
   createCliOAuthClient,
   createCliOAuthPollToken,
   openUrlInBrowser,
   SHARED_YCODE_CREDENTIAL_KEYS,
   type BrowserOpenResult,
-  type SharedycodeCredentialStore,
+  type SharedYCodeCredentialStore,
   type CliOAuthClient,
   type CliOAuthInitData,
   type CliOAuthPollData,
@@ -15,12 +15,12 @@ import {
 import { createConfig } from "@ycode/adapters/config";
 import { createNodeHttpClientAdapter } from "@ycode/adapters/http";
 import type { EnvRecord } from "@ycode/adapters/model";
-import { buildycodeEndpointUrls, resolveRuntimeycodeEndpointOrigin } from "@ycode/shared";
+import { buildYCodeEndpointUrls, resolveRuntimeYCodeEndpointOrigin } from "@ycode/shared";
 import {
   NodeModelSelectionConfigRepository,
   NodePersonalProviderConfigRepository,
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
-  ycode_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
+  YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
 } from "@ycode/provider-node";
 import { readLegacyCliPersonalProviderConfig } from "./app/legacy-cli-personal-provider-config-importer.js";
 import { dirname, join } from "node:path";
@@ -40,12 +40,12 @@ const DEFAULT_LOGIN_TIMEOUT_MS = 5 * 60 * 1_000;
 
 export type CodingPlanProviderId = "bigmodel" | "zai";
 
-export interface LoginycodeCliOptions {
+export interface LoginYCodeCliOptions {
   providerId?: CodingPlanProviderId;
   abortSignal?: AbortSignal;
   apiKeyResolver?: ReturnType<typeof createCodingPlanApiKeyResolver>;
   baseUrl?: string;
-  credentialStore?: SharedycodeCredentialStore;
+  credentialStore?: SharedYCodeCredentialStore;
   env?: EnvRecord;
   httpClient?: Parameters<typeof createCliOAuthClient>[0]["httpClient"];
   noBrowser?: boolean;
@@ -60,7 +60,7 @@ export interface LoginycodeCliOptions {
   personalProviderConfigPath?: string;
 }
 
-export interface LoginycodeCliResult {
+export interface LoginYCodeCliResult {
   browser?: BrowserOpenResult;
   configPath: string;
   credentialsPath: string;
@@ -69,12 +69,12 @@ export interface LoginycodeCliResult {
   user: CliOAuthUser;
 }
 
-export type LoginBigmodelCodingPlanOptions = Omit<LoginycodeCliOptions, "providerId">;
-export type LoginBigmodelCodingPlanResult = LoginycodeCliResult & { providerId: "bigmodel" };
+export type LoginBigmodelCodingPlanOptions = Omit<LoginYCodeCliOptions, "providerId">;
+export type LoginBigmodelCodingPlanResult = LoginYCodeCliResult & { providerId: "bigmodel" };
 
 export interface ConfigureCodingPlanApiKeyOptions {
   apiKey: string;
-  credentialStore?: SharedycodeCredentialStore;
+  credentialStore?: SharedYCodeCredentialStore;
   env?: EnvRecord;
   personalProviderConfigPath?: string;
   providerId: CodingPlanProviderId;
@@ -86,23 +86,23 @@ export interface ConfigureCodingPlanApiKeyResult {
   providerId: CodingPlanProviderId;
 }
 
-export interface LogoutycodeCliOptions {
-  credentialStore?: SharedycodeCredentialStore;
+export interface LogoutYCodeCliOptions {
+  credentialStore?: SharedYCodeCredentialStore;
   env?: EnvRecord;
 }
 
-export interface LogoutycodeCliResult {
+export interface LogoutYCodeCliResult {
   credentialsPath: string;
 }
 
 export async function hasConfiguredStandaloneCodingPlan(
   options: {
-    credentialStore?: SharedycodeCredentialStore;
+    credentialStore?: SharedYCodeCredentialStore;
     env?: EnvRecord;
   } = {},
 ): Promise<boolean> {
   const credentialStore =
-    options.credentialStore ?? createSharedycodeCredentialStore({ env: options.env });
+    options.credentialStore ?? createSharedYCodeCredentialStore({ env: options.env });
   return hasStandaloneCodingPlanAccess(credentialStore, options.env ?? process.env);
 }
 
@@ -124,9 +124,9 @@ export class ycodeCliLoginError extends Error {
   }
 }
 
-export async function loginycodeCli(
-  options: LoginycodeCliOptions = {},
-): Promise<LoginycodeCliResult> {
+export async function loginYCodeCli(
+  options: LoginYCodeCliOptions = {},
+): Promise<LoginYCodeCliResult> {
   const env = options.env ?? process.env;
   const providerId = options.providerId ?? "zai";
   const now = options.now ?? Date.now;
@@ -142,7 +142,7 @@ export async function loginycodeCli(
   try {
     throwIfAborted(signal);
     const pollToken = options.pollToken ?? createCliOAuthPollToken();
-    const credentialStore = options.credentialStore ?? createSharedycodeCredentialStore({ env });
+    const credentialStore = options.credentialStore ?? createSharedYCodeCredentialStore({ env });
     const oauthClient = createOAuthClient(options, env);
     const initData = await waitWithAbort(oauthClient.init({ pollToken }, { signal }), signal);
     const remainingMs = Math.min(deadlineMs, initData.expires_at * 1_000) - now();
@@ -250,7 +250,7 @@ export async function loginBigmodelCodingPlan(
   options: LoginBigmodelCodingPlanOptions = {},
 ): Promise<LoginBigmodelCodingPlanResult> {
   return {
-    ...(await loginycodeCli({ ...options, providerId: "bigmodel" })),
+    ...(await loginYCodeCli({ ...options, providerId: "bigmodel" })),
     providerId: "bigmodel",
   };
 }
@@ -263,7 +263,7 @@ export async function configureCodingPlanApiKey(
     throw new ycodeCliLoginError("config_update_failed", "API key must not be empty.");
   }
   const credentialStore =
-    options.credentialStore ?? createSharedycodeCredentialStore({ env: options.env });
+    options.credentialStore ?? createSharedYCodeCredentialStore({ env: options.env });
   const configPatch = await persistStandaloneCodingPlanConnection({
     accountIdentity: createStandaloneAccountIdentityFromSecret(apiKey),
     apiKey,
@@ -279,11 +279,11 @@ export async function configureCodingPlanApiKey(
   };
 }
 
-export async function logoutycodeCli(
-  options: LogoutycodeCliOptions = {},
-): Promise<LogoutycodeCliResult> {
+export async function logoutYCodeCli(
+  options: LogoutYCodeCliOptions = {},
+): Promise<LogoutYCodeCliResult> {
   const credentialStore =
-    options.credentialStore ?? createSharedycodeCredentialStore({ env: options.env });
+    options.credentialStore ?? createSharedYCodeCredentialStore({ env: options.env });
   const providerIds = (await readStandaloneCodingPlanProviders(options.env ?? process.env)).map(
     ({ providerId }) => providerId,
   );
@@ -324,7 +324,7 @@ interface StandaloneCodingPlanPersistenceResult {
 async function persistStandaloneCodingPlanConnection(input: {
   readonly accountIdentity: string;
   readonly apiKey: string;
-  readonly credentialStore: SharedycodeCredentialStore;
+  readonly credentialStore: SharedYCodeCredentialStore;
   readonly env: EnvRecord;
   readonly personalProviderConfigPath?: string;
   readonly providerId: CodingPlanProviderId;
@@ -342,7 +342,7 @@ async function persistStandaloneCodingPlanConnection(input: {
   });
   const path =
     input.personalProviderConfigPath ??
-    input.env[ycode_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim() ??
+    input.env[YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim() ??
     join(dirname(input.credentialStore.filePath), PERSONAL_PROVIDER_CONFIG_FILE_NAME);
   // 登录与运行时共享文件和事务；首次写入仍先保留旧用户 Provider，不能仅写默认值。
   const personalRepository = new NodePersonalProviderConfigRepository({
@@ -363,17 +363,17 @@ async function persistStandaloneCodingPlanConnection(input: {
   };
 }
 
-function createOAuthClient(options: LoginycodeCliOptions, env: EnvRecord): CliOAuthClient {
+function createOAuthClient(options: LoginYCodeCliOptions, env: EnvRecord): CliOAuthClient {
   return createCliOAuthClient({
     baseUrl:
-      options.baseUrl ?? buildycodeEndpointUrls(resolveCliycodeEndpointOrigin(env)).apiBaseUrl,
+      options.baseUrl ?? buildYCodeEndpointUrls(resolveCliYCodeEndpointOrigin(env)).apiBaseUrl,
     providerId: options.providerId ?? "zai",
     httpClient: options.httpClient ?? createDefaultHttpClient(env),
   });
 }
 
-function resolveCliycodeEndpointOrigin(env: EnvRecord): string {
-  return resolveRuntimeycodeEndpointOrigin(env);
+function resolveCliYCodeEndpointOrigin(env: EnvRecord): string {
+  return resolveRuntimeYCodeEndpointOrigin(env);
 }
 
 function createDefaultHttpClient(env: EnvRecord) {

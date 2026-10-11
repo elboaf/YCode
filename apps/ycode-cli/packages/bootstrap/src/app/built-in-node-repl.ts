@@ -35,8 +35,8 @@ export function resolveBuiltInNodeReplMcpServers(input: {
     cwd: input.workingDirectory,
     env: {
       // 领域 root 各自注入，且只在对应能力启用时注入：宿主据此决定哪一半文档可用。
-      ...(browserUsePackage ? { ycode_PLUGIN_ROOT: browserUsePackage.rootPath } : {}),
-      ...(cuaPackage ? { ycode_CUA_PLUGIN_ROOT: cuaPackage.rootPath } : {}),
+      ...(browserUsePackage ? { YCODE_PLUGIN_ROOT: browserUsePackage.rootPath } : {}),
+      ...(cuaPackage ? { YCODE_CUA_PLUGIN_ROOT: cuaPackage.rootPath } : {}),
     },
     rootPath: hostPackage.rootPath,
     timeoutMs: 600_000,

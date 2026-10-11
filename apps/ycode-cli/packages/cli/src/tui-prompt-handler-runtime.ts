@@ -50,15 +50,15 @@ export async function prepareTuiAppRuntime(
   const createAppFactory = deps.createYCodeApp ?? bootstrapModule?.createYCodeApp;
   if (!createAppFactory) throw new Error("ycode app factory is unavailable.");
   const prepareTelemetry =
-    deps.prepareycodeTelemetryEnv ?? bootstrapModule?.prepareycodeTelemetryEnv;
+    deps.prepareYCodeTelemetryEnv ?? bootstrapModule?.prepareYCodeTelemetryEnv;
   if (prepareTelemetry) {
     state.shutdownTelemetry =
-      deps.shutdownycodeTelemetry ?? bootstrapModule?.shutdownycodeTelemetry;
+      deps.shutdownYCodeTelemetry ?? bootstrapModule?.shutdownYCodeTelemetry;
   }
   const appEnv = prepareTelemetry
     ? await prepareTelemetry(env, {
         cliVersion: version,
-        productVersion: env.ycode_APP_VERSION,
+        productVersion: env.YCODE_APP_VERSION,
       })
     : env;
   const startProviderRegistryRuntime =

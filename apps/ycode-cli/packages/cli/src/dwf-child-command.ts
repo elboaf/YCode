@@ -18,11 +18,11 @@ import { resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { pathToFileURL } from "node:url";
 import { createContext, runInContext } from "node:vm";
-import { ycode_DWF_CHILD_COMMAND } from "@ycode/contracts";
+import { YCODE_DWF_CHILD_COMMAND } from "@ycode/contracts";
 import type { RunContext } from "@ycode/shared-types";
 
 export function isDwfChildInvocation(argv: readonly string[]): boolean {
-  return argv[0] === ycode_DWF_CHILD_COMMAND;
+  return argv[0] === YCODE_DWF_CHILD_COMMAND;
 }
 
 /** 入口文件导出面（child-source.ts 的 `renderChildEntry` 生成）。 */
@@ -44,7 +44,7 @@ interface ChildEntryModule {
 export async function runDwfChildCommand(ctx: RunContext, argv: string[]): Promise<number> {
   const entryPath = argv[argv.length - 1];
   if (argv.length === 0 || entryPath === undefined) {
-    ctx.stderr.write(`Usage: ${ycode_DWF_CHILD_COMMAND} <entry path>\n`);
+    ctx.stderr.write(`Usage: ${YCODE_DWF_CHILD_COMMAND} <entry path>\n`);
     return 1;
   }
 

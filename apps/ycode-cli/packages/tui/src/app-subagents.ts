@@ -1,9 +1,9 @@
 import React from "react";
 import { SessionEventType, type SessionEvent } from "@ycode/contracts";
 import type {
-  ycodeSessionSubagentsResult,
-  ycodeSessionRunningSubagent,
-  ycodeSessionEndedSubagent,
+  YCodeSessionSubagentsResult,
+  YCodeSessionRunningSubagent,
+  YCodeSessionEndedSubagent,
 } from "@ycode/shared";
 import type { TuiOptions } from "./types.js";
 import { changesSubagentDirectory } from "./app-subagent-events.js";
@@ -13,8 +13,8 @@ import {
   type SubagentTranscript,
 } from "./app-subagent-transcript.js";
 
-export type SubagentItem = ycodeSessionRunningSubagent | ycodeSessionEndedSubagent;
-const EMPTY_DIRECTORY: ycodeSessionSubagentsResult = {
+export type SubagentItem = YCodeSessionRunningSubagent | YCodeSessionEndedSubagent;
+const EMPTY_DIRECTORY: YCodeSessionSubagentsResult = {
   revision: 0,
   childSessionIds: [],
   running: [],

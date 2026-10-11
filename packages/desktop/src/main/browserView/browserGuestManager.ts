@@ -2432,7 +2432,7 @@ export class BrowserGuestManager {
 
   private async installRecordingCursorOverlay(guest: GuestWebContents): Promise<void> {
     await guest.executeJavaScript(`(() => {
-      const id = "__ycode_browser_recording_cursor";
+      const id = "__YCode_browser_recording_cursor";
       document.getElementById(id)?.remove();
       const cursor = document.createElement("div");
       cursor.id = id;

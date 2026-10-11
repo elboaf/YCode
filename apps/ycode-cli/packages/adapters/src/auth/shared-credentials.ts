@@ -23,7 +23,7 @@ export const SHARED_YCODE_CREDENTIAL_KEYS = {
   ycodejwttoken: "ycodejwttoken",
 } as const;
 
-export interface SharedycodeCredentialStoreOptions {
+export interface SharedYCodeCredentialStoreOptions {
   baseDir?: string;
   cipher?: YCodeCredentialCipher;
   env?: Record<string, string | undefined>;
@@ -43,7 +43,7 @@ export interface ZaiLoginCredentialPayload {
   user: ZaiLoginCredentialUser;
 }
 
-export interface SharedycodeCredentialStore {
+export interface SharedYCodeCredentialStore {
   readonly filePath: string;
   clearZaiLoginCredentials(): Promise<void>;
   delete(key: string): Promise<void>;
@@ -65,11 +65,11 @@ export interface SharedycodeCredentialStore {
   saveZaiLoginCredentials(payload: ZaiLoginCredentialPayload): Promise<void>;
 }
 
-export function createSharedycodeCredentialStore(
-  options: SharedycodeCredentialStoreOptions = {},
-): SharedycodeCredentialStore {
+export function createSharedYCodeCredentialStore(
+  options: SharedYCodeCredentialStoreOptions = {},
+): SharedYCodeCredentialStore {
   const env = options.env ?? process.env;
-  const filePath = resolveSharedycodeCredentialsPath(options);
+  const filePath = resolveSharedYCodeCredentialsPath(options);
   const cipher = options.cipher ?? createYCodeCredentialCipher({ env });
 
   return {
@@ -252,11 +252,11 @@ export function createSharedycodeCredentialStore(
   };
 }
 
-export function loadSharedycodeCredentialSync(
+export function loadSharedYCodeCredentialSync(
   key: string,
-  options: SharedycodeCredentialStoreOptions = {},
+  options: SharedYCodeCredentialStoreOptions = {},
 ): string | undefined {
-  const filePath = resolveSharedycodeCredentialsPath(options);
+  const filePath = resolveSharedYCodeCredentialsPath(options);
   if (!existsSync(filePath)) {
     return undefined;
   }
@@ -277,8 +277,8 @@ export function loadSharedycodeCredentialSync(
   }
 }
 
-export function resolveSharedycodeCredentialsPath(
-  options: SharedycodeCredentialStoreOptions = {},
+export function resolveSharedYCodeCredentialsPath(
+  options: SharedYCodeCredentialStoreOptions = {},
 ): string {
   if (options.filePath) {
     return resolveUserPath(options.filePath);

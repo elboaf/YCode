@@ -64,7 +64,7 @@ function createPreparedReleaseDiscarder(input: {
 }
 
 export async function prepareOnlineUpdate(layout: ServerLayout): Promise<UpdatePreparation> {
-  const catalogUrl = process.env.ycode_SERVER_RELEASE_MANIFEST_URL?.trim();
+  const catalogUrl = process.env.YCODE_SERVER_RELEASE_MANIFEST_URL?.trim();
   if (!catalogUrl) {
     const pending = await new ReleaseManager(layout).readPending();
     if (!pending) {

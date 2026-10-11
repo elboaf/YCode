@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { SharedycodeCredentialStore } from "@ycode/adapters/auth";
+import type { SharedYCodeCredentialStore } from "@ycode/adapters/auth";
 import type { ProviderRuntimeHeadersPort } from "@ycode/core";
 import {
   createAccountProviderConfigSnapshot,
@@ -105,7 +105,7 @@ export function createStandaloneAccountIdentityFromSecret(secret: string): strin
 }
 
 export async function readStandaloneAccountProviderConfigSnapshot(
-  credentialStore: Pick<SharedycodeCredentialStore, "loadMany">,
+  credentialStore: Pick<SharedYCodeCredentialStore, "loadMany">,
   env: Readonly<Record<string, string | undefined>>,
   config?: Pick<ProviderConfigLayerSnapshot, "revision" | "providers">,
 ): Promise<AccountProviderConfigSnapshot> {
@@ -156,7 +156,7 @@ export async function readStandaloneAccountProviderConfigSnapshot(
 }
 
 export async function hasStandaloneCodingPlanAccess(
-  credentialStore: Pick<SharedycodeCredentialStore, "loadMany">,
+  credentialStore: Pick<SharedYCodeCredentialStore, "loadMany">,
   env: Readonly<Record<string, string | undefined>>,
 ): Promise<boolean> {
   return (await readStandaloneAccountProviderConfigSnapshot(credentialStore, env)).providers
@@ -167,7 +167,7 @@ export async function hasStandaloneCodingPlanAccess(
 }
 
 export function createStandaloneProviderRuntimeHeadersPort(
-  credentialStore: Pick<SharedycodeCredentialStore, "load" | "loadMany">,
+  credentialStore: Pick<SharedYCodeCredentialStore, "load" | "loadMany">,
   env: Readonly<Record<string, string | undefined>>,
 ): ProviderRuntimeHeadersPort {
   return {

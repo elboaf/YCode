@@ -4,7 +4,7 @@ import type { SqliteSessionStore } from "@ycode/adapters/storage";
 import { shutdownPreparedModelTelemetry } from "@ycode/telemetry";
 import { closeSessionStore } from "../app/session-store.js";
 import type { NodeReplBrowserBroker } from "../app/node-repl-browser-broker.js";
-import type { ycodeProcessResourceSampler } from "../process-resource-sampler.js";
+import type { YCodeProcessResourceSampler } from "../process-resource-sampler.js";
 import type { ycodeProtocolAgentServer } from "./server.js";
 
 const DEFAULT_CLEANUP_BUDGET_MS = 1_200;
@@ -14,7 +14,7 @@ export async function cleanupProtocolRuntime(options: {
   logger: Logger;
   deadlineAt?: number;
   server?: Pick<ycodeProtocolAgentServer, "shutdown" | "disposeProjections">;
-  processResourceSampler?: Pick<ycodeProcessResourceSampler, "stop">;
+  processResourceSampler?: Pick<YCodeProcessResourceSampler, "stop">;
   mcpTelemetryTracker?: Pick<McpTelemetryTracker, "stop">;
   nodeReplBrowserBroker?: Pick<NodeReplBrowserBroker, "close">;
   mcpPort?: Pick<McpPort, "close">;

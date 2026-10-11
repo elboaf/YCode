@@ -1,11 +1,11 @@
 import type { Logger } from "@ycode/contracts";
-import type { listycodePlugins } from "@ycode/bootstrap";
+import type { listYCodePlugins } from "@ycode/bootstrap";
 import { createInterface } from "node:readline";
 import type { GlobalOptions, RunContext } from "@ycode/shared-types";
 import type { CliEnv } from "./env.js";
 
 export type BootstrapModule = typeof import("@ycode/bootstrap");
-export type PluginListOutcome = ReturnType<typeof listycodePlugins>;
+export type PluginListOutcome = ReturnType<typeof listYCodePlugins>;
 export type PluginListItem = PluginListOutcome["plugins"][number];
 export type PluginDiagnostic = PluginListOutcome["diagnostics"][number];
 export type PluginScope = "user" | "workspace";
@@ -15,16 +15,16 @@ export type PluginScope = "user" | "workspace";
  * 避免 `ycode plugins list` 这类轻命令把整个 bootstrap 图提前拉起来。
  */
 export const BOOTSTRAP_EXPORTS = {
-  addMarketplace: "addycodePluginMarketplace",
-  getPluginsOverview: "getycodePluginsOverview",
-  installPlugin: "installycodeMarketplacePlugin",
-  listPlugins: "listycodePlugins",
-  removeMarketplace: "removeycodePluginMarketplace",
-  setPluginEnabled: "setycodePluginEnabled",
-  uninstallPlugin: "uninstallycodeMarketplacePlugin",
-  updateMarketplace: "updateycodePluginMarketplace",
-  updatePlugin: "updateycodeMarketplacePlugin",
-  validatePluginPath: "validateycodePluginPath",
+  addMarketplace: "addYCodePluginMarketplace",
+  getPluginsOverview: "getYCodePluginsOverview",
+  installPlugin: "installYCodeMarketplacePlugin",
+  listPlugins: "listYCodePlugins",
+  removeMarketplace: "removeYCodePluginMarketplace",
+  setPluginEnabled: "setYCodePluginEnabled",
+  uninstallPlugin: "uninstallYCodeMarketplacePlugin",
+  updateMarketplace: "updateYCodePluginMarketplace",
+  updatePlugin: "updateYCodeMarketplacePlugin",
+  validatePluginPath: "validateYCodePluginPath",
 } as const satisfies Record<string, keyof BootstrapModule>;
 
 export type PluginDepName = keyof typeof BOOTSTRAP_EXPORTS;

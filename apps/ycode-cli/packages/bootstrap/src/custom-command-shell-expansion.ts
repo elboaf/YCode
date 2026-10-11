@@ -13,7 +13,7 @@ const DEFAULT_SHELL_EXPANSION_OUTPUT_BYTES = 128 * 1024;
 const INLINE_SHELL_PATTERN = /!`([^`]*)`/gu;
 const FENCED_SHELL_PATTERN = /```!\s*\r?\n?([\s\S]*?)```/gu;
 const SHELL_CONTEXT_VARIABLE_PATTERN =
-  /\$\{(CLAUDE_CODE_SESSION_ID|CLAUDE_PLUGIN_DATA|CLAUDE_PLUGIN_ROOT|CLAUDE_PROJECT_DIR|CLAUDE_SESSION_ID|CLAUDE_SKILL_DIR|ycode_PLUGIN_DATA|ycode_PLUGIN_ROOT|ycode_PROJECT_DIR|ycode_SESSION_ID|ycode_SKILL_DIR)\}/gu;
+  /\$\{(CLAUDE_CODE_SESSION_ID|CLAUDE_PLUGIN_DATA|CLAUDE_PLUGIN_ROOT|CLAUDE_PROJECT_DIR|CLAUDE_SESSION_ID|CLAUDE_SKILL_DIR|YCODE_PLUGIN_DATA|YCODE_PLUGIN_ROOT|YCODE_PROJECT_DIR|YCODE_SESSION_ID|YCODE_SKILL_DIR)\}/gu;
 
 interface ShellExpansionMatch {
   command: string;
@@ -164,19 +164,19 @@ function createShellExpansionEnv(input: {
 }) {
   const set: Record<string, string> = {};
   set.CLAUDE_PROJECT_DIR = input.workingDirectory;
-  set.ycode_PROJECT_DIR = input.workingDirectory;
+  set.YCODE_PROJECT_DIR = input.workingDirectory;
   if (input.sessionId) {
     set.CLAUDE_CODE_SESSION_ID = input.sessionId;
     set.CLAUDE_SESSION_ID = input.sessionId;
-    set.ycode_SESSION_ID = input.sessionId;
+    set.YCODE_SESSION_ID = input.sessionId;
   }
   if (input.plugin) {
     set.CLAUDE_PLUGIN_DATA = input.plugin.dataPath;
     set.CLAUDE_PLUGIN_ROOT = input.plugin.rootPath;
-    set.ycode_PLUGIN_DATA = input.plugin.dataPath;
-    set.ycode_PLUGIN_ID = input.plugin.id;
-    set.ycode_PLUGIN_NAME = input.plugin.name;
-    set.ycode_PLUGIN_ROOT = input.plugin.rootPath;
+    set.YCODE_PLUGIN_DATA = input.plugin.dataPath;
+    set.YCODE_PLUGIN_ID = input.plugin.id;
+    set.YCODE_PLUGIN_NAME = input.plugin.name;
+    set.YCODE_PLUGIN_ROOT = input.plugin.rootPath;
   }
   return Object.keys(set).length > 0 ? { set } : undefined;
 }
@@ -190,7 +190,7 @@ function assertShellExpansionContextAvailable(input: {
   for (const match of input.shellCommand.matchAll(SHELL_CONTEXT_VARIABLE_PATTERN)) {
     const name = match[1];
     if (!name) continue;
-    if (name === "CLAUDE_SKILL_DIR" || name === "ycode_SKILL_DIR") {
+    if (name === "CLAUDE_SKILL_DIR" || name === "YCODE_SKILL_DIR") {
       throw new Error(
         `Custom command /${input.command.metadata.name} variable requires a skill context: ${name}`,
       );
@@ -199,7 +199,7 @@ function assertShellExpansionContextAvailable(input: {
       !input.sessionId &&
       (name === "CLAUDE_CODE_SESSION_ID" ||
         name === "CLAUDE_SESSION_ID" ||
-        name === "ycode_SESSION_ID")
+        name === "YCODE_SESSION_ID")
     ) {
       throw new Error(
         `Custom command /${input.command.metadata.name} variable requires a runtime session context: ${name}`,
@@ -209,8 +209,8 @@ function assertShellExpansionContextAvailable(input: {
       !input.plugin &&
       (name === "CLAUDE_PLUGIN_DATA" ||
         name === "CLAUDE_PLUGIN_ROOT" ||
-        name === "ycode_PLUGIN_DATA" ||
-        name === "ycode_PLUGIN_ROOT")
+        name === "YCODE_PLUGIN_DATA" ||
+        name === "YCODE_PLUGIN_ROOT")
     ) {
       throw new Error(
         `Custom command /${input.command.metadata.name} variable requires a plugin context: ${name}`,

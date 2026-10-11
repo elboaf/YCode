@@ -35,7 +35,7 @@ import type {
   OfficialMcpTrustedOriginRegistry,
   TraceContext,
 } from "@ycode/contracts";
-import { ycode_MCP_SERVER_REQUEST_ID_META_KEY } from "@ycode/contracts";
+import { YCODE_MCP_SERVER_REQUEST_ID_META_KEY } from "@ycode/contracts";
 import { normalizeMcpToolDescriptor } from "./descriptor.js";
 import {
   createOfficialMcpAuthFetch,
@@ -44,7 +44,7 @@ import {
 } from "./official-auth.js";
 import {
   OFFICIAL_MCP_AUTH_META_KEY,
-  ycode_OFFICIAL_MCP_AUTH_TYPE,
+  YCODE_OFFICIAL_MCP_AUTH_TYPE,
   type McpServerFailureKind,
   type OfficialMcpAuthFailureKind,
 } from "@ycode/shared";
@@ -73,8 +73,8 @@ import {
   type McpInteractiveAuthorizationOutcome,
 } from "./oauth-interactive.js";
 import {
-  createSharedycodeCredentialStore,
-  type SharedycodeCredentialStore,
+  createSharedYCodeCredentialStore,
+  type SharedYCodeCredentialStore,
 } from "../auth/shared-credentials.js";
 import { loadCredentialPair } from "./oauth-credentials.js";
 import { createMcpOAuthTokenProvider } from "./oauth-provider.js";
@@ -120,9 +120,9 @@ export interface CreateMcpAdapterOptions {
     /**
      * 当前 ycode API origin。stdio 形态没有 `url` 可供校验，targetOrigin 只能由宿主给出
      * ——插件因此无法把身份头导向别的 origin。
-     * 与 trustedOrigins 的 `resolveycodeApiOrigin` 必须同源，否则两侧判定会分叉。
+     * 与 trustedOrigins 的 `resolveYCodeApiOrigin` 必须同源，否则两侧判定会分叉。
      */
-    resolveycodeApiOrigin?: () => string;
+    resolveYCodeApiOrigin?: () => string;
     workspaceIdentity?: string;
   };
   workingDirectory?: string;
@@ -197,7 +197,7 @@ class NodeMcpAdapter implements McpPort {
   private readonly officialMcpAuth?: CreateMcpAdapterOptions["officialMcpAuth"];
   private readonly telemetry?: McpTelemetryTracker;
   private readonly connectionGenerations = new Map<string, number>();
-  private credentialStore?: SharedycodeCredentialStore;
+  private credentialStore?: SharedYCodeCredentialStore;
   /**
    * 官方鉴权失败分类的暂存槽。不能从 error 对象读——SDK 的 version
    * negotiation 会把 OfficialMcpAuthError 重新包装成普通 Error，instanceof 失效；
@@ -577,7 +577,7 @@ class NodeMcpAdapter implements McpPort {
     const official = config.official;
     const authHeadersPort = this.officialMcpAuth?.authHeadersPort;
     const trustedOrigins = this.officialMcpAuth?.trustedOrigins;
-    const resolveycodeApiOrigin = this.officialMcpAuth?.resolveycodeApiOrigin;
+    const resolveYCodeApiOrigin = this.officialMcpAuth?.resolveYCodeApiOrigin;
     const logBase = {
       event: "mcp.official_auth.stdio_meta",
       mcpKey: official.mcpKey,
@@ -599,7 +599,7 @@ class NodeMcpAdapter implements McpPort {
 
     // standalone CLI 没有 host auth port。不静默省略该键：插件区分不了"宿主不支持"与
     // "宿主支持但我没登录"，只有显式 reason 才能给出正确的用户提示。
-    if (!authHeadersPort || !trustedOrigins || !resolveycodeApiOrigin) {
+    if (!authHeadersPort || !trustedOrigins || !resolveYCodeApiOrigin) {
       return fail("official_auth_unavailable");
     }
 
@@ -614,7 +614,7 @@ class NodeMcpAdapter implements McpPort {
     let targetOrigin: string;
     let trust: Awaited<ReturnType<OfficialMcpTrustedOriginRegistry["isTrusted"]>>;
     try {
-      targetOrigin = resolveycodeApiOrigin();
+      targetOrigin = resolveYCodeApiOrigin();
       trust = await trustedOrigins.isTrusted({
         mcpKey: official.mcpKey,
         origin: targetOrigin,
@@ -736,7 +736,7 @@ class NodeMcpAdapter implements McpPort {
         // 只在失败时附加：成功路径上它是纯噪声。服务端已给的键一律不覆盖。
         _meta:
           isError && serverRequestId
-            ? { ...meta, [ycode_MCP_SERVER_REQUEST_ID_META_KEY]: serverRequestId }
+            ? { ...meta, [YCODE_MCP_SERVER_REQUEST_ID_META_KEY]: serverRequestId }
             : meta,
       };
     } catch (error) {
@@ -1084,7 +1084,7 @@ class NodeMcpAdapter implements McpPort {
           //     从而在用户输入框上方弹出"额度用完 / 请开通 Coding Plan"的误导提示。
           // 原判据是 `type !== "sse"`，把 stdio 一起放了进来，等于这道门槛在 stdio 上为零。
           // 注意这不是在挡凭证外泄（那由 origin 校验负责），而是在挡**结果伪造**。
-          config.type === "http" && config.auth?.type === ycode_OFFICIAL_MCP_AUTH_TYPE,
+          config.type === "http" && config.auth?.type === YCODE_OFFICIAL_MCP_AUTH_TYPE,
         ),
       );
       const negotiatedProtocolEra = client.getProtocolEra();
@@ -1269,7 +1269,7 @@ class NodeMcpAdapter implements McpPort {
         input.name,
         input.generation,
       );
-      const credentialStore = oauthOptions?.credentialStore ?? createSharedycodeCredentialStore();
+      const credentialStore = oauthOptions?.credentialStore ?? createSharedYCodeCredentialStore();
       const keyPrefix = createCredentialKeyPrefix(input.name, input.serverUrl, input.oauthConfig);
       // 403 step-up 的最终 scope 必须是 config ∪ token.scope ∪ challenge
       // 的并集。只带 challenge scope 重新授权时，授权服务器可能按新请求收回先前授予的 scope，
@@ -1555,8 +1555,8 @@ class NodeMcpAdapter implements McpPort {
     return undefined;
   }
 
-  private resolveCredentialStore(): SharedycodeCredentialStore {
-    this.credentialStore ??= this.mcpOAuth?.credentialStore ?? createSharedycodeCredentialStore();
+  private resolveCredentialStore(): SharedYCodeCredentialStore {
+    this.credentialStore ??= this.mcpOAuth?.credentialStore ?? createSharedYCodeCredentialStore();
     return this.credentialStore;
   }
 

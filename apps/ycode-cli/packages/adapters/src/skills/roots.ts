@@ -14,7 +14,7 @@ export interface SkillRootResolutionOptions {
   homeDirectory?: string;
   extraRoots?: string[];
   extraResolvedRoots?: SkillRoot[];
-  includeycodeSkills?: boolean;
+  includeYCodeSkills?: boolean;
 }
 
 export async function resolveDefaultSkillRoots(
@@ -23,7 +23,7 @@ export async function resolveDefaultSkillRoots(
 ): Promise<SkillRoot[]> {
   const resolvedWorkingDirectory = resolve(workingDirectory);
   const roots: SkillRoot[] = [];
-  const includeycode = options.includeycodeSkills ?? true;
+  const includeycode = options.includeYCodeSkills ?? true;
   const home = options.homeDirectory ?? homedir();
   let priority = 0;
   const nextPriority = () => {

@@ -5,8 +5,8 @@ import {
   ycodeWorkspaceHookTrustGrantParamsSchema,
   ycodeWorkspaceHookTrustGrantReasonCodeSchema,
   ycodeWorkspaceHookTrustGrantResultSchema,
-  type ycodeWorkspaceHookTrustGrantReasonCode,
-  type ycodeWorkspaceHookTrustGrantResult,
+  type YCodeWorkspaceHookTrustGrantReasonCode,
+  type YCodeWorkspaceHookTrustGrantResult,
 } from "@ycode/shared";
 import {
   grantWorkspaceHookTrust,
@@ -28,7 +28,7 @@ export async function grantWorkspaceHookTrustForProtocol(
     grant?: GrantWorkspaceHookTrust;
     policyProvider: WorkspaceHookPolicyProvider;
   },
-): Promise<ycodeWorkspaceHookTrustGrantResult> {
+): Promise<YCodeWorkspaceHookTrustGrantResult> {
   const params = ycodeWorkspaceHookTrustGrantParamsSchema.parse(rawParams);
   const grant = dependencies.grant ?? grantWorkspaceHookTrust;
   const workspaceIdentity =
@@ -69,7 +69,7 @@ export async function grantWorkspaceHookTrustForProtocol(
 function getPolicyRejectionReason(
   policyProvider: WorkspaceHookPolicyProvider,
   workspaceIdentity: string,
-): ycodeWorkspaceHookTrustGrantReasonCode | undefined {
+): YCodeWorkspaceHookTrustGrantReasonCode | undefined {
   try {
     const policy = workspaceHookPolicySchema.parse(
       policyProvider.getPolicy(workspaceIdentity),
@@ -85,7 +85,7 @@ function getPolicyRejectionReason(
   }
 }
 
-function toPublicReasonCode(error: unknown): ycodeWorkspaceHookTrustGrantReasonCode {
+function toPublicReasonCode(error: unknown): YCodeWorkspaceHookTrustGrantReasonCode {
   const candidate = error instanceof Error ? error.message : error;
   const parsed = ycodeWorkspaceHookTrustGrantReasonCodeSchema.safeParse(candidate);
   if (parsed.success) return parsed.data;

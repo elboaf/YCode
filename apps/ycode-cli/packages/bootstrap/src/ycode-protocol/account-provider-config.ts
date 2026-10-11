@@ -1,6 +1,6 @@
 import {
   ycodeProviderUpdateAccountConfigParamsSchema,
-  type ycodeProviderUpdateAccountConfigResult,
+  type YCodeProviderUpdateAccountConfigResult,
 } from "@ycode/shared";
 import { parseProcessAccountProviderConfigSnapshot } from "../app/process-provider-registry-runtime.js";
 import {
@@ -17,7 +17,7 @@ import {
 export async function updateAccountProviderConfig(
   context: ycodeProtocolAgentServerContext,
   params: unknown,
-): Promise<ycodeProviderUpdateAccountConfigResult> {
+): Promise<YCodeProviderUpdateAccountConfigResult> {
   const envelope = parseParams(ycodeProviderUpdateAccountConfigParamsSchema, params);
   const snapshot = parseProcessAccountProviderConfigSnapshot(envelope);
   if (!context.deps.syncAccountProviderConfig) {

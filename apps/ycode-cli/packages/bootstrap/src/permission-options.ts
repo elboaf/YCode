@@ -1,5 +1,5 @@
 import type { PermissionOptionsPolicy, PermissionUpdate } from "@ycode/contracts";
-import { OFFICIAL_CUA_PERMISSION_RULE_TOOL_NAME, type ycodePermissionOption } from "@ycode/shared";
+import { OFFICIAL_CUA_PERMISSION_RULE_TOOL_NAME, type YCodePermissionOption } from "@ycode/shared";
 
 const PROJECT_RULE_INPUT_KEYS = ["command", "url", "file_path", "path", "pattern"] as const;
 
@@ -36,7 +36,7 @@ interface PermissionOptionSource {
  */
 export function buildProtocolPermissionOptions(
   source: PermissionOptionSource,
-): ycodePermissionOption[] {
+): YCodePermissionOption[] {
   const permissionUpdates = source.suggestedPermissionUpdates?.length
     ? source.suggestedPermissionUpdates
     : defaultPermissionUpdates(source);

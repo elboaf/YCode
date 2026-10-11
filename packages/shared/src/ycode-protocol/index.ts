@@ -11,9 +11,9 @@ import {
 // session/rewindCascade、session/previewFileRewind、session/applyFileRewind、
 // prompt/enhance 全簇（含 promptEnhanceResult 通知）、plugins/marketplace/list；
 // session/fork 客户端链已删（op+schema 留存 = v4 forkSessionAtMessage 钩子消费）。
-// 消费者：services 旧栈（ycodeProtocolClient/ycodeAgent/ycodeAgentService/ycodeSession*）、
+// 消费者：services 旧栈（YCodeProtocolClient/ycodeAgent/ycodeAgentService/ycodeSession*）、
 // CLI bootstrap 旧协议 server（ycode-protocol/server-operations、plugins、session-mapper 等）、
-// UI 旧投影（ycodeSessionProjection 等读路径）。
+// UI 旧投影（YCodeSessionProjection 等读路径）。
 // 上述旧协议 client/server 组删除时，本文件整体删除。
 // 注：外部零消费 schema 多为存活 schema 联合的内部依赖，随宿主文件一起处理，勿单删。
 import { bashOutputDisplaySchema } from "../bash-output-display.js";
@@ -28,7 +28,7 @@ import { completeModelPropertiesDataSchema } from "../model-config.js";
 import { accountProviderUnavailableReasonSchema } from "../account-provider-state.js";
 import { modelExecutionSchema } from "../model-execution.js";
 import { APP_USAGE_RANGES, appUsageSnapshotSchema } from "../usage-stats.js";
-import { ycodeAutomationBotDeliveryTargetSchema } from "../bots.js";
+import { YCodeAutomationBotDeliveryTargetSchema } from "../bots.js";
 // browser-use 命令/结果契约单一来源：agent 构造、协议校验和 main executor 共用同一 schema。
 import { browserClientModeSchema, browserCommandSchema } from "../browser-use/commands.js";
 import {
@@ -794,7 +794,7 @@ export const ycodeModelFormatPropertiesSchema = completeModelPropertiesDataSchem
 });
 export type YCodeModelFormatProperties = z.infer<typeof ycodeModelFormatPropertiesSchema>;
 
-export const ycodeModelOptionSchema = z
+export const YCodeModelOptionSchema = z
   .object({
     ref: modelSelectionSchema,
     label: nonEmptyString,
@@ -807,7 +807,7 @@ export const ycodeModelOptionSchema = z
     disabledReason: z.string().optional(),
   })
   .strict();
-export type YCodeModelOption = z.infer<typeof ycodeModelOptionSchema>;
+export type YCodeModelOption = z.infer<typeof YCodeModelOptionSchema>;
 
 export const ycodeAccountAccessSchema = z.discriminatedUnion("planKind", [
   z
@@ -895,7 +895,7 @@ export const ycodeSessionSettingsStateSchema = z
       .object({
         // 未绑定是合法恢复状态；不能为满足协议而伪造模型或阻断历史读取。
         current: modelSelectionSchema.optional(),
-        available: z.array(ycodeModelOptionSchema),
+        available: z.array(YCodeModelOptionSchema),
         lastUsed: modelSelectionSchema.optional(),
       })
       .strict(),
@@ -1046,7 +1046,7 @@ export const ycodeEventEnvelopeSchema = z
   })
   .strict();
 
-const ycodeComputerUseOperationEventBaseSchema = z
+const YCodeComputerUseOperationEventBaseSchema = z
   .object({
     eventId: nonEmptyString,
     sequenceNumber: z.number().int().nonnegative(),
@@ -1055,19 +1055,19 @@ const ycodeComputerUseOperationEventBaseSchema = z
   })
   .strict();
 
-const ycodeComputerUseTurnStartedEventSchema = ycodeComputerUseOperationEventBaseSchema.extend({
+const ycodeComputerUseTurnStartedEventSchema = YCodeComputerUseOperationEventBaseSchema.extend({
   kind: z.literal("turn-started"),
   turnId: nonEmptyString,
 });
-const ycodeComputerUseTurnCompletedEventSchema = ycodeComputerUseOperationEventBaseSchema.extend({
+const ycodeComputerUseTurnCompletedEventSchema = YCodeComputerUseOperationEventBaseSchema.extend({
   kind: z.literal("turn-completed"),
   turnId: nonEmptyString,
 });
-const ycodeComputerUseTurnFailedEventSchema = ycodeComputerUseOperationEventBaseSchema.extend({
+const ycodeComputerUseTurnFailedEventSchema = YCodeComputerUseOperationEventBaseSchema.extend({
   kind: z.literal("turn-failed"),
   turnId: nonEmptyString,
 });
-const ycodeComputerUseToolScheduledEventSchema = ycodeComputerUseOperationEventBaseSchema.extend({
+const ycodeComputerUseToolScheduledEventSchema = YCodeComputerUseOperationEventBaseSchema.extend({
   kind: z.literal("tool-scheduled"),
   turnId: nonEmptyString,
   toolCallId: nonEmptyString,
@@ -1078,17 +1078,17 @@ const ycodeComputerUseToolScheduledEventSchema = ycodeComputerUseOperationEventB
   // 只挂在 scheduled 上：ToolCallStartedPayload 没有 input，start 时已拿不到模型源码。
   computerUse: z.literal(true).optional(),
 });
-const ycodeComputerUseToolStartedEventSchema = ycodeComputerUseOperationEventBaseSchema.extend({
+const ycodeComputerUseToolStartedEventSchema = YCodeComputerUseOperationEventBaseSchema.extend({
   kind: z.literal("tool-started"),
   turnId: nonEmptyString.optional(),
   toolCallId: nonEmptyString,
   toolName: nonEmptyString.optional(),
 });
-const ycodeComputerUseSessionClosedEventSchema = ycodeComputerUseOperationEventBaseSchema.extend({
+const ycodeComputerUseSessionClosedEventSchema = YCodeComputerUseOperationEventBaseSchema.extend({
   kind: z.literal("session-closed"),
 });
 
-export const ycodeComputerUseOperationEventSchema = z.discriminatedUnion("kind", [
+export const YCodeComputerUseOperationEventSchema = z.discriminatedUnion("kind", [
   ycodeComputerUseTurnStartedEventSchema,
   ycodeComputerUseTurnCompletedEventSchema,
   ycodeComputerUseTurnFailedEventSchema,
@@ -1096,7 +1096,7 @@ export const ycodeComputerUseOperationEventSchema = z.discriminatedUnion("kind",
   ycodeComputerUseToolStartedEventSchema,
   ycodeComputerUseSessionClosedEventSchema,
 ]);
-export type YCodeComputerUseOperationEvent = z.infer<typeof ycodeComputerUseOperationEventSchema>;
+export type YCodeComputerUseOperationEvent = z.infer<typeof YCodeComputerUseOperationEventSchema>;
 
 export const ycodeSessionEventTypeSchema = z.enum([
   "session.created",
@@ -1531,31 +1531,31 @@ const ycodeSessionSubagentBaseSchema = z
   })
   .strict();
 
-export const ycodeSessionRunningSubagentSchema = ycodeSessionSubagentBaseSchema.extend({
+export const YCodeSessionRunningSubagentSchema = ycodeSessionSubagentBaseSchema.extend({
   status: z.enum(["running", "waiting", "blocked"]),
 });
-export type YCodeSessionRunningSubagent = z.infer<typeof ycodeSessionRunningSubagentSchema>;
+export type YCodeSessionRunningSubagent = z.infer<typeof YCodeSessionRunningSubagentSchema>;
 
-export const ycodeSessionEndedSubagentSchema = ycodeSessionSubagentBaseSchema.extend({
+export const YCodeSessionEndedSubagentSchema = ycodeSessionSubagentBaseSchema.extend({
   status: z.enum(["success", "failed", "cancelled", "lost"]),
 });
-export type YCodeSessionEndedSubagent = z.infer<typeof ycodeSessionEndedSubagentSchema>;
+export type YCodeSessionEndedSubagent = z.infer<typeof YCodeSessionEndedSubagentSchema>;
 
-export const ycodeSessionSubagentsResultSchema = z
+export const YCodeSessionSubagentsResultSchema = z
   .object({
     revision: z.number().int().nonnegative(),
     childSessionIds: z.array(nonEmptyString),
-    running: z.array(ycodeSessionRunningSubagentSchema),
+    running: z.array(YCodeSessionRunningSubagentSchema),
     ended: z
       .object({
         total: z.number().int().nonnegative(),
-        items: z.array(ycodeSessionEndedSubagentSchema),
+        items: z.array(YCodeSessionEndedSubagentSchema),
         nextCursor: nonEmptyString.optional(),
       })
       .strict(),
   })
   .strict();
-export type YCodeSessionSubagentsResult = z.infer<typeof ycodeSessionSubagentsResultSchema>;
+export type YCodeSessionSubagentsResult = z.infer<typeof YCodeSessionSubagentsResultSchema>;
 export const ycodeSessionCreateParamsSchema = z
   .object({
     sessionId: nonEmptyString.optional(),
@@ -1743,7 +1743,7 @@ export const ycodeSessionSendParamsSchema = z
     automationId: nonEmptyString.optional(),
     offPeakTaskId: nonEmptyString.optional(),
     offPeakRunType: z.enum(["init", "resume"]).optional(),
-    botDeliveryTarget: ycodeAutomationBotDeliveryTargetSchema.optional(),
+    botDeliveryTarget: YCodeAutomationBotDeliveryTargetSchema.optional(),
     toolDenylist: z.array(nonEmptyString).optional(),
   })
   .strict()
@@ -2167,7 +2167,7 @@ export const ycodeProviderUpdateAccountConfigParamsSchema = z
     ),
   })
   .strict();
-export const ycodeProviderUpdateAccountConfigResultSchema = z
+export const YCodeProviderUpdateAccountConfigResultSchema = z
   .object({
     // 收到账号结果不代表配套 Built-in 已到达；应用版本只能读取 Registry 快照。
     receivedRevision: nonEmptyString,
@@ -2176,7 +2176,7 @@ export const ycodeProviderUpdateAccountConfigResultSchema = z
   })
   .strict();
 export type YCodeProviderUpdateAccountConfigResult = z.infer<
-  typeof ycodeProviderUpdateAccountConfigResultSchema
+  typeof YCodeProviderUpdateAccountConfigResultSchema
 >;
 export const ycodeInteractionPreferencesSchema = z
   .object({
@@ -3346,7 +3346,7 @@ export const ycodeAutomationIntervalUnitSchema = z.enum([
   "yearly",
 ]);
 
-export const ycodeAutomationProtocolSchema = z
+export const YCodeAutomationProtocolSchema = z
   .object({
     automationId: nonEmptyString,
     title: z.string(),
@@ -3367,7 +3367,7 @@ export const ycodeAutomationProtocolSchema = z
     scheduleRule: ycodeAutomationScheduleRuleSchema.optional(),
   })
   .strict();
-export type YCodeAutomationProtocol = z.infer<typeof ycodeAutomationProtocolSchema>;
+export type YCodeAutomationProtocol = z.infer<typeof YCodeAutomationProtocolSchema>;
 
 export const ycodeAutomationCreateParamsSchema = z
   .object({
@@ -3378,7 +3378,7 @@ export const ycodeAutomationCreateParamsSchema = z
     modelSelection: modelSelectionSchema.optional(),
     mode: ycodeTaskModeSchema.optional(),
     targetTaskId: nonEmptyString.optional(),
-    botDeliveryTarget: ycodeAutomationBotDeliveryTargetSchema.optional(),
+    botDeliveryTarget: YCodeAutomationBotDeliveryTargetSchema.optional(),
     recurring: z.boolean().optional(),
     maxRuns: z.number().int().positive().optional(),
     // 会话侧自定义重复 carrier：每 N 分钟/小时/天/周/月/年均通过此字段归一化为权威 scheduleRule，
@@ -3408,7 +3408,7 @@ export const ycodeAutomationCreateParamsSchema = z
 export type YCodeAutomationCreateProtocolParams = z.infer<typeof ycodeAutomationCreateParamsSchema>;
 
 export const ycodeAutomationCreateResultSchema = z
-  .object({ automation: ycodeAutomationProtocolSchema })
+  .object({ automation: YCodeAutomationProtocolSchema })
   .strict();
 export type YCodeAutomationCreateProtocolResult = z.infer<typeof ycodeAutomationCreateResultSchema>;
 
@@ -3465,14 +3465,14 @@ export const ycodeAutomationUpdateParamsSchema = z
   );
 export type YCodeAutomationUpdateProtocolParams = z.infer<typeof ycodeAutomationUpdateParamsSchema>;
 export const ycodeAutomationUpdateResultSchema = z
-  .object({ automation: ycodeAutomationProtocolSchema })
+  .object({ automation: YCodeAutomationProtocolSchema })
   .strict();
 export type YCodeAutomationUpdateProtocolResult = z.infer<typeof ycodeAutomationUpdateResultSchema>;
 
 export const ycodeAutomationListParamsSchema = z.object({}).strict();
 export type YCodeAutomationListProtocolParams = z.infer<typeof ycodeAutomationListParamsSchema>;
 export const ycodeAutomationListResultSchema = z
-  .object({ automations: z.array(ycodeAutomationProtocolSchema) })
+  .object({ automations: z.array(YCodeAutomationProtocolSchema) })
   .strict();
 export type YCodeAutomationListProtocolResult = z.infer<typeof ycodeAutomationListResultSchema>;
 

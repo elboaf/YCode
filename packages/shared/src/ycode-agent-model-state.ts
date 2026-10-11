@@ -1,8 +1,8 @@
 // ── 旧协议兼容面（过渡期）──────────────────────────────
 // 剩余 5 个导出：旧 configOptions 投影函数（formatModelPickerValue/normalizeAvailableYCodeMode/
 // getYCodeAgentModeSelectOptions/getYCodeAgentAvailableModes/
-// ycodeSessionSettingsToYCodeConfigOptions）。
-// 消费者：services ycodeConfigOptions、UI ycodeSessionProjection 等旧栈。
+// YCodeSessionSettingsToYCodeConfigOptions）。
+// 消费者：services ycodeConfigOptions、UI YCodeSessionProjection 等旧栈。
 import { formatModelPickerValue } from "./model-selection.js";
 import type { YCodeSessionMode, YCodeSessionSettingsState } from "./ycode-protocol/index.js";
 import type { YCodeConfigOption, YCodeTaskModeInfo } from "./ycode-task-types-core.js";
@@ -54,7 +54,7 @@ export function getYCodeAgentAvailableModes(): YCodeTaskModeInfo[] {
   return YCODE_AGENT_MODE_OPTIONS.map((mode) => ({ ...mode }));
 }
 
-export function ycodeSessionSettingsToYCodeConfigOptions(
+export function YCodeSessionSettingsToYCodeConfigOptions(
   settings: YCodeSessionSettingsState,
 ): YCodeConfigOption[] {
   const configOptions: YCodeConfigOption[] = [

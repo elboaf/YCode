@@ -2,8 +2,8 @@
 
 import {
   modelMessageContentToText,
-  ycode_MCP_ERROR_PRESENTATION_MESSAGE_ONLY,
-  ycode_MCP_ERROR_PRESENTATION_META_KEY,
+  YCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY,
+  YCODE_MCP_ERROR_PRESENTATION_META_KEY,
   type JsonSchema,
   type McpPort,
   type McpToolCallResult,
@@ -14,7 +14,7 @@ import {
   type PermissionCapabilityGroup,
   type RiskLevel,
 } from "@ycode/contracts";
-import { ycode_CUA_OFFICIAL_MCP_NAMESPACE_NAME as ycode_CUA_OFFICIAL_MCP_SERVER_NAME } from "@ycode/shared";
+import { YCODE_CUA_OFFICIAL_MCP_NAMESPACE_NAME as YCODE_CUA_OFFICIAL_MCP_SERVER_NAME } from "@ycode/shared";
 import { OFFICIAL_CUA_FRAME_MODEL_CONTENT_PROTECTION } from "@ycode/ycode-cua/frame-contract";
 import type { ToolRegistry } from "../tool/registry.js";
 import type { ToolEntry } from "../tool/types.js";
@@ -43,8 +43,8 @@ const CUA_USER_TITLE_SCHEMA = {
   description:
     "Required short user-facing title in the user's language that describes why the app interface is being read without implementation terms such as CUA, MCP, or get_app_state",
 } satisfies JsonSchema;
-const ycode_CUA_CANONICAL_MODEL_PREFIX = "mcp__computer-use__";
-const ycode_CUA_PROVIDER_SPELLING_ALIAS_PREFIX = "mcp__computer_use__";
+const YCODE_CUA_CANONICAL_MODEL_PREFIX = "mcp__computer-use__";
+const YCODE_CUA_PROVIDER_SPELLING_ALIAS_PREFIX = "mcp__computer_use__";
 
 export interface RegisterMcpToolsOptions {
   allowedTools?: readonly string[];
@@ -89,12 +89,12 @@ function toRegisteredMcpToolName(
 ): string {
   if (
     officialCuaAuthorityVerified &&
-    descriptor.serverName === ycode_CUA_OFFICIAL_MCP_SERVER_NAME
+    descriptor.serverName === YCODE_CUA_OFFICIAL_MCP_SERVER_NAME
   ) {
     // adapter 会把官方插件 serverName 命名空间化，descriptor.name 因而是
     // mcp__plugin_ycode-cua_computer-use__*；直接沿用它会让 provider 约定的 computer-use
     // 工具永远不存在。可信门成立后仅投影模型可见名称，handler 仍用 descriptor 的原路由。
-    return `${ycode_CUA_CANONICAL_MODEL_PREFIX}${toModelVisibleMcpNamePart(descriptor.toolName)}`;
+    return `${YCODE_CUA_CANONICAL_MODEL_PREFIX}${toModelVisibleMcpNamePart(descriptor.toolName)}`;
   }
   return toMcpToolName(descriptor);
 }
@@ -109,7 +109,7 @@ function createMcpToolEntry(
   const destructive = descriptor.annotations?.destructiveHint === true;
   const isHostNodeReplExecution =
     descriptor.serverName === "node_repl" && descriptor.toolName === "js";
-  const isCuaAppObservation = isycodeCuaGetAppState(descriptor);
+  const isCuaAppObservation = isYCodeCuaGetAppState(descriptor);
   // 宿主 node_repl 的 js 能执行本机 Node 代码，不能沿用普通未知 MCP 的 medium/network
   // 默认值；否则权限 UI 会把文件/进程级能力错误描述成普通网络调用。
   const sideEffectScope: ModelToolSideEffectScope = isHostNodeReplExecution ? "system" : "network";
@@ -264,14 +264,14 @@ function officialCuaProviderSpellingAliases(
 ): readonly string[] | undefined {
   if (
     !officialCuaAuthorityVerified ||
-    descriptor.serverName !== ycode_CUA_OFFICIAL_MCP_SERVER_NAME ||
-    !name.startsWith(ycode_CUA_CANONICAL_MODEL_PREFIX)
+    descriptor.serverName !== YCODE_CUA_OFFICIAL_MCP_SERVER_NAME ||
+    !name.startsWith(YCODE_CUA_CANONICAL_MODEL_PREFIX)
   ) {
     return undefined;
   }
-  const toolName = name.slice(ycode_CUA_CANONICAL_MODEL_PREFIX.length);
+  const toolName = name.slice(YCODE_CUA_CANONICAL_MODEL_PREFIX.length);
   return toolName.length > 0
-    ? [`${ycode_CUA_PROVIDER_SPELLING_ALIAS_PREFIX}${toolName}`]
+    ? [`${YCODE_CUA_PROVIDER_SPELLING_ALIAS_PREFIX}${toolName}`]
     : undefined;
 }
 
@@ -343,7 +343,7 @@ function createModelFacingMcpInputSchema(
   };
 }
 
-function isycodeCuaGetAppState(
+function isYCodeCuaGetAppState(
   descriptor: Pick<McpToolDescriptor, "serverName" | "toolName">,
 ): boolean {
   if (descriptor.toolName.trim().toLowerCase().replace(/-/g, "_") !== "get_app_state") {
@@ -352,7 +352,7 @@ function isycodeCuaGetAppState(
 
   const serverName = descriptor.serverName.trim().toLowerCase().replace(/_/g, "-");
   return (
-    descriptor.serverName === ycode_CUA_OFFICIAL_MCP_SERVER_NAME ||
+    descriptor.serverName === YCODE_CUA_OFFICIAL_MCP_SERVER_NAME ||
     serverName === "ycode-cua" ||
     serverName === "computer-use" ||
     (serverName.includes("ycode-cua") && serverName.includes("computer-use"))
@@ -386,9 +386,9 @@ function formatMcpToolResult(output: unknown): ModelMessageContent {
   if (!output.isError) return content;
   // 展示策略由 MCP result 显式声明；通用 bridge 不应识别具体 server，
   // 也不应通过解析错误字符串来猜测哪些内容属于堆栈。
-  const errorPresentation = output._meta?.[ycode_MCP_ERROR_PRESENTATION_META_KEY];
+  const errorPresentation = output._meta?.[YCODE_MCP_ERROR_PRESENTATION_META_KEY];
   return typeof errorPresentation === "string" &&
-    errorPresentation === ycode_MCP_ERROR_PRESENTATION_MESSAGE_ONLY
+    errorPresentation === YCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY
     ? content
     : `MCP tool returned an error:\n${modelMessageContentToText(content)}`;
 }

@@ -345,7 +345,7 @@ const ycodeOpenCodeProviderConfigSchema: z.ZodType<YCodeOpenCodeProviderConfig> 
   })
   .passthrough();
 
-const ycodeConfigFileSchema = z
+const YCodeConfigFileSchema = z
   .object({
     $schema: z.string().optional(),
     provider: z.record(z.string(), ycodeOpenCodeProviderConfigSchema).optional(),
@@ -747,7 +747,7 @@ async function readRawYCodeConfigFile(): Promise<YCodeConfigFile | null> {
     // JSON/Zod 原始错误可能包含 API Key 等输入值；不能写入日志或通过 cause 向外传递。
     throw new Error(`旧 Provider 配置解析失败 stage=json path=${filePath}`);
   }
-  const parsed = ycodeConfigFileSchema.safeParse(json);
+  const parsed = YCodeConfigFileSchema.safeParse(json);
   if (!parsed.success) {
     const field = parsed.error.issues[0]?.path.map(String).join(".").slice(0, 256) ?? "";
     throw new Error(`旧 Provider 配置校验失败 stage=schema path=${filePath} field=${field}`);

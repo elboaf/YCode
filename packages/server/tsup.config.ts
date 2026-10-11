@@ -14,12 +14,12 @@ const { stageThirdPartyNotices } = await import(
 const rootPackageJsonPath = resolve(import.meta.dirname, "../../package.json");
 const { version } = JSON.parse(readFileSync(rootPackageJsonPath, "utf-8"));
 
-const { environment: ycodeEnv, content: ycodeBuiltinProviderConfigJson } =
+const { environment: YCodeEnv, content: ycodeBuiltinProviderConfigJson } =
   await loadBuiltinProviderConfig();
 
 export const SERVER_HTTP_DEFINES = {
   __YCODE_VERSION__: JSON.stringify(version),
-  __YCODE_ENV__: JSON.stringify(ycodeEnv),
+  __YCODE_ENV__: JSON.stringify(YCodeEnv),
   __YCODE_BUILTIN_PROVIDER_CONFIG_JSON__: JSON.stringify(ycodeBuiltinProviderConfigJson),
 };
 

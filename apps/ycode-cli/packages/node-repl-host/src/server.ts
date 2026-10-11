@@ -40,12 +40,12 @@ const MAX_SYNC_TIMEOUT_MS = 120_000;
 const UNTRUSTED_SESSION_KEY = "__unscoped__";
 const WORKER_KIND = "ycode-node-repl-call";
 export const NODE_REPL_MCP_PROCESS_TITLE = "ycode-node-repl-mcp";
-const pluginRoot = process.env.ycode_PLUGIN_ROOT ?? process.cwd();
+const pluginRoot = process.env.YCODE_PLUGIN_ROOT ?? process.cwd();
 // CUA 与 Browser Use 共用 node_repl host，但文档和 native 依赖必须按领域隔离；
 // 否则 CUA skill 会因为 host root 恰好来自 Browser Use 而再次产生隐式依赖。
 const browserDocumentationRoot = resolve(pluginRoot, "docs");
 const cuaDocumentationRoot = resolve(
-  process.env.ycode_CUA_PLUGIN_ROOT ?? pluginRoot,
+  process.env.YCODE_CUA_PLUGIN_ROOT ?? pluginRoot,
   "docs",
 );
 const jsInputSchema = z
@@ -372,11 +372,11 @@ if (!isMainThread && isWorkerCallData(workerData)) {
 export function captureComputerUseRuntimeFromEnvironment(
   env: NodeJS.ProcessEnv = process.env,
 ): ComputerUseRuntime | undefined {
-  const socketPath = env.ycode_CUA_PERMISSION_BROKER_SOCKET?.trim();
+  const socketPath = env.YCODE_CUA_PERMISSION_BROKER_SOCKET?.trim();
   if (!socketPath) return undefined;
   return createComputerUseRuntime({
     brokerSocketPath: socketPath,
-    refreshMarkerPath: env.ycode_CUA_PERMISSION_BROKER_REFRESH_MARKER?.trim(),
+    refreshMarkerPath: env.YCODE_CUA_PERMISSION_BROKER_REFRESH_MARKER?.trim(),
   });
 }
 

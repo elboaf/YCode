@@ -65,12 +65,12 @@ import { verdictWorkspaceHookReviewRequest } from "@ycode/shared/workspace-hook-
 import {
   extractPlanStepsFromToolInput,
   extractPlanStepsFromToolOutput,
-  isycodeModelRetryRecoveryProgressPayload,
-  isycodeFileStreamingToolInputPreviewTool,
-  parseycodeBackgroundTaskNotificationText,
-  resolveycodeBackgroundTaskControlKind,
+  isYCodeModelRetryRecoveryProgressPayload,
+  isYCodeFileStreamingToolInputPreviewTool,
+  parseYCodeBackgroundTaskNotificationText,
+  resolveYCodeBackgroundTaskControlKind,
   WORKFLOW_REFINE_PERMISSION_OPTION_ID,
-  ycode_FILE_STREAMING_TOOL_INPUT_PREVIEW_MIN_INTERVAL_MS,
+  YCODE_FILE_STREAMING_TOOL_INPUT_PREVIEW_MIN_INTERVAL_MS,
   ycodeBackgroundTaskNotificationToolUpdateStatus,
 } from "@ycode/shared";
 import type {
@@ -526,7 +526,7 @@ export class ProductProjection {
         if (
           state.lastPublishedAt !== null &&
           this.ms(event) - state.lastPublishedAt <
-            ycode_FILE_STREAMING_TOOL_INPUT_PREVIEW_MIN_INTERVAL_MS
+            YCODE_FILE_STREAMING_TOOL_INPUT_PREVIEW_MIN_INTERVAL_MS
         ) {
           return "";
         }
@@ -1339,7 +1339,7 @@ export class ProductProjection {
         if (fact.semanticKind !== "assistantSegment") return [];
         const shouldClearApiRetry =
           this.acceptsActiveModelEvent(event) &&
-          isycodeModelRetryRecoveryProgressPayload(
+          isYCodeModelRetryRecoveryProgressPayload(
             event.payload as unknown as Record<string, unknown>,
           );
         const streamingDeltas = this.onModelStreaming(fact);
@@ -2112,7 +2112,7 @@ export class ProductProjection {
   }
 
   private applyBackgroundTaskNotification(fact: CanonicalUserIntentFact): ConversationDelta[] {
-    const parsed = parseycodeBackgroundTaskNotificationText(fact.input);
+    const parsed = parseYCodeBackgroundTaskNotificationText(fact.input);
     if (!parsed) return [];
     const row = this.findToolRow(parsed.toolUseId);
     if (!row) return [];
@@ -2787,7 +2787,7 @@ export class ProductProjection {
       inputText: "",
     };
     this.toolRowIdByCallId.set(toolCallId, row.rowId);
-    if (isycodeFileStreamingToolInputPreviewTool(row.toolName)) {
+    if (isYCodeFileStreamingToolInputPreviewTool(row.toolName)) {
       this.fileToolInputPreviewByCallId.set(toolCallId, {
         lastPublishedAt: null,
         pendingAppend: "",
@@ -2813,7 +2813,7 @@ export class ProductProjection {
     const now = this.ms(event);
     if (
       state.lastPublishedAt !== null &&
-      now - state.lastPublishedAt < ycode_FILE_STREAMING_TOOL_INPUT_PREVIEW_MIN_INTERVAL_MS
+      now - state.lastPublishedAt < YCODE_FILE_STREAMING_TOOL_INPUT_PREVIEW_MIN_INTERVAL_MS
     ) {
       return [];
     }
@@ -4239,7 +4239,7 @@ export class ProductProjection {
     if (!workId) return [];
     const prev = this.snapshot.backgroundWorks;
     const existing = prev.find((work) => work.workId === workId);
-    const legacyKind = resolveycodeBackgroundTaskControlKind(payload);
+    const legacyKind = resolveYCodeBackgroundTaskControlKind(payload);
     // 新事件使用 runtime 的显式 taskKind；旧事件统一走 shared resolver，
     // 不能再在 reducer 内散落 Agent/Task/subagent 字符串分支。
     // "workflow" 是 workflow run（此前错标成 bash）；legacy resolver 里没有对应值，因为

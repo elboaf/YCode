@@ -2108,11 +2108,11 @@ const zhCN: Record<string, string> = {
   "settings.toolGroupingChanges": "分组文件更改",
   "settings.toolGroupingChangesDescription":
     "将连续的 Write、Edit 和 ApplyPatch 调用聚合为 Changes 分组。",
-  "settings.ycodeInteractionBehavior": "交互行为",
+  "settings.YCodeInteractionBehavior": "交互行为",
   "settings.ycodeInteractionBehaviorDescription":
     "在 YCode 运行时将后续操作加入队列，或引导至下一轮工具调用后运行。",
-  "settings.ycodeInteractionBehavior.option.queue": "队列",
-  "settings.ycodeInteractionBehavior.option.guide": "引导",
+  "settings.YCodeInteractionBehavior.option.queue": "队列",
+  "settings.YCodeInteractionBehavior.option.guide": "引导",
   "settings.askUserQuestionAutoResolution": "提问自动继续",
   "settings.askUserQuestionAutoResolutionDescription":
     "开启后，Agent 提问 5 分钟未回答会自动继续；关闭后，当前和后续提问会一直等待你的回答。",

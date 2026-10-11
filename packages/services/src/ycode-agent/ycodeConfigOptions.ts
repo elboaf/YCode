@@ -11,7 +11,7 @@ import {
   formatModelPickerValue as formatSharedModelSelection,
   getYCodeAgentAvailableModes as getSharedYCodeAgentAvailableModes,
   normalizeAvailableYCodeMode as normalizeSharedAvailableYCodeMode,
-  ycodeSessionSettingsToYCodeConfigOptions,
+  YCodeSessionSettingsToYCodeConfigOptions,
 } from "@ycode/shared";
 
 export const MODEL_CONFIG_ID = "model";
@@ -60,5 +60,5 @@ export function getYCodeAgentAvailableModes(): YCodeTaskModeInfo[] {
 export function settingsToConfigOptions(settings: YCodeSessionSettingsState): YCodeConfigOption[] {
   // service 侧曾经维护了一份三项 mode 白名单，edit 模式上线后没有同步，
   // 切换模式时 mode_update 会把 UI 菜单覆盖成 build/plan/yolo。这里统一复用 shared 的事实源。
-  return ycodeSessionSettingsToYCodeConfigOptions(settings);
+  return YCodeSessionSettingsToYCodeConfigOptions(settings);
 }

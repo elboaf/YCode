@@ -1,5 +1,5 @@
 import type { McpTrackedProcess } from "@ycode/adapters";
-import type { ycodeProcessChildProcessesResult } from "@ycode/shared";
+import type { YCodeProcessChildProcessesResult } from "@ycode/shared";
 import { resolveOfficialPluginNameByHostMcpServerName } from "../app/official-plugin-definitions.js";
 
 /**
@@ -8,7 +8,7 @@ import { resolveOfficialPluginNameByHostMcpServerName } from "../app/official-pl
  */
 export function listChildProcesses(
   tracked: readonly McpTrackedProcess[],
-): ycodeProcessChildProcessesResult {
+): YCodeProcessChildProcessesResult {
   return {
     processes: tracked.map((process) => {
       const pluginName =

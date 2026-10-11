@@ -91,10 +91,10 @@ import {
   type NodeReplBrowserBroker,
 } from "./node-repl-browser-broker.js";
 import { resolveBuiltInNodeReplMcpServers } from "./built-in-node-repl.js";
-import { resolveycodeCustomCommandPrompt } from "../custom-command-prompt.js";
+import { resolveYCodeCustomCommandPrompt } from "../custom-command-prompt.js";
 import { resolveYCodeBuiltinPromptCommand } from "../builtin-prompt-command.js";
 import { collectDisabledPaths } from "../skill-command-overrides.js";
-import { loadPluginAgentProfiles, loadycodeAgentProfiles } from "../subagents.js";
+import { loadPluginAgentProfiles, loadYCodeAgentProfiles } from "../subagents.js";
 import { createRuntimeAiSdkModelExecutionConfig } from "../model-config.js";
 import { ApiProviderModelRuntime } from "./provider-registry-model-runtime.js";
 import {
@@ -203,7 +203,7 @@ export async function createYCodeApp(options: YCodeAppOptions): Promise<YCodeApp
       cliStorageRoot,
       resolveYCodeRuntimeEnv(options.env ?? process.env) === "development",
     );
-    const YCodeSubagentProfileOutcome = await loadycodeAgentProfiles({
+    const YCodeSubagentProfileOutcome = await loadYCodeAgentProfiles({
       logger,
       storageRoot,
       workingDirectory,
@@ -361,7 +361,7 @@ export async function createYCodeApp(options: YCodeAppOptions): Promise<YCodeApp
       (messageEnabled
         ? createNodeSessionMailboxAdapter({
             rootDir: resolvePath(
-              (options.env ?? process.env).ycode_MAILBOX_ROOT ?? "~/.ycode/mailbox",
+              (options.env ?? process.env).YCODE_MAILBOX_ROOT ?? "~/.ycode/mailbox",
             ),
           })
         : undefined);
@@ -801,7 +801,7 @@ export async function createYCodeApp(options: YCodeAppOptions): Promise<YCodeApp
         if (builtinPrompt !== undefined) {
           return builtinPrompt;
         }
-        return await resolveycodeCustomCommandPrompt(text, {
+        return await resolveYCodeCustomCommandPrompt(text, {
           env: options.env,
           executionPort,
           logger,

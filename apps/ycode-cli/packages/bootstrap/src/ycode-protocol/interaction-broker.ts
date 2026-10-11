@@ -17,10 +17,10 @@ import {
   ycodePermissionResponseSchema,
   ycodeProtocolMethods,
   ycodeUserInputResponseSchema,
-  type ycodePermissionOption,
-  type ycodePermissionResponse,
-  type ycodeUserInputQuestion,
-  type ycodeUserInputResponse,
+  type YCodePermissionOption,
+  type YCodePermissionResponse,
+  type YCodeUserInputQuestion,
+  type YCodeUserInputResponse,
 } from "@ycode/shared";
 import type {
   V4InteractionAnswer,
@@ -89,7 +89,7 @@ async function requestPermission(
         ycodePermissionResponseSchema,
         withInteractionRequestRecovery(options, signal),
       ),
-    // v4 answer → ycodePermissionResponse：optionId 语义来自 v4 reducer 合成的
+    // v4 answer → YCodePermissionResponse：optionId 语义来自 v4 reducer 合成的
     // allowOnce/allowAlways/deny（见 product-projection onPermissionRequested）。
     (answer) => {
       const response = v4AnswerToPermissionResponse(answer, permissionOptions, request.toolName);
@@ -146,9 +146,9 @@ async function requestPermission(
  */
 function v4AnswerToPermissionResponse(
   answer: V4InteractionAnswer,
-  permissionOptions: ycodePermissionOption[],
+  permissionOptions: YCodePermissionOption[],
   toolName: string,
-): ycodePermissionResponse & {
+): YCodePermissionResponse & {
   reasonSource?: PermissionBrokerResult["reasonSource"];
   sessionPermissionUpdates?: PermissionBrokerResult["sessionPermissionUpdates"];
 } {
@@ -247,7 +247,7 @@ async function requestUserInput(
   return userInputResponseToBrokerResult(request, response);
 }
 
-function v4AnswerToUserInputResponse(answer: V4InteractionAnswer): ycodeUserInputResponse {
+function v4AnswerToUserInputResponse(answer: V4InteractionAnswer): YCodeUserInputResponse {
   // answer.action 存在（host adapter respondElicitation 收敛路径）
   // 时按旧 respondUserInput 语义精确直传——content 携带多题 answers/annotations，
   // normalizeAskUserQuestionResponseContent 继续负责 schema 收敛。
@@ -302,7 +302,7 @@ async function requestExitPlanModeApproval(
   return planApprovalResponseToBrokerResult(response);
 }
 
-function v4AnswerToPlanApprovalResponse(answer: V4InteractionAnswer): ycodeUserInputResponse {
+function v4AnswerToPlanApprovalResponse(answer: V4InteractionAnswer): YCodeUserInputResponse {
   // 同 v4AnswerToUserInputResponse——host adapter 收敛路径直传
   // action/content，planApprovalResponseToBrokerResult 继续做 approve/feedback 归一。
   if (answer.action) {
@@ -323,7 +323,7 @@ function v4AnswerToPlanApprovalResponse(answer: V4InteractionAnswer): ycodeUserI
   return { action: "decline" };
 }
 
-function createExitPlanModeApprovalQuestion(): ycodeUserInputQuestion {
+function createExitPlanModeApprovalQuestion(): YCodeUserInputQuestion {
   return {
     header: "Plan",
     options: [
@@ -353,7 +353,7 @@ function withInteractionRequestRecovery(
   };
 }
 
-function mapAskUserQuestion(question: AskUserQuestion): ycodeUserInputQuestion {
+function mapAskUserQuestion(question: AskUserQuestion): YCodeUserInputQuestion {
   return {
     header: question.header,
     multiSelect: question.multiSelect,
@@ -369,7 +369,7 @@ function mapAskUserQuestion(question: AskUserQuestion): ycodeUserInputQuestion {
 
 function userInputResponseToBrokerResult(
   request: PermissionBrokerRequest,
-  response: ycodeUserInputResponse,
+  response: YCodeUserInputResponse,
 ): PermissionBrokerResult {
   if (response.action !== "accept") {
     return {
@@ -397,7 +397,7 @@ function userInputResponseToBrokerResult(
 }
 
 function planApprovalResponseToBrokerResult(
-  response: ycodeUserInputResponse,
+  response: YCodeUserInputResponse,
 ): PermissionBrokerResult {
   if (response.action !== "accept") {
     return {

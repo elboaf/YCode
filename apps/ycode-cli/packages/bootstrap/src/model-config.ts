@@ -4,9 +4,9 @@ import type {
   EnvRecord,
 } from "@ycode/adapters/model";
 import {
-  resolveRuntimeycodeEnv,
-  resolveRuntimeycodeEndpointOrigin,
-  ycode_APP_VERSION_ENV,
+  resolveRuntimeYCodeEnv,
+  resolveRuntimeYCodeEndpointOrigin,
+  YCODE_APP_VERSION_ENV,
 } from "@ycode/shared";
 import {
   createRuntimePlatformHeaders,
@@ -27,7 +27,7 @@ export function createRuntimeAiSdkModelExecutionConfig(
 ): AiSdkModelExecutionConfig {
   const network = normalizeAiSdkNetworkConfig(options.network);
   return {
-    defaultHeaders: buildCliycodeSourceHeaders(env, options),
+    defaultHeaders: buildCliYCodeSourceHeaders(env, options),
     env,
     ...(network ? { network } : {}),
   };
@@ -44,7 +44,7 @@ function normalizeAiSdkNetworkConfig(
   };
 }
 
-function buildCliycodeSourceHeaders(
+function buildCliYCodeSourceHeaders(
   env: EnvRecord,
   options: Pick<RuntimeExecutionConfigOptions, "appVersion" | "sourceTitle"> = {},
 ): Record<string, string> {
@@ -53,11 +53,11 @@ function buildCliycodeSourceHeaders(
   const locale = normalizePrintableHeaderValue(Intl.DateTimeFormat().resolvedOptions().locale);
   const timezone = normalizePrintableHeaderValue(Intl.DateTimeFormat().resolvedOptions().timeZone);
   return {
-    "HTTP-Referer": resolveRuntimeycodeEndpointOrigin(env),
+    "HTTP-Referer": resolveRuntimeYCodeEndpointOrigin(env),
     "User-Agent": `ycode/${appVersion ?? "unknown"}`,
     ...(appVersion ? { "X-ycode-App-Version": appVersion } : {}),
     "X-Title": `Z Code@${sourceTitle}`,
-    "X-Release-Channel": resolveRuntimeycodeEnv(env),
+    "X-Release-Channel": resolveRuntimeYCodeEnv(env),
     "X-Client-Language": locale ?? "unknown",
     "X-Client-Timezone": timezone ?? "unknown",
     "X-ycode-Agent": "glm",
@@ -69,7 +69,7 @@ function resolveAppVersionForHeaders(
   env: EnvRecord,
   options: Pick<RuntimeExecutionConfigOptions, "appVersion">,
 ): string | undefined {
-  return normalizePrintableHeaderValue(env[ycode_APP_VERSION_ENV] ?? options.appVersion);
+  return normalizePrintableHeaderValue(env[YCODE_APP_VERSION_ENV] ?? options.appVersion);
 }
 
 function detectDefaultProviderSourceTitle(): ModelProviderSourceTitle {

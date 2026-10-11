@@ -1,6 +1,6 @@
 import { formatJson } from "@ycode/core";
 import type { GlobalOptions, RunContext } from "@ycode/shared-types";
-import type { SetycodePluginEnabledResult, ycodePluginInstallData } from "@ycode/bootstrap";
+import type { SetYCodePluginEnabledResult, ycodePluginInstallData } from "@ycode/bootstrap";
 import {
   formatAvailablePluginJson,
   formatDiagnosticJson,
@@ -286,7 +286,7 @@ async function runPluginsDisableCommand(
   const base = baseOptions(deps);
   const listPlugins = await resolveDep(deps, "listPlugins");
   const setPluginEnabled = await resolveDep(deps, "setPluginEnabled");
-  const entries: Array<{ plugin: PluginListItem; result?: SetycodePluginEnabledResult; error?: string }> = [];
+  const entries: Array<{ plugin: PluginListItem; result?: SetYCodePluginEnabledResult; error?: string }> = [];
   for (const plugin of listPlugins(base).plugins) {
     if (!plugin.enabled) continue;
     try {

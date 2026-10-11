@@ -12,7 +12,7 @@ import {
   AUTOMATION_CREATE_LIMIT,
   AUTOMATION_CREATE_LIMIT_ERROR_CODE,
   resolveWorkspaceKey,
-  ycodeAutomationBotDeliveryTargetSchema,
+  YCodeAutomationBotDeliveryTargetSchema,
   modelSelectionSchema,
   ycodeTaskModeSchema,
   type YCodeAutomation,
@@ -437,7 +437,7 @@ export class AutomationRepo {
     const raw = this.getRow(automationId, workspaceKey)?.bot_delivery_target;
     if (!raw) return undefined;
     try {
-      const parsed = ycodeAutomationBotDeliveryTargetSchema.safeParse(JSON.parse(raw));
+      const parsed = YCodeAutomationBotDeliveryTargetSchema.safeParse(JSON.parse(raw));
       return parsed.success ? parsed.data : undefined;
     } catch {
       // Bug 原因：历史/外部写入的脏 JSON 不能拖垮任务列表或 scheduler；无效来源按未配置处理。

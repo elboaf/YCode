@@ -7,15 +7,15 @@ import {
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
   resolveYCodeBuiltinCachePaths,
   resolveYCodeBuiltinClientPlatform,
-  ycode_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
+  YCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
   YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
-  ycode_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
+  YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
   type YCodeBuiltinRefreshEvent,
 } from "@ycode/provider-node";
-import { resolveRuntimeycodeEndpointOrigin, ycode_VERSION } from "@ycode/shared";
+import { resolveRuntimeYCodeEndpointOrigin, YCODE_VERSION } from "@ycode/shared";
 import type { CliEnv } from "./env.js";
 
-export const SEA_ycode_BUILTIN_PROVIDER_CONFIG_ASSET_KEY = "ycode-provider/ycode-builtin.json";
+export const SEA_YCODE_BUILTIN_PROVIDER_CONFIG_ASSET_KEY = "ycode-provider/ycode-builtin.json";
 
 export function createCliProviderRefreshReporter(
   stderr: Pick<NodeJS.WriteStream, "write"> = process.stderr,
@@ -56,12 +56,12 @@ export async function prepareCliProviderRuntimeEnv(
   if (!requiresProviderRuntime(options.argv)) return {};
 
   const explicitYCodeBuiltin = options.env[YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
-  const explicitPersonal = options.env[ycode_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
+  const explicitPersonal = options.env[YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
   const dataBaseDir = options.dataBaseDir ?? options.env.YCODE_DATA_BASE_DIR?.trim() ?? homedir();
   if (explicitYCodeBuiltin && explicitPersonal) {
     return {
       [YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: explicitYCodeBuiltin,
-      [ycode_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: explicitPersonal,
+      [YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: explicitPersonal,
     };
   }
 
@@ -74,9 +74,9 @@ export async function prepareCliProviderRuntimeEnv(
     }));
   const personalFilePath =
     explicitPersonal ?? join(dataBaseDir, ".ycode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME);
-  const appVersion = options.appVersion ?? ycode_VERSION;
+  const appVersion = options.appVersion ?? YCODE_VERSION;
   const platform = options.platform ?? resolveYCodeBuiltinClientPlatform();
-  const ycodeEndpointOrigin = resolveRuntimeycodeEndpointOrigin(options.env);
+  const ycodeEndpointOrigin = resolveRuntimeYCodeEndpointOrigin(options.env);
   const cachePaths = resolveYCodeBuiltinCachePaths({
     environmentConfigRoot: join(dataBaseDir, ".ycode", "v2"),
     platform,
@@ -97,8 +97,8 @@ export async function prepareCliProviderRuntimeEnv(
 
   return {
     [YCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: cachePaths.activeFilePath,
-    [ycode_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]: YCodeBuiltinFilePath,
-    [ycode_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
+    [YCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]: YCodeBuiltinFilePath,
+    [YCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
   };
 }
 
@@ -135,7 +135,7 @@ async function resolveBundledYCodeBuiltinProviderConfig(input: {
   readonly sea: SeaProviderConfigAssets | undefined;
 }): Promise<string> {
   if (input.sea?.isSea()) {
-    const content = input.sea.getAsset(SEA_ycode_BUILTIN_PROVIDER_CONFIG_ASSET_KEY, "utf8");
+    const content = input.sea.getAsset(SEA_YCODE_BUILTIN_PROVIDER_CONFIG_ASSET_KEY, "utf8");
     return materializeYCodeBuiltinProviderConfig({
       environmentConfigRoot: join(input.dataBaseDir, ".ycode", "v2"),
       content,

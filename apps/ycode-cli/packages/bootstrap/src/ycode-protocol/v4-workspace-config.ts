@@ -1,7 +1,7 @@
 // v4 workspace-config 只承载 workspace presentation；模型候选与首选项由目标 Host
 // ModelSelectionView 提供，不能再从 live Session settings 反向建立第二份模型目录。
-import { getycodeAgentModeSelectOptions, normalizeAvailableycodeMode } from "@ycode/shared";
-import type { ycodeSessionSettingsState, ycodeSlashCommand } from "@ycode/shared";
+import { getYCodeAgentModeSelectOptions, normalizeAvailableYCodeMode } from "@ycode/shared";
+import type { YCodeSessionSettingsState, YCodeSlashCommand } from "@ycode/shared";
 import type { WorkspaceConfigState } from "@ycode/shared/ycode-protocol-v4";
 import { mapSessionSettings } from "./mapper.js";
 import { listProtocolSlashCommands } from "./slash-commands.js";
@@ -9,8 +9,8 @@ import type { ycodeProtocolAgentServerContext } from "./server-types.js";
 
 /** Session settings 只投影非模型的 workspace mode 与 slash commands。 */
 function toV4WorkspaceConfigState(
-  settings: ycodeSessionSettingsState,
-  slashCommands: readonly ycodeSlashCommand[],
+  settings: YCodeSessionSettingsState,
+  slashCommands: readonly YCodeSlashCommand[],
 ): WorkspaceConfigState {
   return {
     configOptions: [
@@ -19,8 +19,8 @@ function toV4WorkspaceConfigState(
         name: "Mode",
         category: "mode",
         type: "select",
-        currentValue: normalizeAvailableycodeMode(settings.mode.current),
-        options: getycodeAgentModeSelectOptions(),
+        currentValue: normalizeAvailableYCodeMode(settings.mode.current),
+        options: getYCodeAgentModeSelectOptions(),
       },
     ],
     slashCommands: slashCommands.map((command) => ({
@@ -35,7 +35,7 @@ function toV4WorkspaceConfigState(
 /**
  * 订阅时种子：只走 live session 快路径（mapSessionSettings 直接读在册 app）。
  * 刻意不建 temporary app——host 启动预热抢先读取 workspace presentation 会在无 active session 时
- * 创建临时 app 并被 MCP close 拖住协议通道（见 desktop warmUpycodeAgent 的注释）。
+ * 创建临时 app 并被 MCP close 拖住协议通道（见 desktop warmUpYCodeAgent 的注释）。
  * 无在册会话时返回 null（空目录种子）；模型选择目录由 Host 自己的进程 Registry View
  * 提供，这条会话协议只在出现 live session 后发布任务级配置。
  */

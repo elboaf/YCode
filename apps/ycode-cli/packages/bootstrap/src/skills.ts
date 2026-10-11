@@ -4,10 +4,10 @@ import { createNodeSkillAdapter } from "@ycode/adapters/skills";
 import type { Logger, SkillContent, SkillDiagnostic, SkillLoadOutcome } from "@ycode/contracts";
 import { resolveBundledSkillRoots } from "./app/bundled-skills.js";
 import { getCliStorageRoot } from "./app/paths.js";
-import { resolveycodePlugins } from "./plugins.js";
+import { resolveYCodePlugins } from "./plugins.js";
 import { collectDisabledPaths } from "./skill-command-overrides.js";
 
-export interface ListycodeSkillsOptions {
+export interface ListYCodeSkillsOptions {
   env?: NodeJS.ProcessEnv;
   logger?: Logger;
   projectConfigPath?: string;
@@ -16,7 +16,7 @@ export interface ListycodeSkillsOptions {
   workingDirectory?: string;
 }
 
-export interface InspectycodeSkillOptions extends ListycodeSkillsOptions {
+export interface InspectYCodeSkillOptions extends ListYCodeSkillsOptions {
   name: string;
 }
 
@@ -25,8 +25,8 @@ export interface ycodeSkillInspection {
   skill: SkillContent;
 }
 
-export async function listycodeSkills(
-  options: ListycodeSkillsOptions = {},
+export async function listYCodeSkills(
+  options: ListYCodeSkillsOptions = {},
 ): Promise<SkillLoadOutcome> {
   const discovery = await createSkillDiscovery(options);
   if (!discovery.enabled) {
@@ -42,8 +42,8 @@ export async function listycodeSkills(
   });
 }
 
-export async function inspectycodeSkill(
-  options: InspectycodeSkillOptions,
+export async function inspectYCodeSkill(
+  options: InspectYCodeSkillOptions,
 ): Promise<ycodeSkillInspection> {
   const discovery = await createSkillDiscovery(options);
   if (!discovery.enabled) {
@@ -72,7 +72,7 @@ export async function inspectycodeSkill(
   };
 }
 
-async function createSkillDiscovery(options: ListycodeSkillsOptions): Promise<
+async function createSkillDiscovery(options: ListYCodeSkillsOptions): Promise<
   | {
       enabled: false;
       workingDirectory: string;
@@ -98,7 +98,7 @@ async function createSkillDiscovery(options: ListycodeSkillsOptions): Promise<
       workingDirectory,
     };
   }
-  const pluginOutcome = resolveycodePlugins({
+  const pluginOutcome = resolveYCodePlugins({
     configResult,
     env: options.env,
     logger: options.logger,

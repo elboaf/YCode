@@ -24,13 +24,13 @@ export const YCODE_ENV = normalizeYCodeEnv(
  */
 export function normalizeYCodeProductFlavor(
   value: string | undefined,
-  ycodeEnv: YCodeEnv,
+  YCodeEnv: YCodeEnv,
 ): YCodeProductFlavor {
   const normalized = value?.trim().toLowerCase();
   if (normalized === "production" || normalized === "preview") {
     return normalized;
   }
-  return ycodeEnv === "production" ? "production" : "preview";
+  return YCodeEnv === "production" ? "production" : "preview";
 }
 
 export const YCODE_PRODUCT_FLAVOR = normalizeYCodeProductFlavor(

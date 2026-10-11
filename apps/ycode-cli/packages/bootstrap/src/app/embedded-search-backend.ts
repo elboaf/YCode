@@ -1,7 +1,7 @@
 import type { EmbeddedSearchBackend } from "@ycode/contracts";
 import { getRuntimeToolRuntime } from "@ycode/shared";
 
-const EMBEDDED_SEARCH_COMMAND_ENV = "ycode_EMBEDDED_SEARCH_COMMAND";
+const EMBEDDED_SEARCH_COMMAND_ENV = "YCODE_EMBEDDED_SEARCH_COMMAND";
 const INTERNAL_SEARCH_ENTRYPOINT = "__internal-search";
 
 export function resolveDefaultEmbeddedSearchBackend(input: {

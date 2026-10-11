@@ -30,7 +30,7 @@ import type {
 } from "@ycode/contracts";
 import type { ConversationSnapshot } from "@ycode/shared/ycode-protocol-v4";
 import { SessionEventType, isFileSystemPortError } from "@ycode/contracts";
-import type { ycodeWorkspaceRef } from "@ycode/shared";
+import type { YCodeWorkspaceRef } from "@ycode/shared";
 import { extractMarkdownArtifactImageRefs } from "@ycode/shared";
 import type {
   CommandAck,
@@ -77,7 +77,7 @@ import {
   PROTOCOL_V4_LIMITS,
   YCODE_ATTACHMENT_FAULT_CODES,
   YCodeAttachmentFaultError,
-  readycodeAttachmentFaultCode,
+  readYCodeAttachmentFaultCode,
   encodeTopicWireFrames,
   commandsQueryParamsSchema,
   commandsQueryResultSchema,
@@ -216,7 +216,7 @@ export interface V4GatewayHost {
   resumePersistedSession?(
     sessionId: string,
     resumeThoughtLevel?: string,
-    workspace?: ycodeWorkspaceRef,
+    workspace?: YCodeWorkspaceRef,
   ): Promise<ColdSessionResumeOutcome>;
   /**
    * 下行物理帧出口（宿主负责投递：stdio notification / MessagePort / ws）。
@@ -547,7 +547,7 @@ const MISSING_ATTACHMENT_FS_CODES = new Set<FileSystemErrorCode>([
  * 都不匹配则保持原错误，让上层按「未知」处理，而不是猜成确定分类。
  */
 function toShareStatFault(error: unknown): unknown {
-  if (readycodeAttachmentFaultCode(error)) return error;
+  if (readYCodeAttachmentFaultCode(error)) return error;
   if (isFileSystemPortError(error) && MISSING_ATTACHMENT_FS_CODES.has(error.code)) {
     return new YCodeAttachmentFaultError(YCODE_ATTACHMENT_FAULT_CODES.shareStatNotFound, {
       cause: error,
@@ -2899,7 +2899,7 @@ export class ConversationV4Gateway {
   private ensureColdReadyPublisher(
     sessionId: string,
     resumeThoughtLevel?: string,
-    workspace?: ycodeWorkspaceRef,
+    workspace?: YCodeWorkspaceRef,
   ): Promise<ConversationTopicPublisher> {
     const existingFlight = this.readyFlights.get(sessionId);
     if (existingFlight) return existingFlight;

@@ -1,7 +1,7 @@
 import { createConfig } from "@ycode/adapters/config";
 import { openStartupSqliteSessionStore } from "@ycode/adapters/storage";
 import type { SessionInfo } from "@ycode/contracts";
-import type { ListycodeSessionsOptions, ResolveLatestSessionOptions } from "./app/types.js";
+import type { ListYCodeSessionsOptions, ResolveLatestSessionOptions } from "./app/types.js";
 import { getSessionDbPath, isClosableSessionStore } from "./app/session-store.js";
 
 export async function resolveLatestSession(
@@ -28,8 +28,8 @@ export async function resolveLatestSession(
   }
 }
 
-export async function listycodeSessions(
-  options: ListycodeSessionsOptions = {},
+export async function listYCodeSessions(
+  options: ListYCodeSessionsOptions = {},
 ): Promise<SessionInfo[]> {
   const ownsStore = options.sessionStore === undefined;
   let sessionStore = options.sessionStore;

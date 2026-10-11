@@ -25,9 +25,9 @@ import type {
   WorkspaceHookReviewDecision,
   WorkspaceHookTrustRevokeTarget,
 } from "@ycode/shared/ycode-protocol-v4";
-import type { ycodeModelOption } from "@ycode/shared";
+import type { YCodeModelOption } from "@ycode/shared";
 import type { EffectiveModelSelectionResult } from "@ycode/shared/model-selection";
-export type { ycodeModelOption } from "@ycode/shared";
+export type { YCodeModelOption } from "@ycode/shared";
 import type { ModelProviderSourceTitle } from "../model-config.js";
 import type { ycodeInstalledPluginData } from "../plugins.js";
 import type {
@@ -317,9 +317,9 @@ export interface YCodeApp {
   getMode(): CollaborationMode;
   getModel(): string;
   /** current-only 协议快照精确读取当前 Registry 模型，避免枚举整个目录。 */
-  getCurrentModelOption?(): ycodeModelOption | undefined;
+  getCurrentModelOption?(): YCodeModelOption | undefined;
   /** 只读 Registry 元数据；不要求选项完整，也不绑定执行模型。 */
-  getModelOption?(selection: ModelSelection): ycodeModelOption | undefined;
+  getModelOption?(selection: ModelSelection): YCodeModelOption | undefined;
   getLocale(): SupportedLocale;
   getTheme(): UiThemePreference;
   getDefaultThoughtLevel(): string | undefined;
@@ -328,7 +328,7 @@ export interface YCodeApp {
   readSubagents(input?: {
     endedCursor?: string;
     endedLimit?: number;
-  }): Promise<import("@ycode/shared").ycodeSessionSubagentsResult>;
+  }): Promise<import("@ycode/shared").YCodeSessionSubagentsResult>;
   readSubagentTranscript(
     childSessionId: string,
   ): Promise<import("./subagent-observation.js").SubagentTranscriptSnapshot>;
@@ -380,7 +380,7 @@ export interface YCodeApp {
     kind?: InputHistoryKind,
   ): Promise<InputHistoryEntry | null>;
   recallPreviousInputHistory(skip?: number): Promise<InputHistoryEntry | null>;
-  listModels(): ycodeModelOption[];
+  listModels(): YCodeModelOption[];
   listThoughtLevels(): string[];
   listPlugins(): Promise<PluginLoadOutcome>;
   setPluginEnabled(plugin: string, enabled: boolean): Promise<ycodePluginSetResult>;
@@ -727,7 +727,7 @@ export interface ResolveLatestSessionOptions {
   sessionStore?: SessionStorePort;
 }
 
-export interface RunycodeProtocolAgentOptions {
+export interface RunYCodeProtocolAgentOptions {
   /** 入口拥有退出时限；bootstrap 只编排取消和资源清理，不直接退出进程。 */
   lifecycle?: {
     readonly signal: AbortSignal;
@@ -744,7 +744,7 @@ export interface RunycodeProtocolAgentOptions {
   version?: string;
 }
 
-export interface ListycodeSessionsOptions {
+export interface ListYCodeSessionsOptions {
   directory?: string;
   env?: NodeJS.ProcessEnv;
   limit?: number;

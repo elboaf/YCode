@@ -1,5 +1,5 @@
 import type { WorkflowRunProgressEnvelope } from "@ycode/shared/ycode-protocol-v4";
-import type { ModelSelection, ycodeModelOption } from "@ycode/shared";
+import type { ModelSelection, YCodeModelOption } from "@ycode/shared";
 import type {
   CollaborationMode,
   InputDelivery,
@@ -216,7 +216,7 @@ export type TuiCancelBackgroundTask = (taskId: string) => Promise<unknown>;
 export type TuiReadSubagents = (input?: {
   endedCursor?: string;
   endedLimit?: number;
-}) => Promise<import("@ycode/shared").ycodeSessionSubagentsResult>;
+}) => Promise<import("@ycode/shared").YCodeSessionSubagentsResult>;
 export type TuiSubagentTranscriptSnapshot = {
   sessionId: string;
   sequenceNumber: number;
@@ -281,7 +281,7 @@ export type TuiSlashCommandSuggestion = {
   usage: string;
 };
 
-export type TuiModelOption = ycodeModelOption;
+export type TuiModelOption = YCodeModelOption;
 
 export type TuiEffortOption = {
   description?: string;

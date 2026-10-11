@@ -1,10 +1,10 @@
 import type { ConfigResult } from "@ycode/adapters/config";
 import type { PluginLoadOutcome } from "@ycode/contracts";
-import { ycode_OFFICIAL_PLUGIN_MARKETPLACE } from "@ycode/contracts";
+import { YCODE_OFFICIAL_PLUGIN_MARKETPLACE } from "@ycode/contracts";
 import {
-  listycodePlugins,
-  setycodePluginEnabled,
-  uninstallycodeMarketplacePlugin,
+  listYCodePlugins,
+  setYCodePluginEnabled,
+  uninstallYCodeMarketplacePlugin,
 } from "../plugins.js";
 import type {
   YCodeApp,
@@ -40,12 +40,12 @@ function createPluginFacade(options: CreatePluginFacadeOptions): PluginFacade {
   });
 
   return {
-    listPlugins: async (): Promise<PluginLoadOutcome> => listycodePlugins(commonOptions()),
+    listPlugins: async (): Promise<PluginLoadOutcome> => listYCodePlugins(commonOptions()),
     setPluginEnabled: async (
       plugin: string,
       enabled: boolean,
     ): Promise<ycodePluginSetResult> => {
-      const result = await setycodePluginEnabled({
+      const result = await setYCodePluginEnabled({
         ...commonOptions(),
         enabled,
         plugin,
@@ -57,7 +57,7 @@ function createPluginFacade(options: CreatePluginFacadeOptions): PluginFacade {
       return result;
     },
     uninstallPlugin: async (plugin: string): Promise<ycodePluginUninstallResult> => {
-      const removed = await uninstallycodeMarketplacePlugin({
+      const removed = await uninstallYCodeMarketplacePlugin({
         ...commonOptions(),
         pluginId: plugin,
       });
@@ -68,7 +68,7 @@ function createPluginFacade(options: CreatePluginFacadeOptions): PluginFacade {
         enabledPlugins = next;
         // 内置（官方）插件卸载是写 suppressedBuiltins 标记；同步本地抑制集合，
         // 否则同一会话内后续 list 会用启动时的旧集合，把它重新解析出来。
-        if (removed.marketplace === ycode_OFFICIAL_PLUGIN_MARKETPLACE) {
+        if (removed.marketplace === YCODE_OFFICIAL_PLUGIN_MARKETPLACE) {
           if (!suppressedBuiltins.includes(removed.id)) {
             suppressedBuiltins = [...suppressedBuiltins, removed.id];
           }

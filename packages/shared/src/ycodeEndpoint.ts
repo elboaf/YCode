@@ -67,9 +67,9 @@ export interface RuntimeProductEndpointEnv
   extends RuntimeYCodeEndpointEnv, RuntimeBigModelApiEnv, RuntimeZaiEndpointEnv {}
 
 export interface RuntimeProductEndpointConfig {
-  ycodeEnv: YCodeEnv;
+  YCodeEnv: YCodeEnv;
   ycodeEndpointOrigin: string;
-  ycodeEndpointUrls: YCodeEndpointUrls;
+  YCodeEndpointUrls: YCodeEndpointUrls;
   zaiOAuthOrigin: string;
   zaiBusinessBaseUrl: string;
   zaiOAuthClientId: string;
@@ -243,13 +243,13 @@ export function buildRuntimeZaiBusinessUrl(
 export function resolveRuntimeProductEndpointConfig(
   env: RuntimeProductEndpointEnv = readProductEndpointEnv(),
 ): RuntimeProductEndpointConfig {
-  const ycodeEnv = resolveRuntimeYCodeEnv(env);
+  const YCodeEnv = resolveRuntimeYCodeEnv(env);
   const ycodeEndpointOrigin = resolveRuntimeYCodeEndpointOrigin(env);
 
   return {
-    ycodeEnv,
+    YCodeEnv,
     ycodeEndpointOrigin,
-    ycodeEndpointUrls: buildYCodeEndpointUrls(ycodeEndpointOrigin),
+    YCodeEndpointUrls: buildYCodeEndpointUrls(ycodeEndpointOrigin),
     zaiOAuthOrigin: resolveZaiOAuthOrigin(env),
     zaiBusinessBaseUrl: resolveZaiBusinessBaseUrl(env),
     zaiOAuthClientId: resolveZaiOAuthClientId(env),

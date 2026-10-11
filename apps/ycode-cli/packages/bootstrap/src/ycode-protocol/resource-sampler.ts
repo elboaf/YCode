@@ -4,24 +4,24 @@ import {
   memoryUsageToSampleFields,
   ycodeProtocolNotifications,
   type MemorySample,
-  type ycodeProtocolNotification,
+  type YCodeProtocolNotification,
 } from "@ycode/shared";
 import {
-  createycodeProcessResourceSampler,
-  type ycodeProcessResourceSampler,
+  createYCodeProcessResourceSampler,
+  type YCodeProcessResourceSampler,
 } from "../process-resource-sampler.js";
 import type { ycodeProtocolAgentServer } from "./server.js";
 
 export function startProtocolResourceSampler(
   server: ycodeProtocolAgentServer,
-  send: (message: ycodeProtocolNotification) => void,
+  send: (message: YCodeProtocolNotification) => void,
   logger: Logger,
-): ycodeProcessResourceSampler | undefined {
+): YCodeProcessResourceSampler | undefined {
   try {
     // 本地内存诊断日志：复用同一 60s 节拍，
     // 变化/心跳门控后才写一行，避免与消息流同频刷盘。
     const memoryDiagnosticsGate = createMemorySampleWriteGate();
-    const sampler = createycodeProcessResourceSampler({
+    const sampler = createYCodeProcessResourceSampler({
       onSample: (sample, memoryUsage) => {
         send({
           method: ycodeProtocolNotifications.processResourceSample,

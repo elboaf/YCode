@@ -306,7 +306,7 @@ export interface AppSettings {
   /** 是否把连续的 Write/Edit/ApplyPatch 工具调用聚合成 Changes。 */
   toolGroupingChangesEnabled?: boolean;
   /** YCode 运行中继续输入时，是排队到下一轮，还是引导到下一次工具调用后运行 */
-  ycodeInteractionBehavior?: YCodeInteractionBehavior;
+  YCodeInteractionBehavior?: YCodeInteractionBehavior;
   /** Agent 提问五分钟无人回答时是否允许自动继续；缺失按开启兼容旧配置。 */
   askUserQuestionAutoResolutionEnabled?: boolean;
   /** 是否完整保留 Model I/O；开启后不轮转、不限额重置、不压缩或裁剪，鉴权信息仍会脱敏。 */

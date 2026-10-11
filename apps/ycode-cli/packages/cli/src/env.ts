@@ -3,8 +3,8 @@ import { homedir } from "node:os";
 import { dirname, join, parse, resolve } from "node:path";
 import { config as loadDotenv } from "dotenv";
 import {
-  ycode_RUNTIME_ENV_KEY,
-  buildycodeToolEnvPassthroughEnv,
+  YCODE_RUNTIME_ENV_KEY,
+  buildYCodeToolEnvPassthroughEnv,
   normalizeYCodeRuntimeEnv,
   sanitizeYCodeRuntimeEnv,
   sanitizeYCodeRuntimeEnvInPlace,
@@ -31,7 +31,7 @@ export function prepareCliRuntimeEnv(
 ): CliEnv {
   const prepared = {
     ...sanitizeYCodeRuntimeEnv(env),
-    ...buildycodeToolEnvPassthroughEnv(env),
+    ...buildYCodeToolEnvPassthroughEnv(env),
   };
   applyCliRuntimeEnvDefaults(prepared, argv);
   return prepared;
@@ -41,7 +41,7 @@ export function applyCliRuntimeEnvSanitization(
   env: CliEnv,
   argv: readonly string[] = process.argv,
 ): void {
-  const toolEnvPassthrough = buildycodeToolEnvPassthroughEnv(env);
+  const toolEnvPassthrough = buildYCodeToolEnvPassthroughEnv(env);
   sanitizeYCodeRuntimeEnvInPlace(env);
   Object.assign(env, toolEnvPassthrough);
   applyCliRuntimeEnvDefaults(env, argv);
@@ -112,12 +112,12 @@ export function shouldLoadCliDotenvForProtocolServer(env: CliEnv): boolean {
 }
 
 function applyCliRuntimeEnvDefaults(env: CliEnv, argv: readonly string[]): void {
-  env[ycode_RUNTIME_ENV_KEY] = resolveCliRuntimeEnv(env, argv);
+  env[YCODE_RUNTIME_ENV_KEY] = resolveCliRuntimeEnv(env, argv);
   applyBetaStorageDefault(env, argv);
 }
 
 function resolveCliRuntimeEnv(env: CliEnv, argv: readonly string[]): YCodeRuntimeEnv {
-  const explicit = normalizeYCodeRuntimeEnv(env[ycode_RUNTIME_ENV_KEY]);
+  const explicit = normalizeYCodeRuntimeEnv(env[YCODE_RUNTIME_ENV_KEY]);
   if (explicit) {
     return explicit;
   }
@@ -132,7 +132,7 @@ function resolveCliRuntimeEnv(env: CliEnv, argv: readonly string[]): YCodeRuntim
 
 function applyBetaStorageDefault(env: CliEnv, argv: readonly string[]): void {
   if (env.YCODE_STORAGE_DIR?.trim()) return;
-  const explicitBeta = env.ycode_BETA === "1" || env.ycode_ENV === "beta";
+  const explicitBeta = env.YCODE_BETA === "1" || env.YCODE_ENV === "beta";
   const invokedAsBeta = argv.some((arg) => /(^|[/\\])ycode-beta(?:$|\.)/u.test(arg));
   if (!explicitBeta && !invokedAsBeta) return;
   env.YCODE_STORAGE_DIR = join(homedir(), ".ycode-beta");

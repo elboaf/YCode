@@ -3,7 +3,7 @@ import {
   ycodeOffPeakCreateResultSchema,
   ycodeOffPeakListResultSchema,
   ycodeProtocolMethods,
-  type ycodeOffPeakTaskProtocolSnapshot,
+  type YCodeOffPeakTaskProtocolSnapshot,
 } from "@ycode/shared";
 import type {
   ycodeProtocolAgentServerContext,
@@ -104,7 +104,7 @@ export function createProtocolOffPeakPort(
   };
 }
 
-function toOffPeakTaskSummary(input: ycodeOffPeakTaskProtocolSnapshot): OffPeakTaskSummary {
+function toOffPeakTaskSummary(input: YCodeOffPeakTaskProtocolSnapshot): OffPeakTaskSummary {
   return {
     offPeakTaskId: input.offPeakTaskId,
     title: input.title,

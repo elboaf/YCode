@@ -1,8 +1,8 @@
 import { Emitter, type Event, type IDisposable } from "@ycode/rpc";
 import type {
-  IycodeAgentService,
-  ycodeAgentRuntimeLifecycleEvent,
-  ycodeAgentWorkspaceTarget,
+  IYCodeAgentService,
+  YCodeAgentRuntimeLifecycleEvent,
+  YCodeAgentWorkspaceTarget,
 } from "@ycode/services";
 import type { ConversationTelemetryFact } from "@ycode/shared/ycode-protocol-v4";
 
@@ -12,7 +12,7 @@ interface TaskActivityTracker extends IDisposable {
 }
 
 type AgentActivitySource = Pick<
-  IycodeAgentService,
+  IYCodeAgentService,
   "onAgentRuntimeLifecycle" | "onDynamicConversationTelemetryFact"
 >;
 
@@ -22,7 +22,7 @@ interface WorkspaceActivity {
   telemetry: IDisposable;
 }
 
-function workspaceKey(target: ycodeAgentWorkspaceTarget): string {
+function workspaceKey(target: YCodeAgentWorkspaceTarget): string {
   return target.workspaceIdentity?.trim() || target.workspacePath;
 }
 
@@ -65,7 +65,7 @@ export function createTaskActivityTracker(
     publishCount();
   };
 
-  const acceptLifecycle = (event: ycodeAgentRuntimeLifecycleEvent): void => {
+  const acceptLifecycle = (event: YCodeAgentRuntimeLifecycleEvent): void => {
     if (disposed) return;
     const key = event.workspaceKey || workspaceKey(event);
     if (event.state === "unavailable") {

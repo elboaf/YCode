@@ -1,28 +1,28 @@
 import {
-  ycode_PROTOCOL_NAME,
-  ycode_PROTOCOL_VERSION,
-  getycodeGoalActiveIterationCount,
+  YCODE_PROTOCOL_NAME,
+  YCODE_PROTOCOL_VERSION,
+  getYCodeGoalActiveIterationCount,
   ycodeApiRetryFromModelNetworkStatusPayload,
   ycodeApiRetryFromStreamRecoveryPayload,
   ycodeContextUsageBreakdownSchema,
-  type ycodeActiveToolCall,
-  type ycodeContextUsageBreakdownItem,
-  type ycodeDeliveryKind,
-  type ycodePendingPermission,
-  type ycodeSessionContextUsage,
-  type ycodeSessionEvent,
-  type ycodeSessionGoal,
-  type ycodeSessionGoalVerification,
-  type ycodeSessionGoalVerificationTimeline,
-  type ycodeSessionGoalStats,
-  type ycodeSessionInfo,
-  type ycodeSessionKind,
-  type ycodeSessionProjection,
-  type ycodeSessionRuntimeState,
-  type ycodeSessionSettingsState,
-  type ycodeSessionStateSnapshot,
-  type ycodeSessionTodoGroup,
-  type ycodeWorkspaceRef,
+  type YCodeActiveToolCall,
+  type YCodeContextUsageBreakdownItem,
+  type YCodeDeliveryKind,
+  type YCodePendingPermission,
+  type YCodeSessionContextUsage,
+  type YCodeSessionEvent,
+  type YCodeSessionGoal,
+  type YCodeSessionGoalVerification,
+  type YCodeSessionGoalVerificationTimeline,
+  type YCodeSessionGoalStats,
+  type YCodeSessionInfo,
+  type YCodeSessionKind,
+  type YCodeSessionProjection,
+  type YCodeSessionRuntimeState,
+  type YCodeSessionSettingsState,
+  type YCodeSessionStateSnapshot,
+  type YCodeSessionTodoGroup,
+  type YCodeWorkspaceRef,
   isMainAgentToolProjectionSource,
 } from "@ycode/shared";
 import {
@@ -58,7 +58,7 @@ const SNAPSHOT_INLINE_IMAGE_DATA_URL_MAX_BYTES = 20 * 1024 * 1024;
 
 export async function buildSessionSnapshot(input: {
   app: YCodeApp;
-  deliveryKind?: ycodeDeliveryKind;
+  deliveryKind?: YCodeDeliveryKind;
   eventSeq: number;
   fallbackCreatedAt?: number;
   fallbackUpdatedAt?: number;
@@ -72,8 +72,8 @@ export async function buildSessionSnapshot(input: {
   slashCommandOptions?: ListProtocolSlashCommandsOptions;
   target?: SessionGoal | null;
   todos?: TodoItem[];
-  workspace: ycodeWorkspaceRef;
-}): Promise<ycodeSessionStateSnapshot> {
+  workspace: YCodeWorkspaceRef;
+}): Promise<YCodeSessionStateSnapshot> {
   const runtimeProjection = await input.app.runtime.getProjection();
   const activeTurn = input.app.runtime.getActiveTurnInfo();
   const persistedGoalProjection = mergePersistedGoalVerificationEvents(
@@ -101,8 +101,8 @@ export async function buildSessionSnapshot(input: {
     messages,
     projection: mapSessionProjection(projection),
     protocol: {
-      name: ycode_PROTOCOL_NAME,
-      version: ycode_PROTOCOL_VERSION,
+      name: YCODE_PROTOCOL_NAME,
+      version: YCODE_PROTOCOL_VERSION,
     },
     runtime: mapRuntimeState({
       activeTurn,
@@ -218,7 +218,7 @@ export async function mapSessionSettings(
     currentModelContextWindow?: number;
     modelAvailability?: "all" | "current";
   } = {},
-): Promise<ycodeSessionSettingsState> {
+): Promise<YCodeSessionSettingsState> {
   const thoughtLevels = app.listThoughtLevels();
   const rawCurrentThoughtLevel = app.getThoughtLevel();
   // setModel 后 runtime 可能短暂保留上一个模型的 thoughtLevel。
@@ -284,8 +284,8 @@ export function mapSessionInfo(input: {
   session?: SessionInfo | null;
   taskType?: SessionInfo["taskType"];
   parentSessionId?: string;
-  workspace: ycodeWorkspaceRef;
-}): ycodeSessionInfo {
+  workspace: YCodeWorkspaceRef;
+}): YCodeSessionInfo {
   const sessionId = String(input.session?.id ?? input.app?.sessionId ?? "unknown");
   // 刚创建的 protocol session 可能还没有持久化 session 行。
   // 此时 runtime projection 的时间可能继承 workspace 预热 draft，不能作为正式 session 时间。
@@ -307,7 +307,7 @@ export function mapSessionInfo(input: {
     parentSessionId: input.session?.parentID ?? input.parentSessionId,
     traceId: input.session?.traceID ?? input.app?.traceId,
     sessionId,
-    sessionKind: (input.session?.taskType ?? input.taskType ?? "interactive") as ycodeSessionKind,
+    sessionKind: (input.session?.taskType ?? input.taskType ?? "interactive") as YCodeSessionKind,
     status: input.projection?.status ?? "idle",
     target: mapSessionGoal(input.projection?.target),
     title: input.session?.title ?? "",
@@ -319,9 +319,9 @@ export function mapSessionInfo(input: {
 
 export function mapSessionEvent(
   event: SessionEvent,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
   options: { seq?: number } = {},
-): ycodeSessionEvent {
+): YCodeSessionEvent {
   return {
     deliveryKind,
     eventId: String(event.id),
@@ -337,9 +337,9 @@ export function mapSessionEvent(
 
 export function mapSessionEventForProtocol(
   event: SessionEvent,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
   options: { seq?: number } = {},
-): ycodeSessionEvent | null {
+): YCodeSessionEvent | null {
   if (!shouldExposeSessionEventToProtocol(event)) {
     return null;
   }
@@ -348,11 +348,11 @@ export function mapSessionEventForProtocol(
 
 export function mapSessionEvents(
   events: readonly SessionEvent[],
-  deliveryKind?: ycodeDeliveryKind,
-): ycodeSessionEvent[] {
+  deliveryKind?: YCodeDeliveryKind,
+): YCodeSessionEvent[] {
   return events
     .map((event) => mapSessionEventForProtocol(event, deliveryKind))
-    .filter((event): event is ycodeSessionEvent => event !== null);
+    .filter((event): event is YCodeSessionEvent => event !== null);
 }
 
 export function shouldExposeSessionEventToProtocol(event: SessionEvent): boolean {
@@ -532,7 +532,7 @@ function mapStreamRecoveryPayload(payload: unknown): Record<string, unknown> {
   };
 }
 
-function mapSessionProjection(projection: SessionProjection): ycodeSessionProjection {
+function mapSessionProjection(projection: SessionProjection): YCodeSessionProjection {
   return {
     activeToolCalls: projection.activeToolCalls.map(mapActiveToolCall),
     backgroundJobs: projection.backgroundTasks.map(mapBackgroundTask),
@@ -552,13 +552,13 @@ function mapSessionProjection(projection: SessionProjection): ycodeSessionProjec
 
 function mapRuntimeState(input: {
   activeTurn?: ReturnType<YCodeApp["runtime"]["getActiveTurnInfo"]>;
-  deliveryKind?: ycodeDeliveryKind;
+  deliveryKind?: YCodeDeliveryKind;
   eventSeq: number;
   messages: MessageWithParts[];
   persistedContextUsageBreakdownEvents?: readonly SessionEvent[];
   projection: SessionProjection;
   stateRevision: number;
-}): ycodeSessionRuntimeState {
+}): YCodeSessionRuntimeState {
   // projection.currentTurnId 是投影最后处理过的 turn，不代表当前仍在运行。
   // session 恢复/subscribe 快照如果把它回填成 runtime.activeTurnId，会让已 idle/complete 的任务误显示为 thinking。
   const activeTurnId = input.activeTurn?.turnId;
@@ -587,7 +587,7 @@ function mapRuntimeState(input: {
 }
 
 interface ContextUsageBreakdownCandidate {
-  breakdown: ycodeContextUsageBreakdownItem[];
+  breakdown: YCodeContextUsageBreakdownItem[];
   contextWindow?: number;
   used: number;
 }
@@ -602,7 +602,7 @@ export function resolveSessionContextUsage(input: {
   messages: readonly MessageWithParts[];
   persistedContextUsageBreakdownEvents?: readonly SessionEvent[];
   projection: SessionProjection;
-}): ycodeSessionContextUsage | undefined {
+}): YCodeSessionContextUsage | undefined {
   const persistedContextUsage = contextUsageFromPersistedMessages(
     input.messages,
     input.projection.contextWindow,
@@ -619,9 +619,9 @@ export function resolveSessionContextUsage(input: {
 }
 
 function applyContextUsageBreakdown(
-  contextUsage: ycodeSessionContextUsage | undefined,
+  contextUsage: YCodeSessionContextUsage | undefined,
   candidate: ContextUsageBreakdownCandidate | undefined,
-): ycodeSessionContextUsage | undefined {
+): YCodeSessionContextUsage | undefined {
   if (!contextUsage || !candidate || candidate.breakdown.length === 0) {
     return contextUsage;
   }
@@ -672,7 +672,7 @@ function latestContextUsageBreakdownFromEvents(
 
 function mapGoalVerifications(
   verifications: SessionProjection["targetCompletionVerifications"] | undefined,
-): ycodeSessionGoalVerification[] {
+): YCodeSessionGoalVerification[] {
   return (verifications ?? []).map((verification) => ({
     nextAction: verification.nextAction ?? null,
     passed: verification.passed,
@@ -682,7 +682,7 @@ function mapGoalVerifications(
 
 function mapGoalVerificationTimeline(
   timeline: SessionProjection["targetCompletionVerificationTimeline"] | undefined,
-): ycodeSessionGoalVerificationTimeline[] {
+): YCodeSessionGoalVerificationTimeline[] {
   return (timeline ?? []).map((item) => ({
     version: 1,
     kind: "synthetic",
@@ -712,8 +712,8 @@ function mapGoalVerificationTimeline(
 
 function contextUsageFromProjection(
   projection: SessionProjection,
-  cache: ycodeSessionContextUsage["cache"] | undefined,
-): ycodeSessionContextUsage | undefined {
+  cache: YCodeSessionContextUsage["cache"] | undefined,
+): YCodeSessionContextUsage | undefined {
   if (projection.contextUsed <= 0 || projection.contextWindow <= 0) {
     return undefined;
   }
@@ -728,7 +728,7 @@ function contextUsageFromProjection(
 function contextUsageFromPersistedMessages(
   messages: readonly MessageWithParts[],
   contextWindow: number,
-): ycodeSessionContextUsage | undefined {
+): YCodeSessionContextUsage | undefined {
   if (contextWindow <= 0) {
     return undefined;
   }
@@ -806,7 +806,7 @@ function contextUsedFromTokens(
 
 function contextCacheUsageFromMessages(
   messages: readonly MessageWithParts[],
-): ycodeSessionContextUsage["cache"] | undefined {
+): YCodeSessionContextUsage["cache"] | undefined {
   let inputTokens = 0;
   let cacheReadTokens = 0;
   let cacheWriteTokens = 0;
@@ -850,7 +850,7 @@ function contextCacheUsageFromMessages(
   };
 }
 
-function mapPendingPermission(permission: PendingPermission): ycodePendingPermission {
+function mapPendingPermission(permission: PendingPermission): YCodePendingPermission {
   // display / optionsPolicy 刻意不进 legacy v3 输出。
   // 根因不是"扩 schema 只能单向兼容"，而是 strict schema 随 packages/shared 打进每个桌面端
   // 的产物：今天把 ycodePendingPermissionSchema（shared/src/ycode-protocol/index.ts:1139）和
@@ -895,7 +895,7 @@ function mapPermissionRequestedPayload(payload: unknown): Record<string, unknown
   };
 }
 
-function mapActiveToolCall(toolCall: ActiveToolCall): ycodeActiveToolCall {
+function mapActiveToolCall(toolCall: ActiveToolCall): YCodeActiveToolCall {
   return {
     startedAt: toolCall.startedAt?.getTime(),
     status: toolCall.status,
@@ -1040,7 +1040,7 @@ function normalizeText(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-function mapSessionGoal(goal: SessionGoal | null | undefined): ycodeSessionGoal | null | undefined {
+function mapSessionGoal(goal: SessionGoal | null | undefined): YCodeSessionGoal | null | undefined {
   if (goal === undefined) return undefined;
   if (goal === null) return null;
   return {
@@ -1083,7 +1083,7 @@ interface GoalIterationBucket {
 function buildGoalStats(
   projection: SessionProjection,
   messages: readonly MessageWithParts[],
-): ycodeSessionGoalStats | undefined {
+): YCodeSessionGoalStats | undefined {
   const target = projection.target;
   if (!target) {
     return undefined;
@@ -1125,10 +1125,10 @@ function buildTodoGroups(
   messages: readonly MessageWithParts[],
   currentTodos: readonly TodoItem[],
   projection: SessionProjection,
-): ycodeSessionTodoGroup[] {
+): YCodeSessionTodoGroup[] {
   const target = projection.target;
   const timeline = getTargetGoalVerificationTimeline(projection, target);
-  const groups = new Map<string, ycodeSessionTodoGroup>();
+  const groups = new Map<string, YCodeSessionTodoGroup>();
   const todoOwners = new Map<string, { fingerprint: string; groupId: string }>();
   const sortedMessages = [...messages].sort(compareMessagesByCreatedTime);
 
@@ -1202,7 +1202,7 @@ function buildTodoGroups(
 }
 
 function ensureTodoGroup(
-  groups: Map<string, ycodeSessionTodoGroup>,
+  groups: Map<string, YCodeSessionTodoGroup>,
   input: {
     goalIteration: number | undefined;
     groupId: string;
@@ -1210,13 +1210,13 @@ function ensureTodoGroup(
     targetId?: string;
     updatedAt: number;
   },
-): ycodeSessionTodoGroup {
+): YCodeSessionTodoGroup {
   const existing = groups.get(input.groupId);
   if (existing) {
     existing.updatedAt = Math.max(existing.updatedAt ?? 0, input.updatedAt);
     return existing;
   }
-  const group: ycodeSessionTodoGroup = {
+  const group: YCodeSessionTodoGroup = {
     id: input.groupId,
     source: input.goalIteration ? "goal_iteration" : "session",
     ...(input.goalIteration ? { goalIteration: input.goalIteration } : {}),
@@ -1230,7 +1230,7 @@ function ensureTodoGroup(
 }
 
 function addOrUpdateTodoInGroup(
-  group: ycodeSessionTodoGroup,
+  group: YCodeSessionTodoGroup,
   fingerprint: string,
   todo: TodoItem,
 ): void {
@@ -1250,7 +1250,7 @@ function getGoalActiveIterationCount(
   target?: SessionGoal | null,
 ): number {
   const timeline = getTargetGoalVerificationTimeline(projection, target);
-  return getycodeGoalActiveIterationCount({
+  return getYCodeGoalActiveIterationCount({
     targetStatus: target?.status ?? null,
     timeline,
   });
@@ -1475,7 +1475,7 @@ function compareMessagesByCreatedTime(left: MessageWithParts, right: MessageWith
   return String(left.info.id).localeCompare(String(right.info.id));
 }
 
-function mapSessionEventType(type: SessionEvent["type"]): ycodeSessionEvent["type"] {
+function mapSessionEventType(type: SessionEvent["type"]): YCodeSessionEvent["type"] {
   switch (type) {
     case SessionEventType.SessionCreated:
       return "session.created";

@@ -14,7 +14,7 @@ export interface CustomCommandRootResolutionOptions {
   extraRoots?: string[];
   extraResolvedRoots?: CustomCommandRoot[];
   homeDirectory?: string;
-  includeycodeCommands?: boolean;
+  includeYCodeCommands?: boolean;
 }
 
 export async function resolveDefaultCustomCommandRoots(
@@ -23,7 +23,7 @@ export async function resolveDefaultCustomCommandRoots(
 ): Promise<CustomCommandRoot[]> {
   const resolvedWorkingDirectory = resolve(workingDirectory);
   const roots: CustomCommandRoot[] = [];
-  const includeycode = options.includeycodeCommands ?? true;
+  const includeycode = options.includeYCodeCommands ?? true;
   const home = options.homeDirectory ?? homedir();
   let priority = 0;
   const nextPriority = () => {

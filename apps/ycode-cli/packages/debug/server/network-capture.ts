@@ -126,8 +126,8 @@ export class NetworkCaptureService {
     const caCertPath = join(this.caDir, "certs", "ca.pem");
     const env: Record<string, string> = url
       ? {
-          ycode_HTTP_PROXY: url,
-          ycode_AGENT_CA_CERT: caCertPath,
+          YCODE_HTTP_PROXY: url,
+          YCODE_AGENT_CA_CERT: caCertPath,
         }
       : {};
 

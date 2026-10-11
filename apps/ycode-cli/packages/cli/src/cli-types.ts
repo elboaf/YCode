@@ -11,32 +11,32 @@ import type {
   CreateModelAdapterOptions,
   configureCodingPlanApiKey,
   ConfigureCodingPlanApiKeyOptions,
-  inspectycodeSkill,
+  inspectYCodeSkill,
   inspectWorkspaceHookTrust,
   grantWorkspaceHookTrust,
   revokeWorkspaceHookTrustCli,
-  inspectycodeCustomCommand,
-  InspectycodeCustomCommandOptions,
-  InspectycodeSkillOptions,
-  loginycodeCli,
+  inspectYCodeCustomCommand,
+  InspectYCodeCustomCommandOptions,
+  InspectYCodeSkillOptions,
+  loginYCodeCli,
   loginBigmodelCodingPlan,
   LoginBigmodelCodingPlanOptions,
-  LoginycodeCliOptions,
-  listycodeCustomCommands,
-  ListycodeCustomCommandsOptions,
-  loadycodeCustomCommand,
-  listycodeSessions,
-  listycodeSkills,
-  ListycodeSessionsOptions,
-  ListycodeSkillsOptions,
-  logoutycodeCli,
-  LogoutycodeCliOptions,
+  LoginYCodeCliOptions,
+  listYCodeCustomCommands,
+  ListYCodeCustomCommandsOptions,
+  loadYCodeCustomCommand,
+  listYCodeSessions,
+  listYCodeSkills,
+  ListYCodeSessionsOptions,
+  ListYCodeSkillsOptions,
+  logoutYCodeCli,
+  LogoutYCodeCliOptions,
   resolveLatestSession,
   ResolveLatestSessionOptions,
-  RunycodeProtocolAgentOptions,
-  prepareycodeTelemetryEnv,
+  RunYCodeProtocolAgentOptions,
+  prepareYCodeTelemetryEnv,
   startProcessProviderRegistryRuntime,
-  shutdownycodeTelemetry,
+  shutdownYCodeTelemetry,
   YCodeAppOptions,
 } from "@ycode/bootstrap";
 import type { CliEnv, DotenvLoadResult, LoadCliDotenvOptions } from "./env.js";
@@ -47,7 +47,7 @@ import type { resolveWorkspaceGitBranch } from "./tui-workspace-git.js";
 export type BootstrapModule = typeof import("@ycode/bootstrap");
 
 export interface RunDependencies extends PluginsCommandOverrides {
-  protocolLifecycle?: RunycodeProtocolAgentOptions["lifecycle"];
+  protocolLifecycle?: RunYCodeProtocolAgentOptions["lifecycle"];
   protocolInput?: NodeJS.ReadableStream;
   createManagedCdpBrowserRuntime?: (
     options?: ManagedCdpBrowserRuntimeOptions,
@@ -67,14 +67,14 @@ export interface RunDependencies extends PluginsCommandOverrides {
   mapSessionEvent?: BootstrapModule["mapSessionEvent"];
   cwd?: () => string;
   env?: CliEnv;
-  inspectSkill?: (options: InspectycodeSkillOptions) => ReturnType<typeof inspectycodeSkill>;
+  inspectSkill?: (options: InspectYCodeSkillOptions) => ReturnType<typeof inspectYCodeSkill>;
   inspectWorkspaceHookTrust?: typeof inspectWorkspaceHookTrust;
   grantWorkspaceHookTrust?: typeof grantWorkspaceHookTrust;
   revokeWorkspaceHookTrustCli?: typeof revokeWorkspaceHookTrustCli;
   inspectCustomCommand?: (
-    options: InspectycodeCustomCommandOptions,
-  ) => ReturnType<typeof inspectycodeCustomCommand>;
-  loginycodeCli?: (options?: LoginycodeCliOptions) => ReturnType<typeof loginycodeCli>;
+    options: InspectYCodeCustomCommandOptions,
+  ) => ReturnType<typeof inspectYCodeCustomCommand>;
+  loginYCodeCli?: (options?: LoginYCodeCliOptions) => ReturnType<typeof loginYCodeCli>;
   loginBigmodelCodingPlan?: (
     options?: LoginBigmodelCodingPlanOptions,
   ) => ReturnType<typeof loginBigmodelCodingPlan>;
@@ -82,19 +82,19 @@ export interface RunDependencies extends PluginsCommandOverrides {
     options: ConfigureCodingPlanApiKeyOptions,
   ) => ReturnType<typeof configureCodingPlanApiKey>;
   loadDotenv?: (options?: LoadCliDotenvOptions) => DotenvLoadResult;
-  prepareycodeTelemetryEnv?: typeof prepareycodeTelemetryEnv;
+  prepareYCodeTelemetryEnv?: typeof prepareYCodeTelemetryEnv;
   projectConfigPath?: string;
-  listSessions?: (options: ListycodeSessionsOptions) => ReturnType<typeof listycodeSessions>;
+  listSessions?: (options: ListYCodeSessionsOptions) => ReturnType<typeof listYCodeSessions>;
   listCustomCommands?: (
-    options: ListycodeCustomCommandsOptions,
-  ) => ReturnType<typeof listycodeCustomCommands>;
+    options: ListYCodeCustomCommandsOptions,
+  ) => ReturnType<typeof listYCodeCustomCommands>;
   loadCustomCommand?: (
-    options: InspectycodeCustomCommandOptions,
-  ) => ReturnType<typeof loadycodeCustomCommand>;
+    options: InspectYCodeCustomCommandOptions,
+  ) => ReturnType<typeof loadYCodeCustomCommand>;
   // headless slash 路由要和 app facade 的保留名 gate 用同一个判据；默认取 bootstrap 的，
   // 注入点只为让单测不必拉起整个 bootstrap 模块。见 prompt-command.ts。
-  isReservedSlashCommandName?: BootstrapModule["isReservedycodeSlashCommandName"];
-  listSkills?: (options: ListycodeSkillsOptions) => ReturnType<typeof listycodeSkills>;
+  isReservedSlashCommandName?: BootstrapModule["isReservedYCodeSlashCommandName"];
+  listSkills?: (options: ListYCodeSkillsOptions) => ReturnType<typeof listYCodeSkills>;
   logger?: Logger;
   readClipboardImage?: TuiReadClipboardImage;
   writeClipboardText?: TuiWriteClipboardText;
@@ -102,8 +102,8 @@ export interface RunDependencies extends PluginsCommandOverrides {
     options: ResolveLatestSessionOptions,
   ) => ReturnType<typeof resolveLatestSession>;
   resolveWorkspaceGitBranch?: typeof resolveWorkspaceGitBranch;
-  logoutycodeCli?: (options?: LogoutycodeCliOptions) => ReturnType<typeof logoutycodeCli>;
-  runycodeProtocolAgent?: (options?: RunycodeProtocolAgentOptions) => Promise<void>;
+  logoutYCodeCli?: (options?: LogoutYCodeCliOptions) => ReturnType<typeof logoutYCodeCli>;
+  runYCodeProtocolAgent?: (options?: RunYCodeProtocolAgentOptions) => Promise<void>;
   runTui?: typeof import("@ycode/tui").runTui;
   skipUserConfig?: boolean;
   userConfigPath?: string;
@@ -111,7 +111,7 @@ export interface RunDependencies extends PluginsCommandOverrides {
   shutdownCleanupTimeoutMs?: number;
   shutdownProcess?: CliShutdownProcess;
   startProcessProviderRegistryRuntime?: typeof startProcessProviderRegistryRuntime;
-  shutdownycodeTelemetry?: typeof shutdownycodeTelemetry;
+  shutdownYCodeTelemetry?: typeof shutdownYCodeTelemetry;
 }
 
 export type CliPermissionMode = "build" | "plan" | "edit" | "yolo";

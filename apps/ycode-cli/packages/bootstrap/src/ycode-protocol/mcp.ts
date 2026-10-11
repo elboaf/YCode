@@ -3,7 +3,7 @@ import type { Logger, McpConnectionSnapshot, McpPort, McpServerStatus } from "@y
 import {
   ycodeMcpListParamsSchema,
   ycodeMcpListResultSchema,
-  type ycodeMcpListResult,
+  type YCodeMcpListResult,
 } from "@ycode/shared";
 import {
   listMcpServerStatuses,
@@ -30,7 +30,7 @@ const MCP_OAUTH_AUTHORIZATION_STATUS_POLL_MS = 100;
 export async function listMcpServers(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodeMcpListResult> {
+): Promise<YCodeMcpListResult> {
   const params = parseParams(ycodeMcpListParamsSchema, rawParams);
   const workingDirectory = params.workspace.workspacePath;
   const configResult = createConfig({

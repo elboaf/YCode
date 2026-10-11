@@ -1,6 +1,6 @@
 import { CuaHelperError } from "./broker.js";
 
-export const HELPER_ADDON_ENV = "ycode_CUA_HELPER_ADDON";
+export const HELPER_ADDON_ENV = "YCODE_CUA_HELPER_ADDON";
 export const WINDOWS_DEV_CONTROL_PROTOCOL = "ycode-cua-windows-dev/v1";
 
 const UNAVAILABLE = "Computer Use is not available in this build.";

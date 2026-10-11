@@ -14,7 +14,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * 严格解析 `auth`。未声明返回 undefined（走普通 MCP 路径）；声明了但形状不合法一律抛错，
  * 不做宽容降级——降级会让"看起来配了官方鉴权、实际匿名请求"的配置静默上线。
  */
-export function parseycodeOfficialAuth(
+export function parseYCodeOfficialAuth(
   value: unknown,
   mcpKey: string,
 ): YCodeOfficialMcpAuthConfig | undefined {

@@ -2583,7 +2583,7 @@ export function createBotsService(
     }
     const parsePayload =
       isFeishuBotProvider(provider) && isRecord(preparedPayload)
-        ? { ycodeProvider: provider, ...preparedPayload }
+        ? { YCodeProvider: provider, ...preparedPayload }
         : preparedPayload;
     const parsedInboundMessages = adapter.parseCallback(parsePayload);
     if (isFeishuBotProvider(provider)) {

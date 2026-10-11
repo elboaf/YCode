@@ -14,15 +14,15 @@ import {
   type ISocket,
 } from "@ycode/rpc";
 import {
-  createycodeAgentConnectionScope,
-  IycodeAgentService,
+  createYCodeAgentConnectionScope,
+  IYCodeAgentService,
   ServiceCollection,
 } from "@ycode/services";
 import { createServiceLogger } from "@ycode/services/node";
 import {
   SERVER_REMOTE_PROTOCOL_VERSION,
-  ycode_RPC_HOST_CAPABILITY_HEADER,
-  ycode_VERSION,
+  YCODE_RPC_HOST_CAPABILITY_HEADER,
+  YCODE_VERSION,
   type ServerRemoteInfo,
 } from "@ycode/shared";
 import { createHostCapabilityStore, type HostCapabilityStore } from "./hostCapability.js";
@@ -94,9 +94,9 @@ function exposeWebSocket(
   const protocol = new SocketProtocol(socket);
   const rawServer = new ChannelServer(protocol, "server");
   const server = new LoggingChannelServer(rawServer, (...args) => log.debug(undefined, ...args));
-  const agentService = services.getOptional(IycodeAgentService);
+  const agentService = services.getOptional(IYCodeAgentService);
   const scope = agentService
-    ? createycodeAgentConnectionScope(agentService, {
+    ? createYCodeAgentConnectionScope(agentService, {
         connectionId: `server-core-ws-${randomUUID()}`,
         clientMode,
         role: clientMode === "desktop-continuous" ? "trusted-host-relay" : "terminal-client",
@@ -104,7 +104,7 @@ function exposeWebSocket(
     : undefined;
   services.exposeOnChannelServer(
     server,
-    scope ? new Map([[IycodeAgentService.channelName, scope.service]]) : new Map(),
+    scope ? new Map([[IYCodeAgentService.channelName, scope.service]]) : new Map(),
   );
   socket.onClose(() => {
     void scope?.dispose();
@@ -132,7 +132,7 @@ export async function createCoreHttpServer(
   }
   const info: ServerRemoteInfo = {
     serverId: options.serverId ?? hostname() ?? "ycode-server",
-    version: ycode_VERSION,
+    version: YCODE_VERSION,
     protocolVersion: SERVER_REMOTE_PROTOCOL_VERSION,
     authRequired: false,
     workspaces: [],
@@ -155,7 +155,7 @@ export async function createCoreHttpServer(
     })),
   );
   app.use("/ws/host", async (context, next) => {
-    const capability = context.req.header(ycode_RPC_HOST_CAPABILITY_HEADER);
+    const capability = context.req.header(YCODE_RPC_HOST_CAPABILITY_HEADER);
     if (!capabilities.consume(capability)) {
       return context.json({ error: "Invalid or expired host capability" }, 401);
     }

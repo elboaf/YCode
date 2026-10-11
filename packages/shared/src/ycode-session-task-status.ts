@@ -1,6 +1,6 @@
 // ── 旧协议兼容面（过渡期）──────────────────────────────
 // 剩余 1 个导出：deriveYCodeTaskStatusFromSessionSnapshot。
-// 消费者：ycodeTaskServiceAdapter/ycodeTaskIndexSyncer/ycodeSessionProjection（旧投影栈）。
+// 消费者：ycodeTaskServiceAdapter/YCodeTaskIndexSyncer/YCodeSessionProjection（旧投影栈）。
 import type { YCodeSessionStateSnapshot } from "./ycode-protocol/index.js";
 import { getYCodeUserVisibleMessages } from "./ycode-session-visible-content.js";
 import type { YCodeTaskMeta } from "./ycode-task-types-core.js";

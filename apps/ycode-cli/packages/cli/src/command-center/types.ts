@@ -7,7 +7,7 @@ import type {
   TuiSubmitPromptResult,
 } from "@ycode/tui";
 import type { SupportedLocale, UiLocale } from "@ycode/i18n";
-import type { ModelSelection, ycodeModelOption } from "@ycode/shared";
+import type { ModelSelection, YCodeModelOption } from "@ycode/shared";
 import type {
   BackgroundTaskCancelResult,
   DynamicWorkflowRunResumeResult,
@@ -31,7 +31,7 @@ export type SwitchableCommandCenterMode = Extract<
   "plan" | "build" | "edit" | "yolo"
 >;
 
-export type CommandCenterModelOption = ycodeModelOption;
+export type CommandCenterModelOption = YCodeModelOption;
 
 export type CommandCenterLocaleResult = {
   configPath?: string;

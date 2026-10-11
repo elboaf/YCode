@@ -89,7 +89,7 @@ export async function recordPromptTrajectoryFromFixture(input: {
   let closeApp: (() => Promise<void>) | undefined;
 
   try {
-    const { bootstrap, contracts, provider } = await loadycodeModules();
+    const { bootstrap, contracts, provider } = await loadYCodeModules();
     const proxy = await startOpenAiProviderProxy({
       ledger,
       mockResponses: fixture.mockResponses,
@@ -256,7 +256,7 @@ function assertNever(value: never): never {
   throw new Error(`Unsupported fixture step: ${JSON.stringify(value)}`);
 }
 
-async function loadycodeModules(): Promise<{
+async function loadYCodeModules(): Promise<{
   bootstrap: ycodeBootstrapModule;
   contracts: ycodeContractsModule;
   provider: ycodeProviderModule;

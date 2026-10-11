@@ -20,8 +20,8 @@ import type {
 import {
   HookEventName as HookEventNameValue,
   HookMatcherConfigSchema,
-  ycode_INLINE_PLUGIN_MARKETPLACE,
-  ycode_OFFICIAL_PLUGIN_MARKETPLACE,
+  YCODE_INLINE_PLUGIN_MARKETPLACE,
+  YCODE_OFFICIAL_PLUGIN_MARKETPLACE,
 } from "@ycode/contracts";
 import {
   directoryExists,
@@ -97,7 +97,7 @@ export {
   type PluginUpdateStatus,
 } from "./version-compare.js";
 
-const ycode_MANIFEST_PATH = join(".ycode-plugin", "plugin.json");
+const YCODE_MANIFEST_PATH = join(".ycode-plugin", "plugin.json");
 const CLAUDE_MANIFEST_PATH = join(".claude-plugin", "plugin.json");
 const CODEX_MANIFEST_PATH = join(".codex-plugin", "plugin.json");
 const DEFAULT_VERSION = "0.0.0";
@@ -241,7 +241,7 @@ export class NodePluginAdapter implements PluginPort {
     for (const rootPath of request.config.dirs) {
       candidates.push({
         defaultEnabled: true,
-        marketplace: ycode_INLINE_PLUGIN_MARKETPLACE,
+        marketplace: YCODE_INLINE_PLUGIN_MARKETPLACE,
         rootPath: resolve(rootPath),
         source: "inline",
       });
@@ -249,7 +249,7 @@ export class NodePluginAdapter implements PluginPort {
     for (const rootPath of request.officialPluginRoots ?? []) {
       candidates.push({
         defaultEnabled: false,
-        marketplace: ycode_OFFICIAL_PLUGIN_MARKETPLACE,
+        marketplace: YCODE_OFFICIAL_PLUGIN_MARKETPLACE,
         rootPath: resolve(rootPath),
         source: "official",
       });
@@ -257,7 +257,7 @@ export class NodePluginAdapter implements PluginPort {
     candidates.push(
       ...scanOfficialCache(request.storageRoot, diagnostics, options).map((rootPath) => ({
         defaultEnabled: false,
-        marketplace: ycode_OFFICIAL_PLUGIN_MARKETPLACE,
+        marketplace: YCODE_OFFICIAL_PLUGIN_MARKETPLACE,
         rootPath,
         source: "official" as const,
       })),
@@ -866,7 +866,7 @@ function scanOfficialCache(
     return bundledRoots;
   }
 
-  const cacheRoot = join(storageRoot, "cache", ycode_OFFICIAL_PLUGIN_MARKETPLACE);
+  const cacheRoot = join(storageRoot, "cache", YCODE_OFFICIAL_PLUGIN_MARKETPLACE);
   try {
     const roots: string[] = [];
     for (const pluginEntry of readdirSync(cacheRoot, { withFileTypes: true })) {
@@ -928,7 +928,7 @@ function loadPlugin(
 }
 
 function findManifest(rootPath: string): string | null {
-  const YCodePath = join(rootPath, ycode_MANIFEST_PATH);
+  const YCodePath = join(rootPath, YCODE_MANIFEST_PATH);
   if (fileExists(YCodePath)) {
     return YCodePath;
   }

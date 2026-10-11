@@ -121,13 +121,13 @@ export async function prepareModelTelemetryEnv(
   env: EnvRecord,
   options: PrepareModelTelemetryOptions = {},
 ): Promise<EnvRecord> {
-  if (!resolveOtlpTraceEndpoint(env) || isExplicitlyDisabled(env.ycode_MODEL_TELEMETRY_ENABLED)) {
+  if (!resolveOtlpTraceEndpoint(env) || isExplicitlyDisabled(env.YCODE_MODEL_TELEMETRY_ENABLED)) {
     return env;
   }
-  const existingInstallationId = normalizeTelemetryDeviceMid(env.ycode_TELEMETRY_DEVICE_MID);
+  const existingInstallationId = normalizeTelemetryDeviceMid(env.YCODE_TELEMETRY_DEVICE_MID);
   const installationId =
-    existingInstallationId ?? (await resolveStandaloneDeviceMid(env.ycode_HOME?.trim()));
-  const preparedEnv = installationId ? { ...env, ycode_TELEMETRY_DEVICE_MID: installationId } : env;
+    existingInstallationId ?? (await resolveStandaloneDeviceMid(env.YCODE_HOME?.trim()));
+  const preparedEnv = installationId ? { ...env, YCODE_TELEMETRY_DEVICE_MID: installationId } : env;
 
   if (!preparingOwner && !preparedOwner) {
     preparingOwner = createPreparedOwner(preparedEnv, options);
@@ -156,19 +156,19 @@ async function createPreparedOwner(
   const metricEndpoint = resolveOtlpMetricEndpoint(env);
   const identity = resolveTelemetryIdentity(env);
   const resource: TelemetryResourceContext = {
-    buildCommitId: normalizeBuildCommitId(options.buildCommitId ?? env.ycode_BUILD_COMMIT_ID),
+    buildCommitId: normalizeBuildCommitId(options.buildCommitId ?? env.YCODE_BUILD_COMMIT_ID),
     cliVersion: normalizeVersion(options.cliVersion),
     deploymentEnvironment:
-      env.ycode_ENV ??
-      env.ycode_RUNTIME_ENV ??
+      env.YCODE_ENV ??
+      env.YCODE_RUNTIME_ENV ??
       resourceAttributesFromEnv(env)["deployment.environment.name"],
-    installationId: normalizeTelemetryDeviceMid(env.ycode_TELEMETRY_DEVICE_MID),
-    productVersion: normalizeVersion(options.productVersion ?? env.ycode_APP_VERSION),
+    installationId: normalizeTelemetryDeviceMid(env.YCODE_TELEMETRY_DEVICE_MID),
+    productVersion: normalizeVersion(options.productVersion ?? env.YCODE_APP_VERSION),
     runtimeDistribution:
       options.runtimeDistribution ??
-      resolveRuntimeDistribution(env.ycode_TELEMETRY_RUNTIME_DISTRIBUTION),
+      resolveRuntimeDistribution(env.YCODE_TELEMETRY_RUNTIME_DISTRIBUTION),
     runtimeSurface:
-      options.runtimeSurface ?? resolveRuntimeSurface(env.ycode_TELEMETRY_RUNTIME_SURFACE),
+      options.runtimeSurface ?? resolveRuntimeSurface(env.YCODE_TELEMETRY_RUNTIME_SURFACE),
     serviceInstanceId: randomUUID(),
     serviceName: env.OTEL_SERVICE_NAME?.trim() || "ycode-cli-agent",
   };
@@ -196,8 +196,8 @@ async function createPreparedOwner(
 }
 
 function resolveTelemetryIdentity(env: EnvRecord): TelemetryIdentitySnapshot {
-  const userSubjectId = normalizeTelemetryId(env.ycode_TELEMETRY_USER_SUBJECT_ID);
-  const configuredState = env.ycode_TELEMETRY_IDENTITY_STATE?.trim();
+  const userSubjectId = normalizeTelemetryId(env.YCODE_TELEMETRY_USER_SUBJECT_ID);
+  const configuredState = env.YCODE_TELEMETRY_IDENTITY_STATE?.trim();
   const identityState =
     configuredState === "authenticated" ||
     configuredState === "anonymous" ||
@@ -205,7 +205,7 @@ function resolveTelemetryIdentity(env: EnvRecord): TelemetryIdentitySnapshot {
       ? configuredState
       : userSubjectId
         ? "authenticated"
-        : normalizeTelemetryDeviceMid(env.ycode_TELEMETRY_DEVICE_MID)
+        : normalizeTelemetryDeviceMid(env.YCODE_TELEMETRY_DEVICE_MID)
           ? "anonymous"
           : "unknown";
   return { identityState, ...(userSubjectId ? { userSubjectId } : {}) };

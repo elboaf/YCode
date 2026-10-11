@@ -16,7 +16,7 @@ import type { SqliteSessionStore } from "@ycode/adapters/storage";
 import { traceContextToLogContext, createRootTraceContext } from "@ycode/contracts";
 import type { McpPort, ModelSelection } from "@ycode/contracts";
 import type { PresentationSurface } from "@ycode/core";
-import type { RunycodeProtocolAgentOptions, YCodeAppOptions } from "./app/types.js";
+import type { RunYCodeProtocolAgentOptions, YCodeAppOptions } from "./app/types.js";
 import { createYCodeApp } from "./app/create-app.js";
 import {
   createNodeReplBrowserBroker,
@@ -30,7 +30,7 @@ import { closeSessionStore, getSessionDbPath } from "./app/session-store.js";
 import { startProcessProviderRegistryRuntime } from "./app/process-provider-registry-runtime.js";
 import { scheduleStartupLogRetentionCleanup } from "./log-retention.js";
 import { StartupTimer, startupNow } from "./startup-logging.js";
-import { installycodeProtocolAiSdkWarningLogger } from "./ycode-protocol/ai-sdk-warning-logger.js";
+import { installYCodeProtocolAiSdkWarningLogger } from "./ycode-protocol/ai-sdk-warning-logger.js";
 import {
   createOfficialMcpAuthHeadersPort,
   type OfficialMcpAuthRequestContext,
@@ -38,16 +38,16 @@ import {
 import {
   createOfficialMcpTrustedOriginRegistry,
   OFFICIAL_MCP_DEV_TRUSTED_ORIGINS_ENV,
-  ycode_WORKSPACE_IDENTITY_ENV,
-  resolveRuntimeycodeEndpointOrigin,
+  YCODE_WORKSPACE_IDENTITY_ENV,
+  resolveRuntimeYCodeEndpointOrigin,
 } from "@ycode/shared";
 import { ycodeProtocolAgentServer } from "./ycode-protocol/server.js";
 import { ycodeProtocolNdjsonConnection } from "./ycode-protocol/transport.js";
 import { cleanupProtocolRuntime } from "./ycode-protocol/runtime-cleanup.js";
 import { startProtocolResourceSampler } from "./ycode-protocol/resource-sampler.js";
 import { acquireProtocolStartupResource } from "./ycode-protocol/startup-resource.js";
-import type { ycodeProcessResourceSampler } from "./process-resource-sampler.js";
-import { prepareycodeTelemetryEnv, shutdownycodeTelemetry } from "./telemetry-bootstrap.js";
+import type { YCodeProcessResourceSampler } from "./process-resource-sampler.js";
+import { prepareYCodeTelemetryEnv, shutdownYCodeTelemetry } from "./telemetry-bootstrap.js";
 
 function applyProtocolPresentationSurface(
   options: Omit<YCodeAppOptions, "providerRegistry">,
@@ -79,8 +79,8 @@ function applyProtocolProviderRegistry(
   };
 }
 
-export async function runycodeProtocolAgent(
-  options: RunycodeProtocolAgentOptions = {},
+export async function runYCodeProtocolAgent(
+  options: RunYCodeProtocolAgentOptions = {},
 ): Promise<void> {
   if (options.prepareStorageOnly) {
     const config = createConfig({ env: options.env });
@@ -105,7 +105,7 @@ export async function runycodeProtocolAgent(
     ...traceContextToLogContext(traceContext),
     module: "bootstrap.ycode_protocol",
   });
-  installycodeProtocolAiSdkWarningLogger(logger);
+  installYCodeProtocolAiSdkWarningLogger(logger);
   const startupTimer = new StartupTimer(
     logger,
     {
@@ -129,7 +129,7 @@ export async function runycodeProtocolAgent(
   let mcpTelemetryTracker: McpTelemetryTracker | undefined;
   let mcpResourceSink: ((samples: YCodeMcpResourceSample[]) => void) | undefined;
   let mcpTelemetrySink: ((event: YCodeMcpTelemetryEvent) => void) | undefined;
-  let processResourceSampler: ycodeProcessResourceSampler | undefined;
+  let processResourceSampler: YCodeProcessResourceSampler | undefined;
   let providerRegistryRuntime:
     | Awaited<ReturnType<typeof startProcessProviderRegistryRuntime>>
     | undefined;
@@ -171,15 +171,15 @@ export async function runycodeProtocolAgent(
     const telemetryEnv = await acquireProtocolStartupResource({
       signal: options.lifecycle?.signal,
       logger,
-      disposeLate: () => shutdownycodeTelemetry(),
+      disposeLate: () => shutdownYCodeTelemetry(),
       create: () =>
-        prepareycodeTelemetryEnv(runtimeEnv, {
+        prepareYCodeTelemetryEnv(runtimeEnv, {
           cliVersion: options.version,
-          productVersion: options.env?.ycode_APP_VERSION,
+          productVersion: options.env?.YCODE_APP_VERSION,
           runtimeSurface,
         }),
     });
-    const telemetryDeviceMid = telemetryEnv.ycode_TELEMETRY_DEVICE_MID;
+    const telemetryDeviceMid = telemetryEnv.YCODE_TELEMETRY_DEVICE_MID;
     mcpTelemetryTracker =
       configResult.config.features.mcp === false
         ? undefined
@@ -193,10 +193,10 @@ export async function runycodeProtocolAgent(
     // 返回结构化权限错误，stdio 则把 reason 下发给插件。连接与工具发现都不受影响。
     let officialMcpAuthContext: OfficialMcpAuthRequestContext | undefined;
     // stdio 官方 MCP 没有 url 可供校验，targetOrigin 只能由宿主给出。
-    // 与下面 trustedOrigins 的 resolveycodeApiOrigin 必须是同一个表达式，否则两侧判定分叉。
-    const resolveycodeApiOrigin = (): string =>
-      resolveRuntimeycodeEndpointOrigin(options.env ?? process.env);
-    const workspaceIdentity = (options.env ?? process.env)[ycode_WORKSPACE_IDENTITY_ENV]?.trim();
+    // 与下面 trustedOrigins 的 resolveYCodeApiOrigin 必须是同一个表达式，否则两侧判定分叉。
+    const resolveYCodeApiOrigin = (): string =>
+      resolveRuntimeYCodeEndpointOrigin(options.env ?? process.env);
+    const workspaceIdentity = (options.env ?? process.env)[YCODE_WORKSPACE_IDENTITY_ENV]?.trim();
     const officialMcpAuth = {
       authHeadersPort: createOfficialMcpAuthHeadersPort({
         resolveContext: () => officialMcpAuthContext,
@@ -215,13 +215,13 @@ export async function runycodeProtocolAgent(
           };
         },
       }),
-      resolveycodeApiOrigin,
+      resolveYCodeApiOrigin,
       ...(workspaceIdentity ? { workspaceIdentity } : {}),
       // 信任判定只看一条：目标 origin 等于当前 ycode API origin（https）。pluginId 不参与。
       // origin 运行时解析（跟随 production/test 与自建环境），不硬编码域名。
       trustedOrigins: createOfficialMcpTrustedOriginRegistry({
         devTrustedOriginsRaw: (options.env ?? process.env)[OFFICIAL_MCP_DEV_TRUSTED_ORIGINS_ENV],
-        resolveycodeApiOrigin,
+        resolveYCodeApiOrigin,
       }),
     };
     mcpConnectionPool =
@@ -265,7 +265,7 @@ export async function runycodeProtocolAgent(
           env: {
             ...telemetryEnv,
             ...appOptions.env,
-            ...(telemetryDeviceMid ? { ycode_TELEMETRY_DEVICE_MID: telemetryDeviceMid } : {}),
+            ...(telemetryDeviceMid ? { YCODE_TELEMETRY_DEVICE_MID: telemetryDeviceMid } : {}),
           },
           ...(nodeReplBrowserBroker ? { nodeReplBrowserBroker } : {}),
           ...(mcpConnectionPool
@@ -380,7 +380,7 @@ function resolveProtocolRuntimeSurface(
   env: NodeJS.ProcessEnv,
 ): "desktop_local_host" | "remote_workspace_host" {
   // Bug 根因：入口曾无条件覆盖 Host 注入值，远程 SSH/WSL/容器 Trace 被归入本地 Desktop。
-  return env.ycode_TELEMETRY_RUNTIME_SURFACE?.trim() === "remote_workspace_host"
+  return env.YCODE_TELEMETRY_RUNTIME_SURFACE?.trim() === "remote_workspace_host"
     ? "remote_workspace_host"
     : "desktop_local_host";
 }

@@ -247,9 +247,9 @@ const smokeTestHostTarget = async (target, binaryPath) => {
         ...process.env,
         YCODE_STORAGE_DIR: storageRoot,
       };
-      delete env.ycode_BFS_BINARY;
-      delete env.ycode_RG_BINARY;
-      delete env.ycode_UGREP_BINARY;
+      delete env.YCODE_BFS_BINARY;
+      delete env.YCODE_RG_BINARY;
+      delete env.YCODE_UGREP_BINARY;
       run(binaryPath, ["--version"], {
         env,
       });

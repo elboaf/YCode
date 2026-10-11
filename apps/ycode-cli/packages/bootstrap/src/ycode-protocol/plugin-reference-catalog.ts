@@ -2,21 +2,21 @@
 // 与 plugins.ts（安装/市场/启停等管理面）分文件：本查询是会话/草稿 Picker 的只读投影，
 // 且 plugins.ts 已接近 max-lines 门禁。
 import {
-  ycode_OFFICIAL_PLUGIN_MARKETPLACE_ID,
+  YCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID,
   ycodeProtocolNotifications,
   ycodePluginsReferenceCatalogParamsSchema,
   ycodePluginsResolveSuggestedReferenceParamsSchema,
-  type ycodePluginReferenceCatalogEntry,
-  type ycodePluginDiagnostic as SharedPluginDiagnostic,
-  type ycodePluginsReferenceCatalogResult,
-  type ycodePluginsResolveSuggestedReferenceResult,
+  type YCodePluginReferenceCatalogEntry,
+  type YCodePluginDiagnostic as SharedPluginDiagnostic,
+  type YCodePluginsReferenceCatalogResult,
+  type YCodePluginsResolveSuggestedReferenceResult,
 } from "@ycode/shared";
 import type { PluginReferenceCatalogEntry } from "@ycode/contracts";
 import { buildPluginReferenceCatalog } from "@ycode/core";
 import {
-  getycodePluginsOverview,
-  resolveycodePlugins,
-  updateycodePluginMarketplace,
+  getYCodePluginsOverview,
+  resolveYCodePlugins,
+  updateYCodePluginMarketplace,
 } from "../plugins.js";
 import {
   parseParams,
@@ -31,7 +31,7 @@ export async function getPluginReferenceCatalog(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
   includeCategory = false,
-): Promise<ycodePluginsReferenceCatalogResult> {
+): Promise<YCodePluginsReferenceCatalogResult> {
   const params = parseParams(ycodePluginsReferenceCatalogParamsSchema, rawParams);
   if (params.sessionId) {
     const record = requireSession(context, params.sessionId);
@@ -45,7 +45,7 @@ export async function getPluginReferenceCatalog(
         .plugins.map((entry) => toReferenceCatalogEntry(entry, displayByPluginId, includeCategory)),
     };
   }
-  const outcome = resolveycodePlugins({
+  const outcome = resolveYCodePlugins({
     workingDirectory: params.workspace.workspacePath,
   });
   const displayByPluginId = resolveReferenceListingDisplayByPluginId(
@@ -59,7 +59,7 @@ export async function getPluginReferenceCatalog(
   };
 }
 
-const SUGGESTED_PLUGIN_MARKETPLACE = ycode_OFFICIAL_PLUGIN_MARKETPLACE_ID;
+const SUGGESTED_PLUGIN_MARKETPLACE = YCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID;
 const SUGGESTED_PLUGIN_MARKETPLACE_REFRESH_TIMEOUT_MS = 10_000;
 
 /** 推荐 Prompt 的安装前可信解析；missing 必须先刷新官方目录，失败时禁止旧快照安装。 */
@@ -67,7 +67,7 @@ export async function resolveSuggestedPluginReference(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
   signal?: AbortSignal,
-): Promise<ycodePluginsResolveSuggestedReferenceResult> {
+): Promise<YCodePluginsResolveSuggestedReferenceResult> {
   const params = parseParams(ycodePluginsResolveSuggestedReferenceParamsSchema, rawParams);
   const stableId = params.stableId.trim();
   const at = stableId.lastIndexOf("@");
@@ -98,7 +98,7 @@ export async function resolveSuggestedPluginReference(
 
   const workingDirectory = params.workspace.workspacePath;
   const readState = () => {
-    const outcome = resolveycodePlugins({ logger: context.logger, workingDirectory });
+    const outcome = resolveYCodePlugins({ logger: context.logger, workingDirectory });
     const entry = buildPluginReferenceCatalog(outcome.plugins).plugins.find(
       (candidate) => candidate.pluginId === stableId,
     );
@@ -153,7 +153,7 @@ export async function resolveSuggestedPluginReference(
   let refreshTimedOut = false;
   let refreshTimeout: ReturnType<typeof setTimeout> | undefined;
   try {
-    const refreshRequest = updateycodePluginMarketplace({
+    const refreshRequest = updateYCodePluginMarketplace({
       abortSignal: refreshController.signal,
       logger: context.logger,
       marketplace: SUGGESTED_PLUGIN_MARKETPLACE,
@@ -196,7 +196,7 @@ export async function resolveSuggestedPluginReference(
 
   const afterRefresh = readState();
   if (afterRefresh.entry) return toResult(afterRefresh.entry);
-  const overview = getycodePluginsOverview({ logger: context.logger, workingDirectory });
+  const overview = getYCodePluginsOverview({ logger: context.logger, workingDirectory });
   const candidate = overview.availablePlugins.find((item) => item.id === stableId);
   if (
     !candidate ||
@@ -237,7 +237,7 @@ interface PluginReferenceListingDisplay {
 function resolveReferenceListingDisplayByPluginId(
   workspacePath: string,
 ): Map<string, PluginReferenceListingDisplay> {
-  const overview = getycodePluginsOverview({ workingDirectory: workspacePath });
+  const overview = getYCodePluginsOverview({ workingDirectory: workspacePath });
   const displayByPluginId = new Map<string, PluginReferenceListingDisplay>();
   for (const plugin of [
     ...overview.availablePlugins,
@@ -271,7 +271,7 @@ function toReferenceCatalogEntry(
   entry: PluginReferenceCatalogEntry,
   displayByPluginId: ReadonlyMap<string, PluginReferenceListingDisplay>,
   includeCategory = false,
-): ycodePluginReferenceCatalogEntry {
+): YCodePluginReferenceCatalogEntry {
   const display = displayByPluginId.get(entry.pluginId);
   return {
     ...(includeCategory ? { category: display?.category ?? "other" } : {}),

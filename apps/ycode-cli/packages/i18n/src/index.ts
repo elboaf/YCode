@@ -27,6 +27,6 @@ const CATALOGS: Record<SupportedLocale, ycodeCopy> = {
   "zh-CN": zhCN,
 };
 
-export function getycodeCopy(locale?: UiLocale | string, detected?: string | null): ycodeCopy {
+export function getYCodeCopy(locale?: UiLocale | string, detected?: string | null): ycodeCopy {
   return CATALOGS[resolveLocale(locale, detected)];
 }

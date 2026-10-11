@@ -48,8 +48,8 @@ import type {
   PluginMetadata,
   PluginStoreListing,
 } from "@ycode/contracts";
-import { ycode_OFFICIAL_PLUGIN_MARKETPLACE, isOfficialMarketplaceId } from "@ycode/contracts";
-import { ycode_CUA_OFFICIAL_PLUGIN_ID, isycodeCuaInternalFeatureEnabled } from "@ycode/shared";
+import { YCODE_OFFICIAL_PLUGIN_MARKETPLACE, isOfficialMarketplaceId } from "@ycode/contracts";
+import { YCODE_CUA_OFFICIAL_PLUGIN_ID, isYCodeCuaInternalFeatureEnabled } from "@ycode/shared";
 import { resolveOfficialPluginRoots } from "./app/bundled-plugins.js";
 import {
   DEFAULT_ENABLED_OFFICIAL_PLUGIN_IDS,
@@ -59,7 +59,7 @@ import {
 import { getCliStorageRoot, getPluginStorageRoot } from "./app/paths.js";
 import { withPluginStorageLock } from "./lib/plugin-storage-lock.js";
 
-export interface ResolveycodePluginsOptions {
+export interface ResolveYCodePluginsOptions {
   configResult?: ConfigResult;
   env?: NodeJS.ProcessEnv;
   logger?: Logger;
@@ -71,15 +71,15 @@ export interface ResolveycodePluginsOptions {
   workingDirectory?: string;
 }
 
-export interface ListycodePluginsOptions extends ResolveycodePluginsOptions {}
+export interface ListYCodePluginsOptions extends ResolveYCodePluginsOptions {}
 
-export interface SetycodePluginEnabledOptions extends ResolveycodePluginsOptions {
+export interface SetYCodePluginEnabledOptions extends ResolveYCodePluginsOptions {
   enabled: boolean;
   plugin: string;
   scope?: "user" | "workspace";
 }
 
-export interface SetycodePluginEnabledResult {
+export interface SetYCodePluginEnabledResult {
   enabled: boolean;
   path: string;
   plugin: PluginMetadata;
@@ -146,7 +146,7 @@ export interface ycodeMarketplaceUpdateData {
   marketplaces: ycodeMarketplaceSummaryData[];
 }
 
-export interface AddycodeMarketplaceOptions extends ResolveycodePluginsOptions {
+export interface AddYCodeMarketplaceOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   dryRun?: boolean;
   source: string;
@@ -154,16 +154,16 @@ export interface AddycodeMarketplaceOptions extends ResolveycodePluginsOptions {
   sparsePaths?: string[];
 }
 
-export interface RemoveycodeMarketplaceOptions extends ResolveycodePluginsOptions {
+export interface RemoveYCodeMarketplaceOptions extends ResolveYCodePluginsOptions {
   marketplace: string;
 }
 
-export interface UpdateycodeMarketplaceOptions extends ResolveycodePluginsOptions {
+export interface UpdateYCodeMarketplaceOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   marketplace?: string;
 }
 
-export interface InstallycodeMarketplacePluginOptions extends ResolveycodePluginsOptions {
+export interface InstallYCodeMarketplacePluginOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   dryRun?: boolean;
   marketplace: string;
@@ -171,7 +171,7 @@ export interface InstallycodeMarketplacePluginOptions extends ResolveycodePlugin
   scope?: "user" | "workspace";
 }
 
-export interface UninstallycodeMarketplacePluginOptions extends ResolveycodePluginsOptions {
+export interface UninstallYCodeMarketplacePluginOptions extends ResolveYCodePluginsOptions {
   pluginId?: string;
   pluginName?: string;
   marketplace?: string;
@@ -180,12 +180,12 @@ export interface UninstallycodeMarketplacePluginOptions extends ResolveycodePlug
   keepData?: boolean;
 }
 
-export interface UpdateycodeMarketplacePluginOptions extends ResolveycodePluginsOptions {
+export interface UpdateYCodeMarketplacePluginOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   pluginId: string;
 }
 
-export interface ValidateycodePluginPathOptions extends ResolveycodePluginsOptions {
+export interface ValidateYCodePluginPathOptions extends ResolveYCodePluginsOptions {
   abortSignal?: AbortSignal;
   path: string;
 }
@@ -194,11 +194,11 @@ export interface ycodePluginUpdateData extends ycodePluginInstallData {
   previousVersion: string;
 }
 
-interface RestoreBuiltinPluginOptions extends ResolveycodePluginsOptions {
+interface RestoreBuiltinPluginOptions extends ResolveYCodePluginsOptions {
   pluginId: string;
 }
 
-interface ConfigureycodePluginOptions extends ResolveycodePluginsOptions {
+interface ConfigureYCodePluginOptions extends ResolveYCodePluginsOptions {
   clearOptionKeys?: string[];
   dryRun?: boolean;
   options: Record<string, unknown>;
@@ -206,18 +206,18 @@ interface ConfigureycodePluginOptions extends ResolveycodePluginsOptions {
   scope?: "user" | "workspace";
 }
 
-interface ResetycodePluginConfigOptions extends ResolveycodePluginsOptions {
+interface ResetYCodePluginConfigOptions extends ResolveYCodePluginsOptions {
   pluginId: string;
   scope?: "user" | "workspace";
 }
 
-interface ValidateycodePluginOptions extends ResolveycodePluginsOptions {
+interface ValidateYCodePluginOptions extends ResolveYCodePluginsOptions {
   marketplace?: string;
   pluginName?: string;
   source?: string;
 }
 
-interface DescribeycodePluginOptions extends ResolveycodePluginsOptions {
+interface DescribeYCodePluginOptions extends ResolveYCodePluginsOptions {
   marketplace: string;
   pluginName: string;
 }
@@ -243,11 +243,11 @@ function countVisibleMarketplacePlugins(
   plugins: readonly { name: string }[] | undefined,
 ): number | undefined {
   if (!plugins) return undefined;
-  if (marketplaceId !== ycode_OFFICIAL_PLUGIN_MARKETPLACE) return plugins.length;
+  if (marketplaceId !== YCODE_OFFICIAL_PLUGIN_MARKETPLACE) return plugins.length;
   return plugins.filter((entry) => entry.name !== OFFICIAL_NODE_REPL_HOST_PLUGIN_NAME).length;
 }
 
-export function resolveycodePlugins(options: ResolveycodePluginsOptions = {}): PluginLoadOutcome {
+export function resolveYCodePlugins(options: ResolveYCodePluginsOptions = {}): PluginLoadOutcome {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
 
   return discoverNodePluginsSync({
@@ -266,12 +266,12 @@ export function resolveycodePlugins(options: ResolveycodePluginsOptions = {}): P
   });
 }
 
-export function getycodePluginsOverview(
-  options: ResolveycodePluginsOptions = {},
+export function getYCodePluginsOverview(
+  options: ResolveYCodePluginsOptions = {},
 ): ycodePluginsOverviewData {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
-  const outcome = resolveycodePlugins({
+  const outcome = resolveYCodePlugins({
     ...options,
     configResult,
     pluginStorageRoot,
@@ -341,17 +341,17 @@ export function getycodePluginsOverview(
   const suppressed = new Set(configResult.config.plugins.suppressedBuiltins);
   const restorableBuiltins: ycodeAvailablePluginData[] = OFFICIAL_PLUGIN_DEFINITIONS.filter(
     (def) =>
-      suppressed.has(`${def.name}@${ycode_OFFICIAL_PLUGIN_MARKETPLACE}`) &&
+      suppressed.has(`${def.name}@${YCODE_OFFICIAL_PLUGIN_MARKETPLACE}`) &&
       // computer-use 的恢复入口需要 internal 特性开启（与 restoreBuiltinPluginCore 同口径）。
-      (def.name !== "computer-use" || isycodeCuaInternalFeatureEnabled(options.env ?? process.env)),
+      (def.name !== "computer-use" || isYCodeCuaInternalFeatureEnabled(options.env ?? process.env)),
   ).map((def) => {
     const listing = def.listing
       ? parseEntryStoreListing({ name: def.name, ...def.listing })
       : undefined;
     return {
-      id: `${def.name}@${ycode_OFFICIAL_PLUGIN_MARKETPLACE}`,
+      id: `${def.name}@${YCODE_OFFICIAL_PLUGIN_MARKETPLACE}`,
       name: def.name,
-      marketplace: ycode_OFFICIAL_PLUGIN_MARKETPLACE,
+      marketplace: YCODE_OFFICIAL_PLUGIN_MARKETPLACE,
       version: def.version,
       installed: false,
       ...(listing ? { listing } : {}),
@@ -402,8 +402,8 @@ export function getycodePluginsOverview(
   };
 }
 
-export function listycodePlugins(options: ListycodePluginsOptions = {}): PluginLoadOutcome {
-  const outcome = resolveycodePlugins(options);
+export function listYCodePlugins(options: ListYCodePluginsOptions = {}): PluginLoadOutcome {
+  const outcome = resolveYCodePlugins(options);
   const { pluginStorageRoot } = resolvePluginContext(options);
   return {
     ...outcome,
@@ -421,7 +421,7 @@ function loadPluginListingsById(storageRoot: string): Record<string, PluginStore
     if (!definition.listing) continue;
     const listing = parseEntryStoreListing({ name: definition.name, ...definition.listing });
     if (listing) {
-      listings.set(`${definition.name}@${ycode_OFFICIAL_PLUGIN_MARKETPLACE}`, listing);
+      listings.set(`${definition.name}@${YCODE_OFFICIAL_PLUGIN_MARKETPLACE}`, listing);
     }
   }
 
@@ -436,9 +436,9 @@ function loadPluginListingsById(storageRoot: string): Record<string, PluginStore
   return Object.fromEntries(listings);
 }
 
-export async function setycodePluginEnabled(
-  options: SetycodePluginEnabledOptions,
-): Promise<SetycodePluginEnabledResult> {
+export async function setYCodePluginEnabled(
+  options: SetYCodePluginEnabledOptions,
+): Promise<SetYCodePluginEnabledResult> {
   const workingDirectory = resolve(options.workingDirectory ?? process.cwd());
   const configResult =
     options.configResult ??
@@ -449,7 +449,7 @@ export async function setycodePluginEnabled(
       skipUserConfig: options.skipUserConfig,
       userConfigPath: options.userConfigPath,
     });
-  const outcome = resolveycodePlugins({
+  const outcome = resolveYCodePlugins({
     ...options,
     configResult,
     workingDirectory,
@@ -471,8 +471,8 @@ export async function setycodePluginEnabled(
   };
 }
 
-export async function addycodePluginMarketplace(
-  options: AddycodeMarketplaceOptions,
+export async function addYCodePluginMarketplace(
+  options: AddYCodeMarketplaceOptions,
 ): Promise<ycodeMarketplaceSummaryData> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   const source = applySparsePaths(
@@ -496,8 +496,8 @@ export async function addycodePluginMarketplace(
   return toMarketplaceSummaryData(record);
 }
 
-export async function removeycodePluginMarketplace(
-  options: RemoveycodeMarketplaceOptions,
+export async function removeYCodePluginMarketplace(
+  options: RemoveYCodeMarketplaceOptions,
 ): Promise<void> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   await removeMarketplace({
@@ -506,8 +506,8 @@ export async function removeycodePluginMarketplace(
   });
 }
 
-export async function updateycodePluginMarketplace(
-  options: UpdateycodeMarketplaceOptions,
+export async function updateYCodePluginMarketplace(
+  options: UpdateYCodeMarketplaceOptions,
 ): Promise<ycodeMarketplaceUpdateData> {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
@@ -587,8 +587,8 @@ export async function updateycodePluginMarketplace(
   };
 }
 
-export async function installycodeMarketplacePlugin(
-  options: InstallycodeMarketplacePluginOptions,
+export async function installYCodeMarketplacePlugin(
+  options: InstallYCodeMarketplacePluginOptions,
 ): Promise<ycodePluginInstallData> {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
@@ -642,7 +642,7 @@ export async function installycodeMarketplacePlugin(
     options.marketplace,
   )?.plugins.find((entry) => entry.name === options.pluginName);
   const isSuppressedBundledOfficial =
-    options.marketplace === ycode_OFFICIAL_PLUGIN_MARKETPLACE &&
+    options.marketplace === YCODE_OFFICIAL_PLUGIN_MARKETPLACE &&
     configResult.config.plugins.suppressedBuiltins.includes(pluginId) &&
     (bundledEntry?.source === "filesystem" || bundledEntry?.source === "sea");
   if (isSuppressedBundledOfficial) {
@@ -653,7 +653,7 @@ export async function installycodeMarketplacePlugin(
     // 否则同一 storageRoot 的 promise-chain lock 会等待自身而永久阻塞。
     await restoreBuiltinPluginCore({ ...options, configResult, pluginId });
     const fresh = resolvePluginContext({ ...options, configResult: undefined });
-    const outcome = resolveycodePlugins({
+    const outcome = resolveYCodePlugins({
       ...options,
       configResult: fresh.configResult,
       pluginStorageRoot: fresh.pluginStorageRoot,
@@ -723,7 +723,7 @@ export async function installycodeMarketplacePlugin(
       ],
     };
   }
-  if (options.marketplace === ycode_OFFICIAL_PLUGIN_MARKETPLACE) {
+  if (options.marketplace === YCODE_OFFICIAL_PLUGIN_MARKETPLACE) {
     // 官方 marketplace 复用内置插件的 id 空间。若同名 CDN 插件重新安装，
     // 清掉历史内置 suppression，否则 Runtime 仍会把已拥有的安装误判为 suppressed。
     for (const record of installed.installed) {
@@ -750,8 +750,8 @@ export async function installycodeMarketplacePlugin(
   };
 }
 
-export async function uninstallycodeMarketplacePlugin(
-  options: UninstallycodeMarketplacePluginOptions,
+export async function uninstallYCodeMarketplacePlugin(
+  options: UninstallYCodeMarketplacePluginOptions,
 ): Promise<ycodeInstalledPluginData | null> {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
   return withPluginStorageLock(pluginStorageRoot, async () => {
@@ -782,7 +782,7 @@ export async function uninstallycodeMarketplacePlugin(
     // 内置（官方）插件不在 installed_plugins.json 里，无法走 marketplace 卸载路径。
     // 卸载只改变 Runtime 抑制态并清理用户数据/config；Catalog 与不可变 cache 必须保留，
     // 这样详情页仍能离线读取组件，且恢复动作不依赖重新下载或重新构造目录。
-    const outcome = resolveycodePlugins({
+    const outcome = resolveYCodePlugins({
       ...options,
       configResult,
       pluginStorageRoot,
@@ -826,15 +826,15 @@ export async function uninstallycodeMarketplacePlugin(
  * cacheMarketplacePlugin 对已存在的安装记录做原地覆盖并保留 installedAt；启用态只会给
  * 用户配置里尚未显式声明的 id 补默认值，因此更新不会改变用户已经做过的开关选择。
  */
-export async function updateycodeMarketplacePlugin(
-  options: UpdateycodeMarketplacePluginOptions,
+export async function updateYCodeMarketplacePlugin(
+  options: UpdateYCodeMarketplacePluginOptions,
 ): Promise<ycodePluginUpdateData> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   const record = listInstalledPluginRecords(pluginStorageRoot).find(
     (installed) => installed.id === options.pluginId,
   );
   if (!record) throw new Error(`Plugin not installed: ${options.pluginId}`);
-  const refreshed = await updateycodePluginMarketplace({
+  const refreshed = await updateYCodePluginMarketplace({
     ...options,
     marketplace: record.marketplace,
   });
@@ -847,7 +847,7 @@ export async function updateycodeMarketplacePlugin(
       previousVersion: record.version,
     };
   }
-  const installed = await installycodeMarketplacePlugin({
+  const installed = await installYCodeMarketplacePlugin({
     ...options,
     marketplace: record.marketplace,
     pluginName: record.name,
@@ -857,8 +857,8 @@ export async function updateycodeMarketplacePlugin(
 }
 
 /** `ycode plugins validate <path>`：只读校验本地插件目录或 marketplace 目录。 */
-export async function validateycodePluginPath(
-  options: ValidateycodePluginPathOptions,
+export async function validateYCodePluginPath(
+  options: ValidateYCodePluginPathOptions,
 ): Promise<PluginLoadOutcome["diagnostics"]> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   return (
@@ -889,14 +889,14 @@ function applySparsePaths(
  * 因此核心不能再次获取 promise-chain lock；公开入口再负责提供锁保护。
  */
 async function restoreBuiltinPluginCore(options: RestoreBuiltinPluginOptions): Promise<void> {
-  const ycodeCuaPluginId = ycode_CUA_OFFICIAL_PLUGIN_ID;
+  const ycodeCuaPluginId = YCODE_CUA_OFFICIAL_PLUGIN_ID;
   if (
     options.pluginId === ycodeCuaPluginId &&
-    !isycodeCuaInternalFeatureEnabled(options.env ?? process.env)
+    !isYCodeCuaInternalFeatureEnabled(options.env ?? process.env)
   ) {
     // overview 虽然隐藏了恢复入口，但协议调用仍可绕过 UI 写用户配置。
     // 功能开关关闭时在写盘前失败，确保用户配置与插件缓存都保持零痕迹。
-    throw new Error("computer-use built-in plugin requires ycode_CUA_PRODUCT_HELPER to be enabled");
+    throw new Error("computer-use built-in plugin requires YCODE_CUA_PRODUCT_HELPER to be enabled");
   }
   const { configResult } = resolvePluginContext(options);
   await removeSuppressedBuiltinInFileConfig(configResult.sources.user.path, options.pluginId);
@@ -915,11 +915,11 @@ export async function restoreBuiltinPlugin(options: RestoreBuiltinPluginOptions)
   await withPluginStorageLock(pluginStorageRoot, () => restoreBuiltinPluginCore(options));
 }
 
-export async function configureycodePlugin(options: ConfigureycodePluginOptions): Promise<void> {
+export async function configureYCodePlugin(options: ConfigureYCodePluginOptions): Promise<void> {
   const normalizedOptions = normalizePluginOptions(options.options);
   const clearOptionKeys = normalizePluginOptionKeys(options.clearOptionKeys);
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
-  const outcome = resolveycodePlugins({
+  const outcome = resolveYCodePlugins({
     ...options,
     configResult,
     pluginStorageRoot,
@@ -936,8 +936,8 @@ export async function configureycodePlugin(options: ConfigureycodePluginOptions)
 }
 
 /** 删除指定 scope 的 Plugin 配置键，使 Workspace scope 回退到 User。 */
-export async function resetycodePluginConfig(
-  options: ResetycodePluginConfigOptions,
+export async function resetYCodePluginConfig(
+  options: ResetYCodePluginConfigOptions,
 ): Promise<{ path: string; pluginId: string }> {
   const { configResult, workingDirectory } = resolvePluginContext(options);
   const path = resolvePluginConfigPath(options, configResult, workingDirectory);
@@ -951,8 +951,8 @@ export async function resetycodePluginConfig(
   return { path, pluginId: options.pluginId };
 }
 
-export async function validateycodePlugin(
-  options: ValidateycodePluginOptions,
+export async function validateYCodePlugin(
+  options: ValidateYCodePluginOptions,
 ): Promise<PluginLoadOutcome["diagnostics"]> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
@@ -1002,8 +1002,8 @@ export async function validateycodePlugin(
   return [];
 }
 
-export async function describeycodePlugin(
-  options: DescribeycodePluginOptions,
+export async function describeYCodePlugin(
+  options: DescribeYCodePluginOptions,
 ): Promise<DescribeMarketplacePluginResult> {
   const { pluginStorageRoot } = resolvePluginContext(options);
   ensureDefaultPluginMarketplaces(pluginStorageRoot);
@@ -1014,7 +1014,7 @@ export async function describeycodePlugin(
   });
 }
 
-function resolvePluginContext(options: ResolveycodePluginsOptions): {
+function resolvePluginContext(options: ResolveYCodePluginsOptions): {
   configResult: ConfigResult;
   pluginStorageRoot: string;
   workingDirectory: string;
@@ -1259,7 +1259,7 @@ function inferComponentTypesFromMetadata(plugin: PluginMetadata): string[] {
   return types;
 }
 
-function resolvePluginIdForMutation(options: UninstallycodeMarketplacePluginOptions): string {
+function resolvePluginIdForMutation(options: UninstallYCodeMarketplacePluginOptions): string {
   if (options.pluginId) return options.pluginId;
   if (options.pluginName && options.marketplace) {
     return `${options.pluginName}@${options.marketplace}`;
@@ -1284,7 +1284,7 @@ function normalizePluginOptionKeys(keys: string[] | undefined): string[] {
 }
 
 function resolvePluginConfigPath(
-  options: ResolveycodePluginsOptions & { scope?: "user" | "workspace" },
+  options: ResolveYCodePluginsOptions & { scope?: "user" | "workspace" },
   configResult: ConfigResult,
   workingDirectory: string,
 ): string {

@@ -2,11 +2,11 @@
 
 export * from "./app/create-app.js";
 export type {
-  ListycodeSessionsOptions,
+  ListYCodeSessionsOptions,
   PromptInput,
   ResolveLatestSessionOptions,
   ResumeOptions,
-  RunycodeProtocolAgentOptions,
+  RunYCodeProtocolAgentOptions,
   SendInputOptions,
   SendInputResult,
   SetLocaleResult,
@@ -15,17 +15,17 @@ export type {
   UserPromptInput,
   YCodeApp,
   YCodeAppOptions,
-  ycodeModelOption,
+  YCodeModelOption,
 } from "./app/types.js";
 export * from "./auth-login.js";
 export {
-  inspectycodeCustomCommand,
-  listycodeCustomCommands,
-  loadycodeCustomCommand,
+  inspectYCodeCustomCommand,
+  listYCodeCustomCommands,
+  loadYCodeCustomCommand,
 } from "./custom-commands.js";
 export type {
-  InspectycodeCustomCommandOptions,
-  ListycodeCustomCommandsOptions,
+  InspectYCodeCustomCommandOptions,
+  ListYCodeCustomCommandsOptions,
   ycodeCustomCommandInspection,
 } from "./custom-commands.js";
 export { createModelAdapter } from "./model-factory.js";
@@ -33,30 +33,30 @@ export type { CreateModelAdapterOptions } from "./model-factory.js";
 export { startProcessProviderRegistryRuntime } from "./app/process-provider-registry-runtime.js";
 export type { ProcessProviderRegistryRuntimeOptions } from "./app/process-provider-registry-runtime.js";
 export {
-  addycodePluginMarketplace,
-  getycodePluginsOverview,
-  installycodeMarketplacePlugin,
-  listycodePlugins,
-  removeycodePluginMarketplace,
-  resolveycodePlugins,
-  setycodePluginEnabled,
-  uninstallycodeMarketplacePlugin,
-  updateycodeMarketplacePlugin,
-  updateycodePluginMarketplace,
-  validateycodePluginPath,
+  addYCodePluginMarketplace,
+  getYCodePluginsOverview,
+  installYCodeMarketplacePlugin,
+  listYCodePlugins,
+  removeYCodePluginMarketplace,
+  resolveYCodePlugins,
+  setYCodePluginEnabled,
+  uninstallYCodeMarketplacePlugin,
+  updateYCodeMarketplacePlugin,
+  updateYCodePluginMarketplace,
+  validateYCodePluginPath,
 } from "./plugins.js";
 export type {
-  AddycodeMarketplaceOptions,
-  InstallycodeMarketplacePluginOptions,
-  ListycodePluginsOptions,
-  RemoveycodeMarketplaceOptions,
-  ResolveycodePluginsOptions,
-  SetycodePluginEnabledOptions,
-  SetycodePluginEnabledResult,
-  UninstallycodeMarketplacePluginOptions,
-  UpdateycodeMarketplaceOptions,
-  UpdateycodeMarketplacePluginOptions,
-  ValidateycodePluginPathOptions,
+  AddYCodeMarketplaceOptions,
+  InstallYCodeMarketplacePluginOptions,
+  ListYCodePluginsOptions,
+  RemoveYCodeMarketplaceOptions,
+  ResolveYCodePluginsOptions,
+  SetYCodePluginEnabledOptions,
+  SetYCodePluginEnabledResult,
+  UninstallYCodeMarketplacePluginOptions,
+  UpdateYCodeMarketplaceOptions,
+  UpdateYCodeMarketplacePluginOptions,
+  ValidateYCodePluginPathOptions,
   ycodeAvailablePluginData,
   ycodeInstalledPluginData,
   ycodeMarketplaceSummaryData,
@@ -65,24 +65,24 @@ export type {
   ycodePluginUpdateData,
   ycodePluginsOverviewData,
 } from "./plugins.js";
-export { runycodeProtocolAgent } from "./ycode-protocol-entrypoint.js";
+export { runYCodeProtocolAgent } from "./ycode-protocol-entrypoint.js";
 // Exposed for the CLI's --output-format stream-json: it needs the same event
 // shape the protocol server emits, rather than inventing a second one.
 export { mapSessionEvent } from "./ycode-protocol/session-mapper.js";
-export { prepareycodeTelemetryEnv, shutdownycodeTelemetry } from "./telemetry-bootstrap.js";
+export { prepareYCodeTelemetryEnv, shutdownYCodeTelemetry } from "./telemetry-bootstrap.js";
 export type { SessionTranscriptMessage, SessionTranscriptPart } from "./session-transcript.js";
-export { listycodeSessions, resolveLatestSession } from "./sessions.js";
-export { inspectycodeSkill, listycodeSkills } from "./skills.js";
+export { listYCodeSessions, resolveLatestSession } from "./sessions.js";
+export { inspectYCodeSkill, listYCodeSkills } from "./skills.js";
 export type {
-  InspectycodeSkillOptions,
-  ListycodeSkillsOptions,
+  InspectYCodeSkillOptions,
+  ListYCodeSkillsOptions,
   ycodeSkillInspection,
 } from "./skills.js";
 // Exposed for the CLI's headless slash routing: it must decide "is this a real
 // custom command?" with the *same* reserved-name gate the app facade's
 // customCommandPromptResolver applies, or the two disagree and a reserved name
 // reaches the model as literal prompt text. See prompt-command.ts.
-export { isReservedycodeSlashCommandName } from "./slash-command-surface.js";
+export { isReservedYCodeSlashCommandName } from "./slash-command-surface.js";
 export {
   grantWorkspaceHookTrust,
   inspectWorkspaceHookTrust,

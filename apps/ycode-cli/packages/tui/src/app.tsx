@@ -1,5 +1,5 @@
 import type { ModelUsageSummary, TodoItem, TurnId } from "@ycode/contracts";
-import { getycodeCopy } from "@ycode/i18n";
+import { getYCodeCopy } from "@ycode/i18n";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { AppView } from "./app-view.js";
 import type { PromptInputEditor } from "./app-input-pane.js";
@@ -55,7 +55,7 @@ export function TuiApp({
   const initialResult = options.initialResult;
   const initialLoginRequired = initialResult?.loginRequired ?? options.loginRequired ?? false;
   const initialLocale = options.locale ?? "en-US";
-  const initialCopy = getycodeCopy(initialLocale).tui;
+  const initialCopy = getYCodeCopy(initialLocale).tui;
   useTuiThemeSync(options);
   const [messages, setMessages] = useState<Message[]>(() =>
     initialResult
@@ -73,7 +73,7 @@ export function TuiApp({
   const [locale, setLocale] = useState(initialLocale);
   const [lastEvent, setLastEvent] = useState("idle");
   const [lastError, setLastError] = useState<string | undefined>();
-  const copy = useMemo(() => getycodeCopy(locale), [locale]);
+  const copy = useMemo(() => getYCodeCopy(locale), [locale]);
   const [loginRequired, setLoginRequired] = useState(initialLoginRequired);
   const [status, setStatus] = useState(
     initialResult?.selection?.prompt ??

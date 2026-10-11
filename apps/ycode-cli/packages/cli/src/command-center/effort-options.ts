@@ -1,4 +1,4 @@
-import { getycodeCopy, type UiLocale } from "@ycode/i18n";
+import { getYCodeCopy, type UiLocale } from "@ycode/i18n";
 import type { TuiEffortOption } from "@ycode/tui";
 import type { CommandCenterApp } from "./types.js";
 
@@ -13,7 +13,7 @@ export function thoughtLevelsToEffortOptions(
   levels: readonly string[],
   locale?: UiLocale,
 ): TuiEffortOption[] {
-  const effortCopy = getycodeCopy(locale).tui.effort;
+  const effortCopy = getYCodeCopy(locale).tui.effort;
   return levels.map((level) => ({
     id: level,
     label: effortLabel(level, effortCopy),

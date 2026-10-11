@@ -15,19 +15,19 @@ import type { WorkspaceHookPolicyProvider } from "@ycode/core";
 import type { AccountProviderConfigSnapshot } from "@ycode/provider";
 import {
   ycodeProtocolErrorCodes,
-  type ycodeAutomationBotDeliveryTarget,
-  type ycodeDeliveryKind,
+  type YCodeAutomationBotDeliveryTarget,
+  type YCodeDeliveryKind,
   type ModelSelection,
-  type ycodeModelContextBudgetStrategy,
-  type ycodeProtocolMessage,
-  type ycodeProtocolMethod,
-  type ycodeProtocolNotification,
-  type ycodeProtocolRequest,
-  type ycodeProtocolRequestId,
-  type ycodeProtocolTrace,
-  type ycodeSessionMode,
-  type ycodeSessionPersistence,
-  type ycodeWorkspaceRef,
+  type YCodeModelContextBudgetStrategy,
+  type YCodeProtocolMessage,
+  type YCodeProtocolMethod,
+  type YCodeProtocolNotification,
+  type YCodeProtocolRequest,
+  type YCodeProtocolRequestId,
+  type YCodeProtocolTrace,
+  type YCodeSessionMode,
+  type YCodeSessionPersistence,
+  type YCodeWorkspaceRef,
 } from "@ycode/shared";
 import type { YCodeApp, YCodeAppOptions } from "../app/types.js";
 import type { V4InteractionRegistry } from "../ycode-protocol-v4/interaction-registry.js";
@@ -84,9 +84,9 @@ export interface ycodeProtocolSessionRecord {
   app: YCodeApp;
   memoryEnabled: boolean;
   nativeSearchEnhancementsEnabled: boolean;
-  modelContextBudgetStrategy: ycodeModelContextBudgetStrategy;
+  modelContextBudgetStrategy: YCodeModelContextBudgetStrategy;
   createdAt: number;
-  deliveryKind?: ycodeDeliveryKind;
+  deliveryKind?: YCodeDeliveryKind;
   /**
    * 旧 session/subscribe 没有 unsubscribe RPC；只在真正 subscribe 时置位，不能用
    * 会被 session/read 写入的 deliveryKind 代替。连接结束会销毁整个 CLI 进程。
@@ -94,7 +94,7 @@ export interface ycodeProtocolSessionRecord {
   legacyStreamSubscribed?: boolean;
   eventStore: SessionEventStorePort;
   parentSessionId?: SessionId;
-  persistence: ycodeSessionPersistence;
+  persistence: YCodeSessionPersistence;
   protocolEventSequences: Map<string, ycodeProtocolEventSequenceState>;
   protocolToolInputTransmissions: Map<string, ycodeProtocolToolInputTransmissionState>;
   stateRevision: number;
@@ -102,7 +102,7 @@ export interface ycodeProtocolSessionRecord {
   traceContext: TraceContext;
   unsubscribe?: () => void;
   updatedAt: number;
-  workspace: ycodeWorkspaceRef;
+  workspace: YCodeWorkspaceRef;
   activeAbortController?: AbortController;
   /** background runner 释放 ready lock 后，持久化/snapshot/broadcast 尚未完成的引用计数。 */
   residencyFinalizationCount?: number;
@@ -111,7 +111,7 @@ export interface ycodeProtocolSessionRecord {
   /** 当前正在执行的闲时派发 turn；只在 turn 运行期间存在，禁止递归 OffPeakCreate。 */
   activeOffPeakTaskId?: string;
   /** 当前 Bot 入站 turn 的稳定回推地址；只允许 CronCreate 在本轮读取。 */
-  activeBotDeliveryTarget?: ycodeAutomationBotDeliveryTarget;
+  activeBotDeliveryTarget?: YCodeAutomationBotDeliveryTarget;
   restoreWarning?: { message: string; type: string };
   /** 冷恢复候选只供初始投影；新的选模事件立即清除，不能替代 Runtime 执行绑定。 */
   restoredModelSelection?: ModelSelection;
@@ -120,7 +120,7 @@ export interface ycodeProtocolSessionRecord {
 export interface ycodeProtocolClientRequestOptions {
   signal?: AbortSignal;
   timeoutMs?: number;
-  trace?: ycodeProtocolTrace;
+  trace?: YCodeProtocolTrace;
   reannounceIntervalMs?: number;
 }
 
@@ -151,9 +151,9 @@ export interface ycodeProtocolAgentServerContext {
   // 协议请求则持有 operation lease，禁止异步 handler 与容量回收交错。
   sessionResidentPool?: SessionResidentPool;
   sessions: Map<string, ycodeProtocolSessionRecord>;
-  notify(notification: ycodeProtocolNotification): void;
+  notify(notification: YCodeProtocolNotification): void;
   requestClient<T>(
-    method: ycodeProtocolMethod,
+    method: YCodeProtocolMethod,
     params: unknown,
     resultSchema: ParamsSchema<T>,
     options?: ycodeProtocolClientRequestOptions,
@@ -171,24 +171,24 @@ export class ProtocolRequestError extends Error {
   }
 }
 
-export function isRequest(message: ycodeProtocolMessage): message is ycodeProtocolRequest {
+export function isRequest(message: YCodeProtocolMessage): message is YCodeProtocolRequest {
   return "method" in message && "id" in message;
 }
 
 export function isNotification(
-  message: ycodeProtocolMessage,
-): message is ycodeProtocolNotification {
+  message: YCodeProtocolMessage,
+): message is YCodeProtocolNotification {
   return "method" in message && !("id" in message);
 }
 
 export function isResponse(
-  message: ycodeProtocolMessage,
-): message is { id: ycodeProtocolRequestId; result: unknown } {
+  message: YCodeProtocolMessage,
+): message is { id: YCodeProtocolRequestId; result: unknown } {
   return "id" in message && "result" in message;
 }
 
-export function isErrorResponse(message: ycodeProtocolMessage): message is {
-  id: ycodeProtocolRequestId;
+export function isErrorResponse(message: YCodeProtocolMessage): message is {
+  id: YCodeProtocolRequestId;
   error: { code: number; message: string; data?: unknown };
 } {
   return "id" in message && "error" in message;
@@ -276,7 +276,7 @@ function createProtocolTraceId(_sessionId: SessionId): TraceContext["traceId"] {
 
 export function createProtocolRootTraceContext(
   sessionId: SessionId,
-  trace?: ycodeProtocolTrace,
+  trace?: YCodeProtocolTrace,
 ): TraceContext {
   const context = createRootTraceContext({
     sessionId,
@@ -292,7 +292,7 @@ export function createProtocolRootTraceContext(
   return context;
 }
 
-export function protocolTraceFromTraceContext(context: TraceContext): ycodeProtocolTrace {
+export function protocolTraceFromTraceContext(context: TraceContext): YCodeProtocolTrace {
   return {
     traceId: context.traceId,
     ...(context.spanId ? { spanId: context.spanId } : {}),
@@ -305,7 +305,7 @@ export function protocolTraceFromTraceContext(context: TraceContext): ycodeProto
 export function requireSession(
   context: ycodeProtocolAgentServerContext,
   sessionId: string,
-  options: { deliveryKind?: ycodeDeliveryKind; operation?: string } = {},
+  options: { deliveryKind?: YCodeDeliveryKind; operation?: string } = {},
 ): ycodeProtocolSessionRecord {
   const record = context.sessions.get(sessionId);
   if (!record) {

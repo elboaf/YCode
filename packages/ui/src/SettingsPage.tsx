@@ -710,7 +710,7 @@ export function SettingsPage({
   const [toolGroupingExploreEnabled, setToolGroupingExploreEnabled] = useState(true);
   const [toolGroupingTerminalEnabled, setToolGroupingTerminalEnabled] = useState(true);
   const [toolGroupingChangesEnabled, setToolGroupingChangesEnabled] = useState(false);
-  const [ycodeInteractionBehavior, setYCodeInteractionBehavior] =
+  const [YCodeInteractionBehavior, setYCodeInteractionBehavior] =
     useState<YCodeInteractionBehavior>("queue");
   const [defaultHomeDir, setDefaultHomeDir] = useState("");
   const [hostPlatform, setHostPlatform] = useState("");
@@ -794,7 +794,7 @@ export function SettingsPage({
         setToolGroupingExploreEnabled(settings.toolGroupingExploreEnabled ?? true);
         setToolGroupingTerminalEnabled(settings.toolGroupingTerminalEnabled ?? true);
         setToolGroupingChangesEnabled(settings.toolGroupingChangesEnabled ?? false);
-        setYCodeInteractionBehavior(settings.ycodeInteractionBehavior ?? "queue");
+        setYCodeInteractionBehavior(settings.YCodeInteractionBehavior ?? "queue");
       })
       .catch(() => {});
     // 这里配置的是本地全局设置。远端 workspace 激活时 useServices()
@@ -827,7 +827,7 @@ export function SettingsPage({
     setToolGroupingExploreEnabled(sharedSettings.toolGroupingExploreEnabled ?? true);
     setToolGroupingTerminalEnabled(sharedSettings.toolGroupingTerminalEnabled ?? true);
     setToolGroupingChangesEnabled(sharedSettings.toolGroupingChangesEnabled ?? false);
-    setYCodeInteractionBehavior(sharedSettings.ycodeInteractionBehavior ?? "queue");
+    setYCodeInteractionBehavior(sharedSettings.YCodeInteractionBehavior ?? "queue");
     setReceivePreviewUpdates(sharedSettings.receivePreviewUpdates ?? false);
     setAutoDownloadAndInstallUpdates(sharedSettings.autoDownloadAndInstallUpdates ?? false);
   }, [sharedSettings]);
@@ -1257,7 +1257,7 @@ export function SettingsPage({
         featureId: "settings.conversation",
         action: "change_interaction_behavior",
         trigger: "select",
-        operation: () => updateSharedSettings({ ycodeInteractionBehavior: behavior }),
+        operation: () => updateSharedSettings({ YCodeInteractionBehavior: behavior }),
         completed: { resultSource: "shared_settings", valueAfter: behavior },
       });
       setYCodeInteractionBehavior(behavior);
@@ -1717,7 +1717,7 @@ export function SettingsPage({
                             toolGroupingExploreEnabled={toolGroupingExploreEnabled}
                             toolGroupingTerminalEnabled={toolGroupingTerminalEnabled}
                             toolGroupingChangesEnabled={toolGroupingChangesEnabled}
-                            ycodeInteractionBehavior={ycodeInteractionBehavior}
+                            YCodeInteractionBehavior={YCodeInteractionBehavior}
                             askUserQuestionAutoResolutionEnabled={
                               askUserQuestionAutoResolutionEnabled
                             }

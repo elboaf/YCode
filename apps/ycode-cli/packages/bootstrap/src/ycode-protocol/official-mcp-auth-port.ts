@@ -5,7 +5,7 @@
 import {
   ycodeOfficialMcpAuthHeadersResponseSchema,
   ycodeProtocolMethods,
-  type ycodeWorkspaceRef,
+  type YCodeWorkspaceRef,
 } from "@ycode/shared";
 import type { OfficialMcpAuthHeadersPort } from "@ycode/contracts";
 import type { ycodeProtocolAgentServerContext } from "./server-types.js";
@@ -33,7 +33,7 @@ export type OfficialMcpAuthRequestContext = Pick<
  * - 但仍必须遵守仓库约定 `workspaceKey = workspaceIdentity?.trim() || workspacePath`，
  *   否则同路径不同 identity 的远端 workspace 在审计上下文里无法区分；
  * - **剩余缺口**：CLI agent 进程当前没有 workspaceIdentity 来源
- *   （`RunycodeProtocolAgentOptions` 只有 cwd/env/…，也无对应环境变量），因此该字段实际
+ *   （`RunYCodeProtocolAgentOptions` 只有 cwd/env/…，也无对应环境变量），因此该字段实际
  *   退化为 workspacePath。这里保证的是"拿到 identity 就正确透传"，而不是"identity 一定存在"。
  *   若将来审计需要真实远端身份，需在 spawn 或协议层把 identity 传给 agent，不在本阶段范围。
  */
@@ -42,7 +42,7 @@ export function createOfficialMcpAuthHeadersPort(input: {
   resolveWorkspace: (input: {
     workspaceIdentity?: string;
     workspacePath?: string;
-  }) => ycodeWorkspaceRef | undefined;
+  }) => YCodeWorkspaceRef | undefined;
 }): OfficialMcpAuthHeadersPort {
   return {
     async resolveHeaders(request) {

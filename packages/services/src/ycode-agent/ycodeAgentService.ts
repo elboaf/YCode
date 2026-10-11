@@ -64,7 +64,7 @@ import {
   ycodeOffPeakCreateParamsSchema,
   ycodeOffPeakListParamsSchema,
   OFF_PEAK_PROVIDER_IDS,
-  ycodeComputerUseOperationEventSchema,
+  YCodeComputerUseOperationEventSchema,
   ycodeProviderRuntimeHeadersCancelledSchema,
   ycodeProviderRuntimeHeadersRequestParamsSchema,
   ycodeProviderTestModelConnectivityResultSchema,
@@ -82,7 +82,7 @@ import {
   ycodeSessionEventsResultSchema,
   ycodeSessionGoalResultSchema,
   ycodeSessionListResultSchema,
-  ycodeSessionSubagentsResultSchema,
+  YCodeSessionSubagentsResultSchema,
   ycodeSessionMessagesResultSchema,
   ycodeSessionEventSchema,
   ycodeSessionSendResultSchema,
@@ -98,7 +98,7 @@ import {
   ycodeWorkspaceHookTrustGrantResultSchema,
   ycodeWorkspaceUpdateInteractionPreferencesResultSchema,
   ycodeWorkspaceUpdateModelIoPreferencesResultSchema,
-  ycodeProviderUpdateAccountConfigResultSchema,
+  YCodeProviderUpdateAccountConfigResultSchema,
   type YCodeSessionStateSnapshot,
   type YCodeAutomation,
   type YCodeAutomationRun,
@@ -1407,7 +1407,7 @@ export function createYCodeAgentService(
             ),
             states: snapshot.states ?? {},
           },
-          ycodeProviderUpdateAccountConfigResultSchema,
+          YCodeProviderUpdateAccountConfigResultSchema,
         );
         if (result.receivedRevision !== snapshot.revision) {
           throw new Error("Account Config 接收回执版本与交付版本不一致");
@@ -1949,7 +1949,7 @@ export function createYCodeAgentService(
         }
 
         if (message.method === ycodeProtocolMethods.computerUseOperationEvent) {
-          const parsed = ycodeComputerUseOperationEventSchema.safeParse(message.params);
+          const parsed = YCodeComputerUseOperationEventSchema.safeParse(message.params);
           if (parsed.success) {
             // v4 会话不会投影 legacy session/event，CUA 提示必须直接消费 runtime sideband，
             // 避免把两条独立事件流的 sequenceNumber/seq 混为同一顺序域。
@@ -3643,7 +3643,7 @@ export function createYCodeAgentService(
           endedCursor: params.endedCursor,
           endedLimit: params.endedLimit ?? 20,
         },
-        ycodeSessionSubagentsResultSchema,
+        YCodeSessionSubagentsResultSchema,
       );
     },
 

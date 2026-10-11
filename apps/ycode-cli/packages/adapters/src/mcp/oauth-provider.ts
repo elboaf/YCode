@@ -1,6 +1,6 @@
 import type { FetchLike, AuthProvider } from "@modelcontextprotocol/client";
 import type { Logger, McpOAuthConfig } from "@ycode/contracts";
-import type { SharedycodeCredentialStore } from "../auth/shared-credentials.js";
+import type { SharedYCodeCredentialStore } from "../auth/shared-credentials.js";
 import { isCanonicalTokenNearExpiry, loadCredentialPair } from "./oauth-credentials.js";
 import { createInteractiveAuthorizationRequiredError } from "./oauth-errors.js";
 import { refreshMcpOAuthTokensUnderLock } from "./oauth-refresh.js";
@@ -9,7 +9,7 @@ type McpAuthorizationCodeOAuthConfig = Extract<McpOAuthConfig, { type: "authoriz
 
 interface CreateMcpOAuthTokenProviderInput {
   config: McpAuthorizationCodeOAuthConfig;
-  credentialStore: SharedycodeCredentialStore;
+  credentialStore: SharedYCodeCredentialStore;
   fetchFn?: FetchLike;
   keyPrefix: string;
   logger?: Logger;

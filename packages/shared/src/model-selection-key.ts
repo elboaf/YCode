@@ -29,8 +29,8 @@ export function normalizeSupplierBaseUrl(baseUrl: string): string {
   return baseUrl.trim().replace(TRAILING_SLASHES_RE, "");
 }
 
-export function buildNativeSupplierKey(ycodeProvider: YCodeProvider): string {
-  return `${NATIVE_SUPPLIER_KEY_PREFIX}${ycodeProvider}`;
+export function buildNativeSupplierKey(YCodeProvider: YCodeProvider): string {
+  return `${NATIVE_SUPPLIER_KEY_PREFIX}${YCodeProvider}`;
 }
 
 export function buildCustomSupplierKey(providerId: string): string {
@@ -49,13 +49,13 @@ export function buildGhostSupplierIdentity(rawIdentity: string): string {
 }
 
 export function buildGhostSupplierKey(
-  ycodeProvider: YCodeProvider,
+  YCodeProvider: YCodeProvider,
   reason: ModelSelectionGhostReason,
   rawIdentity: string,
 ): string {
   return [
     GHOST_SUPPLIER_KEY_PREFIX,
-    ycodeProvider,
+    YCodeProvider,
     ":",
     reason,
     ":",
@@ -64,7 +64,7 @@ export function buildGhostSupplierKey(
 }
 
 export function resolveSupplierKeyFromModelDisplayValue(
-  ycodeProvider: YCodeProvider,
+  YCodeProvider: YCodeProvider,
   value: string | boolean | undefined,
 ): string {
   const customModel = decodeCustomModelValue(String(value ?? ""));
@@ -72,5 +72,5 @@ export function resolveSupplierKeyFromModelDisplayValue(
     return buildCustomSupplierKey(customModel.providerId);
   }
 
-  return buildNativeSupplierKey(ycodeProvider);
+  return buildNativeSupplierKey(YCodeProvider);
 }

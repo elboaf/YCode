@@ -23,7 +23,7 @@ export function createYCodeCredentialCipher(
 
   return {
     decrypt(value: string): string {
-      if (!isEncryptedycodeCredentialValue(value)) {
+      if (!isEncryptedYCodeCredentialValue(value)) {
         return value;
       }
 
@@ -76,7 +76,7 @@ export function createYCodeCredentialCipher(
   };
 }
 
-export function isEncryptedycodeCredentialValue(value: string): boolean {
+export function isEncryptedYCodeCredentialValue(value: string): boolean {
   return value.startsWith(ENCRYPTED_VALUE_PREFIX);
 }
 

@@ -7,8 +7,8 @@ import {
 } from "@ycode/provider";
 import {
   isBuiltinModelProviderId,
-  resolveRuntimeycodeEndpointOrigin,
-  ycode_VERSION,
+  resolveRuntimeYCodeEndpointOrigin,
+  YCODE_VERSION,
 } from "@ycode/shared";
 import { dirname, join } from "node:path";
 import {
@@ -17,12 +17,12 @@ import {
   resolveNodeProviderRuntimePaths,
   downloadYCodeBuiltinRelease,
   resolveYCodeBuiltinClientPlatform,
-  ycode_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
+  YCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
   type YCodeBuiltinRefreshEvent,
 } from "@ycode/provider-node";
 import {
-  createSharedycodeCredentialStore,
-  type SharedycodeCredentialStore,
+  createSharedYCodeCredentialStore,
+  type SharedYCodeCredentialStore,
 } from "@ycode/adapters/auth";
 import { readLegacyCliPersonalProviderConfig } from "./legacy-cli-personal-provider-config-importer.js";
 import {
@@ -33,7 +33,7 @@ import {
 export interface ProcessProviderRegistryRuntimeOptions {
   /** Standalone Prompt CLI / TUI 自己拥有账号凭据与旧配置的一次性导入。 */
   readonly standalone?: {
-    readonly credentialStore?: SharedycodeCredentialStore;
+    readonly credentialStore?: SharedYCodeCredentialStore;
     readonly legacyCliUserConfigFilePath?: string;
     readonly onAccountInitializationError?: (error: unknown) => void;
     readonly request?: typeof fetch;
@@ -53,29 +53,29 @@ export async function startProcessProviderRegistryRuntime(
 
   const accountSource = new MutableAccountProviderConfigSource();
   const credentialStore = options.standalone
-    ? (options.standalone.credentialStore ?? createSharedycodeCredentialStore({ env: { ...env } }))
+    ? (options.standalone.credentialStore ?? createSharedYCodeCredentialStore({ env: { ...env } }))
     : undefined;
   let standaloneAccount: AccountProviderService | undefined;
   const bundledFile = options.standalone
-    ? env[ycode_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]?.trim()
+    ? env[YCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]?.trim()
     : undefined;
   const runtime = new NodeProviderRegistryRuntime({
     ...paths,
     ...(bundledFile
       ? {
-          YCodeBuiltinFilePath: bundledFile,
-          YCodeBuiltinActiveFilePath: paths.YCodeBuiltinFilePath,
-          YCodeBuiltinRemote: {
+          ycodeBuiltinFilePath: bundledFile,
+          ycodeBuiltinActiveFilePath: paths.ycodeBuiltinFilePath,
+          ycodeBuiltinRemote: {
             controlFilePath: join(
-              dirname(paths.YCodeBuiltinFilePath),
+              dirname(paths.ycodeBuiltinFilePath),
               "ycode-builtin-refresh.json",
             ),
-            resolveEndpointKey: () => resolveRuntimeycodeEndpointOrigin(env),
+            resolveEndpointKey: () => resolveRuntimeYCodeEndpointOrigin(env),
             fetchRelease: (endpointOrigin, signal) =>
               downloadYCodeBuiltinRelease({
                 endpointOrigin,
                 signal,
-                appVersion: ycode_VERSION,
+                appVersion: YCODE_VERSION,
                 platform: resolveYCodeBuiltinClientPlatform(),
                 request: options.standalone?.request ?? globalThis.fetch,
               }),
@@ -128,7 +128,7 @@ export async function startProcessProviderRegistryRuntime(
           runtime.configService.read(),
           standaloneAccount!.read(),
         ]);
-        if (config.YCodeBuiltinRevision !== account.basedOnYCodeBuiltinRevision)
+        if (config.ycodeBuiltinRevision !== account.basedOnYCodeBuiltinRevision)
           await standaloneAccount!.refresh("builtin-account-recovery");
       })
     : undefined;

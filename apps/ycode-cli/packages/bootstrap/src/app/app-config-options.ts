@@ -4,7 +4,7 @@ import type { RuntimeConfigPatch, SupportedLocale, UiLocale } from "@ycode/contr
 import type { YCodeAppOptions } from "./types.js";
 
 export function isMessageEnabled(env: NodeJS.ProcessEnv): boolean {
-  return env.ycode_MESSAGE_ENABLED === "1" || env.ycode_MESSAGE_ENABLED === "true";
+  return env.YCODE_MESSAGE_ENABLED === "1" || env.YCODE_MESSAGE_ENABLED === "true";
 }
 
 export function createConfigCliOverrides(options: YCodeAppOptions): RuntimeConfigPatch | undefined {

@@ -1,22 +1,22 @@
 import type {
-  ycodeProtocolError,
-  ycodeProtocolMessage,
-  ycodeProtocolNotification,
-  ycodeProtocolRequest,
-  ycodeProtocolRequestId,
-  ycodeProtocolResponse,
+  YCodeProtocolError,
+  YCodeProtocolMessage,
+  YCodeProtocolNotification,
+  YCodeProtocolRequest,
+  YCodeProtocolRequestId,
+  YCodeProtocolResponse,
 } from "@ycode/shared";
 import { ycodeProtocolMessageSchema, ycodeProtocolMethods } from "@ycode/shared";
 import type { Logger } from "@ycode/contracts";
 
 type ycodeProtocolOutgoingMessage =
-  | ycodeProtocolError
-  | ycodeProtocolNotification
-  | ycodeProtocolRequest
-  | ycodeProtocolResponse;
+  | YCodeProtocolError
+  | YCodeProtocolNotification
+  | YCodeProtocolRequest
+  | YCodeProtocolResponse;
 
 type ycodeProtocolMessageHandler = (
-  message: ycodeProtocolMessage,
+  message: YCodeProtocolMessage,
 ) => Promise<ycodeProtocolOutgoingMessage | undefined>;
 
 const PROTOCOL_EOF_DRAIN_MS = 100;
@@ -30,9 +30,9 @@ interface ycodeProtocolNdjsonConnectionOptions {
   onTransportClosed?: (error: Error) => void;
   output: NodeJS.WritableStream;
   takePostResponseMessages?: (
-    requestId: ycodeProtocolRequestId,
+    requestId: YCodeProtocolRequestId,
   ) => readonly ycodeProtocolOutgoingMessage[];
-  takePostResponseBatch?: (requestId: ycodeProtocolRequestId) => {
+  takePostResponseBatch?: (requestId: YCodeProtocolRequestId) => {
     readonly messages: readonly ycodeProtocolOutgoingMessage[];
     commit(): boolean;
   } | null;
@@ -195,7 +195,7 @@ export class ycodeProtocolNdjsonConnection {
       });
   }
 
-  private decodeLine(line: string): ycodeProtocolMessage | null {
+  private decodeLine(line: string): YCodeProtocolMessage | null {
     let decoded: unknown;
     try {
       decoded = JSON.parse(line);
@@ -221,7 +221,7 @@ export class ycodeProtocolNdjsonConnection {
     return parsed.data;
   }
 
-  private shouldBypassProcessingQueue(message: ycodeProtocolMessage): boolean {
+  private shouldBypassProcessingQueue(message: YCodeProtocolMessage): boolean {
     // 模型任务占住串行队列时，停止/取消请求必须仍能进入 server，
     // 才能把底层 AbortSignal 传给真实模型请求。控制面只旁路当前执行，普通请求仍保持串行。
     return (
@@ -232,7 +232,7 @@ export class ycodeProtocolNdjsonConnection {
     );
   }
 
-  private async handleMessage(message: ycodeProtocolMessage): Promise<void> {
+  private async handleMessage(message: YCodeProtocolMessage): Promise<void> {
     if (this.terminal) return;
     const response = await this.options.handleMessage(message);
     if (response) {

@@ -144,19 +144,19 @@ export default defineConfig(({ mode }) => {
   // `.env*` 只提供链接常量；当前产品环境由启动脚本或 CI 注入 YCODE_ENV。
   const env = { ...loadEnv(mode, "../..", ""), ...process.env };
   const repoRoot = resolve(__dirname, "../..");
-  const ycodeEnv = resolveYCodeEnv(env.YCODE_ENV);
+  const YCodeEnv = resolveYCodeEnv(env.YCODE_ENV);
   // 安装包身份与后端环境分轴；renderer 用它决定是否展示更新入口。
-  const ycodeProductFlavor = resolveDesktopProductFlavor({
+  const YCodeProductFlavor = resolveDesktopProductFlavor({
     ...process.env,
     ...env,
-    YCODE_ENV: ycodeEnv,
+    YCODE_ENV: YCodeEnv,
   });
   const e2eCoverageEnabled =
     env.YCODE_E2E_COVERAGE === "1" || process.env.YCODE_E2E_COVERAGE === "1";
   const e2eStoreBridgeEnabled =
     env.VITE_YCODE_E2E_STORE_BRIDGE === "1" || process.env.VITE_YCODE_E2E_STORE_BRIDGE === "1";
   const ycodeEndpointOrigin = resolveYCodeEndpointOrigin({
-    env: ycodeEnv,
+    env: YCodeEnv,
     envBaseOrigin: env.YCODE_BASE_URL ?? env.YCODE_ENDPOINT_ORIGIN,
   });
   const codingPlanWebviewOrigin =
@@ -192,8 +192,8 @@ export default defineConfig(({ mode }) => {
       __YCODE_VERSION__: JSON.stringify(buildMetadata.appVersion),
       __YCODE_COMMIT__: JSON.stringify(buildMetadata.buildCommitId),
       __YCODE_BUILD_TIME__: JSON.stringify(buildMetadata.buildTime),
-      __YCODE_ENV__: JSON.stringify(ycodeEnv),
-      __YCODE_PRODUCT_FLAVOR__: JSON.stringify(ycodeProductFlavor),
+      __YCODE_ENV__: JSON.stringify(YCodeEnv),
+      __YCODE_PRODUCT_FLAVOR__: JSON.stringify(YCodeProductFlavor),
       __YCODE_LOCAL_DEVELOPMENT_RUNTIME__: JSON.stringify(mode !== "production"),
       "import.meta.env.VITE_YCODE_BASE_URL": JSON.stringify(ycodeEndpointOrigin),
       // 兼容旧 renderer 读取名；新代码统一读 VITE_YCODE_BASE_URL。

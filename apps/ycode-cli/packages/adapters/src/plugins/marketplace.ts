@@ -5,7 +5,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { PluginDiagnostic, PluginManifest, PluginStoreListing } from "@ycode/contracts";
-import { isOfficialMarketplaceId, ycode_OFFICIAL_PLUGIN_MARKETPLACE } from "@ycode/contracts";
+import { isOfficialMarketplaceId, YCODE_OFFICIAL_PLUGIN_MARKETPLACE } from "@ycode/contracts";
 import { DEFAULT_PLUGIN_MARKETPLACES, sanitizeYCodeRuntimeEnv } from "@ycode/shared";
 import { loadPluginMcpServerDefinitions, resolvePluginMcpServers } from "./mcp.js";
 import {
@@ -51,7 +51,7 @@ const MARKETPLACE_JSON_MAX_BYTES = 10 * 1024 * 1024;
 const MARKETPLACE_JSON_MAX_REDIRECTS = 5;
 const MARKETPLACE_JSON_TIMEOUT_MS = 180_000;
 const CLAUDE_MARKETPLACE_FILE = join(".claude-plugin", "marketplace.json");
-const ycode_MANIFEST_PATH = join(".ycode-plugin", "plugin.json");
+const YCODE_MANIFEST_PATH = join(".ycode-plugin", "plugin.json");
 const CLAUDE_MANIFEST_PATH = join(".claude-plugin", "plugin.json");
 const CODEX_MANIFEST_PATH = join(".codex-plugin", "plugin.json");
 const DEFAULT_VERSION = "0.0.0";
@@ -364,15 +364,15 @@ export async function addMarketplace(input: {
       );
     }
     if (
-      input.trustedId === ycode_OFFICIAL_PLUGIN_MARKETPLACE &&
-      loaded.manifest.name !== ycode_OFFICIAL_PLUGIN_MARKETPLACE
+      input.trustedId === YCODE_OFFICIAL_PLUGIN_MARKETPLACE &&
+      loaded.manifest.name !== YCODE_OFFICIAL_PLUGIN_MARKETPLACE
     ) {
       throw new Error(
-        `Official marketplace source must provide ${ycode_OFFICIAL_PLUGIN_MARKETPLACE}, received ${loaded.manifest.name}`,
+        `Official marketplace source must provide ${YCODE_OFFICIAL_PLUGIN_MARKETPLACE}, received ${loaded.manifest.name}`,
       );
     }
     const persistedManifest =
-      loaded.manifest.name === ycode_OFFICIAL_PLUGIN_MARKETPLACE
+      loaded.manifest.name === YCODE_OFFICIAL_PLUGIN_MARKETPLACE
         ? parseRequiredMarketplaceManifest(
             writeCdnOfficialMarketplacePartitionSync({
               manifest: loaded.manifest.raw,
@@ -390,7 +390,7 @@ export async function addMarketplace(input: {
         persistedManifest.raw,
         operationSignal,
       );
-    } else if (loaded.manifest.name !== ycode_OFFICIAL_PLUGIN_MARKETPLACE) {
+    } else if (loaded.manifest.name !== YCODE_OFFICIAL_PLUGIN_MARKETPLACE) {
       marketplaceActivation = await stageMarketplaceManifest(
         input.storageRoot,
         loaded.manifest.name,
@@ -1692,7 +1692,7 @@ async function execGitCommand(args: string[], signal?: AbortSignal): Promise<voi
   try {
     // 显式二进制覆盖既支持非标准 Git 安装位置，也让跨进程 E2E 能把 Git 指向不存在的
     // 绝对路径，真实证明 Archive 主链路不依赖开发机上偶然存在的 Git。
-    const gitBinary = process.env.ycode_GIT_BINARY?.trim() || "git";
+    const gitBinary = process.env.YCODE_GIT_BINARY?.trim() || "git";
     await execFileAsync(gitBinary, args, {
       env: buildMarketplaceGitEnv(),
       killSignal: "SIGTERM",
@@ -2148,7 +2148,7 @@ function findMarketplaceManifestPath(rootPath: string, explicitPath?: string): s
 }
 
 function findPluginManifestPath(rootPath: string): string | null {
-  for (const candidate of [ycode_MANIFEST_PATH, CLAUDE_MANIFEST_PATH, CODEX_MANIFEST_PATH]) {
+  for (const candidate of [YCODE_MANIFEST_PATH, CLAUDE_MANIFEST_PATH, CODEX_MANIFEST_PATH]) {
     const path = join(rootPath, candidate);
     if (fileExists(path)) return path;
   }

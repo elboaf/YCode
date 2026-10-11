@@ -1,23 +1,23 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { ycode_PLUGIN_HOST_COMMAND } from "@ycode/contracts/plugins";
+import { YCODE_PLUGIN_HOST_COMMAND } from "@ycode/contracts/plugins";
 import {
-  getCapturedycodeCuaBrokerCredentials,
-  ycode_CUA_BROKER_SOCKET_ENV_KEY,
-  ycode_CUA_NODE_REPL_HOST_ENV_KEY,
+  getCapturedYCodeCuaBrokerCredentials,
+  YCODE_CUA_BROKER_SOCKET_ENV_KEY,
+  YCODE_CUA_NODE_REPL_HOST_ENV_KEY,
 } from "@ycode/shared/runtime-env";
-import { ycode_CUA_OFFICIAL_PLUGIN_ID, ycode_PLUGIN_ID_ENV_KEY } from "@ycode/shared/mcp";
+import { YCODE_CUA_OFFICIAL_PLUGIN_ID, YCODE_PLUGIN_ID_ENV_KEY } from "@ycode/shared/mcp";
 import type { RunContext } from "@ycode/shared-types";
 
-const HOST_USAGE = `${ycode_PLUGIN_HOST_COMMAND} <server-path> [-- <server-arg>...]`;
+const HOST_USAGE = `${YCODE_PLUGIN_HOST_COMMAND} <server-path> [-- <server-arg>...]`;
 
 type HostedPluginModule = {
   main?: unknown;
 };
 
 export function isPluginHostInvocation(argv: readonly string[]): boolean {
-  return argv[0] === ycode_PLUGIN_HOST_COMMAND;
+  return argv[0] === YCODE_PLUGIN_HOST_COMMAND;
 }
 
 // __ycode-plugin-host 在 agent 子进程里运行 official plugin 的 MCP server（server.js）。
@@ -44,7 +44,7 @@ export async function runPluginHostCommand(ctx: RunContext, argv: string[]): Pro
     if (!existsSync(serverPath)) {
       throw new Error("Plugin server file does not exist.");
     }
-    const capturedBrokerCredentials = getCapturedycodeCuaBrokerCredentials();
+    const capturedBrokerCredentials = getCapturedYCodeCuaBrokerCredentials();
     assertCapturedBrokerLaunchIsAuthorized(capturedBrokerCredentials);
     const module = (await import(pathToFileURL(serverPath).href)) as HostedPluginModule;
     if (typeof module.main !== "function") {
@@ -52,21 +52,21 @@ export async function runPluginHostCommand(ctx: RunContext, argv: string[]): Pro
     }
 
     const originalArgv = process.argv;
-    const originalBrokerSocket = process.env[ycode_CUA_BROKER_SOCKET_ENV_KEY];
+    const originalBrokerSocket = process.env[YCODE_CUA_BROKER_SOCKET_ENV_KEY];
     // shared node_repl 把同一凭据组恢复到环境，由 broker bridge 读取；旧的独立 CUA
     // MCP 不再拥有执行入口。
     process.argv = [process.execPath, serverPath, ...serverArgs];
-    if (capturedBrokerCredentials.socket && process.env[ycode_CUA_NODE_REPL_HOST_ENV_KEY] === "1") {
-      process.env[ycode_CUA_BROKER_SOCKET_ENV_KEY] = capturedBrokerCredentials.socket;
+    if (capturedBrokerCredentials.socket && process.env[YCODE_CUA_NODE_REPL_HOST_ENV_KEY] === "1") {
+      process.env[YCODE_CUA_BROKER_SOCKET_ENV_KEY] = capturedBrokerCredentials.socket;
     }
     try {
       await module.main();
     } finally {
       process.argv = originalArgv;
       if (originalBrokerSocket === undefined) {
-        delete process.env[ycode_CUA_BROKER_SOCKET_ENV_KEY];
+        delete process.env[YCODE_CUA_BROKER_SOCKET_ENV_KEY];
       } else {
-        process.env[ycode_CUA_BROKER_SOCKET_ENV_KEY] = originalBrokerSocket;
+        process.env[YCODE_CUA_BROKER_SOCKET_ENV_KEY] = originalBrokerSocket;
       }
     }
 
@@ -78,13 +78,13 @@ export async function runPluginHostCommand(ctx: RunContext, argv: string[]): Pro
   }
 }
 
-type CapturedBrokerCredentials = ReturnType<typeof getCapturedycodeCuaBrokerCredentials>;
+type CapturedBrokerCredentials = ReturnType<typeof getCapturedYCodeCuaBrokerCredentials>;
 
 function assertCapturedBrokerLaunchIsAuthorized(credentials: CapturedBrokerCredentials): void {
   const hasCapturedCredentials = Boolean(credentials.socket || credentials.pluginAuthority);
   if (!hasCapturedCredentials) return;
 
-  const pluginId = process.env[ycode_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase();
+  const pluginId = process.env[YCODE_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase();
   // 凭据组里已经没有 token 了：broker 全平台改为身份模式（Helper 按对端代码签名裁决连接），
   // shared/runtimeEnv.ts 的 CapturedCuaBrokerCredentials 只有 socket + pluginAuthority
   // (+ refreshMarker)。这里不能再读 `credentials.token`；token 已从凭据组移除，
@@ -96,8 +96,8 @@ function assertCapturedBrokerLaunchIsAuthorized(credentials: CapturedBrokerCrede
   if (
     credentials.socket === undefined ||
     credentials.pluginAuthority === undefined ||
-    pluginId !== ycode_CUA_OFFICIAL_PLUGIN_ID ||
-    process.env[ycode_CUA_NODE_REPL_HOST_ENV_KEY] !== "1"
+    pluginId !== YCODE_CUA_OFFICIAL_PLUGIN_ID ||
+    process.env[YCODE_CUA_NODE_REPL_HOST_ENV_KEY] !== "1"
   ) {
     throw new Error(
       "Captured ycode CUA broker credentials may only launch the trusted shared node_repl host",

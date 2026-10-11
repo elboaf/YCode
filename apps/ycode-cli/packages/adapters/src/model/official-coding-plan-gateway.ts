@@ -1,4 +1,4 @@
-import { resolveRuntimeycodeEndpointOrigin } from "@ycode/shared";
+import { resolveRuntimeYCodeEndpointOrigin } from "@ycode/shared";
 import type { EnvRecord } from "./model-execution.js";
 
 /**
@@ -9,7 +9,7 @@ import type { EnvRecord } from "./model-execution.js";
  * 把官方模型端点替换为对应的网关端点，请求方法、请求体、鉴权头与响应均原样透传。
  *
  * 只对下表中的官方端点生效，按协议、主机、端口、路径精确匹配，用户自建 provider 与
- * 第三方模型服务不受影响。网关 origin 跟随 YCODE_BASE_URL / ycode_ENDPOINT_ORIGIN，
+ * 第三方模型服务不受影响。网关 origin 跟随 YCODE_BASE_URL / YCODE_ENDPOINT_ORIGIN，
  * 缺省为线上 https://ycode\.z\.ai。
  */
 export interface OfficialCodingPlanGatewayRoute {
@@ -62,7 +62,7 @@ export function resolveOfficialCodingPlanGatewayUrl(
   if (!gatewayPath) {
     return { viaGateway: false, url: requestUrl };
   }
-  const gatewayUrl = new URL(gatewayPath, resolveRuntimeycodeEndpointOrigin(env));
+  const gatewayUrl = new URL(gatewayPath, resolveRuntimeYCodeEndpointOrigin(env));
   gatewayUrl.search = parsed.search;
   return { viaGateway: true, url: gatewayUrl.href };
 }

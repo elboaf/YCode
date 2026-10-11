@@ -1,12 +1,12 @@
 import { randomBytes } from "node:crypto";
 import { availableParallelism, totalmem } from "node:os";
 import {
-  ycode_CLI_RESOURCE_SAMPLE_INTERVAL_MS,
-  type ycodeProcessResourceSample,
+  YCODE_CLI_RESOURCE_SAMPLE_INTERVAL_MS,
+  type YCodeProcessResourceSample,
 } from "@ycode/shared";
 
 /** 采样周期与 app 侧聚合共用 shared 的同一个常量，避免两侧节拍各自漂移。 */
-const ycode_PROCESS_RESOURCE_SAMPLE_INTERVAL_MS = ycode_CLI_RESOURCE_SAMPLE_INTERVAL_MS;
+const YCODE_PROCESS_RESOURCE_SAMPLE_INTERVAL_MS = YCODE_CLI_RESOURCE_SAMPLE_INTERVAL_MS;
 
 let processInstanceToken: string | undefined;
 
@@ -45,14 +45,14 @@ interface ResourceSamplerTimer {
   clearInterval(handle: ResourceSamplerTimerHandle): void;
 }
 
-interface CreateycodeProcessResourceSamplerOptions {
+interface CreateYCodeProcessResourceSamplerOptions {
   /**
    * 第二个参数是本周期完整的内存快照，供进程内本地诊断日志使用；
    * 协议样本自身只带 rss 与 heapUsed 两项内存字段。
    */
-  onSample(sample: ycodeProcessResourceSample, memoryUsage: ProcessMemoryUsageSnapshot): void;
-  platform?: ycodeProcessResourceSample["platform"];
-  arch?: ycodeProcessResourceSample["arch"];
+  onSample(sample: YCodeProcessResourceSample, memoryUsage: ProcessMemoryUsageSnapshot): void;
+  platform?: YCodeProcessResourceSample["platform"];
+  arch?: YCodeProcessResourceSample["arch"];
   logicalCpuCount?: number;
   readCpuUsage?: () => CpuUsageSnapshot;
   readMonotonicTimeNs?: () => bigint;
@@ -66,7 +66,7 @@ interface CreateycodeProcessResourceSamplerOptions {
   timer?: ResourceSamplerTimer;
 }
 
-export interface ycodeProcessResourceSampler {
+export interface YCodeProcessResourceSampler {
   start(): void;
   stop(): void;
 }
@@ -97,11 +97,11 @@ function toRoundedUnit(value: number, divisor: number): number | undefined {
   return Number.isFinite(value) && value >= 0 ? Math.round(value / divisor) : undefined;
 }
 
-export function createycodeProcessResourceSampler(
-  options: CreateycodeProcessResourceSamplerOptions,
-): ycodeProcessResourceSampler {
-  const platform = options.platform ?? (process.platform as ycodeProcessResourceSample["platform"]);
-  const arch = options.arch ?? (process.arch as ycodeProcessResourceSample["arch"]);
+export function createYCodeProcessResourceSampler(
+  options: CreateYCodeProcessResourceSamplerOptions,
+): YCodeProcessResourceSampler {
+  const platform = options.platform ?? (process.platform as YCodeProcessResourceSample["platform"]);
+  const arch = options.arch ?? (process.arch as YCodeProcessResourceSample["arch"]);
   const logicalCpuCount = Math.max(
     1,
     Math.min(4_096, Math.trunc(options.logicalCpuCount ?? availableParallelism())),
@@ -151,7 +151,7 @@ export function createycodeProcessResourceSampler(
       const rssKb = memoryUsage.rss / 1_024;
       const uptimeMinutes = toRoundedUnit(readUptimeSeconds(), 60);
       baseline = nextBaseline;
-      const resourceSample: ycodeProcessResourceSample = {
+      const resourceSample: YCodeProcessResourceSample = {
         platform,
         arch,
         logicalCpuCount,
@@ -185,7 +185,7 @@ export function createycodeProcessResourceSampler(
         baseline = undefined;
       }
       try {
-        timerHandle = timer.setInterval(sample, ycode_PROCESS_RESOURCE_SAMPLE_INTERVAL_MS);
+        timerHandle = timer.setInterval(sample, YCODE_PROCESS_RESOURCE_SAMPLE_INTERVAL_MS);
       } catch {
         timerHandle = undefined;
         return;

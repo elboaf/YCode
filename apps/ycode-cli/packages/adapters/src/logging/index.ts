@@ -7,7 +7,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import type { LogContext, LogEntry, Logger, LoggerFactory, LogRedactor } from "@ycode/contracts";
 import { LogLevel, LogLevelName } from "@ycode/contracts";
-import { ycode_RUNTIME_ENV_KEY, normalizeYCodeRuntimeEnv } from "@ycode/shared";
+import { YCODE_RUNTIME_ENV_KEY, normalizeYCodeRuntimeEnv } from "@ycode/shared";
 import {
   formatLocalLogDate,
   scheduleLogRetentionCleanup as scheduleRetentionCleanup,
@@ -228,7 +228,7 @@ function getDefaultMinLevel(env: NodeJS.ProcessEnv | undefined): LogLevel {
 }
 
 function isDevelopmentMode(env: NodeJS.ProcessEnv): boolean {
-  const runtimeEnv = normalizeYCodeRuntimeEnv(env[ycode_RUNTIME_ENV_KEY]);
+  const runtimeEnv = normalizeYCodeRuntimeEnv(env[YCODE_RUNTIME_ENV_KEY]);
   if (runtimeEnv === "development") return true;
   if (runtimeEnv === "production" || runtimeEnv === "test") return false;
 

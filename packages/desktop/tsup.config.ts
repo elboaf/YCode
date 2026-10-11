@@ -59,10 +59,10 @@ function loadEnvFiles(): Record<string, string> {
 }
 
 const env = loadEnvFiles();
-const { environment: ycodeEnv } = await loadBuiltinProviderConfig();
+const { environment: YCodeEnv } = await loadBuiltinProviderConfig();
 // 安装包身份与后端环境分轴：YCODE_PREVIEW_IDENTITY=1 让生产后端的构建仍以 YCode Preview 身份打包运行。
-const ycodeProductFlavor = resolveDesktopProductFlavor({ ...process.env, YCODE_ENV: ycodeEnv });
-console.log(`[tsup] YCODE_ENV=${ycodeEnv} YCODE_PRODUCT_FLAVOR=${ycodeProductFlavor}`);
+const YCodeProductFlavor = resolveDesktopProductFlavor({ ...process.env, YCODE_ENV: YCodeEnv });
+console.log(`[tsup] YCODE_ENV=${YCodeEnv} YCODE_PRODUCT_FLAVOR=${YCodeProductFlavor}`);
 
 export function resolveDesktopTsupBundleSecurityOptions(
   runtimeEnv: Record<string, string | undefined> = process.env,
@@ -99,9 +99,9 @@ function createSharedDefines() {
     __YCODE_VERSION__: JSON.stringify(buildMetadata.appVersion),
     __YCODE_COMMIT__: JSON.stringify(buildMetadata.buildCommitId),
     __YCODE_BUILD_TIME__: JSON.stringify(buildMetadata.buildTime),
-    __YCODE_ENV__: JSON.stringify(ycodeEnv),
+    __YCODE_ENV__: JSON.stringify(YCodeEnv),
     __YCODE_ENDPOINT_ENV__: JSON.stringify(pickProductEndpointEnv(env)),
-    __YCODE_PRODUCT_FLAVOR__: JSON.stringify(ycodeProductFlavor),
+    __YCODE_PRODUCT_FLAVOR__: JSON.stringify(YCodeProductFlavor),
     // Computer Use Helper build identity — helperInstaller 读它决定下载哪个 Helper bundle。
     // 缺失时 installer 抛 "Packaged YCode is missing its embedded Computer Use Helper build identity"。
     // CI 构建时通过 YCODE_CUA_HELPER_BUILD_ID env 注入；dev 为空串走兜底（dev helper 不走下载）。

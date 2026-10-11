@@ -17,13 +17,13 @@ import {
   type PluginSubagentModelSelectionOverrides,
 } from "@ycode/shared";
 
-interface LoadycodeAgentProfilesInput {
+interface LoadYCodeAgentProfilesInput {
   logger?: Logger;
   storageRoot: string;
   workingDirectory: string;
 }
 
-interface LoadycodeAgentProfilesResult {
+interface LoadYCodeAgentProfilesResult {
   builtInModelSelectionOverrides: BuiltInSubagentModelSelectionOverrides;
   pluginAgentModelSelectionOverrides: PluginSubagentModelSelectionOverrides;
   diagnostics: AgentProfileParseDiagnostic[];
@@ -46,9 +46,9 @@ interface ParsedPluginAgentProfile {
 
 const RESERVED_AGENT_NAMES = new Set(["general-purpose", "Explore"]);
 
-export async function loadycodeAgentProfiles(
-  input: LoadycodeAgentProfilesInput,
-): Promise<LoadycodeAgentProfilesResult> {
+export async function loadYCodeAgentProfiles(
+  input: LoadYCodeAgentProfilesInput,
+): Promise<LoadYCodeAgentProfilesResult> {
   const migration = await migrateUserSubagentMarkdown(join(input.storageRoot, "agents"));
   await migrateSubagentStateFile(join(input.storageRoot, "v2", "agents-state.json"));
   const roots = [
@@ -125,7 +125,7 @@ function sanitizeProjectAgentProfile(profile: AgentProfile): AgentProfile {
 
 export function loadPluginAgentProfiles(
   input: LoadPluginAgentProfilesInput,
-): LoadycodeAgentProfilesResult {
+): LoadYCodeAgentProfilesResult {
   const diagnostics: AgentProfileParseDiagnostic[] = [];
   const parsedProfiles: ParsedPluginAgentProfile[] = [];
   const reservedProfileNames = new Set([

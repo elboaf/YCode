@@ -1,9 +1,9 @@
 import {
-  ycode_AGENT_CA_CERT_ENV_KEY,
-  ycode_HTTP_PROXY_ENV_KEY,
-  ycode_NO_PROXY_ENV_KEY,
-  ycode_TOOL_ENV_PASSTHROUGH_ENV_KEY,
-  readycodeToolEnvPassthroughEnv,
+  YCODE_AGENT_CA_CERT_ENV_KEY,
+  YCODE_HTTP_PROXY_ENV_KEY,
+  YCODE_NO_PROXY_ENV_KEY,
+  YCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY,
+  readYCodeToolEnvPassthroughEnv,
 } from "@ycode/shared";
 
 export interface NetworkEgressEnvPolicy {
@@ -36,8 +36,8 @@ const CA_SOURCE_KEYS = [
   "GIT_SSL_CAINFO",
 ] as const;
 const CA_TARGET_KEYS = CA_SOURCE_KEYS;
-const EXPLICIT_CA_SOURCE_KEYS = [ycode_AGENT_CA_CERT_ENV_KEY] as const;
-const EXPLICIT_NO_PROXY_SOURCE_KEYS = [ycode_NO_PROXY_ENV_KEY] as const;
+const EXPLICIT_CA_SOURCE_KEYS = [YCODE_AGENT_CA_CERT_ENV_KEY] as const;
+const EXPLICIT_NO_PROXY_SOURCE_KEYS = [YCODE_NO_PROXY_ENV_KEY] as const;
 
 export function applyNetworkEgressEnv(
   env: Record<string, string>,
@@ -47,7 +47,7 @@ export function applyNetworkEgressEnv(
   const sourceEnv = options.sourceEnv ?? {};
   const network = options.network ?? {};
 
-  deleteEnvKey(env, ycode_TOOL_ENV_PASSTHROUGH_ENV_KEY, platform);
+  deleteEnvKey(env, YCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY, platform);
   if (options.toolEnvPassthrough !== false) {
     applyToolEnvPassthroughEnv(env, sourceEnv, platform);
   }
@@ -62,7 +62,7 @@ function applyToolEnvPassthroughEnv(
   sourceEnv: Record<string, string | undefined>,
   platform: NodeJS.Platform,
 ): void {
-  const passthroughEnv = readycodeToolEnvPassthroughEnv(sourceEnv);
+  const passthroughEnv = readYCodeToolEnvPassthroughEnv(sourceEnv);
   for (const [key, value] of Object.entries(passthroughEnv)) {
     setEnvKey(env, key, value, platform);
   }
@@ -83,7 +83,7 @@ function applyProxyEnv(
   }
 
   const YCodeProxy = normalizeProxyValue(
-    getFirstEnvValue(sourceEnv, [ycode_HTTP_PROXY_ENV_KEY], platform),
+    getFirstEnvValue(sourceEnv, [YCODE_HTTP_PROXY_ENV_KEY], platform),
   );
   if (YCodeProxy) {
     for (const key of ALL_PROXY_KEYS) {

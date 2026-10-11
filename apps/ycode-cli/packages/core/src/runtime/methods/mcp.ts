@@ -1,8 +1,8 @@
 import {
-  getCapturedycodeCuaBrokerCredentials,
-  ycode_CUA_OFFICIAL_PLUGIN_ID,
-  ycode_CUA_PLUGIN_AUTHORITY_ENV_KEY,
-  ycode_PLUGIN_ID_ENV_KEY,
+  getCapturedYCodeCuaBrokerCredentials,
+  YCODE_CUA_OFFICIAL_PLUGIN_ID,
+  YCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY,
+  YCODE_PLUGIN_ID_ENV_KEY,
 } from "@ycode/shared";
 import { registerMcpTools, traceContextToLogContext } from "../deps.js";
 import type { McpConnectionSnapshot, McpServerConfig, TraceContext } from "../deps.js";
@@ -18,7 +18,7 @@ export function computeOfficialCuaServerNames(
   servers: Record<string, McpServerConfig>,
   trustedServerNames: ReadonlySet<string>,
 ): Set<string> {
-  const expectedAuthority = getCapturedycodeCuaBrokerCredentials().pluginAuthority;
+  const expectedAuthority = getCapturedYCodeCuaBrokerCredentials().pluginAuthority;
   const names = new Set<string>();
   if (!expectedAuthority) return names;
 
@@ -26,9 +26,9 @@ export function computeOfficialCuaServerNames(
     if (!trustedServerNames.has(name)) continue;
     if (config.type !== "stdio") continue;
     if (
-      config.env?.[ycode_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase() !==
-        ycode_CUA_OFFICIAL_PLUGIN_ID ||
-      config.env?.[ycode_CUA_PLUGIN_AUTHORITY_ENV_KEY]?.trim() !== expectedAuthority
+      config.env?.[YCODE_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase() !==
+        YCODE_CUA_OFFICIAL_PLUGIN_ID ||
+      config.env?.[YCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]?.trim() !== expectedAuthority
     ) {
       continue;
     }

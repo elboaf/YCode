@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import {
-  ycode_AGENT_CA_CERT_ENV_KEY,
-  ycode_HTTP_PROXY_ENV_KEY,
-  ycode_NO_PROXY_ENV_KEY,
-  ycode_TOOL_ENV_PASSTHROUGH_ENV_KEY,
-  readycodeToolEnvPassthroughEnv,
+  YCODE_AGENT_CA_CERT_ENV_KEY,
+  YCODE_HTTP_PROXY_ENV_KEY,
+  YCODE_NO_PROXY_ENV_KEY,
+  YCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY,
+  readYCodeToolEnvPassthroughEnv,
 } from "@ycode/shared";
 
 interface NetworkProxyOptions {
@@ -78,7 +78,7 @@ function resolveProxyForRequestInternal(
   }
 
   const env = options.env ?? {};
-  const candidates = [[`env:${ycode_HTTP_PROXY_ENV_KEY}`, env[ycode_HTTP_PROXY_ENV_KEY]]];
+  const candidates = [[`env:${YCODE_HTTP_PROXY_ENV_KEY}`, env[YCODE_HTTP_PROXY_ENV_KEY]]];
 
   for (const [source, candidate] of candidates) {
     const proxyUrl = normalizeProxyUrl(candidate);
@@ -104,7 +104,7 @@ function resolveProxyForRequestInternal(
   if (capturedProxy) {
     return {
       noProxyMatched: false,
-      proxySource: `env:${ycode_TOOL_ENV_PASSTHROUGH_ENV_KEY}.${capturedProxy.key}`,
+      proxySource: `env:${YCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY}.${capturedProxy.key}`,
       proxyUrl: capturedProxy.proxyUrl,
     };
   }
@@ -114,7 +114,7 @@ function resolveProxyForRequestInternal(
 export function resolveTlsCaCertFile(options: NetworkTlsOptions): string | undefined {
   const candidates = [
     options.caCertFile,
-    options.env?.[ycode_AGENT_CA_CERT_ENV_KEY],
+    options.env?.[YCODE_AGENT_CA_CERT_ENV_KEY],
   ];
 
   for (const candidate of candidates) {
@@ -137,14 +137,14 @@ export function loadTlsCaCertificates(options: NetworkTlsOptions): Buffer | unde
 function readExplicitNoProxyValue(options: NetworkProxyOptions): string | undefined {
   return (
     normalizePathLike(options.noProxy) ??
-    normalizePathLike(options.env?.[ycode_NO_PROXY_ENV_KEY])
+    normalizePathLike(options.env?.[YCODE_NO_PROXY_ENV_KEY])
   );
 }
 
 function readCapturedUserProxy(
   env: Record<string, string | undefined>,
 ): { key: string; proxyUrl: string } | undefined {
-  const captured = readycodeToolEnvPassthroughEnv(env);
+  const captured = readYCodeToolEnvPassthroughEnv(env);
 
   for (const key of CAPTURED_USER_PROXY_KEYS) {
     const proxyUrl = normalizeProxyUrl(captured[key]);
@@ -156,7 +156,7 @@ function readCapturedUserProxy(
 }
 
 function readCapturedUserNoProxy(env: Record<string, string | undefined>): string | undefined {
-  const captured = readycodeToolEnvPassthroughEnv(env);
+  const captured = readYCodeToolEnvPassthroughEnv(env);
   return normalizePathLike(captured.no_proxy) ?? normalizePathLike(captured.NO_PROXY);
 }
 

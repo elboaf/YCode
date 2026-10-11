@@ -466,7 +466,7 @@ function getFeishuDomainProvider(bot: Pick<BotConfig, "provider">): "feishu" | "
 }
 
 function readFeishuPayloadProvider(payload: Record<string, unknown>): BotProvider {
-  return readString(payload, "ycodeProvider") === "lark" ? "lark" : "feishu";
+  return readString(payload, "YCodeProvider") === "lark" ? "lark" : "feishu";
 }
 
 function getFeishuBaseUrl(bot: Pick<BotConfig, "provider">): string {
@@ -1433,7 +1433,7 @@ export function createFeishuWebSocketEventHandlers(params: {
     "im.message.receive_v1": async (payload: unknown) => {
       await onPayload({
         botId: bot.id,
-        ycodeProvider: bot.provider,
+        YCodeProvider: bot.provider,
         ...(isRecord(payload) ? payload : { payload }),
       });
     },
@@ -1443,7 +1443,7 @@ export function createFeishuWebSocketEventHandlers(params: {
     "card.action.trigger": async (payload: unknown) => {
       const callbackPayload = {
         botId: bot.id,
-        ycodeProvider: bot.provider,
+        YCodeProvider: bot.provider,
         ycodeFeishuSynchronousCardAction: true,
         ...(isRecord(payload) ? payload : { payload }),
       };

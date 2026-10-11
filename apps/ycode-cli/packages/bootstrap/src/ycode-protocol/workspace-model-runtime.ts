@@ -4,7 +4,7 @@ import type { ModelSelection } from "@ycode/contracts";
 import {
   ycodeProviderTestModelConnectivityParamsSchema,
   ycodeWorkspaceReadPresentationParamsSchema,
-  type ycodeWorkspaceRef,
+  type YCodeWorkspaceRef,
 } from "@ycode/shared";
 import type { YCodeApp, YCodeAppOptions } from "../app/types.js";
 import { listProtocolSlashCommands } from "./slash-commands.js";
@@ -68,7 +68,7 @@ export async function testProviderModelConnectivity(
 
 export async function createWorkspaceYCodeApp(
   context: ycodeProtocolAgentServerContext,
-  workspace: ycodeWorkspaceRef,
+  workspace: YCodeWorkspaceRef,
   options: Omit<YCodeAppOptions, "providerRegistry">,
 ): Promise<YCodeApp> {
   const providerRuntimeHeadersPort =

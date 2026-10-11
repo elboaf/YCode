@@ -1,9 +1,9 @@
-import { parseRemoteWorkspaceIdentity, type ycodeWorkspaceRef } from "@ycode/shared";
+import { parseRemoteWorkspaceIdentity, type YCodeWorkspaceRef } from "@ycode/shared";
 
 export function buildWorkspaceRef(input: {
   workspaceIdentity?: string;
   workspacePath: string;
-}): ycodeWorkspaceRef {
+}): YCodeWorkspaceRef {
   const workspaceIdentity = input.workspaceIdentity?.trim() || undefined;
   return {
     workspaceIdentity,
@@ -15,7 +15,7 @@ export function buildWorkspaceRef(input: {
 /**
  * 将 V4 workspaceId 的本地路径/远程 identity 双形态统一还原为 workspace ref。
  */
-export function resolveWorkspaceRefFromId(workspaceId: string): ycodeWorkspaceRef {
+export function resolveWorkspaceRefFromId(workspaceId: string): YCodeWorkspaceRef {
   const parsedRemote = parseRemoteWorkspaceIdentity(workspaceId);
   if (!parsedRemote) {
     // 非法 remote identity 若继续按本地路径处理，会再次把 identity 写入

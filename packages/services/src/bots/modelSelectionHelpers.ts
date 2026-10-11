@@ -6,6 +6,6 @@ export function resolveTaskModel(model: string | undefined): string | undefined 
   return model && model !== "default" ? model : undefined;
 }
 
-export function getNativeModelProviderId(ycodeProvider: YCodeProvider): string {
-  return `${BOT_NATIVE_MODEL_PROVIDER_PREFIX}${ycodeProvider}`;
+export function getNativeModelProviderId(YCodeProvider: YCodeProvider): string {
+  return `${BOT_NATIVE_MODEL_PROVIDER_PREFIX}${YCodeProvider}`;
 }

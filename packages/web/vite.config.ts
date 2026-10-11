@@ -28,10 +28,10 @@ export default defineConfig(({ mode }) => {
   // 启动脚本通过 process.env 显式选择 test/production；它必须优先于 .env 文件，
   // 否则 share:test 可能被 mode 的旧配置误解析到错误 endpoint。
   const env = { ...loadEnv(mode, REPO_ROOT, ""), ...process.env };
-  const ycodeEnv = resolveYCodeEnv(env.YCODE_ENV);
+  const YCodeEnv = resolveYCodeEnv(env.YCODE_ENV);
   const endpointEnv = {
     ...env,
-    YCODE_ENV: ycodeEnv,
+    YCODE_ENV: YCodeEnv,
   };
   const ycodeEndpointOrigin = resolveRuntimeYCodeEndpointOrigin(endpointEnv);
   const zaiOAuthOrigin = resolveZaiOAuthOrigin(endpointEnv);
@@ -85,7 +85,7 @@ export default defineConfig(({ mode }) => {
       __YCODE_ENDPOINT_ENV__: JSON.stringify(pickProductEndpointEnv(env)),
       __YCODE_VERSION__: JSON.stringify(version),
       __YCODE_COMMIT__: JSON.stringify(env.YCODE_COMMIT || "unknown"),
-      __YCODE_ENV__: JSON.stringify(ycodeEnv),
+      __YCODE_ENV__: JSON.stringify(YCodeEnv),
       "import.meta.env.VITE_YCODE_BASE_URL": JSON.stringify(ycodeEndpointOrigin),
       // 兼容旧 Web runtime 读取名；新代码统一读 VITE_YCODE_BASE_URL。
       "import.meta.env.VITE_YCODE_ENDPOINT_ORIGIN": JSON.stringify(ycodeEndpointOrigin),

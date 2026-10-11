@@ -458,7 +458,7 @@ export default {
   // CI 环境下若这些字段缺失会在产物阶段直接失败。这里统一在构建配置补齐，避免依赖外部注入。
   extraMetadata: {
     version: buildMetadata.appVersion,
-    ycodeProductFlavor: desktopProductIdentity.flavor,
+    YCodeProductFlavor: desktopProductIdentity.flavor,
     homepage: "https://ycode.z.ai",
     author: {
       name: "YCode",

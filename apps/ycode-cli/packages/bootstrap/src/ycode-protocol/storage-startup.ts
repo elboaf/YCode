@@ -5,13 +5,13 @@ import {
   databaseStartupErrorDetails,
   ycodeProtocolNotifications,
   ycodeStorageStartupStateSchema,
-  type ycodeStorageStartupState,
+  type YCodeStorageStartupState,
 } from "@ycode/shared";
 
 export async function openProtocolStartupStorage(options: {
   dbPath: string;
   output: NodeJS.WritableStream;
-  onProgress?: (progress: ycodeStorageStartupState) => void;
+  onProgress?: (progress: YCodeStorageStartupState) => void;
 }): Promise<SqliteSessionStore> {
   const attemptId = randomUUID();
   const databaseId = createHash("sha256").update(options.dbPath).digest("hex");

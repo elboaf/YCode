@@ -3,7 +3,7 @@ import {
   ycodeProtocolMethods,
   ycodeProtocolNotifications,
   ycodeProviderRuntimeHeadersResponseSchema,
-  type ycodeWorkspaceRef,
+  type YCodeWorkspaceRef,
 } from "@ycode/shared";
 import type { YCodeAppOptions } from "../app/types.js";
 import {
@@ -18,7 +18,7 @@ const CLIENT_REQUEST_TIMEOUT_CODE = -32022;
 
 export function createProviderRuntimeHeadersPort(
   context: ycodeProtocolAgentServerContext,
-  workspace: ycodeWorkspaceRef,
+  workspace: YCodeWorkspaceRef,
 ): NonNullable<YCodeAppOptions["providerRuntimeHeadersPort"]> {
   return {
     shouldRefreshBeforeModelRequest() {

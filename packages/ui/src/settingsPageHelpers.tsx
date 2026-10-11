@@ -79,7 +79,7 @@ export function GeneralSectionContent({
   toolGroupingExploreEnabled,
   toolGroupingTerminalEnabled,
   toolGroupingChangesEnabled,
-  ycodeInteractionBehavior,
+  YCodeInteractionBehavior,
   askUserQuestionAutoResolutionEnabled = true,
   modelIoFullRetentionEnabled = false,
   onDataBaseDirChange,
@@ -142,7 +142,7 @@ export function GeneralSectionContent({
   toolGroupingExploreEnabled: boolean;
   toolGroupingTerminalEnabled: boolean;
   toolGroupingChangesEnabled: boolean;
-  ycodeInteractionBehavior: YCodeInteractionBehavior;
+  YCodeInteractionBehavior: YCodeInteractionBehavior;
   askUserQuestionAutoResolutionEnabled?: boolean;
   modelIoFullRetentionEnabled?: boolean;
   onDataBaseDirChange: (dir: string) => Promise<void>;
@@ -671,13 +671,13 @@ export function GeneralSectionContent({
 
       <SettingsGroupCard>
         <SettingsRow
-          label={intl.formatMessage({ id: "settings.ycodeInteractionBehavior" })}
+          label={intl.formatMessage({ id: "settings.YCodeInteractionBehavior" })}
           description={intl.formatMessage({
             id: "settings.ycodeInteractionBehaviorDescription",
           })}
           control={
             <Select
-              value={ycodeInteractionBehavior}
+              value={YCodeInteractionBehavior}
               onValueChange={(value) => {
                 void onYCodeInteractionBehaviorChange(value as YCodeInteractionBehavior);
               }}
@@ -689,7 +689,7 @@ export function GeneralSectionContent({
                 {YCODE_INTERACTION_BEHAVIOR_OPTIONS.map((behavior) => (
                   <SelectItem key={behavior} value={behavior}>
                     {intl.formatMessage({
-                      id: `settings.ycodeInteractionBehavior.option.${behavior}`,
+                      id: `settings.YCodeInteractionBehavior.option.${behavior}`,
                     })}
                   </SelectItem>
                 ))}

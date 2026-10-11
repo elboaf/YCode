@@ -15,13 +15,13 @@ import {
   parseWorkspaceConfigTopic,
 } from "@ycode/shared/ycode-protocol-v4";
 import type {
-  ycodeProtocolError,
-  ycodeProtocolMessage,
-  ycodeProtocolMethod,
-  ycodeProtocolNotification,
-  ycodeProtocolRequest,
-  ycodeProtocolRequestId,
-  ycodeProtocolResponse,
+  YCodeProtocolError,
+  YCodeProtocolMessage,
+  YCodeProtocolMethod,
+  YCodeProtocolNotification,
+  YCodeProtocolRequest,
+  YCodeProtocolRequestId,
+  YCodeProtocolResponse,
 } from "@ycode/shared";
 import {
   cancelBackgroundTask,
@@ -120,7 +120,7 @@ export type { ycodeProtocolAgentDependencies, ycodeProtocolSessionRecord };
 
 const MAX_CLIENT_REQUEST_REANNOUNCE_INTERVAL_MS = 10_000;
 
-type ycodeProtocolOutboundMessage = ycodeProtocolNotification | ycodeProtocolRequest;
+type ycodeProtocolOutboundMessage = YCodeProtocolNotification | YCodeProtocolRequest;
 
 /**
  * Trust store 落盘后各 session 的 coordinator
@@ -225,7 +225,7 @@ export class ycodeProtocolAgentServer {
    * 再写 response line，最后按数组顺序写 notification，不能靠 microtask 猜时序。
    */
   private readonly postResponseOutbox = new Map<
-    ycodeProtocolRequestId,
+    YCodeProtocolRequestId,
     ycodeProtocolPostResponseBatch
   >();
   private nextClientRequestId = 1;
@@ -385,14 +385,14 @@ export class ycodeProtocolAgentServer {
   }
 
   /** 一次性取走某 request 的 post-response messages；重复 take 返回空数组。 */
-  takePostResponseMessages(requestId: ycodeProtocolRequestId): ycodeProtocolOutboundMessage[] {
+  takePostResponseMessages(requestId: YCodeProtocolRequestId): ycodeProtocolOutboundMessage[] {
     const batch = this.takePostResponseBatch(requestId);
     batch?.commit();
     return [...(batch?.messages ?? [])];
   }
 
   /** production NDJSON 取完整 batch；只有全部 write 成功后才调 commit。 */
-  takePostResponseBatch(requestId: ycodeProtocolRequestId): ycodeProtocolPostResponseBatch | null {
+  takePostResponseBatch(requestId: YCodeProtocolRequestId): ycodeProtocolPostResponseBatch | null {
     const batch = this.postResponseOutbox.get(requestId) ?? null;
     this.postResponseOutbox.delete(requestId);
     return batch;
@@ -404,8 +404,8 @@ export class ycodeProtocolAgentServer {
   }
 
   async handleMessage(
-    message: ycodeProtocolMessage,
-  ): Promise<ycodeProtocolError | ycodeProtocolResponse | undefined> {
+    message: YCodeProtocolMessage,
+  ): Promise<YCodeProtocolError | YCodeProtocolResponse | undefined> {
     this.runtimeResources.assertServing();
     if (isResponse(message)) {
       this.resolveClientRequest(message.id, message.result);
@@ -432,8 +432,8 @@ export class ycodeProtocolAgentServer {
   }
 
   private async handleRequest(
-    request: ycodeProtocolRequest,
-  ): Promise<ycodeProtocolError | ycodeProtocolResponse> {
+    request: YCodeProtocolRequest,
+  ): Promise<YCodeProtocolError | YCodeProtocolResponse> {
     // request id 可在前一请求完成后复用；新请求不能继承未消费的旧 outbox。
     this.postResponseOutbox.delete(request.id);
     let releaseResidencyOperation: (() => void) | undefined;
@@ -455,7 +455,7 @@ export class ycodeProtocolAgentServer {
     }
   }
 
-  private async dispatchRequest(request: ycodeProtocolRequest) {
+  private async dispatchRequest(request: YCodeProtocolRequest) {
     switch (request.method) {
       // ── v4 conversation 通道（竖切，与旧 session/* 并存）──
       case V4_METHODS.connectionFlow: {
@@ -726,7 +726,7 @@ export class ycodeProtocolAgentServer {
   }
 
   private async withPluginOperationSignal<T>(
-    request: ycodeProtocolRequest,
+    request: YCodeProtocolRequest,
     run: (signal?: AbortSignal) => Promise<T>,
   ): Promise<T> {
     const operationId = getPluginOperationId(request.params);
@@ -754,7 +754,7 @@ export class ycodeProtocolAgentServer {
   }
 
   private async withWorkspaceGenerateTextSignal<T>(
-    request: ycodeProtocolRequest,
+    request: YCodeProtocolRequest,
     run: (signal?: AbortSignal) => Promise<T>,
   ): Promise<T> {
     const operationId = getOperationId(request.params);
@@ -789,21 +789,21 @@ export class ycodeProtocolAgentServer {
     return { operationId: params.operationId, cancelled: true };
   }
 
-  private ok(id: ycodeProtocolRequestId, result: unknown): ycodeProtocolResponse {
+  private ok(id: YCodeProtocolRequestId, result: unknown): YCodeProtocolResponse {
     return { id, result };
   }
 
   private fail(
-    id: ycodeProtocolRequestId,
+    id: YCodeProtocolRequestId,
     code: number,
     message: string,
     data?: unknown,
-  ): ycodeProtocolError {
+  ): YCodeProtocolError {
     return { error: { code, data, message }, id };
   }
 
   private requestClient<T>(
-    method: ycodeProtocolMethod,
+    method: YCodeProtocolMethod,
     params: unknown,
     resultSchema: ParamsSchema<T>,
     options?: ycodeProtocolClientRequestOptions,
@@ -890,7 +890,7 @@ export class ycodeProtocolAgentServer {
     });
   }
 
-  private resolveClientRequest(id: ycodeProtocolRequestId, result: unknown): void {
+  private resolveClientRequest(id: YCodeProtocolRequestId, result: unknown): void {
     const key = String(id);
     const pending = this.pendingClientRequests.get(key);
     if (!pending) {
@@ -906,7 +906,7 @@ export class ycodeProtocolAgentServer {
     }
   }
 
-  private rejectClientRequest(id: ycodeProtocolRequestId, error: Error): void {
+  private rejectClientRequest(id: YCodeProtocolRequestId, error: Error): void {
     const key = String(id);
     const pending = this.pendingClientRequests.get(key);
     if (!pending) {

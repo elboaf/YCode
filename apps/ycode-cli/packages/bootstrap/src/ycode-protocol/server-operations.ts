@@ -41,8 +41,8 @@ import {
   type WorkspaceId,
 } from "@ycode/contracts";
 import {
-  DEFAULT_ycode_MODEL_CONTEXT_BUDGET_STRATEGY,
-  ycode_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
+  DEFAULT_YCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
+  YCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
   ycodeProtocolErrorCodes,
   ycodeProtocolMethods,
   ycodeSessionCancelBackgroundTaskParamsSchema,
@@ -69,19 +69,19 @@ import {
   ycodeWorkspaceGenerateTextParamsSchema,
   getConversationMessageProjectionPolicy,
   parseRemoteWorkspaceIdentity,
-  type ycodeAutomationBotDeliveryTarget,
-  type ycodeSessionCreateParams,
-  type ycodeDeliveryKind,
+  type YCodeAutomationBotDeliveryTarget,
+  type YCodeSessionCreateParams,
+  type YCodeDeliveryKind,
   type IntegratedTerminalShellSelection,
-  type ycodeSessionRuntimePreferencesScope,
-  type ycodeSessionRuntimePreferencesResult,
-  type ycodeModelContextBudgetStrategy,
-  type ycodeProtocolTrace,
-  type ycodeSessionEvent,
-  type ycodeSessionHistoryTarget,
-  type ycodeSessionResumeParams,
-  type ycodeSessionPersistence,
-  type ycodeStateUpdatedNotification,
+  type YCodeSessionRuntimePreferencesScope,
+  type YCodeSessionRuntimePreferencesResult,
+  type YCodeModelContextBudgetStrategy,
+  type YCodeProtocolTrace,
+  type YCodeSessionEvent,
+  type YCodeSessionHistoryTarget,
+  type YCodeSessionResumeParams,
+  type YCodeSessionPersistence,
+  type YCodeStateUpdatedNotification,
 } from "@ycode/shared";
 import {
   buildSessionSnapshot,
@@ -128,21 +128,21 @@ type ProtocolGoalTarget = NonNullable<
 >;
 
 type ycodeSessionRecordParams = (
-  | ycodeSessionCreateParams
-  | (ycodeSessionResumeParams & {
-      mode?: ycodeSessionCreateParams["mode"];
-      model?: ycodeSessionCreateParams["model"];
-      parentSessionId?: ycodeSessionCreateParams["parentSessionId"];
-      thoughtLevel?: ycodeSessionCreateParams["thoughtLevel"];
+  | YCodeSessionCreateParams
+  | (YCodeSessionResumeParams & {
+      mode?: YCodeSessionCreateParams["mode"];
+      model?: YCodeSessionCreateParams["model"];
+      parentSessionId?: YCodeSessionCreateParams["parentSessionId"];
+      thoughtLevel?: YCodeSessionCreateParams["thoughtLevel"];
       // 自动化会话会在创建期关闭标题二次生成，而 create/resume
       // 共用 record 初始化函数；resume 兼容分支也必须声明该策略字段。
-      titleGenerationEnabled?: ycodeSessionCreateParams["titleGenerationEnabled"];
+      titleGenerationEnabled?: YCodeSessionCreateParams["titleGenerationEnabled"];
     })
 ) & { taskType?: SessionTaskType };
 
 interface SessionStartupPreferences {
   memoryEnabled: boolean;
-  modelContextBudgetStrategy: ycodeModelContextBudgetStrategy;
+  modelContextBudgetStrategy: YCodeModelContextBudgetStrategy;
   nativeSearchEnhancementsEnabled: boolean;
   resolveInitialBashShellSelection: () => Promise<ExecutionShellSelection | undefined>;
 }
@@ -201,13 +201,13 @@ const liveProtocolStreamingDeltaBatches = new WeakMap<
   Map<string, LiveProtocolStreamingDeltaBatch>
 >();
 
-function protocolEventSequenceKey(deliveryKind?: ycodeDeliveryKind): string {
+function protocolEventSequenceKey(deliveryKind?: YCodeDeliveryKind): string {
   return deliveryKind ?? DEFAULT_PROTOCOL_EVENT_SEQUENCE_KEY;
 }
 
 function getProtocolEventSequenceState(
   record: ycodeProtocolSessionRecord,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
 ) {
   const key = protocolEventSequenceKey(deliveryKind);
   const existing = record.protocolEventSequences.get(key);
@@ -224,7 +224,7 @@ function getProtocolEventSequenceState(
 
 function getProtocolToolInputTransmissionState(
   record: ycodeProtocolSessionRecord,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
 ): ycodeProtocolToolInputTransmissionState {
   const key = protocolEventSequenceKey(deliveryKind);
   const existing = record.protocolToolInputTransmissions.get(key);
@@ -245,7 +245,7 @@ function protocolSourceEventKey(event: SessionEvent): string {
 function assignProtocolEventSeq(
   record: ycodeProtocolSessionRecord,
   event: SessionEvent,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
 ): number {
   const state = getProtocolEventSequenceState(record, deliveryKind);
   const sourceEventKey = protocolSourceEventKey(event);
@@ -273,7 +273,7 @@ function numberValue(value: unknown): number | undefined {
 
 function getLiveProtocolStreamingDeltaBatchState(
   record: ycodeProtocolSessionRecord,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
 ): LiveProtocolStreamingDeltaBatch {
   let byDeliveryKind = liveProtocolStreamingDeltaBatches.get(record);
   if (!byDeliveryKind) {
@@ -440,7 +440,7 @@ function shouldFlushProtocolStreamingDeltaBatchForInterval(
 }
 
 function markStreamedToolInputIfPresent(
-  mappedEvent: ycodeSessionEvent,
+  mappedEvent: YCodeSessionEvent,
   toolInputTransmissions: ycodeProtocolToolInputTransmissionState,
 ): void {
   if (mappedEvent.type !== "model.streaming") {
@@ -459,9 +459,9 @@ function markStreamedToolInputIfPresent(
 
 function omitDuplicateScheduledToolInput(
   event: SessionEvent,
-  mappedEvent: ycodeSessionEvent,
+  mappedEvent: YCodeSessionEvent,
   toolInputTransmissions: ycodeProtocolToolInputTransmissionState,
-): ycodeSessionEvent {
+): YCodeSessionEvent {
   markStreamedToolInputIfPresent(mappedEvent, toolInputTransmissions);
   if (event.type !== SessionEventType.ToolCallScheduled || mappedEvent.type !== "tool.updated") {
     return mappedEvent;
@@ -628,11 +628,11 @@ function mapProtocolSessionEvent(
   context: ycodeProtocolAgentServerContext,
   record: ycodeProtocolSessionRecord,
   event: SessionEvent,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
   options: {
     toolInputTransmissions?: ycodeProtocolToolInputTransmissionState;
   } = {},
-): ycodeSessionEvent | null {
+): YCodeSessionEvent | null {
   if (shouldHideProtocolSessionEvent(record, event)) {
     return null;
   }
@@ -672,11 +672,11 @@ function mapProtocolSessionEvent(
 async function readProtocolSessionEvents(
   context: ycodeProtocolAgentServerContext,
   record: ycodeProtocolSessionRecord,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
   options: { afterSeq?: number; limit?: number } = {},
-): Promise<ycodeSessionEvent[]> {
+): Promise<YCodeSessionEvent[]> {
   const events = await record.eventStore.getEvents(record.app.sessionId as SessionId);
-  const visibleEvents: ycodeSessionEvent[] = [];
+  const visibleEvents: YCodeSessionEvent[] = [];
   const toolInputTransmissions: ycodeProtocolToolInputTransmissionState = {
     streamedToolCallIdsWithInput: new Set(),
   };
@@ -752,7 +752,7 @@ async function readProtocolSessionEvents(
 async function getProtocolEventSeq(
   context: ycodeProtocolAgentServerContext,
   record: ycodeProtocolSessionRecord,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
 ): Promise<number> {
   await readProtocolSessionEvents(context, record, deliveryKind);
   return getProtocolEventSequenceState(record, deliveryKind).lastSeq;
@@ -761,7 +761,7 @@ async function getProtocolEventSeq(
 function logProtocolSessionEventSent(
   context: ycodeProtocolAgentServerContext,
   sourceEvent: SessionEvent,
-  mappedEvent: ycodeSessionEvent,
+  mappedEvent: YCodeSessionEvent,
 ): void {
   const payload =
     typeof mappedEvent.payload === "object" && mappedEvent.payload !== null
@@ -952,7 +952,7 @@ function slugifyImportedSession(value: string): string {
 
 function isImportedHistoryMessage(
   message: MessageWithParts,
-  source: NonNullable<ycodeSessionCreateParams["importedHistory"]>["source"],
+  source: NonNullable<YCodeSessionCreateParams["importedHistory"]>["source"],
 ): boolean {
   const messageId = String(message.info.id);
   if (/^msg_import_\d+$/u.test(messageId) || messageId.startsWith("msg_claude-import-")) {
@@ -971,7 +971,7 @@ function isImportedHistoryMessage(
 async function removePreviousImportedSessionHistory(params: {
   sessionStore: NonNullable<ycodeProtocolAgentServerContext["deps"]["sessionStore"]>;
   sessionId: SessionId;
-  source: NonNullable<ycodeSessionCreateParams["importedHistory"]>["source"];
+  source: NonNullable<YCodeSessionCreateParams["importedHistory"]>["source"];
 }): Promise<number> {
   const existingMessages = await params.sessionStore.messages({
     sessionID: params.sessionId,
@@ -998,7 +998,7 @@ async function persistImportedSessionHistory(params: {
   context: ycodeProtocolAgentServerContext;
   record: ycodeProtocolSessionRecord;
   sessionId: SessionId;
-  createParams: ycodeSessionCreateParams;
+  createParams: YCodeSessionCreateParams;
 }): Promise<void> {
   const importedHistory = params.createParams.importedHistory;
   const sessionStore = params.context.deps.sessionStore;
@@ -1213,7 +1213,7 @@ async function persistImportedSessionHistory(params: {
 export async function createSession(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-  trace?: ycodeProtocolTrace,
+  trace?: YCodeProtocolTrace,
 ) {
   return createSessionWithProjection(context, rawParams, trace, async (record) => {
     const result = await snapshotWithDiagnostics(context, record);
@@ -1238,7 +1238,7 @@ export async function createSessionRecordForV4(
 async function createSessionWithProjection<T>(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-  trace: ycodeProtocolTrace | undefined,
+  trace: YCodeProtocolTrace | undefined,
   project: (
     record: ycodeProtocolSessionRecord,
   ) => Promise<{ value: T; phaseDurationsMs?: SnapshotPhaseDurationsMs; messageCount?: number }>,
@@ -1409,7 +1409,7 @@ interface ActivatedSessionForResume {
  */
 export async function activateSessionForResume(
   context: ycodeProtocolAgentServerContext,
-  params: ycodeSessionResumeParams,
+  params: YCodeSessionResumeParams,
   options: { reusePersistedMessages?: boolean } = {},
 ): Promise<ActivatedSessionForResume> {
   const resumeStartedAt = Date.now();
@@ -2373,7 +2373,7 @@ async function runPromptTurnInBackground(
     queryId?: QueryId;
     content: string;
     toolDenylist?: readonly string[];
-    botDeliveryTarget?: ycodeAutomationBotDeliveryTarget;
+    botDeliveryTarget?: YCodeAutomationBotDeliveryTarget;
   } & TurnBackgroundAttribution,
 ): Promise<void> {
   const startedAt = Date.now();
@@ -2734,8 +2734,8 @@ export async function closeSession(context: ycodeProtocolAgentServerContext, raw
 }
 
 function shouldCloseSessionForExpectedPersistence(
-  currentPersistence: ycodeSessionPersistence,
-  expectedPersistence?: ycodeSessionPersistence,
+  currentPersistence: YCodeSessionPersistence,
+  expectedPersistence?: YCodeSessionPersistence,
 ): boolean {
   return expectedPersistence === undefined || currentPersistence === expectedPersistence;
 }
@@ -2848,7 +2848,7 @@ export async function ensureSessionModelAvailableForNextTurn(
 async function resolveForkTarget(
   context: ycodeProtocolAgentServerContext,
   record: ycodeProtocolSessionRecord,
-  target: ycodeSessionHistoryTarget,
+  target: YCodeSessionHistoryTarget,
 ): Promise<{ targetCheckpointId?: string; targetMessageId?: string }> {
   if (target.kind === "latestCheckpoint") {
     return {};
@@ -3085,7 +3085,7 @@ export function onSessionEvent(
 function flushLiveProtocolStreamingDeltaBatch(
   context: ycodeProtocolAgentServerContext,
   record: ycodeProtocolSessionRecord,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
 ): void {
   const batchState = getLiveProtocolStreamingDeltaBatchState(record, deliveryKind);
   if (!batchState.batch) {
@@ -3103,7 +3103,7 @@ function flushLiveProtocolStreamingDeltaBatch(
 function resetLiveProtocolStreamingDeltaBatch(
   context: ycodeProtocolAgentServerContext,
   record: ycodeProtocolSessionRecord,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
 ): void {
   const batchState = getLiveProtocolStreamingDeltaBatchState(record, deliveryKind);
   flushLiveProtocolStreamingDeltaBatch(context, record, deliveryKind);
@@ -3115,7 +3115,7 @@ function sendProtocolSessionEvent(
   context: ycodeProtocolAgentServerContext,
   record: ycodeProtocolSessionRecord,
   event: SessionEvent,
-  deliveryKind?: ycodeDeliveryKind,
+  deliveryKind?: YCodeDeliveryKind,
 ): void {
   const mappedEvent = mapProtocolSessionEvent(context, record, event, deliveryKind);
   if (!mappedEvent) return;
@@ -3159,11 +3159,11 @@ function resolveProtocolBashShellSelection(
 async function requestSessionRuntimePreferences(
   context: ycodeProtocolAgentServerContext,
   sessionId: SessionId,
-  scope: ycodeSessionRuntimePreferencesScope,
-  trace?: ycodeProtocolTrace,
-): Promise<ycodeSessionRuntimePreferencesResult> {
+  scope: YCodeSessionRuntimePreferencesScope,
+  trace?: YCodeProtocolTrace,
+): Promise<YCodeSessionRuntimePreferencesResult> {
   const startedAt = Date.now();
-  // ycodeProtocolTrace.traceId 是协议层的 string；LogContext 需要 branded TraceId，
+  // YCodeProtocolTrace.traceId 是协议层的 string；LogContext 需要 branded TraceId，
   // 按本文件既有惯例断言收口，避免多处日志构造重复转换。
   const traceId = trace?.traceId as TraceId | undefined;
   context.logger?.debug("ycode Protocol runtime preferences request started", {
@@ -3179,7 +3179,7 @@ async function requestSessionRuntimePreferences(
       { sessionId, scope },
       ycodeSessionRuntimePreferencesResultSchema,
       {
-        timeoutMs: ycode_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
+        timeoutMs: YCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
         ...(trace ? { trace } : {}),
       },
     );
@@ -3223,7 +3223,7 @@ async function requestSessionRuntimePreferences(
       return {
         askUserQuestionAutoResolutionEnabled: true,
         memoryEnabled: false,
-        modelContextBudgetStrategy: DEFAULT_ycode_MODEL_CONTEXT_BUDGET_STRATEGY,
+        modelContextBudgetStrategy: DEFAULT_YCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
         nativeSearchEnhancementsEnabled: true,
       };
     }
@@ -3235,13 +3235,13 @@ async function resolveSessionStartupPreferences(
   context: ycodeProtocolAgentServerContext,
   sessionId: SessionId,
   source: SessionStartupPreferencesSource,
-  trace?: ycodeProtocolTrace,
+  trace?: YCodeProtocolTrace,
 ): Promise<SessionStartupPreferences> {
   if (source.kind === "inherit") {
     const inheritedShellSelection = source.parent.app.runtime.getSessionShellSelection();
     return {
       memoryEnabled: source.parent.memoryEnabled,
-      modelContextBudgetStrategy: DEFAULT_ycode_MODEL_CONTEXT_BUDGET_STRATEGY,
+      modelContextBudgetStrategy: DEFAULT_YCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
       nativeSearchEnhancementsEnabled: source.parent.nativeSearchEnhancementsEnabled,
       resolveInitialBashShellSelection: async () => inheritedShellSelection,
     };
@@ -3259,7 +3259,7 @@ async function resolveSessionStartupPreferences(
   );
   return {
     memoryEnabled: runtimePreferences.memoryEnabled,
-    modelContextBudgetStrategy: DEFAULT_ycode_MODEL_CONTEXT_BUDGET_STRATEGY,
+    modelContextBudgetStrategy: DEFAULT_YCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
     nativeSearchEnhancementsEnabled: runtimePreferences.nativeSearchEnhancementsEnabled,
     resolveInitialBashShellSelection: async () => {
       const executionPreferences = await requestSessionRuntimePreferences(
@@ -3282,7 +3282,7 @@ async function materializeSessionRecord(
   sessionId: SessionId,
   resume: boolean,
   source: SessionStartupPreferencesSource,
-  trace?: ycodeProtocolTrace,
+  trace?: YCodeProtocolTrace,
 ): Promise<ycodeProtocolSessionRecord> {
   const startupPreferences = await resolveSessionStartupPreferences(
     context,
@@ -3299,7 +3299,7 @@ async function createRecord(
   sessionId: SessionId,
   resume: boolean,
   startupPreferences: SessionStartupPreferences,
-  trace?: ycodeProtocolTrace,
+  trace?: YCodeProtocolTrace,
 ): Promise<ycodeProtocolSessionRecord> {
   const workspace =
     "workspace" in params && params.workspace
@@ -3444,17 +3444,17 @@ async function readPersistedSessionMessages(
 
 function derivePersistedSessionMode(
   messages: readonly MessageWithParts[],
-): ycodeSessionCreateParams["mode"] | undefined {
+): YCodeSessionCreateParams["mode"] | undefined {
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const info = messages[index]?.info;
-    if (info?.role === "assistant" && isycodeSessionMode(info.mode)) return info.mode;
+    if (info?.role === "assistant" && isYCodeSessionMode(info.mode)) return info.mode;
   }
   return undefined;
 }
 
-function isycodeSessionMode(
+function isYCodeSessionMode(
   value: unknown,
-): value is NonNullable<ycodeSessionCreateParams["mode"]> {
+): value is NonNullable<YCodeSessionCreateParams["mode"]> {
   return (
     value === "plan" ||
     value === "build" ||
@@ -3465,7 +3465,7 @@ function isycodeSessionMode(
 }
 
 function toRuntimeModelSelection(
-  model: ycodeSessionCreateParams["model"],
+  model: YCodeSessionCreateParams["model"],
 ): ModelSelection | undefined {
   if (!model) return undefined;
   return {
@@ -4044,7 +4044,7 @@ function emitStateUpdated(
   reason: string,
   patch: unknown,
 ): void {
-  const notification: ycodeStateUpdatedNotification = {
+  const notification: YCodeStateUpdatedNotification = {
     patch,
     reason,
     revision: record.stateRevision,

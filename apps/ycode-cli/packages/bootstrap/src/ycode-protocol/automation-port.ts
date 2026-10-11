@@ -13,7 +13,7 @@ import {
   ycodeAutomationListResultSchema,
   ycodeAutomationUpdateResultSchema,
   ycodeProtocolMethods,
-  type ycodeAutomationProtocol,
+  type YCodeAutomationProtocol,
 } from "@ycode/shared";
 import {
   ProtocolRequestError,
@@ -223,7 +223,7 @@ export function createProtocolAutomationPort(
 }
 
 function normalizeCronAutomationMode(
-  mode: ycodeAutomationProtocol["mode"],
+  mode: YCodeAutomationProtocol["mode"],
 ): CronAutomation["mode"] {
   switch (mode) {
     case undefined:
@@ -243,7 +243,7 @@ function normalizeCronAutomationMode(
   }
 }
 
-function toCronAutomation(input: ycodeAutomationProtocol): CronAutomation {
+function toCronAutomation(input: YCodeAutomationProtocol): CronAutomation {
   return {
     automationId: input.automationId,
     title: input.title,

@@ -1,6 +1,6 @@
 import type { ModelReasoningContentBlock } from "../deps.js";
 
-const DEFAULT_REASONING_STREAM_ID = "__ycode_default_reasoning__";
+const DEFAULT_REASONING_STREAM_ID = "__YCode_default_reasoning__";
 
 export function getOrCreateReasoningBlock(input: {
   id?: string;

@@ -1,6 +1,6 @@
 // workspace-config topic（v4 additive 新增）：workspace 级配置目录的活性数据源。
 // 背景：旧协议里 provider registry / 模型目录热更新经 per-session `state.updated`（settings patch）
-// 下发，host 侧 ycodeTaskIndexSyncer 转成 workspace_config_options_update 广播给 UI；
+// 下发，host 侧 YCodeTaskIndexSyncer 转成 workspace_config_options_update 广播给 UI；
 // 旧 session/subscribe + state.updated 词表不承载配置目录，统一改走本 topic。
 // 语义：conflated 最新态（同 sessions-index），载荷是 workspace 级配置目录 + slash 命令目录。
 // 注意这是 workspace 级不是 session 级——session 级 current 选择在 conversation topic 的

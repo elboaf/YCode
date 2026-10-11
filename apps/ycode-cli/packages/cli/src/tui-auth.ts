@@ -24,7 +24,7 @@ export async function loginForTui(
     });
   }
 
-  const login = deps.loginycodeCli ?? (await loadBootstrapModule()).loginycodeCli;
+  const login = deps.loginYCodeCli ?? (await loadBootstrapModule()).loginYCodeCli;
   return await login({
     abortSignal: options?.abortSignal,
     env,
@@ -85,6 +85,6 @@ export async function logoutForTui(deps: RunDependencies) {
     });
   }
 
-  const logout = deps.logoutycodeCli ?? (await loadBootstrapModule()).logoutycodeCli;
+  const logout = deps.logoutYCodeCli ?? (await loadBootstrapModule()).logoutYCodeCli;
   return await logout({ env });
 }

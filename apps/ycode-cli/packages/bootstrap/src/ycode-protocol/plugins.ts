@@ -13,38 +13,38 @@ import {
   ycodePluginsValidateParamsSchema,
   ycodePluginsDescribeParamsSchema,
   ycodePluginsRestoreBuiltinParamsSchema,
-  type ycodeAvailablePluginSummary,
-  type ycodeInstalledPluginSummary,
-  type ycodePluginComponentGroup,
-  type ycodePluginDiagnostic,
-  type ycodePluginInfo,
-  type ycodePluginMarketplaceSummary,
-  type ycodePluginsConfigureResult,
-  type ycodePluginsDescribeResult,
-  type ycodePluginsInstallResult,
-  type ycodePluginsListResult,
-  type ycodePluginsMarketplaceMutationResult,
-  type ycodePluginsOverviewResult,
-  type ycodePluginsRestoreBuiltinResult,
-  type ycodePluginsSetEnabledResult,
-  type ycodePluginsUninstallResult,
-  type ycodePluginsValidateResult,
+  type YCodeAvailablePluginSummary,
+  type YCodeInstalledPluginSummary,
+  type YCodePluginComponentGroup,
+  type YCodePluginDiagnostic,
+  type YCodePluginInfo,
+  type YCodePluginMarketplaceSummary,
+  type YCodePluginsConfigureResult,
+  type YCodePluginsDescribeResult,
+  type YCodePluginsInstallResult,
+  type YCodePluginsListResult,
+  type YCodePluginsMarketplaceMutationResult,
+  type YCodePluginsOverviewResult,
+  type YCodePluginsRestoreBuiltinResult,
+  type YCodePluginsSetEnabledResult,
+  type YCodePluginsUninstallResult,
+  type YCodePluginsValidateResult,
 } from "@ycode/shared";
 import type { PluginDiagnostic, PluginMetadata } from "@ycode/contracts";
 import {
-  addycodePluginMarketplace,
-  configureycodePlugin,
-  describeycodePlugin,
-  getycodePluginsOverview,
-  installycodeMarketplacePlugin,
-  removeycodePluginMarketplace,
-  resolveycodePlugins,
-  resetycodePluginConfig,
+  addYCodePluginMarketplace,
+  configureYCodePlugin,
+  describeYCodePlugin,
+  getYCodePluginsOverview,
+  installYCodeMarketplacePlugin,
+  removeYCodePluginMarketplace,
+  resolveYCodePlugins,
+  resetYCodePluginConfig,
   restoreBuiltinPlugin as restoreBuiltinPluginCore,
-  setycodePluginEnabled,
-  uninstallycodeMarketplacePlugin,
-  updateycodePluginMarketplace,
-  validateycodePlugin,
+  setYCodePluginEnabled,
+  uninstallYCodeMarketplacePlugin,
+  updateYCodePluginMarketplace,
+  validateYCodePlugin,
 } from "../plugins.js";
 import { listInstalledPluginRecords } from "@ycode/adapters/plugins";
 import { withPluginStorageLock } from "../lib/plugin-storage-lock.js";
@@ -53,8 +53,8 @@ import { resolveOfficialPluginHostMcpServerNames } from "../app/official-plugin-
 import { createConfig, resolvePath, type ConfigResult } from "@ycode/adapters/config";
 import { parseParams, type ycodeProtocolAgentServerContext } from "./server-types.js";
 
-// 把 CLI 的 PluginMetadata 投影成协议可序列化的 ycodePluginInfo (只保留 UI 需要的字段)。
-function toPluginInfo(plugin: PluginMetadata, configResult?: ConfigResult): ycodePluginInfo {
+// 把 CLI 的 PluginMetadata 投影成协议可序列化的 YCodePluginInfo (只保留 UI 需要的字段)。
+function toPluginInfo(plugin: PluginMetadata, configResult?: ConfigResult): YCodePluginInfo {
   const hostMcpServerNames = resolveOfficialPluginHostMcpServerNames(plugin.id);
   const configuredOptions = Object.fromEntries(
     Object.entries(plugin.configuredOptions ?? {}).filter(
@@ -144,7 +144,7 @@ function createPluginConfigView(
 function createMissingConfiguredPluginInfos(
   configResult: ConfigResult,
   discoveredPluginIds: ReadonlySet<string>,
-): ycodePluginInfo[] {
+): YCodePluginInfo[] {
   const configuredPluginIds = new Set([
     ...Object.keys(configResult.config.plugins.enabledPlugins),
     ...Object.keys(configResult.config.plugins.options),
@@ -189,7 +189,7 @@ function normalizePluginRootForComparison(
   return platform === "win32" ? resolvedRoot.replaceAll("\\", "/").toLowerCase() : resolvedRoot;
 }
 
-function toPluginDiagnostic(diagnostic: PluginDiagnostic): ycodePluginDiagnostic {
+function toPluginDiagnostic(diagnostic: PluginDiagnostic): YCodePluginDiagnostic {
   return {
     code: diagnostic.code,
     message: diagnostic.message,
@@ -201,14 +201,14 @@ function toPluginDiagnostic(diagnostic: PluginDiagnostic): ycodePluginDiagnostic
 export async function listPlugins(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsListResult> {
+): Promise<YCodePluginsListResult> {
   const params = parseParams(ycodePluginsListParamsSchema, rawParams);
   const configResult = createPluginConfigView(
     context,
     params.workspace.workspacePath,
     params.configScope,
   );
-  const outcome = resolveycodePlugins({
+  const outcome = resolveYCodePlugins({
     configResult,
     logger: context.logger,
     workingDirectory: params.workspace.workspacePath,
@@ -230,10 +230,10 @@ export async function setPluginEnabled(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
-): Promise<ycodePluginsSetEnabledResult> {
+): Promise<YCodePluginsSetEnabledResult> {
   const params = parseParams(ycodePluginsSetEnabledParamsSchema, rawParams);
   abortSignal?.throwIfAborted();
-  const result = await setycodePluginEnabled({
+  const result = await setYCodePluginEnabled({
     enabled: params.enabled,
     logger: context.logger,
     plugin: params.pluginId,
@@ -254,9 +254,9 @@ export async function setPluginEnabled(
 export async function getPluginsOverview(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsOverviewResult> {
+): Promise<YCodePluginsOverviewResult> {
   const params = parseParams(ycodePluginsOverviewParamsSchema, rawParams);
-  const overview = getycodePluginsOverview({
+  const overview = getYCodePluginsOverview({
     configResult: createPluginConfigView(
       context,
       params.workspace.workspacePath,
@@ -279,11 +279,11 @@ export async function addPluginMarketplace(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
-): Promise<ycodePluginsMarketplaceMutationResult> {
+): Promise<YCodePluginsMarketplaceMutationResult> {
   const params = parseParams(ycodePluginsMarketplaceAddParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const marketplace = await withPluginStorageLock(pluginStorageRoot, async () =>
-    addycodePluginMarketplace({
+    addYCodePluginMarketplace({
       abortSignal,
       dryRun: params.dryRun,
       logger: context.logger,
@@ -297,11 +297,11 @@ export async function addPluginMarketplace(
 export async function removePluginMarketplace(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsMarketplaceMutationResult> {
+): Promise<YCodePluginsMarketplaceMutationResult> {
   const params = parseParams(ycodePluginsMarketplaceRemoveParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   await withPluginStorageLock(pluginStorageRoot, async () =>
-    removeycodePluginMarketplace({
+    removeYCodePluginMarketplace({
       logger: context.logger,
       marketplace: params.marketplace,
       workingDirectory: params.workspace.workspacePath,
@@ -314,11 +314,11 @@ export async function updatePluginMarketplace(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
-): Promise<ycodePluginsMarketplaceMutationResult> {
+): Promise<YCodePluginsMarketplaceMutationResult> {
   const params = parseParams(ycodePluginsMarketplaceUpdateParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const result = await withPluginStorageLock(pluginStorageRoot, async () =>
-    updateycodePluginMarketplace({
+    updateYCodePluginMarketplace({
       abortSignal,
       logger: context.logger,
       marketplace: params.marketplace,
@@ -335,11 +335,11 @@ export async function installPlugin(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
-): Promise<ycodePluginsInstallResult> {
+): Promise<YCodePluginsInstallResult> {
   const params = parseParams(ycodePluginsInstallParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const result = await withPluginStorageLock(pluginStorageRoot, async () =>
-    installycodeMarketplacePlugin({
+    installYCodeMarketplacePlugin({
       abortSignal,
       dryRun: params.dryRun,
       logger: context.logger,
@@ -359,9 +359,9 @@ export async function installPlugin(
 export async function uninstallPlugin(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsUninstallResult> {
+): Promise<YCodePluginsUninstallResult> {
   const params = parseParams(ycodePluginsUninstallParamsSchema, rawParams);
-  const removed = await uninstallycodeMarketplacePlugin({
+  const removed = await uninstallYCodeMarketplacePlugin({
     logger: context.logger,
     marketplace: params.marketplace,
     pluginId: params.pluginId,
@@ -378,7 +378,7 @@ export async function uninstallPlugin(
 export async function updatePlugin(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsInstallResult> {
+): Promise<YCodePluginsInstallResult> {
   const params = parseParams(ycodePluginsUpdateParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const installed = listInstalledPluginRecords(pluginStorageRoot).filter((record) => {
@@ -389,15 +389,15 @@ export async function updatePlugin(
   // 与 uninstall 一样把整个重装循环串行化到同一 storageRoot 的 in-process 锁里，
   // 避免并发 update/install 交错读改写 installed_plugins.json / cache。
   return withPluginStorageLock(pluginStorageRoot, async () => {
-    const installedPlugins: ycodeInstalledPluginSummary[] = [];
+    const installedPlugins: YCodeInstalledPluginSummary[] = [];
     const dependencyClosure: string[] = [];
-    // 聚合每条记录重装产生的诊断：installycodeMarketplacePlugin 失败时不抛错，而是返回
+    // 聚合每条记录重装产生的诊断：installYCodeMarketplacePlugin 失败时不抛错，而是返回
     // CLI 形态的 PluginDiagnostic（见其错误分支的 toMarketplaceInstallDiagnostic），
-    // 这里逐条经协议侧 toPluginDiagnostic 投影成 ycodePluginDiagnostic 回传，
+    // 这里逐条经协议侧 toPluginDiagnostic 投影成 YCodePluginDiagnostic 回传，
     // 让失败的重装显式暴露，而不是静默"成功"。
-    const diagnostics: ycodePluginDiagnostic[] = [];
+    const diagnostics: YCodePluginDiagnostic[] = [];
     for (const record of installed) {
-      const result = await installycodeMarketplacePlugin({
+      const result = await installYCodeMarketplacePlugin({
         logger: context.logger,
         marketplace: record.marketplace,
         pluginName: record.name,
@@ -417,7 +417,7 @@ export async function updatePlugin(
 export async function restoreBuiltinPlugin(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsRestoreBuiltinResult> {
+): Promise<YCodePluginsRestoreBuiltinResult> {
   const params = parseParams(ycodePluginsRestoreBuiltinParamsSchema, rawParams);
   await restoreBuiltinPluginCore({
     logger: context.logger,
@@ -430,9 +430,9 @@ export async function restoreBuiltinPlugin(
 export async function configurePlugin(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsConfigureResult> {
+): Promise<YCodePluginsConfigureResult> {
   const params = parseParams(ycodePluginsConfigureParamsSchema, rawParams);
-  await configureycodePlugin({
+  await configureYCodePlugin({
     clearOptionKeys: params.clearOptionKeys,
     dryRun: params.dryRun,
     logger: context.logger,
@@ -447,9 +447,9 @@ export async function configurePlugin(
 export async function resetPluginConfig(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsConfigureResult> {
+): Promise<YCodePluginsConfigureResult> {
   const params = parseParams(ycodePluginsResetConfigParamsSchema, rawParams);
-  await resetycodePluginConfig({
+  await resetYCodePluginConfig({
     logger: context.logger,
     pluginId: params.pluginId,
     scope: params.scope,
@@ -461,11 +461,11 @@ export async function resetPluginConfig(
 export async function validatePlugin(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsValidateResult> {
+): Promise<YCodePluginsValidateResult> {
   const params = parseParams(ycodePluginsValidateParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const diagnostics = await withPluginStorageLock(pluginStorageRoot, async () =>
-    validateycodePlugin({
+    validateYCodePlugin({
       logger: context.logger,
       marketplace: params.marketplace,
       pluginName: params.pluginName,
@@ -487,18 +487,18 @@ export async function validatePlugin(
 export async function describePlugin(
   context: ycodeProtocolAgentServerContext,
   rawParams: unknown,
-): Promise<ycodePluginsDescribeResult> {
+): Promise<YCodePluginsDescribeResult> {
   const params = parseParams(ycodePluginsDescribeParamsSchema, rawParams);
   const pluginStorageRoot = resolvePluginStorageRoot(params.workspace.workspacePath);
   const result = await withPluginStorageLock(pluginStorageRoot, async () =>
-    describeycodePlugin({
+    describeYCodePlugin({
       logger: context.logger,
       marketplace: params.marketplace,
       pluginName: params.pluginName,
       workingDirectory: params.workspace.workspacePath,
     }),
   );
-  const components: ycodePluginComponentGroup[] = result.components.map((group) => ({
+  const components: YCodePluginComponentGroup[] = result.components.map((group) => ({
     kind: group.kind,
     items: group.items.map((item) => ({
       name: item.name,
@@ -522,8 +522,8 @@ function toMarketplaceSummary(input: {
   pluginCount: number;
   isOfficial?: boolean;
   featured?: string[];
-  refreshFailure?: ycodePluginMarketplaceSummary["refreshFailure"];
-}): ycodePluginMarketplaceSummary {
+  refreshFailure?: YCodePluginMarketplaceSummary["refreshFailure"];
+}): YCodePluginMarketplaceSummary {
   return {
     id: input.id,
     name: input.name,
@@ -545,8 +545,8 @@ function toAvailablePluginSummary(input: {
   version?: string;
   installed: boolean;
   componentTypes?: string[];
-  listing?: ycodeAvailablePluginSummary["listing"];
-}): ycodeAvailablePluginSummary {
+  listing?: YCodeAvailablePluginSummary["listing"];
+}): YCodeAvailablePluginSummary {
   return {
     id: input.id,
     name: input.name,
@@ -570,11 +570,11 @@ function toInstalledPluginSummary(input: {
   installPath?: string;
   installedAt?: string;
   componentTypes?: string[];
-  hookDetails?: ycodeInstalledPluginSummary["hookDetails"];
+  hookDetails?: YCodeInstalledPluginSummary["hookDetails"];
   updateStatus?: "none" | "update-available" | "version-changed";
   latestVersion?: string;
-  listing?: ycodeInstalledPluginSummary["listing"];
-}): ycodeInstalledPluginSummary {
+  listing?: YCodeInstalledPluginSummary["listing"];
+}): YCodeInstalledPluginSummary {
   return {
     id: input.id,
     name: input.name,

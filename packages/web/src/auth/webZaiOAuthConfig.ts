@@ -44,7 +44,7 @@ function buildBigModelAuthorizeUrl(origin: string | undefined): string {
 
 function createWebZaiOAuthConfig(env: WebImportMetaEnv = {}): WebZaiOAuthConfig {
   const devOrigin = env.VITE_DEV_ORIGIN?.trim().replace(/\/$/, "");
-  const ycodeEndpointUrls = buildYCodeEndpointUrls(
+  const YCodeEndpointUrls = buildYCodeEndpointUrls(
     env.VITE_YCODE_BASE_URL?.trim() ||
       env.VITE_YCODE_ENDPOINT_ORIGIN?.trim() ||
       DEFAULT_YCODE_ENDPOINT_ORIGIN,
@@ -59,8 +59,8 @@ function createWebZaiOAuthConfig(env: WebImportMetaEnv = {}): WebZaiOAuthConfig 
     bigmodelAuthorizeUrl: buildBigModelAuthorizeUrl(env.VITE_BIGMODEL_OAUTH_ORIGIN),
     // BigModel 用 appId 而不是 client_id，且默认值就是桌面端在用的 "ycode"。
     bigmodelAppId: env.VITE_BIGMODEL_OAUTH_APP_ID?.trim() || "ycode",
-    redirectUri: ycodeEndpointUrls.webShareCallbackUrl,
-    shareRedirectUri: ycodeEndpointUrls.webShareCallbackUrl,
+    redirectUri: YCodeEndpointUrls.webShareCallbackUrl,
+    shareRedirectUri: YCodeEndpointUrls.webShareCallbackUrl,
     ...(devOrigin ? { devOrigin } : {}),
     allowDevReturnToRedirect: env.VITE_WEB_REMOTE_ALLOW_DEV_RETURN_TO === "true",
   };
