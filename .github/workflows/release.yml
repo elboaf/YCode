@@ -25,6 +25,7 @@ on:
           - all
           - desktop
           - cli
+          - win
       fix_formatting:
         description: "Only fix pre-existing fmt:check failures and push the result (no build)"
         required: false
@@ -43,7 +44,7 @@ jobs:
   # Desktop app installers (Electron / electron-builder, via bundle.mjs)
   # ---------------------------------------------------------------------
   desktop:
-    if: ${{ inputs.targets != 'cli' && inputs.fix_formatting != true }}
+    if: ${{ inputs.targets != 'cli' && inputs.targets != 'win' && inputs.fix_formatting != true }}
     name: Desktop ${{ matrix.os }}-${{ matrix.arch }}
     runs-on: ${{ matrix.runs-on }}
     timeout-minutes: 90
@@ -131,7 +132,7 @@ jobs:
   # CLI / TUI runtime distribution (tar.gz + sha256 + install.sh)
   # ---------------------------------------------------------------------
   cli:
-    if: ${{ inputs.targets != 'desktop' && inputs.fix_formatting != true }}
+    if: ${{ inputs.targets != 'desktop' && inputs.targets != 'win' && inputs.fix_formatting != true }}
     name: CLI distribution
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -229,7 +230,8 @@ jobs:
   github-release:
     needs: [desktop, cli]
     # Run when at least one producer succeeded, none failed, and this
-    # dispatch isn't just a formatting fix
+    # dispatch isn't just a formatting fix. Skipped producers (targets=win)
+    # don't block the release.
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && (needs.desktop.result == 'success' || needs.cli.result == 'success') && inputs.fix_formatting != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
