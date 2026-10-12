@@ -171,6 +171,7 @@ export function isTimeoutFailure(error: unknown, code?: string, statusCode?: num
   if (
     normalizedCode === "ETIMEDOUT" ||
     normalizedCode === "ETIMEOUT" ||
+    normalizedCode === "MODEL_REQUEST_TIMEOUT" ||
     normalizedCode === "UND_ERR_CONNECT_TIMEOUT" ||
     normalizedCode === "UND_ERR_HEADERS_TIMEOUT" ||
     normalizedCode === "UND_ERR_BODY_TIMEOUT"
@@ -179,7 +180,12 @@ export function isTimeoutFailure(error: unknown, code?: string, statusCode?: num
   }
 
   const name = stringProperty(asRecord(error), "name")?.toLowerCase();
-  return name === "timeouterror" || name === "timeout_error";
+  return (
+    name === "timeouterror" ||
+    name === "timeout_error" ||
+    // 传输层总上限错误可能被 AI SDK 包装，name 只在顶层可见；code 沿 cause 链仍可达。
+    name === "modelrequesttimeouterror"
+  );
 }
 
 export function isContextExceededFailure(error: unknown): boolean {

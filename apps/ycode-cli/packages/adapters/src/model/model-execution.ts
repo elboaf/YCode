@@ -25,6 +25,11 @@ import { createOpenAIResponsesJsonCompatFetch } from "./openai-responses-json-co
 import { createModelOptionMapFetch, type RawRequestBodyCapture } from "./model-option-map-fetch.js";
 import { createNetworkProxyFetch } from "../network/proxy-fetch.js";
 import { createOfficialCodingPlanGatewayFetch } from "./official-coding-plan-gateway.js";
+import {
+  createModelRequestTimeoutFetch,
+  DEFAULT_MODEL_REQUEST_TIMEOUT_MS,
+  resolveModelRequestTimeoutMs,
+} from "./model-request-timeout.js";
 import { normalizeModelTlsFailure } from "./failure-tls.js";
 import { mergeModelRequestHeaders } from "./model-request-headers.js";
 
@@ -58,6 +63,12 @@ export interface AiSdkNetworkConfig {
   caCertFile?: string;
   httpProxy?: string;
   noProxy?: string;
+  /**
+   * 模型请求总超时上限（覆盖 header 等待与响应体消费）。
+   * 未注入时按 env `YCODE_MODEL_REQUEST_TIMEOUT_MS` 解析，仍缺省用 1h 默认值；
+   * 慢 prefill（自托管 llama.cpp）必须大于最坏 prefill + 生成时长。
+   */
+  requestTimeoutMs?: number;
 }
 
 export interface AiSdkResolvedModel {
@@ -158,6 +169,7 @@ export class AiSdkModelExecution {
   private readonly logger?: Logger;
   private readonly baseTransport?: ProviderFetch;
   private readonly providerTransports = new Map<string, ProviderFetch>();
+  private readonly modelRequestTimeoutMs: number;
 
   constructor(config: AiSdkModelExecutionConfig = {}, options: AiSdkModelExecutionOptions = {}) {
     this.env = config.env ?? process.env;
@@ -165,6 +177,11 @@ export class AiSdkModelExecution {
     this.network = { ...config.network };
     this.logger = options.logger;
     this.baseTransport = options.transport;
+    // Provider 热更新只影响 Endpoint/Header 等连接事实；总超时在执行构造时冻结一次。
+    this.modelRequestTimeoutMs = resolveModelRequestTimeoutMs({
+      baseTimeoutMs: this.network.requestTimeoutMs,
+      env: this.env,
+    });
   }
 
   /**
@@ -328,12 +345,16 @@ export class AiSdkModelExecution {
     }
     // 官方 Coding Plan 端点先替换为平台网关端点，再进入用户 HTTP 代理 fetch，
     // httpProxy / noProxy 按实际发送地址判定。
+    // 模型链路必须脱离 undici 300s 默认超时并携带总上限（spec R1/R2）：
+    // 直连时强制 agent 传输，最外层套请求总超时。
     const transport = createProviderTransportFetch({
+      alwaysUseAgentTransport: true,
       caCertFile: this.network.caCertFile,
       env: this.env,
       fetch: this.baseTransport,
       httpProxy: this.network.httpProxy,
       noProxy: this.network.noProxy,
+      requestTimeoutMs: this.modelRequestTimeoutMs,
     });
     this.providerTransports.set(providerId, transport);
     return transport;
@@ -495,28 +516,42 @@ async function consumeBusinessErrorResponseBodyBestEffort(response: Response): P
 }
 
 interface ProviderProxyFetchOptions {
+  alwaysUseAgentTransport?: boolean;
   caCertFile?: string;
   env?: EnvRecord;
   fetch?: ProviderFetch;
   httpProxy?: string;
   noProxy?: string;
+  requestTimeoutMs?: number;
 }
 
 function createProviderProxyFetch(options: ProviderProxyFetchOptions): ProviderFetch {
   // Node 的 global fetch 不会自动读取 HTTP_PROXY/http_proxy。
   // 模型 provider 和 MCP HTTP transport 都复用同一层 proxy-aware fetch，避免多套出口规则漂移。
-  return createNetworkProxyFetch(options);
+  // 模型链路额外要求脱离 undici 默认超时：直连时也走 agent 传输（spec R1）。
+  return createNetworkProxyFetch({
+    alwaysUseAgentTransport: options.alwaysUseAgentTransport,
+    caCertFile: options.caCertFile,
+    env: options.env,
+    fetch: options.fetch,
+    httpProxy: options.httpProxy,
+    noProxy: options.noProxy,
+  });
 }
 
 /**
  * 模型请求出口：官方 Coding Plan 端点经 ycode 平台网关发送（做套餐权益校验等平台侧处理），
  * 其余 provider 直连；之后统一进入用户 HTTP 代理 fetch，httpProxy / noProxy 按实际发送地址判定。
  * 官方端点与网关端点的对应关系见 official-coding-plan-gateway.ts。
+ * 最外层是请求总超时包装：覆盖网关/代理 hop、header 等待与响应体消费（spec R2）。
  */
 function createProviderTransportFetch(options: ProviderProxyFetchOptions): ProviderFetch {
-  return createOfficialCodingPlanGatewayFetch({
-    env: options.env,
-    fetch: createProviderProxyFetch(options),
+  return createModelRequestTimeoutFetch({
+    timeoutMs: options.requestTimeoutMs ?? DEFAULT_MODEL_REQUEST_TIMEOUT_MS,
+    fetch: createOfficialCodingPlanGatewayFetch({
+      env: options.env,
+      fetch: createProviderProxyFetch(options),
+    }),
   });
 }
 

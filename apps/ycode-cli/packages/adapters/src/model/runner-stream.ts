@@ -28,6 +28,7 @@ import {
   isModelStreamIdleTimeoutError,
   readNextWithStreamIdleTimeout,
   resolveModelStreamIdleTimeoutMs,
+  resolveStreamReadTimeoutMs,
 } from "./stream-idle-timeout.js";
 import {
   createStreamDiagnostics,
@@ -101,6 +102,8 @@ export async function* runStreamText(input: {
   runtime: AiSdkModelRuntime;
   statusSink?: ModelStatusSink;
   streamIdleTimeoutMs: number;
+  /** 首个 provider 事件（prefill 阶段）的读超时；首个事件到达后回退 streamIdleTimeoutMs。 */
+  firstEventTimeoutMs: number;
   modelIoFullRetentionEnabled: boolean;
 }): AsyncGenerator<ModelStreamEvent> {
   // 重试预算档位：只放宽瞬态失败的放弃条件；
@@ -332,7 +335,13 @@ export async function* runStreamText(input: {
               statusPublishOptions(input, admission),
             );
           },
-          timeoutMs: streamIdleTimeoutMs,
+          // 慢 prefill 期间没有任何 SSE 事件：首个 provider 事件前用首事件超时，
+          // 到达后回退 idle 超时（每次重试 +30s 的增量只作用于 idle 语义，见 spec R3）。
+          timeoutMs: resolveStreamReadTimeoutMs({
+            firstEventReceived: timeToFirstProviderEventMs !== undefined,
+            firstEventTimeoutMs: input.firstEventTimeoutMs,
+            streamIdleTimeoutMs,
+          }),
         });
         if (next.done) {
           streamReachedNaturalEnd = true;

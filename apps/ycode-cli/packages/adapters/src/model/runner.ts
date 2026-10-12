@@ -31,7 +31,10 @@ import {
   type AiSdkModelRetryOptions,
   type ResolvedAiSdkModelRetryOptions,
 } from "./retry-policy.js";
-import { DEFAULT_MODEL_STREAM_IDLE_TIMEOUT_MS } from "./stream-idle-timeout.js";
+import {
+  resolveModelFirstEventTimeoutMs,
+  DEFAULT_MODEL_STREAM_IDLE_TIMEOUT_MS,
+} from "./stream-idle-timeout.js";
 import { runGenerateText } from "./runner-generate.js";
 import { runStreamText } from "./runner-stream.js";
 import { normalizeReasoningHistory } from "./reasoning-history-normalization.js";
@@ -64,6 +67,8 @@ export interface AiSdkModelAdapterOptions {
   retry?: AiSdkModelRetryOptions;
   statusSink?: ModelStatusSink;
   streamIdleTimeoutMs?: number;
+  /** 流式首事件（prefill）超时；未注入时按 env 解析，缺省 1h。 */
+  firstEventTimeoutMs?: number;
   modelIoFullRetentionEnabled?: boolean;
 }
 
@@ -86,6 +91,7 @@ export class AiSdkModelAdapter {
   private readonly retry: ResolvedAiSdkModelRetryOptions;
   private statusSink?: ModelStatusSink;
   private readonly streamIdleTimeoutMs: number;
+  private readonly firstEventTimeoutMs: number;
   private modelIoFullRetentionEnabled: boolean;
 
   constructor(options: AiSdkModelAdapterOptions) {
@@ -106,6 +112,10 @@ export class AiSdkModelAdapter {
     this.retry = resolveAiSdkModelRetryOptions(options.retry, this.env);
     this.statusSink = options.statusSink;
     this.streamIdleTimeoutMs = options.streamIdleTimeoutMs ?? DEFAULT_MODEL_STREAM_IDLE_TIMEOUT_MS;
+    this.firstEventTimeoutMs = resolveModelFirstEventTimeoutMs({
+      baseTimeoutMs: options.firstEventTimeoutMs,
+      env: this.env,
+    });
     this.modelIoFullRetentionEnabled = options.modelIoFullRetentionEnabled ?? false;
   }
 
@@ -323,6 +333,7 @@ export class AiSdkModelAdapter {
       runtime: this.runtime,
       statusSink: this.statusSink,
       streamIdleTimeoutMs: this.streamIdleTimeoutMs,
+      firstEventTimeoutMs: this.firstEventTimeoutMs,
       modelIoFullRetentionEnabled: this.modelIoFullRetentionEnabled,
     });
   }

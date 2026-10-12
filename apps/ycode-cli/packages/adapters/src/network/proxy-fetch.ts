@@ -16,6 +16,15 @@ interface NetworkProxyFetchOptions {
   fetch?: NetworkFetch;
   httpProxy?: string;
   noProxy?: string;
+  /**
+   * 强制走 node:http(s) agent 传输（仅当未注入自定义 fetch 时生效）。
+   *
+   * 原因：直连时 undici global fetch 的 headersTimeout/bodyTimeout 默认 300s，
+   * 自托管慢 prefill（如 llama.cpp CPU MoE，32k prompt ≈ 13.5min 无任何字节）
+   * 必然被中止；node http 请求无默认超时，由上层模型请求总上限接管。
+   * 依据 docs/specs/model-provider/model-request-prefill-safe-timeouts.md R1。
+   */
+  alwaysUseAgentTransport?: boolean;
 }
 
 interface NormalizedFetchRequest {
@@ -28,7 +37,10 @@ interface NormalizedFetchRequest {
 
 export function createNetworkProxyFetch(options: NetworkProxyFetchOptions): NetworkFetch {
   const directFetch = options.fetch ?? globalThis.fetch.bind(globalThis);
-  if (!hasNetworkFetchPolicy(options)) {
+  // 注入自定义 fetch（测试、宿主）时不改道：注入方自带超时语义。
+  const forceAgentTransport =
+    options.alwaysUseAgentTransport === true && options.fetch === undefined;
+  if (!forceAgentTransport && !hasNetworkFetchPolicy(options)) {
     return directFetch;
   }
 
@@ -51,7 +63,7 @@ export function createNetworkProxyFetch(options: NetworkProxyFetchOptions): Netw
 
     const proxyUrl = resolveProxyUrlForRequest(requestUrl, options);
     const caCertFile = resolveTlsCaCertFile(options);
-    if (!proxyUrl && !caCertFile) {
+    if (!proxyUrl && !caCertFile && !forceAgentTransport) {
       return directFetch(input, init);
     }
 
@@ -204,6 +216,20 @@ function abortReason(signal: AbortSignal | undefined): Error {
   return error;
 }
 
+// 无代理/无自定义 CA 的 agent 传输复用 keep-alive 连接池；
+// new http.Agent() 默认 keepAlive=false，逐请求新建会让每个模型请求都重建 TCP。
+let sharedPlainHttpAgent: http.Agent | undefined;
+let sharedPlainHttpsAgent: https.Agent | undefined;
+
+function plainKeepAliveAgent(secure: boolean): http.Agent | https.Agent {
+  if (secure) {
+    sharedPlainHttpsAgent ??= new https.Agent({ keepAlive: true });
+    return sharedPlainHttpsAgent;
+  }
+  sharedPlainHttpAgent ??= new http.Agent({ keepAlive: true });
+  return sharedPlainHttpAgent;
+}
+
 function createRequestAgent(
   url: URL,
   options: { ca?: Buffer; proxyUrl?: string },
@@ -217,9 +243,9 @@ function createRequestAgent(
   }
 
   if (url.protocol === "https:") {
-    return new https.Agent({ ca: options.ca });
+    return options.ca ? new https.Agent({ ca: options.ca }) : plainKeepAliveAgent(true);
   }
-  return new http.Agent();
+  return plainKeepAliveAgent(false);
 }
 
 function headersToOutgoing(headers: Headers): http.OutgoingHttpHeaders {

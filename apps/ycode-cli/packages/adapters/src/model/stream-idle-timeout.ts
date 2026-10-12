@@ -4,6 +4,54 @@ export { DEFAULT_MODEL_STREAM_IDLE_TIMEOUT_MS } from "@ycode/contracts";
 
 const MODEL_STREAM_IDLE_TIMEOUT_RETRY_INCREMENT_MS = 30_000;
 
+/**
+ * 流式首事件超时默认值：慢 prefill（自托管 llama.cpp CPU MoE ~40 tok/s）在首个
+ * provider 事件前不会有任何 SSE 事件，idle timeout 的 600s 不够；上限覆盖最坏
+ * prefill + 余量。首事件到达后回退 idle 语义（spec R3）。
+ */
+export const DEFAULT_MODEL_FIRST_EVENT_TIMEOUT_MS = 3_600_000;
+
+const ENV_MODEL_FIRST_EVENT_TIMEOUT_MS = "YCODE_MODEL_FIRST_EVENT_TIMEOUT_MS";
+
+type EnvRecord = Record<string, string | undefined>;
+
+export function resolveModelFirstEventTimeoutMs(options: {
+  baseTimeoutMs?: number;
+  env?: EnvRecord;
+}): number {
+  const fromEnv = parseTimeoutMs(options.env?.[ENV_MODEL_FIRST_EVENT_TIMEOUT_MS]);
+  const resolved =
+    options.baseTimeoutMs ?? fromEnv ?? DEFAULT_MODEL_FIRST_EVENT_TIMEOUT_MS;
+  if (!Number.isFinite(resolved)) {
+    return DEFAULT_MODEL_FIRST_EVENT_TIMEOUT_MS;
+  }
+  // ≤0 视为禁用：首个事件到达前不限时，由传输层总上限兜底。
+  return resolved;
+}
+
+function parseTimeoutMs(value: string | undefined): number | undefined {
+  if (value === undefined || value.trim().length === 0) {
+    return undefined;
+  }
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return undefined;
+  }
+  return Math.floor(parsed);
+}
+
+/**
+ * 单次流读取的超时选择：首个 provider 事件前用首事件超时（prefill 容忍），
+ * 到达后回退 idle 超时。≤0 值由 readNextWithStreamIdleTimeout 按“禁用”处理。
+ */
+export function resolveStreamReadTimeoutMs(input: {
+  firstEventReceived: boolean;
+  firstEventTimeoutMs: number;
+  streamIdleTimeoutMs: number;
+}): number {
+  return input.firstEventReceived ? input.streamIdleTimeoutMs : input.firstEventTimeoutMs;
+}
+
 export function resolveModelStreamIdleTimeoutMs(options: {
   baseTimeoutMs?: number;
   retryNumber?: number;
