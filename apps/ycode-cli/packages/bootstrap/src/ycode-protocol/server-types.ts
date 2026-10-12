@@ -38,7 +38,7 @@ export interface ParamsSchema<T> {
   parse(input: unknown): T;
 }
 
-export interface ycodeProtocolAgentDependencies {
+export interface YCodeProtocolAgentDependencies {
   createYCodeApp(options?: Omit<YCodeAppOptions, "providerRegistry">): YCodeApp | Promise<YCodeApp>;
   /**
    * 每个 session record 的内存 event store 工厂。
@@ -66,21 +66,21 @@ export interface ycodeProtocolAgentDependencies {
   refreshProviderRegistry?: (reason: string) => Promise<void>;
 }
 
-export type ycodeProtocolAgentResolvedDependencies = ycodeProtocolAgentDependencies & {
+export type YCodeProtocolAgentResolvedDependencies = YCodeProtocolAgentDependencies & {
   createSessionEventStore(sessionId: string): SessionEventStorePort;
   workspaceHookPolicyProvider: WorkspaceHookPolicyProvider;
 };
 
-export interface ycodeProtocolEventSequenceState {
+export interface YCodeProtocolEventSequenceState {
   lastSeq: number;
   seqBySourceEventKey: Map<string, number>;
 }
 
-export interface ycodeProtocolToolInputTransmissionState {
+export interface YCodeProtocolToolInputTransmissionState {
   streamedToolCallIdsWithInput: Set<string>;
 }
 
-export interface ycodeProtocolSessionRecord {
+export interface YCodeProtocolSessionRecord {
   app: YCodeApp;
   memoryEnabled: boolean;
   nativeSearchEnhancementsEnabled: boolean;
@@ -95,8 +95,8 @@ export interface ycodeProtocolSessionRecord {
   eventStore: SessionEventStorePort;
   parentSessionId?: SessionId;
   persistence: YCodeSessionPersistence;
-  protocolEventSequences: Map<string, ycodeProtocolEventSequenceState>;
-  protocolToolInputTransmissions: Map<string, ycodeProtocolToolInputTransmissionState>;
+  protocolEventSequences: Map<string, YCodeProtocolEventSequenceState>;
+  protocolToolInputTransmissions: Map<string, YCodeProtocolToolInputTransmissionState>;
   stateRevision: number;
   taskType?: SessionTaskType;
   traceContext: TraceContext;
@@ -117,17 +117,17 @@ export interface ycodeProtocolSessionRecord {
   restoredModelSelection?: ModelSelection;
 }
 
-export interface ycodeProtocolClientRequestOptions {
+export interface YCodeProtocolClientRequestOptions {
   signal?: AbortSignal;
   timeoutMs?: number;
   trace?: YCodeProtocolTrace;
   reannounceIntervalMs?: number;
 }
 
-export interface ycodeProtocolAgentServerContext {
+export interface YCodeProtocolAgentServerContext {
   /** 进程退出期间，迟到的异步物化不能重新登记 session。 */
   assertServing?: () => void;
-  deps: ycodeProtocolAgentResolvedDependencies;
+  deps: YCodeProtocolAgentResolvedDependencies;
   logger?: Logger;
   appRuntimePreferences: {
     askUserQuestionAutoResolutionEnabled: boolean;
@@ -150,13 +150,13 @@ export interface ycodeProtocolAgentServerContext {
   // 单 CLI resident session 池。冷恢复入口经 waitForDeactivation 等待旧 app.close 收尾，
   // 协议请求则持有 operation lease，禁止异步 handler 与容量回收交错。
   sessionResidentPool?: SessionResidentPool;
-  sessions: Map<string, ycodeProtocolSessionRecord>;
+  sessions: Map<string, YCodeProtocolSessionRecord>;
   notify(notification: YCodeProtocolNotification): void;
   requestClient<T>(
     method: YCodeProtocolMethod,
     params: unknown,
     resultSchema: ParamsSchema<T>,
-    options?: ycodeProtocolClientRequestOptions,
+    options?: YCodeProtocolClientRequestOptions,
   ): Promise<T>;
 }
 
@@ -228,7 +228,7 @@ export function parseParams<T>(schema: ParamsSchema<T>, params: unknown): T {
 }
 
 export function assertExpectedRevision(
-  record: ycodeProtocolSessionRecord,
+  record: YCodeProtocolSessionRecord,
   expectedRevision: number | undefined,
 ): void {
   if (expectedRevision !== undefined && expectedRevision !== record.stateRevision) {
@@ -303,10 +303,10 @@ export function protocolTraceFromTraceContext(context: TraceContext): YCodeProto
 }
 
 export function requireSession(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   sessionId: string,
   options: { deliveryKind?: YCodeDeliveryKind; operation?: string } = {},
-): ycodeProtocolSessionRecord {
+): YCodeProtocolSessionRecord {
   const record = context.sessions.get(sessionId);
   if (!record) {
     // 诊断：readSession 只读取活跃 runtime；记录缺失时要区分“冷会话尚未恢复”和“ID 已失效”，
@@ -328,7 +328,7 @@ export function requireSession(
   return record;
 }
 
-export function createProtocolLogger(deps: ycodeProtocolAgentDependencies): Logger | undefined {
+export function createProtocolLogger(deps: YCodeProtocolAgentDependencies): Logger | undefined {
   return deps.loggerFactory?.createLogger("ycode").child({
     module: "bootstrap.ycode_protocol",
   });

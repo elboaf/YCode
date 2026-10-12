@@ -109,14 +109,14 @@ import {
   type ParamsSchema,
   parseParams,
   toProtocolError,
-  type ycodeProtocolClientRequestOptions,
-  type ycodeProtocolAgentDependencies,
-  type ycodeProtocolAgentServerContext,
-  type ycodeProtocolSessionRecord,
+  type YCodeProtocolClientRequestOptions,
+  type YCodeProtocolAgentDependencies,
+  type YCodeProtocolAgentServerContext,
+  type YCodeProtocolSessionRecord,
 } from "./server-types.js";
 import { createInMemorySessionEventStore } from "@ycode/contracts";
 
-export type { ycodeProtocolAgentDependencies, ycodeProtocolSessionRecord };
+export type { YCodeProtocolAgentDependencies, YCodeProtocolSessionRecord };
 
 const MAX_CLIENT_REQUEST_REANNOUNCE_INTERVAL_MS = 10_000;
 
@@ -130,7 +130,7 @@ type ycodeProtocolOutboundMessage = YCodeProtocolNotification | YCodeProtocolReq
  */
 async function notifyWorkspaceHookTrustGrantSessions(input: {
   grantedWorkspaceKey?: string;
-  sessions: Map<string, ycodeProtocolSessionRecord>;
+  sessions: Map<string, YCodeProtocolSessionRecord>;
 }): Promise<void> {
   if (!input.grantedWorkspaceKey) return;
   await Promise.all(
@@ -209,13 +209,13 @@ export class ycodeProtocolAgentServer {
    * MCP 连接池的构造早于 server，需要在 server 就绪后回填闭包持有的引用——
    * 与 v4Gateway 同样的构造顺序收口方式。只暴露 requestClient，不外泄整个 context。
    */
-  get officialMcpAuthRequestContext(): Pick<ycodeProtocolAgentServerContext, "requestClient"> {
+  get officialMcpAuthRequestContext(): Pick<YCodeProtocolAgentServerContext, "requestClient"> {
     return this.context;
   }
 
   private messageSink?: (message: ycodeProtocolOutboundMessage) => void;
   private clientDisconnectError?: Error;
-  private readonly context: ycodeProtocolAgentServerContext;
+  private readonly context: YCodeProtocolAgentServerContext;
   private readonly logger;
   private readonly pendingClientRequests = new Map<string, PendingClientRequest<unknown>>();
   private readonly pluginOperationControllers = new Map<string, AbortController>();
@@ -230,7 +230,7 @@ export class ycodeProtocolAgentServer {
   >();
   private nextClientRequestId = 1;
 
-  constructor(deps: ycodeProtocolAgentDependencies) {
+  constructor(deps: YCodeProtocolAgentDependencies) {
     this.runtimeResources = new ProtocolRuntimeResources(deps.createYCodeApp);
     const resolvedDeps = {
       ...deps,
@@ -257,7 +257,7 @@ export class ycodeProtocolAgentServer {
       notify: (notification) => this.messageSink?.(notification),
       requestClient: (method, params, resultSchema, options) =>
         this.requestClient(method, params, resultSchema, options),
-      sessions: new Map<string, ycodeProtocolSessionRecord>(),
+      sessions: new Map<string, YCodeProtocolSessionRecord>(),
       // 交互应答登记表（broker 反向请求 × v4 resolveInteraction 命令的汇合点）。
       v4Interactions: new V4InteractionRegistry(
         resolveV4InteractionRegistryOptionsFromEnv(deps.env ?? process.env),
@@ -806,7 +806,7 @@ export class ycodeProtocolAgentServer {
     method: YCodeProtocolMethod,
     params: unknown,
     resultSchema: ParamsSchema<T>,
-    options?: ycodeProtocolClientRequestOptions,
+    options?: YCodeProtocolClientRequestOptions,
   ): Promise<T> {
     if (this.clientDisconnectError) {
       throw this.clientDisconnectError;

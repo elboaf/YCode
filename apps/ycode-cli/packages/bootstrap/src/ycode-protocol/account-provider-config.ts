@@ -6,7 +6,7 @@ import { parseProcessAccountProviderConfigSnapshot } from "../app/process-provid
 import {
   parseParams,
   ProtocolRequestError,
-  type ycodeProtocolAgentServerContext,
+  type YCodeProtocolAgentServerContext,
 } from "./server-types.js";
 
 /**
@@ -15,7 +15,7 @@ import {
  * 该协议传 Account Overlay 与对应状态；API Key、JWT 和动态 Header 由请求期鉴权协议处理。
  */
 export async function updateAccountProviderConfig(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   params: unknown,
 ): Promise<YCodeProviderUpdateAccountConfigResult> {
   const envelope = parseParams(ycodeProviderUpdateAccountConfigParamsSchema, params);

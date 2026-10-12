@@ -41,7 +41,7 @@ import {
   resolveDynamicWorkflowJournalStore,
   supportsRunIntrospection,
 } from "../app/dynamic-workflow-run-service.js";
-import { parseParams, type ycodeProtocolAgentServerContext } from "./server-types.js";
+import { parseParams, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
 // 缺省即 `project`：不给 scope 的旧 GUI 与项目档调用逐字走本项目根，形状不变（版本偏斜）。
 function scopeOf(params: { scope?: YCodeSavedWorkflowScope }): YCodeSavedWorkflowScope {
@@ -49,7 +49,7 @@ function scopeOf(params: { scope?: YCodeSavedWorkflowScope }): YCodeSavedWorkflo
 }
 
 export async function listSavedWorkflowsOp(
-  _context: ycodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodeWorkflowsListResult> {
   const params = parseParams(ycodeWorkflowsListParamsSchema, rawParams);
@@ -67,7 +67,7 @@ export async function listSavedWorkflowsOp(
 }
 
 export async function getSavedWorkflowOp(
-  _context: ycodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodeWorkflowsGetResult> {
   const params = parseParams(ycodeWorkflowsGetParamsSchema, rawParams);
@@ -93,7 +93,7 @@ export async function getSavedWorkflowOp(
  * 读-改-写在同一次调用内完成；不做三方合并（文件小、单机、用户自己在改）。
  */
 export async function updateSavedWorkflowMetaOp(
-  _context: ycodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodeWorkflowsUpdateMetaResult> {
   const params = parseParams(ycodeWorkflowsUpdateMetaParamsSchema, rawParams);
@@ -116,7 +116,7 @@ export async function updateSavedWorkflowMetaOp(
  * `global` 删本机全局根那一份。同名的 legacy `.workflow.js` 是另一套解析器的文件，不在视野里。
  */
 export async function deleteSavedWorkflowOp(
-  _context: ycodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodeWorkflowsDeleteResult> {
   const params = parseParams(ycodeWorkflowsDeleteParamsSchema, rawParams);
@@ -144,7 +144,7 @@ export async function deleteSavedWorkflowOp(
  * 取该名字的运行历史（全局工作流在任何项目里跑，历史因此跨 cwd）；每行回 `cwd` 供 GUI 标项目。
  */
 export async function listSavedWorkflowRunsOp(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodeWorkflowsRunsResult> {
   const params = parseParams(ycodeWorkflowsRunsParamsSchema, rawParams);
@@ -228,7 +228,7 @@ function savedWorkflowRunArtifacts(
  * `workspace` 既是载体也是目标项目：core 据它的 cwd 与本机 home 算出两个根。
  */
 export async function moveSavedWorkflowOp(
-  _context: ycodeProtocolAgentServerContext,
+  _context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodeWorkflowsMoveResult> {
   const params = parseParams(ycodeWorkflowsMoveParamsSchema, rawParams);

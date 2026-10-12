@@ -5,7 +5,7 @@ import type {
   SessionDeactivationDecision,
   SessionResidentPoolHost,
 } from "./session-resident-pool.js";
-import type { ycodeProtocolAgentServerContext } from "./server-types.js";
+import type { YCodeProtocolAgentServerContext } from "./server-types.js";
 
 interface SessionResidencyFinalizationOwner {
   residencyFinalizationCount?: number;
@@ -51,7 +51,7 @@ export function runWithSessionResidencyFinalization<T>(
  * 组合成一个生命周期事务。
  */
 async function deactivateSessionRecord(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   sessionId: string,
 ): Promise<void> {
   const record = context.sessions.get(sessionId);
@@ -68,7 +68,7 @@ async function deactivateSessionRecord(
 }
 
 export function createSessionResidentPoolHost(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
 ): SessionResidentPoolHost {
   return {
     deactivate: (sessionId) => deactivateSessionRecord(context, sessionId),

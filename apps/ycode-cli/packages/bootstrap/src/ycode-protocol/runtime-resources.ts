@@ -1,5 +1,5 @@
 import type { YCodeApp } from "../app/types.js";
-import type { ycodeProtocolAgentDependencies } from "./server-types.js";
+import type { YCodeProtocolAgentDependencies } from "./server-types.js";
 
 /** 持有 app 资源而非业务 session；临时 workspace app、尚未登记的 app 也归此 owner。 */
 export class ProtocolRuntimeResources {
@@ -7,9 +7,9 @@ export class ProtocolRuntimeResources {
   private readonly apps = new Set<YCodeApp>();
   private closePromise?: Promise<void>;
 
-  constructor(private readonly factory: ycodeProtocolAgentDependencies["createYCodeApp"]) {}
+  constructor(private readonly factory: YCodeProtocolAgentDependencies["createYCodeApp"]) {}
 
-  readonly create: ycodeProtocolAgentDependencies["createYCodeApp"] = async (options) => {
+  readonly create: YCodeProtocolAgentDependencies["createYCodeApp"] = async (options) => {
     this.assertServing();
     const app = await this.factory(options);
     const originalClose = app.close?.bind(app);

@@ -1,10 +1,10 @@
 import type { SessionId, SessionInfo } from "@ycode/contracts";
 import type { BackgroundBashOutputResult } from "@ycode/shared";
-import type { ycodeProtocolAgentServerContext } from "./server-types.js";
+import type { YCodeProtocolAgentServerContext } from "./server-types.js";
 
 /** 只查询现存执行器，绝不为查看输出恢复 runtime。 */
 export async function readBackgroundBashOutputFromOwner(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   sessionId: string,
   workId: string,
 ): Promise<BackgroundBashOutputResult> {

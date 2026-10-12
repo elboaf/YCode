@@ -10,7 +10,7 @@ import {
   ycodeTaskNetworkDebugStatusFromPayload,
   type SessionDebugSnapshot,
 } from "@ycode/shared";
-import { requireSession, type ycodeProtocolAgentServerContext } from "./server-types.js";
+import { requireSession, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
 type SessionRecord = { app: { sessionId: string } };
 interface Observation {
@@ -152,7 +152,7 @@ export function readSessionDebug(record: SessionRecord): SessionDebugSnapshot {
 }
 
 export function querySessionDebug(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): SessionDebugSnapshot {
   const params = sessionDebugParamsSchema.parse(rawParams);

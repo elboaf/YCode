@@ -5,7 +5,7 @@ import type { YCodeSessionSettingsState, YCodeSlashCommand } from "@ycode/shared
 import type { WorkspaceConfigState } from "@ycode/shared/ycode-protocol-v4";
 import { mapSessionSettings } from "./mapper.js";
 import { listProtocolSlashCommands } from "./slash-commands.js";
-import type { ycodeProtocolAgentServerContext } from "./server-types.js";
+import type { YCodeProtocolAgentServerContext } from "./server-types.js";
 
 /** Session settings 只投影非模型的 workspace mode 与 slash commands。 */
 function toV4WorkspaceConfigState(
@@ -40,7 +40,7 @@ function toV4WorkspaceConfigState(
  * 提供，这条会话协议只在出现 live session 后发布任务级配置。
  */
 export async function buildLiveWorkspaceConfigStateV4(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   workspaceId: string,
 ): Promise<WorkspaceConfigState | null> {
   const record = Array.from(context.sessions.values()).find(

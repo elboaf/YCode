@@ -8,8 +8,8 @@ import {
 import {
   protocolTraceFromTraceContext,
   requireSession,
-  type ycodeProtocolAgentServerContext,
-  type ycodeProtocolClientRequestOptions,
+  type YCodeProtocolAgentServerContext,
+  type YCodeProtocolClientRequestOptions,
 } from "./server-types.js";
 
 /**
@@ -20,7 +20,7 @@ import {
  * 执行并返回结果。与 permission broker 并列注入（server-operations 的 createWorkspaceYCodeApp options）。
  */
 export function createProtocolBrowserControlBroker(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
 ): BrowserControlPort {
   const connectionsBySession = new Map<
     string,
@@ -130,7 +130,7 @@ export function createProtocolBrowserControlBroker(
 }
 
 function buildBrowserRequestContext(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   input: {
     sessionId: string;
     turnId?: string;
@@ -162,7 +162,7 @@ function buildBrowserRequestContext(
 function buildRequestOptions(
   traceContext: TraceContext | undefined,
   signal: AbortSignal | undefined,
-): ycodeProtocolClientRequestOptions {
+): YCodeProtocolClientRequestOptions {
   return {
     ...(signal ? { signal } : {}),
     ...(traceContext ? { trace: protocolTraceFromTraceContext(traceContext) } : {}),

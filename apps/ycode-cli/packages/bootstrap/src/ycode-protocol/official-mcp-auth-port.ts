@@ -8,13 +8,13 @@ import {
   type YCodeWorkspaceRef,
 } from "@ycode/shared";
 import type { OfficialMcpAuthHeadersPort } from "@ycode/contracts";
-import type { ycodeProtocolAgentServerContext } from "./server-types.js";
+import type { YCodeProtocolAgentServerContext } from "./server-types.js";
 
 let requestSequence = 0;
 
 /** 端口只需要发反向请求的能力，不需要整个 server context。 */
 export type OfficialMcpAuthRequestContext = Pick<
-  ycodeProtocolAgentServerContext,
+  YCodeProtocolAgentServerContext,
   "requestClient"
 >;
 

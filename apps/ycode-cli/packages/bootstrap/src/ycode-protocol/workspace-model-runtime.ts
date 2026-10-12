@@ -10,14 +10,14 @@ import type { YCodeApp, YCodeAppOptions } from "../app/types.js";
 import { listProtocolSlashCommands } from "./slash-commands.js";
 import {
   parseParams,
-  type ycodeProtocolAgentServerContext,
-  type ycodeProtocolSessionRecord,
+  type YCodeProtocolAgentServerContext,
+  type YCodeProtocolSessionRecord,
 } from "./server-types.js";
 import { runSessionModelConfigMutation } from "../ycode-protocol-v4/model-config-mutation.js";
 import { createProviderRuntimeHeadersPort } from "./provider-runtime-headers.js";
 
 export async function readWorkspacePresentation(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ) {
   const params = parseParams(ycodeWorkspaceReadPresentationParamsSchema, rawParams);
@@ -35,7 +35,7 @@ export async function readWorkspacePresentation(
 }
 
 export async function testProviderModelConnectivity(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
 ) {
@@ -67,7 +67,7 @@ export async function testProviderModelConnectivity(
 }
 
 export async function createWorkspaceYCodeApp(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   workspace: YCodeWorkspaceRef,
   options: Omit<YCodeAppOptions, "providerRegistry">,
 ): Promise<YCodeApp> {
@@ -102,16 +102,16 @@ export async function createWorkspaceYCodeApp(
 }
 
 export function hasSessionModelProvider(
-  _context: ycodeProtocolAgentServerContext,
-  record: Pick<ycodeProtocolSessionRecord, "app" | "workspace">,
+  _context: YCodeProtocolAgentServerContext,
+  record: Pick<YCodeProtocolSessionRecord, "app" | "workspace">,
   providerId: string,
 ): boolean {
   return record.app.listModels().some((model) => model.ref.providerId === providerId);
 }
 
 async function ensureSessionModelAvailableUnlocked(
-  context: ycodeProtocolAgentServerContext,
-  record: ycodeProtocolSessionRecord,
+  context: YCodeProtocolAgentServerContext,
+  record: YCodeProtocolSessionRecord,
 ): Promise<boolean> {
   // 存量模型失效时不能静默改成 Registry 第一项覆盖用户选择；失效选择保持未绑定，
   // 由恢复/Composer 的选择校验和首发门禁处理；这里不能再写入另一份默认模型事实。
@@ -122,8 +122,8 @@ async function ensureSessionModelAvailableUnlocked(
 }
 
 export async function ensureSessionModelAvailable(
-  context: ycodeProtocolAgentServerContext,
-  record: ycodeProtocolSessionRecord,
+  context: YCodeProtocolAgentServerContext,
+  record: YCodeProtocolSessionRecord,
 ): Promise<boolean> {
   return runSessionModelConfigMutation(record.app, () =>
     ensureSessionModelAvailableUnlocked(context, record),
@@ -131,8 +131,8 @@ export async function ensureSessionModelAvailable(
 }
 
 export function resolveSessionModelContextWindow(
-  _context: ycodeProtocolAgentServerContext,
-  record: Pick<ycodeProtocolSessionRecord, "app" | "workspace" | "restoredModelSelection">,
+  _context: YCodeProtocolAgentServerContext,
+  record: Pick<YCodeProtocolSessionRecord, "app" | "workspace" | "restoredModelSelection">,
 ): number | undefined {
   // 缺档位会让恢复选择暂不绑定 Runtime，但模型身份仍可只读查询容量，不能伪造 20 万。
   const selection = record.app.runtime.getSessionModelSelection() ?? record.restoredModelSelection;

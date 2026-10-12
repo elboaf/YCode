@@ -26,7 +26,7 @@ import type {
   V4InteractionAnswer,
   V4InteractionRegistrationOptions,
 } from "../ycode-protocol-v4/interaction-registry.js";
-import type { ycodeProtocolAgentServerContext } from "./server-types.js";
+import type { YCodeProtocolAgentServerContext } from "./server-types.js";
 import {
   buildProtocolPermissionOptions,
   buildSessionPermissionUpdates,
@@ -41,7 +41,7 @@ const EXIT_PLAN_MODE_APPROVAL_APPROVE = "approve";
 const INTERACTION_REQUEST_REANNOUNCE_INTERVAL_MS = 1_000;
 
 export function createProtocolInteractionBroker(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
 ): PermissionBrokerPort {
   return {
     requestPermission(request, options) {
@@ -57,7 +57,7 @@ export function createProtocolInteractionBroker(
 }
 
 async function requestPermission(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   request: PermissionBrokerRequest,
   options?: PermissionBrokerRequestOptions,
 ): Promise<PermissionBrokerResult> {
@@ -193,7 +193,7 @@ function v4AnswerToPermissionResponse(
 }
 
 async function requestUserInput(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   request: PermissionBrokerRequest,
   options?: PermissionBrokerRequestOptions,
 ): Promise<PermissionBrokerResult> {
@@ -267,7 +267,7 @@ function v4AnswerToUserInputResponse(answer: V4InteractionAnswer): YCodeUserInpu
 }
 
 async function requestExitPlanModeApproval(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   request: PermissionBrokerRequest,
   options?: PermissionBrokerRequestOptions,
 ): Promise<PermissionBrokerResult> {
@@ -503,7 +503,7 @@ function normalizeAskUserQuestionAnswers(
 function createInteractionRegistrationOptions(
   request: PermissionBrokerRequest,
   kind: V4InteractionRegistrationOptions["kind"],
-  context?: ycodeProtocolAgentServerContext,
+  context?: YCodeProtocolAgentServerContext,
   initialAutoResolution?: V4InteractionRegistrationOptions["initialAutoResolution"],
 ): V4InteractionRegistrationOptions {
   return {
@@ -543,7 +543,7 @@ function createInteractionRegistrationOptions(
 }
 
 async function readPersistedAutoResolution(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   request: PermissionBrokerRequest,
 ): Promise<V4InteractionRegistrationOptions["initialAutoResolution"]> {
   const sessionStore = context.deps?.sessionStore;

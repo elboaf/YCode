@@ -51,7 +51,7 @@ import { withPluginStorageLock } from "../lib/plugin-storage-lock.js";
 import { getCliStorageRoot, getPluginStorageRoot } from "../app/paths.js";
 import { resolveOfficialPluginHostMcpServerNames } from "../app/official-plugin-definitions.js";
 import { createConfig, resolvePath, type ConfigResult } from "@ycode/adapters/config";
-import { parseParams, type ycodeProtocolAgentServerContext } from "./server-types.js";
+import { parseParams, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
 // 把 CLI 的 PluginMetadata 投影成协议可序列化的 YCodePluginInfo (只保留 UI 需要的字段)。
 function toPluginInfo(plugin: PluginMetadata, configResult?: ConfigResult): YCodePluginInfo {
@@ -127,7 +127,7 @@ function resolveInlinePluginRootSource(
 }
 
 function createPluginConfigView(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   workspacePath: string,
   configScope: "user" | "workspace" | undefined,
 ): ConfigResult {
@@ -199,7 +199,7 @@ function toPluginDiagnostic(diagnostic: PluginDiagnostic): YCodePluginDiagnostic
 }
 
 export async function listPlugins(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsListResult> {
   const params = parseParams(ycodePluginsListParamsSchema, rawParams);
@@ -227,7 +227,7 @@ export async function listPlugins(
 }
 
 export async function setPluginEnabled(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
 ): Promise<YCodePluginsSetEnabledResult> {
@@ -252,7 +252,7 @@ export async function setPluginEnabled(
 }
 
 export async function getPluginsOverview(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsOverviewResult> {
   const params = parseParams(ycodePluginsOverviewParamsSchema, rawParams);
@@ -276,7 +276,7 @@ export async function getPluginsOverview(
 }
 
 export async function addPluginMarketplace(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
 ): Promise<YCodePluginsMarketplaceMutationResult> {
@@ -295,7 +295,7 @@ export async function addPluginMarketplace(
 }
 
 export async function removePluginMarketplace(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsMarketplaceMutationResult> {
   const params = parseParams(ycodePluginsMarketplaceRemoveParamsSchema, rawParams);
@@ -311,7 +311,7 @@ export async function removePluginMarketplace(
 }
 
 export async function updatePluginMarketplace(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
 ): Promise<YCodePluginsMarketplaceMutationResult> {
@@ -332,7 +332,7 @@ export async function updatePluginMarketplace(
 }
 
 export async function installPlugin(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
   abortSignal?: AbortSignal,
 ): Promise<YCodePluginsInstallResult> {
@@ -357,7 +357,7 @@ export async function installPlugin(
 }
 
 export async function uninstallPlugin(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsUninstallResult> {
   const params = parseParams(ycodePluginsUninstallParamsSchema, rawParams);
@@ -376,7 +376,7 @@ export async function uninstallPlugin(
 }
 
 export async function updatePlugin(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsInstallResult> {
   const params = parseParams(ycodePluginsUpdateParamsSchema, rawParams);
@@ -415,7 +415,7 @@ export async function updatePlugin(
 // 恢复一个被抑制（"卸载"）的内置插件：清除 suppressedBuiltins 标记并立即重新 seed。
 // bootstrap 侧的同名函数被别名为 restoreBuiltinPluginCore，避免与本协议处理器重名。
 export async function restoreBuiltinPlugin(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsRestoreBuiltinResult> {
   const params = parseParams(ycodePluginsRestoreBuiltinParamsSchema, rawParams);
@@ -428,7 +428,7 @@ export async function restoreBuiltinPlugin(
 }
 
 export async function configurePlugin(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsConfigureResult> {
   const params = parseParams(ycodePluginsConfigureParamsSchema, rawParams);
@@ -445,7 +445,7 @@ export async function configurePlugin(
 }
 
 export async function resetPluginConfig(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsConfigureResult> {
   const params = parseParams(ycodePluginsResetConfigParamsSchema, rawParams);
@@ -459,7 +459,7 @@ export async function resetPluginConfig(
 }
 
 export async function validatePlugin(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsValidateResult> {
   const params = parseParams(ycodePluginsValidateParamsSchema, rawParams);
@@ -485,7 +485,7 @@ export async function validatePlugin(
 }
 
 export async function describePlugin(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodePluginsDescribeResult> {
   const params = parseParams(ycodePluginsDescribeParamsSchema, rawParams);

@@ -6,8 +6,8 @@ import {
   type YCodeOffPeakTaskProtocolSnapshot,
 } from "@ycode/shared";
 import type {
-  ycodeProtocolAgentServerContext,
-  ycodeProtocolSessionRecord,
+  YCodeProtocolAgentServerContext,
+  YCodeProtocolSessionRecord,
 } from "./server-types.js";
 
 const OFF_PEAK_CREATE_FROM_OFF_PEAK_RUN_ERROR =
@@ -32,8 +32,8 @@ const OFF_PEAK_TERMINAL_STATUSES = new Set(["completed", "failed", "cancelled"])
  * - 不冻结会话标题：绑定的是用户的工作会话，标题不该被任务改写。
  */
 export function createProtocolOffPeakPort(
-  context: ycodeProtocolAgentServerContext,
-  resolveOwnSession?: () => ycodeProtocolSessionRecord | undefined,
+  context: YCodeProtocolAgentServerContext,
+  resolveOwnSession?: () => YCodeProtocolSessionRecord | undefined,
 ): OffPeakPort {
   return {
     async create(input, createContext) {

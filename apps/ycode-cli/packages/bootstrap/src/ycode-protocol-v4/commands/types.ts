@@ -4,7 +4,7 @@
 // - 本目录是命令的原生实现：决策逻辑（steer 分流 / draft 提升 / abort 生命周期 /
 //   goal-pause barrier）在 handler 里直驱 core（YCodeApp / runtime），不经旧协议 op。
 // - 会话注册表仍归宿主：通过 V4CommandCoreHost 以「结构化窄视图」透传旧
-//   ycodeProtocolSessionRecord（同一对象引用，字段变更双向可见，不产生第二份注册表）。
+//   YCodeProtocolSessionRecord（同一对象引用，字段变更双向可见，不产生第二份注册表）。
 // - 环境能力（模型就绪 / legacy 广播 / shell 解析）是注入钩子：旧协议 binder 在过渡期
 //   提供实现，与旧协议同生命周期——每个钩子都标注过渡归宿，新增钩子必须标注。
 import type {
@@ -48,7 +48,7 @@ export type V4StableForkTargetResolution =
   | Extract<StableForkTargetResolution, { ok: false }>;
 
 /**
- * 旧 ycodeProtocolSessionRecord 的结构化窄视图（只声明命令层需要的字段）。
+ * 旧 YCodeProtocolSessionRecord 的结构化窄视图（只声明命令层需要的字段）。
  * 结构兼容：binder 直接把旧 record 对象透传进来；v4 自持会话注册表后由其提供同形对象。
  */
 export interface V4SessionRecordView {

@@ -1,5 +1,5 @@
 import { ycodeWorkspaceUpdateOffPeakToolPolicyParamsSchema } from "@ycode/shared";
-import { parseParams, type ycodeProtocolAgentServerContext } from "./server-types.js";
+import { parseParams, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
 /**
  * Off-Peak 工具面门禁（灰度有效 && 本地 workspace）是 workspace 级事实。CLI 进程按 workspace
@@ -8,7 +8,7 @@ import { parseParams, type ycodeProtocolAgentServerContext } from "./server-type
  * 只影响之后创建/恢复的 record；已活跃 record 的工具面不回收（与灰度中途翻转策略一致）。
  */
 export async function updateOffPeakToolPolicy(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ) {
   const params = parseParams(ycodeWorkspaceUpdateOffPeakToolPolicyParamsSchema, rawParams);

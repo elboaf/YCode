@@ -14,7 +14,7 @@ import { StartupTimer, startupNow } from "../startup-logging.js";
 import { getCliStorageRoot } from "../app/paths.js";
 import { resolveStartupPlugins } from "../app/startup-marks.js";
 import { protocolMcpServersToRuntimeMcpConfig } from "./protocol-mcp-config.js";
-import { parseParams, type ycodeProtocolAgentServerContext } from "./server-types.js";
+import { parseParams, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
 const noopLogger: Logger = {
   debug: () => undefined,
@@ -28,7 +28,7 @@ const MCP_OAUTH_AUTHORIZATION_STATUS_WAIT_MS = 5_000;
 const MCP_OAUTH_AUTHORIZATION_STATUS_POLL_MS = 100;
 
 export async function listMcpServers(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodeMcpListResult> {
   const params = parseParams(ycodeMcpListParamsSchema, rawParams);

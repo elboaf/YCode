@@ -9,7 +9,7 @@ import type { YCodeAppOptions } from "../app/types.js";
 import {
   ProtocolRequestError,
   protocolTraceFromTraceContext,
-  type ycodeProtocolAgentServerContext,
+  type YCodeProtocolAgentServerContext,
 } from "./server-types.js";
 
 // 无应答方时 UI 的 SDK 超时不会启动；端口总时限同时覆盖排队与凭据解析。
@@ -17,7 +17,7 @@ const PROVIDER_RUNTIME_HEADERS_TIMEOUT_MS = 180_000;
 const CLIENT_REQUEST_TIMEOUT_CODE = -32022;
 
 export function createProviderRuntimeHeadersPort(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   workspace: YCodeWorkspaceRef,
 ): NonNullable<YCodeAppOptions["providerRuntimeHeadersPort"]> {
   return {

@@ -1,5 +1,5 @@
 import { ycodeWorkspaceUpdateDynamicWorkflowPolicyParamsSchema } from "@ycode/shared";
-import { parseParams, type ycodeProtocolAgentServerContext } from "./server-types.js";
+import { parseParams, type YCodeProtocolAgentServerContext } from "./server-types.js";
 
 /**
  * 动态工作流灰度门。判定权在 Host：
@@ -10,7 +10,7 @@ import { parseParams, type ycodeProtocolAgentServerContext } from "./server-type
  * 只影响之后创建/恢复的 record；已活跃 record 的工具面不回收（灰度中途翻转策略一致）。
  */
 export async function updateDynamicWorkflowPolicy(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ) {
   const params = parseParams(ycodeWorkspaceUpdateDynamicWorkflowPolicyParamsSchema, rawParams);

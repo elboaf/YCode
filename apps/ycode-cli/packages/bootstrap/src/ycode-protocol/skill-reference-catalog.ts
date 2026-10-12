@@ -10,11 +10,11 @@ import { listYCodeSkills } from "../skills.js";
 import {
   parseParams,
   requireSession,
-  type ycodeProtocolAgentServerContext,
+  type YCodeProtocolAgentServerContext,
 } from "./server-types.js";
 
 export async function getSkillReferenceCatalog(
-  context: ycodeProtocolAgentServerContext,
+  context: YCodeProtocolAgentServerContext,
   rawParams: unknown,
 ): Promise<YCodeSkillsReferenceCatalogResult> {
   const params = parseParams(ycodeSkillsReferenceCatalogParamsSchema, rawParams);
